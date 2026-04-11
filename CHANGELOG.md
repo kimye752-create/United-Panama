@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (세션 7 · W2 민간 Skeleton + Phase B stub)
+
+### Added
+- `src/crawlers/preload/pa_arrocha.ts`, `pa_metroplus.ts` — Cloudflare WAF/Turnstile Skeleton, `--dry-run` mock만
+- `src/utils/xgrammar_enforcer.ts` — 기법 ⑤ 포스트 파싱 검증(`validateJsonAgainstSchema`, `enforceXGrammar`)
+- `src/agents/webwalker_core.ts`, `src/agents/wrapper_maintenance.ts`, `src/utils/atomic_factchecker.ts` — Phase B 연기 throw stub
+- `scripts/runners/preload_private.ts` — Arrocha→MetroPlus 순차, 비 `--dry-run` 시 경고 후 exit 0
+
+### Changed
+- `TECHNIQUES_STATUS.md` — W2 매트릭스(🟢/🟡/🔴/✅) 동기화
+
 ## [Unreleased] - 2026-04-12 (문서 — REPORT1 / USER_FLOW 풀본문 복구)
 
 ### Changed
