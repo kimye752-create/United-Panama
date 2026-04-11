@@ -1,5 +1,23 @@
 node_modules/
 .env
-dist/
+.env.local
 *.log
-핸드오프_*.md
+.DS_Store
+Thumbs.db
+dist/
+build/
+.next/
+.vercel/
+.cursor/
+*.tsbuildinfo
+coverage/
+.supabase/
+
+# 민감 파일
+**/secrets.*
+**/*.secret.*
+
+# 임시
+tmp/
+temp/
+.cache/
