@@ -1,0 +1,220 @@
+﻿[
+  {
+    "pricing_data": [
+      {
+        "ingredient": "Cilostazol, Itoprida, Aceclofenaco, Rabeprazol, Erdosteina",
+        "public_procurement_price_usd": null,
+        "private_retail_price_usd": null,
+        "paho_strategic_fund_price_usd": null,
+        "product_brand": null,
+        "package_unit": null,
+        "source_url": null,
+        "source_quote": "datos no encontrados",
+        "citation": null
+      }
+    ],
+    "competitors": [
+      {
+        "company_name": "Medipan",
+        "type": "Local manufacturer",
+        "source_url": "https://www.propanama.gob.pa/wp-content/uploads/2024/04/HUB-FARMA.pdf",
+        "source_quote": "??Medipan.",
+        "citation": ""
+      },
+      {
+        "company_name": "Rigar Laboratories, DMD",
+        "type": "Local manufacturer",
+        "source_url": "https://www.propanama.gob.pa/wp-content/uploads/2024/04/HUB-FARMA.pdf",
+        "source_quote": "??Rigar Laboratories, DMD.",
+        "citation": ""
+      },
+      {
+        "company_name": "GSK",
+        "type": "Multinational importer / Local plant",
+        "source_url": "https://www.propanama.gob.pa/wp-content/uploads/2024/04/HUB-FARMA.pdf",
+        "source_quote": "GSK has a plant in Panama that has been in operation for six decades",
+        "citation": ""
+      }
+    ],
+    "distributors": [
+      {
+        "company_name": "Agencias Feduro, S.A.",
+        "focus": "Consumo masivo, farmac챕uticos, perfumer챠a y cosm챕ticos",
+        "target": "P첬blico y Privado (Cobertura nacional)",
+        "source_url": "https://www.konzerta.com/listado-empresas",
+        "source_quote": "Feduro es una empresa familiar l챠der en distribuci처n de marcas reconocidas de alimentos y bebidas, consumo masivo, perfumer챠a & cosm챕ticos.",
+        "citation": ""
+      },
+      {
+        "company_name": "Agencias Celmar, S.A.",
+        "focus": "Laboratorios internacionales y productos farmac챕uticos",
+        "target": "P첬blico y Privado (Farmacias y hospitales)",
+        "source_url": "https://www.acelmar.com/",
+        "source_quote": "Ofrecemos soluciones de importaci처n y distribuci처n... alrededor de las distintas farmacias y hospitales en nuestro territorio nacional.",
+        "citation": ""
+      },
+      {
+        "company_name": "C. G. de Haseth & Cia. S. A.",
+        "focus": "Medicamentos especializados (ej. Inmunosupresores como Tacrolimus)",
+        "target": "P첬blico (CSS, licitaciones de Estado)",
+        "source_url": "https://monitoreo.antai.gob.pa/api/public-act-contractings/download/7921/xlsx",
+        "source_quote": "TACROLIMUS EN SANGRE... RECETAS ESPECIALES C. G. DE HASETH & CIA. S. A.",
+        "citation": ""
+      },
+      {
+        "company_name": "Compa챰챠a Astur, S.A.",
+        "focus": "Distribuci처n farmac챕utica",
+        "target": "Privado / P첬blico",
+        "source_url": "https://www.lasanteca.com/distribuidor/compania-astor-s-a/",
+        "source_quote": "Panam찼 Compa챰챠a Astor, S.A.",
+        "citation": ""
+      }
+    ],
+    "infrastructure": [
+      {
+        "hospital_name": "Instituto Oncol처gico Nacional Dr. Juan Dem처stenes Arosemena (ION)",
+        "affiliation": "P첬blico (MINSA)",
+        "focus": "Centro Nacional de C찼ncer (Oncolog챠a m챕dica, radioter찼pica, quir첬rgica)",
+        "source_url": "https://storymaps.arcgis.com/stories/eada014b04f94ce7b323132b83c5fe59",
+        "source_quote": "El Instituto Oncol처gico Nacional... es un hospital p첬blico ubicado en la ciudad de Panam찼... ofrece una amplia gama de especialidades oncol처gicas",
+        "citation": ""
+      },
+      {
+        "hospital_name": "Hospital del Ni챰o",
+        "affiliation": "P첬blico (MINSA)",
+        "focus": "Pediatr챠a, cirug챠a oncol처gica pedi찼trica",
+        "source_url": "https://storymaps.arcgis.com/stories/eada014b04f94ce7b323132b83c5fe59",
+        "source_quote": "El hospital del ni챰o ofrece una amplia gama de especialidades pedi찼tricas, que incluyen:... Cirug챠a oncol처gica.",
+        "citation": ""
+      },
+      {
+        "hospital_name": "Hospital Nacional",
+        "affiliation": "Privado",
+        "focus": "Oncolog챠a, cardiolog챠a, neurolog챠a",
+        "source_url": "https://storymaps.arcgis.com/stories/eada014b04f94ce7b323132b83c5fe59",
+        "source_quote": "HOSPITAL NACIONAL PRIVADO... Especialidades: Oncolog챠a...",
+        "citation": ""
+      },
+      {
+        "hospital_name": "Cl챠nica Hospital San Fernando",
+        "affiliation": "Privado",
+        "focus": "Atenci처n general",
+        "source_url": "https://www.merco.info/pa/ranking-merco-empresas",
+        "source_quote": "CL횒NICA HOSPITAL SAN FERNANDO",
+        "citation": ""
+      }
+    ],
+    "regulatory_costs": {
+      "regulatory_body": "Direcci처n Nacional de Farmacia y Drogas (MINSA)",
+      "high_standard_recognition": "Decreto establece simplificaci처n del registro sanitario y procedimiento abreviado para pa챠ses de alto est찼ndar (incluyendo Corea del Sur).",
+      "administrative_costs_usd": {
+        "new_registry_reference_drug": 500.00,
+        "free_sale_certificate": 200.00,
+        "renewal_innovator_biologics": 750.00
+      },
+      "timeline_months": "Aproximadamente 0.5 a 1 mes (Respuesta inicial en 10 d챠as h찼biles; correcci처n de observaciones en 5 d챠as h찼biles; asignaci처n de registro en m찼ximo 10 d챠as h찼biles posteriores al pago).",
+      "required_documents_checklist": null,
+      "source_url": "https://www.saludyfarmacos.org/lang/es/boletin-farmacos/boletines/may202503/22_pa",
+      "source_quote": "Respuesta de la Direcci처n Nacional de Farmacia y Drogas: 10 d챠as h찼biles... Certificado de Medicamento de Referencia o Intercambiable (Primera Vez) B/. 500.00",
+      "citation": ""
+    },
+    "epidemiology": [
+      {
+        "disease": "횣lcera P챕ptica/G찼strica",
+        "prevalence": "Se observa colonizaci처n g찼strica por H. Pylori en el 60-70% de las 첬lceras g찼stricas. Mortalidad anual reciente registrada: 30 defunciones (0.17% del total nacional).",
+        "growth_rate": null,
+        "source_url": "https://www.worldlifeexpectancy.com/es/panama-peptic-ulcer-disease",
+        "source_quote": "Las muertes causadas por 횣lcera p챕ptica en Panam찼 han llegado a 30 (0,17% de todas las muertes).",
+        "citation": ""
+      },
+      {
+        "disease": "C찼ncer G찼strico",
+        "prevalence": "Tasa de incidencia ajustada de 8.69 casos por 100,000 habitantes. Tasa de mortalidad ajustada de 7.02 defunciones por 100,000 habitantes.",
+        "growth_rate": null,
+        "source_url": "https://www.gorgas.gob.pa/wp-content/uploads/external/SIGCANCER/documentos/Informe_CancerGastrico.pdf",
+        "source_quote": "Tasas de incidencia y mortalidad ajustadas de 8.69 casos y 7.02 defunciones por 100 000 habitantes, respectivamente.",
+        "citation": ""
+      },
+      {
+        "disease": "Hiperlipidemia (Colesterol alto)",
+        "prevalence": "datos no encontrados",
+        "growth_rate": null,
+        "source_url": null,
+        "source_quote": "datos no encontrados",
+        "citation": null
+      }
+    ]
+  },
+  {
+    "collection_date": "2026-04-10",
+    "collector": "Gemini Pro",
+    "country": "Panama",
+    "sites": [
+      {
+        "site_id": "worldbank",
+        "site_name": "World Bank Open Data",
+        "site_url": "https://data.worldbank.org/country/panama",
+        "collected_at": "2026-04-10T15:30:00Z",
+        "confidence": 0.95,
+        "data": {
+          "gdp_2024_usd_billion": 86.52,
+          "gdp_per_capita_usd": 19161,
+          "population": 4515577,
+          "health_expenditure_per_capita_usd": 1547,
+          "health_expenditure_pct_gdp": 8.0,
+          "life_expectancy": 80.0,
+          "pharma_market_size_estimate": "?곗씠???놁쓬"
+        },
+        "source_paragraphs": [
+          "GDP (current US$) (2024 billion) 86.52.",
+          "GDP per capita (current US$) (2024) 19,161.2.",
+          "Population, total. Most recent value. (2024) 4,515,577.",
+          "Life expectancy at birth, total (years) Most recent value. (2023) 80."
+        ]
+      },
+      {
+        "site_id": "ita",
+        "site_name": "ITA Country Commercial Guide",
+        "site_url": "https://www.trade.gov/country-commercial-guides/panama-healthcare",
+        "collected_at": "2026-04-10T15:35:00Z",
+        "confidence": 0.90,
+        "data": {
+          "market_overview": "肄붾줈??9 媛먯냼???곕씪 ?뚮굹留??뺣???諛깆떊 罹좏럹??諛??섏빟???ш퀬 媛뺥솕瑜??ы븿???덈갑 議곗튂瑜?援ы쁽??怨꾪쉷?낅땲?? 蹂닿굔 ?섎즺 ?쒖옣? ?ν썑 3?꾧컙 10%???띾룄濡??깆옣??寃껋쑝濡??덉긽?⑸땲?? 誘쇨컙 蹂묒썝????떆 ?명봽?쇱? ?λ퉬瑜??낃렇?덉씠?쒗븯硫?媛뺣젰???깆옣?몃? 蹂댁씠怨??덉뒿?덈떎.",
+          "leading_sub_sectors": [
+            "Diagnostic Equipment (吏꾨떒 ?λ퉬)",
+            "Cancer Treatment medicines (??븫??",
+            "Hospital and clinic disposable supplies (?섎즺???쇳쉶?⑺뭹)",
+            "Cardiovascular Equipment (?ы삁愿 ?λ퉬)"
+          ],
+          "opportunities": "?뚮굹留????믪? ??諛쒕퀝瑜좊줈 ?명빐 ?뷀븰?붾쾿 ?쎈Ъ(??븫????????섏슂媛 留ㅼ슦 ?믪뒿?덈떎.",
+          "market_entry_strategy": "怨듦났 遺臾??ы쉶蹂댁옣湲곌툑 CSS 諛?蹂닿굔遺 MINSA)??二쇱슂 理쒖쥌 ?ъ슜?먯씠誘濡?蹂닿굔遺 諛??ы쉶蹂댁옣援?쓽 ?몄쬆 ?띾뱷???꾩닔?곸엯?덈떎.",
+          "tariff_rate_pharma": "?곗씠???놁쓬",
+          "distribution_margin": "?곗씠???놁쓬",
+          "public_vs_private_ratio": "怨듦났 遺臾몄씠 二쇱슂 ?섏슂泥섏씠?? 誘쇨컙 遺臾???떆 50%??媛源뚯슫 ?멸뎄媛 吏묒쨷???섎룄沅뚯쓣 以묒떖?쇰줈 ?꾨????섎즺 ?쒖꽕??媛뽰텛硫??깆옣 以?
+        },
+        "source_paragraphs": [
+          "As Covid-19 declines, Panama plans to implement preventive measures, including vaccination campaigns... The health market is expected to grow at a rate of 10% over the next three years.",
+          "Cancer Treatment medicines. Chemotherapy drugs are in high demand in Panama due to the high number of cancer cases.",
+          "The public sector is the primary end-user of medical equipment, composed of the Social Security Fund (CSS) and the Ministry of Health (MINSA)."
+        ]
+      },
+      {
+        "site_id": "kotra",
+        "site_name": "KOTRA ?댁쇅?쒖옣?댁뒪",
+        "site_url": "https://www.kotra.or.kr/bigdata/visualization/country/PA",
+        "collected_at": "2026-04-10T15:40:00Z",
+        "confidence": 0.85,
+        "data": {
+          "latest_report_title_and_date": "2024 ?뚮굹留?吏꾩텧?꾨왂 (2024??諛쒓컙)",
+          "promising_pharma_sectors": "湲고? ?뚮ℓ???ъ뿬???섏빟??(HS肄붾뱶: 3004.90), 鍮꾪?誘??⑥쑀 ?섏빟??(3004.50)",
+          "distribution_structure_summary": "?묒? ?쒖옣 洹쒕え濡??명빐 ???二쇰Ц 諛⑹떇???쒕Ъ硫? 二쇰줈 ?섏텧援?援?궡 湲곗뾽 釉뚮옖??諛??ъ옣???ㅽ럹?몄뼱 踰덉뿭 ?쇰꺼??遺李⑺븯???뚮웾 ?섏엯?섎뒗 援ъ“?낅땲??",
+          "local_distributors_agents": "?곗씠???놁쓬",
+          "korean_entry_cases": "?곗씠???놁쓬",
+          "logistics_and_customs_info": "?뚮굹留??꾩깮?깅줉?쒕룄(Registro Sanitario)濡??명븳 鍮꾧????λ꼍??議댁옱?덉쑝?? 2023??6???뚮굹留?蹂닿굔遺(MINSA)媛 吏?뺥븳 '?꾩깮 ?좎쭊援?Pa챠ses de Alto Est찼ndar)' 紐낅떒????쒕?援?씠 ?ы븿?섏뼱 ?섏빟???깅줉 ?덉감媛 ???媛꾩냼?붾릺?덉뒿?덈떎."
+        },
+        "source_paragraphs": [
+          "?묒? ?쒖옣 洹쒕え濡??명빐 ???二쇰Ц 諛⑹떇???쒕Ъ硫? ?뷀엳 援?궡湲곗뾽 釉뚮옖??諛??ъ옣??踰덉뿭 ?쇰꺼??遺숈뿬 ?섏엯??",
+          "?곕━?섎씪 ?쒖“ ?섏빟???덉감 媛꾩냼?붾줈 ?섏빟??吏꾩엯?λ꼍 ?섎씫. * '23.6.28遺 ?뚮굹留?蹂닿굔遺 吏??'?꾩깮 ?좎쭊援?Pa챠ses de Alto Est찼ndar)' 紐낅떒????쒕?援??ы븿.",
+          "?좊쭩 ?덈ぉ : ?뚮ℓ???섏빟??HS肄붾뱶 3004). * 湲고? 鍮꾪?誘????⑥쑀 ?섏빟??3004.50), 湲고? ?뚮ℓ?⑹쓽?쏀뭹(3004.90)."
+        ]
+      },

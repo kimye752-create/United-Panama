@@ -1,0 +1,65 @@
+{
+  "generated_at": "2026-04-10T12:00:00.000Z",
+  "source": "gemini_phase_a_plus_pm_levodropropizine",
+  "entries": [
+    {
+      "inn": "Hydroxyurea",
+      "who_eml_2023": true,
+      "paho_strategic_fund": "포함 (항종양제 및 혈액 질환용 필수 의약품으로 조달 대상)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Cilostazol",
+      "who_eml_2023": false,
+      "paho_strategic_fund": "미포함 (데이터 없음)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Itopride",
+      "who_eml_2023": false,
+      "paho_strategic_fund": "미포함 (데이터 없음)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Aceclofenac",
+      "who_eml_2023": false,
+      "paho_strategic_fund": "미포함 (데이터 없음)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Rabeprazole",
+      "who_eml_2023": false,
+      "paho_strategic_fund": "미포함 (데이터 없음)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Erdosteine",
+      "who_eml_2023": false,
+      "paho_strategic_fund": "미포함 (데이터 없음)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Omega-3-acid ethyl esters",
+      "who_eml_2023": false,
+      "paho_strategic_fund": "미포함 (데이터 없음)",
+      "minsa_essential": null,
+      "notes": "Hidroxiurea는 WHO EML 2023(23rd Edition) Section 8(Antineoplastics) 및 PAHO NCD(비전염성 질환) 조달 리스트에 핵심 품목으로 등재되어 있음. 나머지 성분은 특정 제약사의 개량/특화 성분으로, WHO/PAHO의 보편적 공공조달(제네릭 대표 성분 위주) 카탈로그에는 포함되지 않음."
+    },
+    {
+      "inn": "Levodropropizine",
+      "who_eml_2023": false,
+      "paho_strategic_fund": false,
+      "minsa_essential": null,
+      "atc_code": "R05DB27",
+      "therapeutic_class": "Peripheral antitussive (진해제)",
+      "notes": "한국유나이티드제약 '레보틱스' 90mg 정제. OTC 성격 강함 → 민간 리테일 트랙 우선 검색 키워드",
+      "source_url": null
+    }
+  ]
+}

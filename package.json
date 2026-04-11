@@ -1,0 +1,37 @@
+{
+  "name": "united_panama",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:d1-maint": "tsx scripts/d1_panama_maint.ts",
+    "verify:panama-sources": "tsx scripts/verify_panama_by_source.ts",
+    "preload:macro": "tsx scripts/runners/preload_macro.ts",
+    "preload:public": "tsx scripts/runners/preload_public.ts",
+    "preload:private": "tsx scripts/runners/preload_private.ts",
+    "seed:panama": "tsx scripts/runners/seed_panama.ts",
+    "seed:panama:dry": "tsx scripts/runners/seed_panama.ts --dry-run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
+    "@supabase/supabase-js": "^2.103.0",
+    "axios": "^1.15.0",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.4.1",
+    "pdf-parse": "^2.4.5",
+    "playwright": "^1.59.1",
+    "playwright-extra": "^4.3.6",
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/pg": "^8.20.0",
+    "pg": "^8.20.0",
+    "typescript": "^6.0.2"
+  }
+}

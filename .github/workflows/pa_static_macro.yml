@@ -1,0 +1,92 @@
+# D1 작업 — Phase A 거시 사전 수집 워크플로우
+# 수동 트리거(workflow_dispatch)만 사용. cron 절대 금지 (ARCHITECTURE.md 절대 원칙)
+# 실행: GitHub Actions → Run workflow 버튼 클릭
+
+name: "Phase A — 거시 사전 수집 (WorldBank·PubMed·ITA·KOTRA·MOTIE)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (DB 적재 없이 수집만 확인)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+# 동일 워크플로우 중복 실행 방지
+concurrency:
+  group: pa-static-macro
+  cancel-in-progress: false   # 진행 중인 수집은 취소하지 않음
+
+jobs:
+  preload-macro:
+    name: "거시 데이터 수집 → Supabase 적재"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30       # 최대 30분 — 초과 시 자동 취소
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      # DRY_RUN 환경변수는 crwaler에서 추후 활용 가능 (현재 로깅용)
+      DRY_RUN: ${{ inputs.dry_run }}
+
+    steps:
+      # ① 소스 체크아웃
+      - name: "소스 체크아웃"
+        uses: actions/checkout@v4
+
+      # ② Node.js 22 설정 (npm 캐시 포함)
+      - name: "Node.js 22 설정"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      # ③ 의존성 설치 (package-lock.json 기준 정확 설치)
+      - name: "의존성 설치 (npm ci)"
+        run: npm ci
+
+      # ④ Playwright 브라우저 설치 (StaticCrawler는 axios 사용이지만 향후 확장 대비)
+      # TODO: Playwright 기반 크롤러 추가 시 아래 주석 해제
+      # - name: "Playwright 브라우저 설치"
+      #   run: npx playwright install --with-deps chromium
+
+      # ⑤ Secrets 주입 확인 (값 노출 없이 설정 여부만 체크)
+      - name: "Supabase 환경변수 확인"
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "❌ SUPABASE_URL이 설정되지 않았습니다. GitHub Secrets를 확인하세요."
+            exit 1
+          fi
+          if [ -z "$SUPABASE_KEY" ]; then
+            echo "❌ SUPABASE_KEY가 설정되지 않았습니다. GitHub Secrets를 확인하세요."
+            exit 1
+          fi
+          echo "✅ Supabase 환경변수 확인 완료"
+
+      # ⑥ 거시 크롤러 실행
+      - name: "Phase A 거시 수집 실행"
+        id: crawl
+        run: npx tsx scripts/runners/preload_macro.ts
+
+      # ⑦ 성공 시 요약 출력
+      - name: "수집 완료 요약"
+        if: success()
+        run: |
+          echo "✅ Phase A 거시 수집이 성공적으로 완료되었습니다."
+          echo "   Supabase panama 테이블에 데이터가 적재되었습니다."
+
+      # ⑧ 실패 시 로그 아티팩트 업로드
+      - name: "실패 로그 업로드"
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "preload-macro-failure-log-${{ github.run_id }}"
+          path: |
+            /home/runner/work/_temp/*.log
+          # 로그 파일이 없어도 실패하지 않도록
+          if-no-files-found: warn
+          retention-days: 7

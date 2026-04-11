@@ -1,0 +1,146 @@
+{
+  "pricing_data": [
+    {
+      "ingredient": "Cilostazol, Itoprida, Aceclofenaco, Rabeprazol, Erdosteina",
+      "public_procurement_price_usd": null,
+      "private_retail_price_usd": null,
+      "paho_strategic_fund_price_usd": null,
+      "product_brand": null,
+      "package_unit": null,
+      "source_url": null,
+      "source_quote": "datos no encontrados",
+      "citation": null
+    }
+  ],
+  "competitors": [
+    {
+      "company_name": "Medipan",
+      "type": "Local manufacturer",
+      "source_url": "https://www.propanama.gob.pa/wp-content/uploads/2024/04/HUB-FARMA.pdf",
+      "source_quote": "• Medipan.",
+      "citation": ""
+    },
+    {
+      "company_name": "Rigar Laboratories, DMD",
+      "type": "Local manufacturer",
+      "source_url": "https://www.propanama.gob.pa/wp-content/uploads/2024/04/HUB-FARMA.pdf",
+      "source_quote": "• Rigar Laboratories, DMD.",
+      "citation": ""
+    },
+    {
+      "company_name": "GSK",
+      "type": "Multinational importer / Local plant",
+      "source_url": "https://www.propanama.gob.pa/wp-content/uploads/2024/04/HUB-FARMA.pdf",
+      "source_quote": "GSK has a plant in Panama that has been in operation for six decades",
+      "citation": ""
+    }
+  ],
+  "distributors": [
+    {
+      "company_name": "Agencias Feduro, S.A.",
+      "focus": "Consumo masivo, farmacéuticos, perfumería y cosméticos",
+      "target": "Público y Privado (Cobertura nacional)",
+      "source_url": "https://www.konzerta.com/listado-empresas",
+      "source_quote": "Feduro es una empresa familiar líder en distribución de marcas reconocidas de alimentos y bebidas, consumo masivo, perfumería & cosméticos.",
+      "citation": ""
+    },
+    {
+      "company_name": "Agencias Celmar, S.A.",
+      "focus": "Laboratorios internacionales y productos farmacéuticos",
+      "target": "Público y Privado (Farmacias y hospitales)",
+      "source_url": "https://www.acelmar.com/",
+      "source_quote": "Ofrecemos soluciones de importación y distribución... alrededor de las distintas farmacias y hospitales en nuestro territorio nacional.",
+      "citation": ""
+    },
+    {
+      "company_name": "C. G. de Haseth & Cia. S. A.",
+      "focus": "Medicamentos especializados (ej. Inmunosupresores como Tacrolimus)",
+      "target": "Público (CSS, licitaciones de Estado)",
+      "source_url": "https://monitoreo.antai.gob.pa/api/public-act-contractings/download/7921/xlsx",
+      "source_quote": "TACROLIMUS EN SANGRE... RECETAS ESPECIALES C. G. DE HASETH & CIA. S. A.",
+      "citation": ""
+    },
+    {
+      "company_name": "Compañía Astur, S.A.",
+      "focus": "Distribución farmacéutica",
+      "target": "Privado / Público",
+      "source_url": "https://www.lasanteca.com/distribuidor/compania-astor-s-a/",
+      "source_quote": "Panamá Compañía Astor, S.A.",
+      "citation": ""
+    }
+  ],
+  "infrastructure": [
+    {
+      "hospital_name": "Instituto Oncológico Nacional Dr. Juan Demóstenes Arosemena (ION)",
+      "affiliation": "Público (MINSA)",
+      "focus": "Centro Nacional de Cáncer (Oncología médica, radioterápica, quirúrgica)",
+      "source_url": "https://storymaps.arcgis.com/stories/eada014b04f94ce7b323132b83c5fe59",
+      "source_quote": "El Instituto Oncológico Nacional... es un hospital público ubicado en la ciudad de Panamá... ofrece una amplia gama de especialidades oncológicas",
+      "citation": ""
+    },
+    {
+      "hospital_name": "Hospital del Niño",
+      "affiliation": "Público (MINSA)",
+      "focus": "Pediatría, cirugía oncológica pediátrica",
+      "source_url": "https://storymaps.arcgis.com/stories/eada014b04f94ce7b323132b83c5fe59",
+      "source_quote": "El hospital del niño ofrece una amplia gama de especialidades pediátricas, que incluyen:... Cirugía oncológica.",
+      "citation": ""
+    },
+    {
+      "hospital_name": "Hospital Nacional",
+      "affiliation": "Privado",
+      "focus": "Oncología, cardiología, neurología",
+      "source_url": "https://storymaps.arcgis.com/stories/eada014b04f94ce7b323132b83c5fe59",
+      "source_quote": "HOSPITAL NACIONAL PRIVADO... Especialidades: Oncología...",
+      "citation": ""
+    },
+    {
+      "hospital_name": "Clínica Hospital San Fernando",
+      "affiliation": "Privado",
+      "focus": "Atención general",
+      "source_url": "https://www.merco.info/pa/ranking-merco-empresas",
+      "source_quote": "CLÍNICA HOSPITAL SAN FERNANDO",
+      "citation": ""
+    }
+  ],
+  "regulatory_costs": {
+    "regulatory_body": "Dirección Nacional de Farmacia y Drogas (MINSA)",
+    "high_standard_recognition": "Decreto establece simplificación del registro sanitario y procedimiento abreviado para países de alto estándar (incluyendo Corea del Sur).",
+    "administrative_costs_usd": {
+      "new_registry_reference_drug": 500,
+      "free_sale_certificate": 200,
+      "renewal_innovator_biologics": 750
+    },
+    "timeline_months": "Aproximadamente 0.5 a 1 mes (Respuesta inicial en 10 días hábiles; corrección de observaciones en 5 días hábiles; asignación de registro en máximo 10 días hábiles posteriores al pago).",
+    "required_documents_checklist": null,
+    "source_url": "https://www.saludyfarmacos.org/lang/es/boletin-farmacos/boletines/may202503/22_pa",
+    "source_quote": "Respuesta de la Dirección Nacional de Farmacia y Drogas: 10 días hábiles... Certificado de Medicamento de Referencia o Intercambiable (Primera Vez) B/. 500.00",
+    "citation": ""
+  },
+  "epidemiology": [
+    {
+      "disease": "Úlcera Péptica/Gástrica",
+      "prevalence": "Se observa colonización gástrica por H. Pylori en el 60-70% de las úlceras gástricas. Mortalidad anual reciente registrada: 30 defunciones (0.17% del total nacional).",
+      "growth_rate": null,
+      "source_url": "https://www.worldlifeexpectancy.com/es/panama-peptic-ulcer-disease",
+      "source_quote": "Las muertes causadas por Úlcera péptica en Panamá han llegado a 30 (0,17% de todas las muertes).",
+      "citation": ""
+    },
+    {
+      "disease": "Cáncer Gástrico",
+      "prevalence": "Tasa de incidencia ajustada de 8.69 casos por 100,000 habitantes. Tasa de mortalidad ajustada de 7.02 defunciones por 100,000 habitantes.",
+      "growth_rate": null,
+      "source_url": "https://www.gorgas.gob.pa/wp-content/uploads/external/SIGCANCER/documentos/Informe_CancerGastrico.pdf",
+      "source_quote": "Tasas de incidencia y mortalidad ajustadas de 8.69 casos y 7.02 defunciones por 100 000 habitantes, respectivamente.",
+      "citation": ""
+    },
+    {
+      "disease": "Hiperlipidemia (Colesterol alto)",
+      "prevalence": "datos no encontrados",
+      "growth_rate": null,
+      "source_url": null,
+      "source_quote": "datos no encontrados",
+      "citation": null
+    }
+  ]
+}

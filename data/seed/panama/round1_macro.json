@@ -1,0 +1,237 @@
+{
+  "collection_date": "2026-04-10",
+  "collector": "Gemini Pro",
+  "country": "Panama",
+  "sites": [
+    {
+      "site_id": "worldbank",
+      "site_name": "World Bank Open Data",
+      "site_url": "https://data.worldbank.org/country/panama",
+      "collected_at": "2026-04-10T15:30:00Z",
+      "confidence": 0.95,
+      "data": {
+        "gdp_2024_usd_billion": 86.52,
+        "gdp_per_capita_usd": 19161,
+        "population": 4515577,
+        "health_expenditure_per_capita_usd": 1547,
+        "health_expenditure_pct_gdp": 8,
+        "life_expectancy": 80,
+        "pharma_market_size_estimate": "데이터 없음"
+      },
+      "source_paragraphs": [
+        "GDP (current US$) (2024 billion) 86.52.",
+        "GDP per capita (current US$) (2024) 19,161.2.",
+        "Population, total. Most recent value. (2024) 4,515,577.",
+        "Life expectancy at birth, total (years) Most recent value. (2023) 80."
+      ]
+    },
+    {
+      "site_id": "ita",
+      "site_name": "ITA Country Commercial Guide",
+      "site_url": "https://www.trade.gov/country-commercial-guides/panama-healthcare",
+      "collected_at": "2026-04-10T15:35:00Z",
+      "confidence": 0.9,
+      "data": {
+        "market_overview": "코로나19 감소에 따라 파나마 정부는 백신 캠페인 및 의약품 재고 강화를 포함한 예방 조치를 구현할 계획입니다. 보건 의료 시장은 향후 3년간 10%의 속도로 성장할 것으로 예상됩니다. 민간 병원들 역시 인프라와 장비를 업그레이드하며 강력한 성장세를 보이고 있습니다.",
+        "leading_sub_sectors": [
+          "Diagnostic Equipment (진단 장비)",
+          "Cancer Treatment medicines (항암제)",
+          "Hospital and clinic disposable supplies (의료용 일회용품)",
+          "Cardiovascular Equipment (심혈관 장비)"
+        ],
+        "opportunities": "파나마 내 높은 암 발병률로 인해 화학요법 약물(항암제)에 대한 수요가 매우 높습니다.",
+        "market_entry_strategy": "공공 부문(사회보장기금 CSS 및 보건부 MINSA)이 주요 최종 사용자이므로 보건부 및 사회보장국의 인증 획득이 필수적입니다.",
+        "tariff_rate_pharma": "데이터 없음",
+        "distribution_margin": "데이터 없음",
+        "public_vs_private_ratio": "공공 부문이 주요 수요처이나, 민간 부문 역시 50%에 가까운 인구가 집중된 수도권을 중심으로 현대식 의료 시설을 갖추며 성장 중"
+      },
+      "source_paragraphs": [
+        "As Covid-19 declines, Panama plans to implement preventive measures, including vaccination campaigns... The health market is expected to grow at a rate of 10% over the next three years.",
+        "Cancer Treatment medicines. Chemotherapy drugs are in high demand in Panama due to the high number of cancer cases.",
+        "The public sector is the primary end-user of medical equipment, composed of the Social Security Fund (CSS) and the Ministry of Health (MINSA)."
+      ]
+    },
+    {
+      "site_id": "kotra",
+      "site_name": "KOTRA 해외시장뉴스",
+      "site_url": "https://www.kotra.or.kr/bigdata/visualization/country/PA",
+      "collected_at": "2026-04-10T15:40:00Z",
+      "confidence": 0.85,
+      "data": {
+        "latest_report_title_and_date": "2024 파나마 진출전략 (2024년 발간)",
+        "promising_pharma_sectors": "기타 소매용 투여용 의약품 (HS코드: 3004.90), 비타민 함유 의약품 (3004.50)",
+        "distribution_structure_summary": "작은 시장 규모로 인해 대량 주문 방식이 드물며, 주로 수출국 국내 기업 브랜드 및 포장에 스페인어 번역 라벨을 부착하여 소량 수입하는 구조입니다.",
+        "local_distributors_agents": "데이터 없음",
+        "korean_entry_cases": "데이터 없음",
+        "logistics_and_customs_info": "파나마 위생등록제도(Registro Sanitario)로 인한 비관세 장벽이 존재했으나, 2023년 6월 파나마 보건부(MINSA)가 지정한 '위생 선진국(Países de Alto Estándar)' 명단에 대한민국이 포함되어 의약품 등록 절차가 대폭 간소화되었습니다."
+      },
+      "source_paragraphs": [
+        "작은 시장 규모로 인해 대량 주문 방식이 드물며, 흔히 국내기업 브랜드 및 포장에 번역 라벨을 붙여 수입함.",
+        "우리나라 제조 의약품 절차 간소화로 의약품 진입장벽 하락. * '23.6.28부 파나마 보건부 지정 '위생 선진국(Países de Alto Estándar)' 명단에 대한민국 포함.",
+        "유망 품목 : 소매용 의약품(HS코드 3004). * 기타 비타민 등 함유 의약품(3004.50), 기타 소매용의약품(3004.90)."
+      ]
+    },
+    {
+      "site_id": "motie",
+      "site_name": "한국 산업통상자원부 (MOTIE)",
+      "site_url": "https://www.motie.go.kr",
+      "collected_at": "2026-04-10T15:45:00Z",
+      "confidence": 0.9,
+      "data": {
+        "fta_effective_date_and_panama_status": "한-중미 FTA는 2018년 2월 체결되었으며, 파나마는 2021년 3월 1일부로 전체 발효 완료되었습니다.",
+        "hs_3003_3004_schedule": "데이터 없음",
+        "tariff_elimination_stage": "데이터 없음",
+        "latest_press_release": "공동보도자료 - 한-중미 FTA 체결 및 중미경제통합은행(CABEI) 가입, 포스트코로나 보건방역 협력 (2020년 12월 3일, URL: http://www.motie.go.kr/...)"
+      },
+      "source_paragraphs": [
+        "※ 한-중미 FTA : 2018.2월 한-중미 5개국(엘살바도르, 니카라과, 코스타리카, 온두라스, 파나마)간 체결... 파나마 발효일 2021-03-01",
+        "정부는 △한-중미 FTA 체결 및 중미경제통합은행(CABEI) 가입, △코로나19 보건·방역 협력... 의약품 조달 참여 전략 등을 제안하였습니다."
+      ]
+    },
+    {
+      "site_id": "pubmed",
+      "site_name": "PubMed (NCBI)",
+      "site_url": "https://pubmed.ncbi.nlm.nih.gov",
+      "collected_at": "2026-04-10T15:50:00Z",
+      "confidence": 0.8,
+      "data": {
+        "macro_papers": [
+          {
+            "title": "Evaluation of the In-Vitro Dissolution Permeation Systems 1 (IDAS1) as a potential tool to monitor for unexpected changes in generic medicaments in poorly regulated markets",
+            "authors": "Various",
+            "journal": "PubMed",
+            "year": 2021,
+            "pmid": "33691154",
+            "conclusion": "파나마를 포함한 중남미 국가는 규제 안전장치가 부족하여 제네릭 의약품의 품질 보증이 미흡합니다. IDAS1과 같은 생체 외 품질 관리 테스트가 파나마 시장 내 등록된 복제약의 로트별 품질 변화를 모니터링하는 유망한 도구가 될 수 있습니다."
+          },
+          {
+            "title": "Efficiency and Productivity Change of Public Hospitals in Panama: Do Management Schemes Matter?",
+            "authors": "Various",
+            "journal": "PubMed",
+            "year": 2021,
+            "pmid": "34444379",
+            "conclusion": "파나마 공공 병원의 효율성을 분석한 결과, 사회보장기금(SSF) 소속 병원이 보건부(MoH) 소속 병원보다 생산성 증가율이 더 높았습니다. 이는 경영 체계 및 기술 변화 수용의 차이에서 기인합니다."
+          },
+          {
+            "title": "Near infrared (NIR)-spectroscopy and in-vitro dissolution absorption system 2 (IDAS2) can help detect changes in the quality of generic drugs",
+            "authors": "Various",
+            "journal": "PubMed",
+            "year": 2020,
+            "pmid": "31794275",
+            "conclusion": "파나마 보건 당국이 의료비용 억제를 위해 제네릭 의약품 사용을 늘리려 하지만 품질에 대한 우려가 존재합니다. NIR 분광법 등은 제네릭 약품의 일관된 치료 성능을 담보할 수 있는 효과적인 감지 수단입니다."
+          }
+        ],
+        "inn_specific_papers": {
+          "hidroxiurea": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ],
+          "cilostazol": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ],
+          "itoprida": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ],
+          "aceclofenaco": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ],
+          "rabeprazol": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ],
+          "erdosteina": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ],
+          "esteres_etilicos_omega_3": [
+            {
+              "title": "데이터 없음",
+              "pmid": "데이터 없음",
+              "year": null,
+              "conclusion": "데이터 없음",
+              "clinical_frequency": "연구 없음"
+            }
+          ]
+        }
+      },
+      "source_paragraphs": [
+        "Panama, like most Latin American countries, has insufficient regulatory safeguards to ensure the safety and efficacy of all pharmaceutical products in the market...",
+        "The results showed that the productivity growth of hospitals belonging to the SSF has been much higher than that of the hospitals belonging to the Ministry of Health..."
+      ]
+    },
+    {
+      "site_id": "acodeco",
+      "site_name": "ACODECO (파나마 소비자보호청)",
+      "site_url": "https://www.acodeco.gob.pa",
+      "collected_at": "2026-04-10T15:55:00Z",
+      "confidence": 0.9,
+      "data": {
+        "decreto_ejecutivo_list": "CABAMED (Canasta Básica de Medicamentos) - Resol. No. 774 de 2019, Decreto Ejecutivo 114 de 2020",
+        "our_8_inns_included": "데이터 없음",
+        "price_control_policy_summary": "1. ACODECO는 파나마 내 필수 의약품 바스켓(CABAMED)의 가격을 정기적으로 감시합니다. 2. 행정령(Decreto Ejecutivo) 114호 등을 통해 특정 소비재 및 의약품의 상업화 이윤 마진을 제한합니다. 3. 규제 가격 초과 청구 및 인보이스 미제출 등의 위반 사항을 적발하여 시장을 엄격히 통제합니다. 4. 정기적인 보고서를 발행하여 소비자 불만 사항과 제재 실적을 투명하게 공개합니다. 5. 규제 가격(Precio regulado)을 준수하지 않는 유통업체 및 약국에 대한 법적 조치가 상시로 이루어집니다.",
+        "latest_notice": "RE_ProteccionConsumidorQuejas_Mayo2025.pdf (2025년 5월 공고문, URL: https://www.acodeco.gob.pa/.../RE_ProteccionConsumidorQuejas_Mayo2025.pdf)"
+      },
+      "source_paragraphs": [
+        "CABAMED-Resol. No. 774 de 7 de octubre de 2019. Fuente: Departamento de Investigación.",
+        "Falta al Decreto Ejecutivo 114 de 2020 sobre el margen de comercialización de venta de productos de aseo, limpieza y consumo establecimiento."
+      ]
+    },
+    {
+      "site_id": "who_paho",
+      "site_name": "WHO + PAHO",
+      "site_url": "https://www.paho.org",
+      "collected_at": "2026-04-10T16:00:00Z",
+      "confidence": 0.92,
+      "data": {
+        "who_country_profile": "데이터 없음",
+        "paho_strategic_fund_participation": "참여 중 (파나마 포함 미주 34개국 협약 체결)",
+        "paho_sf_8_inns_included": "데이터 없음",
+        "who_eml_8_inns_included": "데이터 없음",
+        "latest_paho_monitoring_report": "Strategic Fund Annual Report 2019. Improving Access to Quality Medicines and Health Technologies in the Americas (이후 지속 발간 중)"
+      },
+      "source_paragraphs": [
+        "Because of the Fund's effectiveness in facilitating enhanced supply chain management of critical public health supplies, we have signed participating agreements with 34 countries and territories...",
+        "The Strategic Fund is a regional technical cooperation mechanism for the pooled procurement of essential medicines and strategic health supplies."
+      ]
+    }
+  ],
+  "metadata": {
+    "total_sites_attempted": 7,
+    "total_sites_successful": 7,
+    "failed_sites": [],
+    "notes": "PubMed 검색 결과 8개 타겟 INN에 대한 파나마 현지 임상 연구 또는 규제 학술 논문은 조회되지 않았음('연구 없음'으로 처리). 관세 철폐 세부 단계 등은 MOTIE 문서 내 직접 명시 텍스트 부족으로 '데이터 없음' 처리."
+  }
+}
