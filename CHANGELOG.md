@@ -1,5 +1,14 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (문서 — W4~W5 SSOT 링크)
+
+### Added
+- `REPORT1_SPEC.md`, `USER_FLOW.md` — W4~W5 Single Source of Truth(루트 배치; 기존에 디스크에 없어 최소 골격 생성 — PM 원문이 있으면 덮어쓰기)
+
+### Changed
+- `CURSOR_INSTRUCTIONS.md` — 「먼저 읽을 것」에 위 2문서 항목 추가
+- `ARCHITECTURE.md` — 「관련 설계 문서」 링크 섹션 추가
+
 ## [Unreleased] - 2026-04-11 (세션 7 · W1 공공 크롤러 + SAND + ComEM + Polite)
 
 ### Added

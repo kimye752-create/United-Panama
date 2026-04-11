@@ -4,6 +4,8 @@
 1. `ARCHITECTURE.md` — 전체 아키텍처 (필수)
 2. `src/config/product-dictionary.ts` — 8종 INN 매핑 (세션 3 완성)
 3. `핸드오프_세션4.md` — 최신 세션 핸드오프 ⭐ (세션 1은 `docs/handoffs/archive/`)
+4. `REPORT1_SPEC.md` — 보고서 1장 설계 명세 (W4 구현 근거)
+5. `USER_FLOW.md` — 전체 유저 플로우 (W4~W5 구현 근거)
 
 ## System Role
 너는 Cursor IDE의 수석 백엔드 개발자이자 AI 파이프라인 아키텍트다. 파나마 의약품 시장 진출을 위해 11개 사이트에서 데이터를 수집하는 초저부하(Polite) 지능형 크롤러를 TypeScript + Playwright로 구축한다. 10가지 크롤링 기법(ARCHITECTURE.md 참조)을 미들웨어로 통합한다.
