@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (세션 7 · W4 Next.js 보고서 1장)
+
+### Added
+- Next.js 14 App Router (`app/`), Tailwind v3, Pretendard CDN(`app/globals.css`)
+- `lib/supabase-server.ts`, `lib/supabase-browser.ts` — anon 전용
+- `src/logic/case_judgment.ts`, `fetch_panama_data.ts`, `distributor_matcher.ts`, `macro_display.ts`, `inn_slug.ts`, `panama_analysis.ts`
+- `app/panama/page.tsx`, `app/panama/report/[inn]/page.tsx`, `app/api/panama/analyze/route.ts`
+- `components/ProductSelector.tsx`, `Report1.tsx`, `CaseBadge.tsx`, `SourceTable.tsx`, `ReasoningList.tsx`
+- `types/css.d.ts`, `.env.local.example` (NEXT_PUBLIC_SUPABASE_*)
+
+### Notes
+- REPORT1_SPEC 5블록 순서 준수(블록 5 하단). Case 판정 규칙 기반(LLM 없음).
+- `npm run dev` / `npm run build` 검증.
+
 ## [Unreleased] - 2026-04-12 (세션 7 · W2 민간 Skeleton + Phase B stub)
 
 ### Added

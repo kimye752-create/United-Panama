@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:d1-maint": "tsx scripts/d1_panama_maint.ts",
     "verify:panama-sources": "tsx scripts/verify_panama_by_source.ts",
@@ -23,15 +27,25 @@
     "axios": "^1.15.0",
     "cheerio": "^1.2.0",
     "dotenv": "^17.4.1",
+    "next": "^14.2.35",
     "pdf-parse": "^2.4.5",
     "playwright": "^1.59.1",
     "playwright-extra": "^4.3.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.15",
     "pg": "^8.20.0",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^3.4.17",
     "typescript": "^6.0.2"
   }
 }

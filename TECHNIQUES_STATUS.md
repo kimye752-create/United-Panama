@@ -45,3 +45,4 @@
 - Session 7 W0: 최초 문서화 (인프라 스프린트 킥오프).
 - Session 7 W1: SAND·ComEM·stealth_setup·공공 3종 크롤러·preload_public 반영.
 - Session 7 W2: XGrammar Skeleton·Phase B stub 3종·민간 2종 Skeleton·매트릭스 재정렬.
+- Session 7 W4: Next.js 14·보고서 1장 UI·Case 판정·Supabase 조회(`src/logic/*`, `app/panama/*`).
