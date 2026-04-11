@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-11 (세션 7 · W0 인프라 스프린트 킥오프)
+
+### Added
+- `TECHNIQUES_STATUS.md` — 10가지 크롤링 기법 적용 현황 매트릭스(실구현 5 / Skeleton 2 / Phase B 연기 3), `ARCHITECTURE.md`와 정합
+- `.env.example` — Supabase·Claude·프록시·선택 키 플레이스홀더 템플릿(실제 `.env`는 `.gitignore` 유지)
+
+### Notes
+- GitHub CLI(`gh`) 미설치로 `gh repo create` 자동화 불가 → 원격 저장소는 github.com에서 private repo 수동 생성 후 `git remote add origin <url>` 필요
+- Vercel CLI 전역 설치 완료(50.44.0); 로그인·프로젝트 생성은 W6 예정
+
 ## [Unreleased] - 2026-04-11 (세션 7 · OCDS PanamaCompra)
 
 - [세션7] OCDS API 엔드포인트 실측 확정: `/api/v1/releases` (세션6 핸드오프의 `/api/v1/ocds/release`는 404, 오타 교정)
