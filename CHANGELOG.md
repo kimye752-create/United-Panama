@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (문서 — REPORT1 / USER_FLOW 풀본문 복구)
+
+### Changed
+- `REPORT1_SPEC.md`, `USER_FLOW.md` — W1.5 최소 골격 제거, 달강 풀버전 SSOT로 덮어쓰기 (커밋 `e2acf2d`)
+
 ## [Unreleased] - 2026-04-12 (문서 — W4~W5 SSOT 링크)
 
 ### Added
