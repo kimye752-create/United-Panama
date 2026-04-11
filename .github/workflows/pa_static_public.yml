@@ -1,0 +1,48 @@
+# Phase A 공공 사전 수집 — ACODECO · MINSA · CSS
+# workflow_dispatch만 사용 (cron 금지)
+
+name: "Phase A — 공공 사전 수집 (ACODECO·MINSA·CSS)"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: pa-static-public
+  cancel-in-progress: false
+
+jobs:
+  preload-public:
+    name: "공공 크롤러 dry-run 검증"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+    steps:
+      - name: "소스 체크아웃"
+        uses: actions/checkout@v4
+
+      - name: "Node.js 20 설정"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "의존성 설치 (npm ci)"
+        run: npm ci
+
+      - name: "Supabase 환경변수 확인"
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "SUPABASE_URL 미설정"
+            exit 1
+          fi
+          if [ -z "$SUPABASE_KEY" ]; then
+            echo "SUPABASE_KEY 미설정"
+            exit 1
+          fi
+
+      - name: "공공 preload dry-run"
+        run: npx tsx scripts/runners/preload_public.ts --dry-run

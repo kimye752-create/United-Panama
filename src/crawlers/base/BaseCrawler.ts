@@ -88,7 +88,7 @@ export abstract class BaseCrawler {
    *
    * 흐름:
    *   1. crawl() 호출 → 부분 행 배열 획득
-   *   2. 각 행에 공통 6컬럼 + pa_source_type 합성
+   *   2. 각 행에 공통 6컬럼 합성
    *   3. insertRow()로 순차 적재 (실패 시 해당 행 건너뜀 + 누적 오류 기록)
    *   4. 전체 결과를 CrawlRunResult로 반환 (throw 없음)
    */
@@ -112,6 +112,11 @@ export abstract class BaseCrawler {
       return { ok: true, inserted: 0 };
     }
 
+    // --dry-run: 적재 생략(행 수만 반영) — CI·로컬 검증용
+    if (process.argv.includes("--dry-run")) {
+      return { ok: true, inserted: rows.length };
+    }
+
     // ② 공통 6컬럼 합성 후 순차 INSERT
     const crawled_at = new Date().toISOString();
     const failures: InsertRowResult[] = [];
@@ -129,7 +134,7 @@ export abstract class BaseCrawler {
         fob_estimated_usd: null,   // 1공정 강제 null — FOB 역산은 2공정
         confidence,
         crawled_at,
-        pa_source_type: this.sourceType,
+        // pa_source_type 컬럼 미사용 (세션 정책 — pa_source만으로 출처 추적)
       };
 
       const result = await insertRow(fullRow);

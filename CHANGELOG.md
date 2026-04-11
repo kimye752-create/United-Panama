@@ -1,5 +1,23 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-11 (세션 7 · W1 공공 크롤러 + SAND + ComEM + Polite)
+
+### Added
+- `src/crawler/stealth_setup.ts` — 기법 ⑦ 랜덤 딜레이·UA·`createPoliteFetch`, ⑩ `applyResourceBlocking(Page)` Skeleton
+- `src/cleansing/sand_outlier.ts` — 기법 ③ IQR 이상치 (`detectOutliersIQR`, `detectOutliersByInn`)
+- `src/cleansing/comem_matcher.ts` — 기법 ④ `normalizeSpanish`·Levenshtein·`matchProductByLocalName`
+- `src/crawlers/preload/pa_acodeco.ts`, `pa_minsa.ts`(CSRF Skeleton), `pa_css.ts`(PDF·Skeleton 경로)
+- `scripts/runners/preload_public.ts` — ACODECO→MINSA→CSS 순차·JSON 요약(`stdout`)
+- `scripts/verify_public_crawl_counts.ts` — `pa_source` 공공 3종 COUNT + `fob_estimated_usd` NOT NULL 검증
+- `.github/workflows/pa_static_public.yml` — Node 20, `npm ci`, `preload_public --dry-run`
+
+### Changed
+- `src/crawlers/base/BaseCrawler.ts` — `pa_source_type` INSERT 제거(정책 준수); `--dry-run` 시 적재 생략·건수만 반환
+- `TECHNIQUES_STATUS.md` — ③④⑦ 반영 및 공공 3종 runner 명시
+
+### Notes (미결)
+- MINSA: CSRF·세션 쿠키 필요 — `pa_minsa` 비 dry-run은 세션 8 수동 쿠키 주입 예정(에러 메시지 고정)
+
 ## [Unreleased] - 2026-04-11 (세션 7 · W0 인프라 스프린트 킥오프)
 
 ### Added
