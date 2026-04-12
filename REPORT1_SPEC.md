@@ -1,9 +1,10 @@
 # 파나마 보고서 1장 설계 명세 (Report 1 Spec)
 
-> **세션 7 / 2026-04-12 확정**  
-> 파나마 1공정 시장 분석 보고서 — INN 1개당 1페이지 완결 구조  
-> W4 (Next.js 프론트 + 보고서 렌더링) 구현의 근거 문서  
+> **세션 10 / 2026-04-12 패치**
+> 파나마 1공정 시장 분석 보고서 — INN 1개당 1페이지 완결 구조
+> W4 (Next.js 프론트 + 보고서 렌더링) 구현의 근거 문서
 > 팀 공유용 · 수정 시 반드시 달강·PM 합의 필요
+> **세션 10 변경**: 블록 5-3 "데이터 수집 시점" 코드 블록 → 해법 C 명시 (3계층 표현 통일)
 
 ---
 
@@ -159,9 +160,11 @@
 
 ```
 최종 수집: 2026-04-12
-수집 방식: Phase A 정적 수집 (JSON seed + 공공 크롤러)
-Phase B 실시간 보강: 준비 완료, 시연 직전 재호출 예정
-신선도: freshness_checker 기준 7일 이내
+수집 방식: L1 정적 seed (사용자 검증) + L2 조건부 크롤러
+의미적 신선도 판정: Phase 2 로드맵 — 해법 C (AI 2단계 게이트 아키텍처)
+  - 설계 문서: docs/research/freshness_2gate_architecture.md
+  - 시간 규칙 단독 판정 폐기, 휴리스틱+LLM Judge+web_search 3단계
+L3 web_search 보강: Phase 2 구현 후 활성화 예정
 ```
 
 ---
@@ -194,9 +197,9 @@ interface JudgmentResult {
 ### 판정 규칙 (단순 규칙 기반, 논리 명확)
 
 #### Case A — 공공조달 즉시 진입 가능
-**조건**: `emlWho && emlPaho && distributorCount >= 2`  
-**Verdict**: 🟢 가능  
-**Confidence**: 0.90  
+**조건**: `emlWho && emlPaho && distributorCount >= 2`
+**Verdict**: 🟢 가능
+**Confidence**: 0.90
 **Reasoning 템플릿**:
 - "WHO EML + PAHO Strategic Fund 이중 등재"
 - "한-중미 FTA 관세 0% + ITBMS 면세"
@@ -206,9 +209,9 @@ interface JudgmentResult {
 - `panamacompraCount === 0` → "PanamaCompra 최근 낙찰 0건 → MINSA 직접 제안 루트 필요"
 
 #### Case B — 민간 채널 진입
-**조건**: `privateRetailCount > 0 || distributorCount >= 1`  
-**Verdict**: 🟡 조건부  
-**Confidence**: 0.75  
+**조건**: `privateRetailCount > 0 || distributorCount >= 1`
+**Verdict**: 🟡 조건부
+**Confidence**: 0.75
 **Reasoning 템플릿**:
 - "민간 약국 채널 실데이터 확보 {privateRetailCount}건" (또는 유통 파트너 보유)
 - "한국 위생선진국 지정으로 등록 $500/0.5~1개월"
@@ -218,9 +221,9 @@ interface JudgmentResult {
 - "공공조달 트랙 미확보 → 민간 유통사 의존 리스크"
 
 #### Case C — 진입 불가 또는 대기
-**조건**: 위 두 조건 모두 미충족  
-**Verdict**: 🔴 불가  
-**Confidence**: 0.65  
+**조건**: 위 두 조건 모두 미충족
+**Verdict**: 🔴 불가
+**Confidence**: 0.65
 **Reasoning 템플릿**:
 - "EML 등재 없음 + 민간 채널 가격 데이터 없음"
 - "공공조달 낙찰 이력 없음"
@@ -336,6 +339,7 @@ UPharma_Panama_Report_{YYYYMMDD}_{INN}.pdf
 - **피드백 제공자**: 달강 (김예환)
 - **핵심 피드백**: "참조 사이트는 보고서 초두에 있으면 안 됨. 인사이트 먼저 나오고 근거는 후반부에"
 - **이 피드백이 전체 설계 철학의 근간이 됨**
+- **세션 10 / 2026-04-12**: 블록 5-3 코드 블록 패치. 해법 C (AI 의미 게이트) 명시. 9:1 + 3계층 표현 통일 (L1 정적 seed / L2 조건부 크롤러 / L3 web_search). 본격 구현은 Phase 2 로드맵 (세션 10+).
 
 ---
 

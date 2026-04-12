@@ -39,6 +39,10 @@ export type AnalyzePanamaResult = {
   emlPaho: boolean;
   emlMinsa: boolean;
   sourceAggregation: SourceAggRow[];
+  /** PanamaCompra 출처 적재 건수 (판정·LLM 컨텍스트용) */
+  panamacompraCount: number;
+  /** 민간 소매가 표본 건수 */
+  privateRetailCount: number;
 };
 
 function toPriceRows(rows: PanamaRow[]): PriceRow[] {
@@ -112,6 +116,8 @@ async function runCore(
     emlPaho: eml.emlPaho,
     emlMinsa: eml.emlMinsa,
     sourceAggregation,
+    panamacompraCount: pc,
+    privateRetailCount: priv,
   };
 }
 

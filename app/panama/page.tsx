@@ -15,7 +15,7 @@ export default async function PanamaPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">GDP</p>
+          <p className="text-sm text-slate-500">GDP per capita</p>
           <p className="text-xl font-semibold text-slate-900">{m.gdp}</p>
         </div>
         <div className="rounded-lg border border-slate-200 p-4">

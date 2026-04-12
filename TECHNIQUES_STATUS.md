@@ -40,9 +40,32 @@
 
 ---
 
+## Phase 2 로드맵 — AI 기반 의미적 신선도 판정 2단계 게이트 (해법 C)
+
+> 세션 8 신규 추가. 9:1 정적/실시간 분리 (3계층 세분화: L1 정적 seed 약 85% / L2 조건부 우리 크롤러 약 10% / L3 Anthropic API web_search 약 5%) 구조에서 L3 트리거를 담당하는 게이트 설계.
+
+| 항목 | 상태 | 위치 |
+|---|---|---|
+| 설계 문서 | ✅ 박제 완료 (세션 8) | `docs/research/freshness_2gate_architecture.md` |
+| 인터페이스 스켈레톤 | 🔴 세션 9 작업 | `src/logic/freshness_checker.ts` |
+| Phase 1 휴리스틱 | 🔴 Phase 2 로드맵 | 정규식+메타데이터, staleScore 가중치 |
+| Phase 1.5 LLM Judge | 🔴 Phase 2 로드맵 | Haiku, max_tokens 극단 제한 |
+| Phase 2 web_search | 🔴 Phase 2 로드맵 | Anthropic, allowed_domains 강제 |
+| 야간 배치 분리 | 🔴 운영 진입 시 | 10초 SLA 회피 목적 |
+
+**핵심 원칙**:
+- 시간 규칙 단독 판정 금지 (False Negative 방지 — 2025.1 MINSA 행정령 케이스: WLA 국가 의약품 10영업일 자동승인이 도입되었으나, 기존 "6~12개월" 텍스트가 그대로 남아있을 시 시스템이 폐지된 구형 절차를 "현재 사실"로 출력하게 됨)
+- 차등 TTL: 정적 컬럼 3년+ / 변동 컬럼 3개월 / 초고위험 90일 default-deny
+- staleScore ≥70 → Phase 2 직행, 0<score<70 → LLM Judge, 0 → 통과
+- 흐름: Phase 1 휴리스틱 → Phase 1.5 LLM Judge → Phase 2 web_search
+- 본격 구현은 Phase 2 로드맵 (세션 10+). 세션 9는 인터페이스 스켈레톤만 작업
+
+---
+
 ## 변경 이력
 
 - Session 7 W0: 최초 문서화 (인프라 스프린트 킥오프).
 - Session 7 W1: SAND·ComEM·stealth_setup·공공 3종 크롤러·preload_public 반영.
 - Session 7 W2: XGrammar Skeleton·Phase B stub 3종·민간 2종 Skeleton·매트릭스 재정렬.
 - Session 7 W4: Next.js 14·보고서 1장 UI·Case 판정·Supabase 조회(`src/logic/*`, `app/panama/*`).
+- Session 8: 해법 C (AI 의미 게이트) Phase 2 로드맵 섹션 신규 추가. `docs/research/freshness_2gate_architecture.md` 박제 완료.

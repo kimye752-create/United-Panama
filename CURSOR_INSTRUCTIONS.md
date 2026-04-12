@@ -1,11 +1,15 @@
 # Cursor 구현 지시서 — 파나마 1공정 크롤러
 
+> **세션 11 / 2026-04-12 패치**
+> **세션 11 변경**: D6 섹션 `freshness_checker.ts` 항목에 해법 C (AI 의미 게이트) 주석 추가
+
 ## 📌 먼저 읽을 것
 1. `ARCHITECTURE.md` — 전체 아키텍처 (필수)
 2. `src/config/product-dictionary.ts` — 8종 INN 매핑 (세션 3 완성)
-3. `핸드오프_세션4.md` — 최신 세션 핸드오프 ⭐ (세션 1은 `docs/handoffs/archive/`)
+3. `핸드오프_세션10.md` — 최신 세션 핸드오프 ⭐ (세션 1은 `docs/handoffs/archive/`)
 4. `REPORT1_SPEC.md` — 보고서 1장 설계 명세 (W4 구현 근거)
 5. `USER_FLOW.md` — 전체 유저 플로우 (W4~W5 구현 근거)
+6. `docs/research/freshness_2gate_architecture.md` — 해법 C 설계 박제 (Phase 2 로드맵 근거)
 
 ## System Role
 너는 Cursor IDE의 수석 백엔드 개발자이자 AI 파이프라인 아키텍트다. 파나마 의약품 시장 진출을 위해 11개 사이트에서 데이터를 수집하는 초저부하(Polite) 지능형 크롤러를 TypeScript + Playwright로 구축한다. 10가지 크롤링 기법(ARCHITECTURE.md 참조)을 미들웨어로 통합한다.
@@ -22,6 +26,7 @@
 9. **`pa_source_type` 컬럼 사용 금지** (세션 3 디버깅 결과 — 잉여 필드. `pa_source`만 사용)
 10. **문자열 파싱 시 부정 키워드 우선 매칭** ("미포함" → "포함" 순서)
 11. **"X건 적재" 보고는 반드시 `SELECT COUNT` 1회 검증 후 신뢰**
+12. **freshness 판정은 해법 C (AI 의미 게이트)** — 시간 규칙 단독 판정 금지
 
 ## 🚀 작업 순서 (9:1 재정립 반영)
 
@@ -63,6 +68,12 @@ JSON seed 사전 수집 → 적재가 메인 트랙. preload 크롤러는 보완
 - [ ] `src/utils/llm_cost_guard.ts`
 - [ ] `src/config/llm-trigger-rules.ts`
 - [ ] `src/logic/freshness_checker.ts`
+  - ⚠ **해법 C 채택**: 시간 규칙 단독 판정 금지
+  - 설계 근거: `docs/research/freshness_2gate_architecture.md`
+  - Phase 1 (정규식·메타데이터 휴리스틱) → Phase 1.5 (Haiku LLM Judge, 모호 구간만) → Phase 2 (web_search, 확정 시만)
+  - staleScore 가중치: MINSA 4.5년+100 / PanamaCompra 3개월+80 / 미완료어+60 / 과거연도+50
+  - 분기: ≥70 직행 / 0~70 LLM Judge / 0 통과
+  - 본격 구현은 세션 10+ Phase 2 로드맵. 세션 9는 인터페이스 스켈레톤만.
 - [ ] `src/crawlers/base/LLMSearchCrawler.ts` (Anthropic web_search)
 - [ ] `src/crawlers/realtime/pa_llm_freshness.ts`
 

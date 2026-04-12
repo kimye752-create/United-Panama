@@ -1,5 +1,53 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-11 (feat — beta: PDF Phase 2 이월)
+
+### Added
+- feat(beta): PDF Phase 2 이월, 웹 보고서 베타 배포. react-pdf v4.4.1 한글 폰트 호환 이슈 다음 세션 처리
+
+### Changed
+- feat(ui): `PdfDownloadButton` 비활성화 — 라벨 "PDF 다운로드 (Phase 2)", `handleDownload` 주석 보존
+- chore(pdf): `lib/pdf/pdf-fonts.ts` — 진단 로그·`Font.register` 유지, Vercel 빌드 우선으로 예외 시 `try/catch`로 모듈 로드 지속
+- chore(log): `src/logic/competitor_prices.ts` — 디버깅 `console.log` 제거(세션 12), 주석만 유지
+
+## [Unreleased] - 2026-04-11 (research — @fontsource/nanum-gothic TTF 없음)
+
+### Notes
+- research(pdf): `node_modules/@fontsource/nanum-gothic/files/` 조사 — **`.ttf` 0개**, **`.woff` 279개**, **`.woff2` 279개**. `nanum-gothic-korean-*-normal.ttf` 경로로의 즉시 전환 **불가**(패키지에 미포함). 한국어 서브셋은 `korean-400.css` / `korean-700.css` 기준 `nanum-gothic-korean-400-normal.woff` · `nanum-gothic-korean-700-normal.woff` 등.
+
+## [Unreleased] - 2026-04-11 (feat — W5 PDF 엔진⑦ + 웹 LLM 통합)
+
+### Added
+- feat(pdf): W5 엔진⑦ PDF 1페이지 생성 (호주 양식 + Pretendard + LLM payload)
+- feat(report1): 웹 뷰와 PDF가 동일 LLM payload 공유 (Tool Use 강제 양식)
+
+### Changed
+- `app/api/panama/analyze`에 `generateReport1`·`rawDataDigest`·`llm` 응답, `panama_analysis`에 조달·소매 건수 필드 추가, `report1_generator` 로컬 import를 Next 번들 호환 형태로 정리
+
+## [Unreleased] - 2026-04-11 (feat — W5 LLM 보고서)
+
+### Added
+- feat(llm): W5 보고서 생성 모듈 — Opus 4.6 → Sonnet 4.6 → 폴백 템플릿 3단 체인
+- feat(llm): Tool Use JSON Schema 강제 + 시스템 프롬프트 양식 박제
+- feat(db): panama_report_cache 캐시 테이블 추가 (24h TTL)
+
+## [Unreleased] - 2026-04-11 (seed — Round4 prevalence + 거시 인프라)
+
+### Added
+- feat(seed): Round4 prevalence 데이터 8 INN 적재 (GLOBOCAN/PAHO/MINSA/WHO)
+- feat(seed): Round4 파나마 의료 인프라 거시 행 1건 추가 (인구·보건지출·CSS)
+
+## [Unreleased] - 2026-04-12 (fix — Report1 블록 5-3 · 거시 카드)
+
+### Fixed
+- fix(report1): 블록 5-3 freshness 표기 해법 C로 교체 (절대원칙 12)
+- fix(macro-card): worldbank pa_notes에서 GDP/인구 정규식 파싱 추가 (이슈1)
+
+## [Unreleased] - 2026-04-12 (문서 — freshness 2gate 안착)
+
+### Notes
+- 2026-04-12: docs/research/freshness_2gate_architecture.md 안착 (세션 8 박제 누락분 복구)
+
 ## [Unreleased] - 2026-04-12 (세션 7 · W4 Next.js 보고서 1장)
 
 ### Added

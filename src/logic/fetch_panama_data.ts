@@ -5,6 +5,7 @@
 /// <reference types="node" />
 
 import { createSupabaseServer } from "../../lib/supabase-server";
+import { parseGdpPerCapita, parsePopulation } from "../../lib/parse_macro_notes";
 
 const PANAMA = "panama" as const;
 const PANAMA_EML = "panama_eml" as const;
@@ -45,6 +46,49 @@ export interface EmlStatus {
   emlWho: boolean;
   emlPaho: boolean;
   emlMinsa: boolean;
+}
+
+/**
+ * worldbank 거시 행의 `pa_notes`에서 GDP per capita·인구 표시 문자열 생성
+ * (pa_price_local NULL 이슈 대응)
+ */
+export function worldbankMacroDisplaysFromRows(
+  rows: readonly PanamaRow[],
+): { gdpPerCapita: string | null; population: string | null } {
+  let gdpPerCapita: string | null = null;
+  let population: string | null = null;
+
+  for (const r of rows) {
+    if (r.pa_source !== "worldbank") {
+      continue;
+    }
+    const notes = r.pa_notes;
+    if (notes === null || notes === undefined || notes === "") {
+      continue;
+    }
+
+    if (notes.includes("GDP per capita")) {
+      const v = parseGdpPerCapita(notes);
+      if (v !== null) {
+        const ym =
+          notes.match(/\(current US\$\)\s*\((\d{4})\)/i) ??
+          notes.match(/\(US\$\)\s*\((\d{4})\)/);
+        const yearStr = ym?.[1] ?? "2024";
+        gdpPerCapita = `$${Math.round(v).toLocaleString("en-US")} (${yearStr})`;
+      }
+    }
+
+    if (notes.includes("Population")) {
+      const v = parsePopulation(notes);
+      if (v !== null) {
+        const ym = notes.match(/value\s*\((\d{4})\)/i);
+        const yearStr = ym?.[1] ?? "2024";
+        population = `${(v / 1e6).toFixed(2)}M (${yearStr})`;
+      }
+    }
+  }
+
+  return { gdpPerCapita, population };
 }
 
 function readBoolCell(

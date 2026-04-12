@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { Report1 } from "@/components/Report1";
+import { PanamaReportClient } from "@/components/PanamaReportClient";
 import { findProductByInnSlug } from "@/src/logic/inn_slug";
-import { analyzePanamaProduct } from "@/src/logic/panama_analysis";
 
 type Props = {
   params: { inn: string };
@@ -15,16 +14,9 @@ export default async function PanamaReportPage({ params }: Props) {
     notFound();
   }
 
-  let data;
-  try {
-    data = await analyzePanamaProduct(product.product_id);
-  } catch {
-    notFound();
-  }
-
   return (
     <main>
-      <Report1 data={data} />
+      <PanamaReportClient product={product} />
     </main>
   );
 }

@@ -1,13 +1,25 @@
 /**
- * 보고서 1장 — REPORT1_SPEC 5개 블록 순서 고정 (인사이트 선행·근거 후행)
+ * 보고서 1장 — REPORT1_SPEC 5개 블록 (LLM 본문 + 규칙 기반 메타)
  */
 import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
+import type { Report1Payload } from "@/src/llm/report1_schema";
+
 import { CaseBadge } from "./CaseBadge";
-import { ReasoningList } from "./ReasoningList";
+import type { PdfDownloadClientPayload } from "./PdfDownloadButton";
+import { PdfDownloadButton } from "./PdfDownloadButton";
 import { SourceTable } from "./SourceTable";
+
+export type LlmBundle = {
+  payload: Report1Payload;
+  source: "cache" | "opus" | "sonnet" | "fallback";
+  modelUsed: string;
+};
 
 type Props = {
   data: AnalyzePanamaResult;
+  llm: LlmBundle;
+  rawDataDigest: string;
+  prevalenceMetric: string | null;
 };
 
 function hsForProduct(inn: string): string {
@@ -34,7 +46,22 @@ function dosageForm(inn: string): string {
   return m[inn] ?? "제형 조회 중";
 }
 
-export function Report1({ data }: Props) {
+function formatLlmSourceLine(bundle: LlmBundle): string {
+  if (bundle.source === "cache") {
+    return "cache (24h TTL)";
+  }
+  if (bundle.source === "fallback") {
+    return "규칙 기반 템플릿";
+  }
+  return bundle.modelUsed;
+}
+
+export function Report1({
+  data,
+  llm,
+  rawDataDigest,
+  prevalenceMetric,
+}: Props) {
   const { product, judgment, priceRows, matchedDistributors, sourceAggregation } =
     data;
 
@@ -43,23 +70,48 @@ export function Report1({ data }: Props) {
     ["retail_normal", "retail_promo"].includes(r.pa_price_type ?? ""),
   );
 
+  const collectedDate = new Date().toISOString().slice(0, 10);
+
+  const pdfPayload: PdfDownloadClientPayload = {
+    productId: product.product_id,
+    brandName: product.kr_brand_name,
+    innEn: product.who_inn_en,
+    dosageForm: dosageForm(product.who_inn_en),
+    hsCode: hsForProduct(product.who_inn_en),
+    caseGrade: judgment.case,
+    caseVerdict: judgment.verdict,
+    confidence: judgment.confidence,
+    emlWho: data.emlWho,
+    emlPaho: data.emlPaho,
+    prevalenceMetric,
+    distributorNames: matchedDistributors.map((d) => d.company_name),
+    panamacompraCount: data.panamacompraCount,
+    rawDataDigest,
+    sourceRows: sourceAggregation.map((r) => ({
+      source: r.pa_source,
+      count: r.count,
+      avgConfidence: r.avgConfidence ?? 0,
+    })),
+  };
+
   return (
     <article className="mx-auto max-w-4xl space-y-10 px-4 py-10 text-slate-800">
-      <h1 className="text-3xl font-bold text-slate-900">
+      <h1 className="text-3xl font-bold text-[#1B2A4A]">
         파나마 시장 진출 적합 분석 — {product.kr_brand_name}
       </h1>
 
       {/* 블록 1 */}
       <section className="space-y-2 border-b border-slate-200 pb-6">
-        <h2 className="text-xl font-semibold text-slate-900">① 제품 식별</h2>
+        <h2 className="text-xl font-semibold text-[#1B2A4A]">① 제품 식별</h2>
         <div className="grid gap-1 text-base">
           <p>
             <span className="font-medium">브랜드명</span> | {product.kr_brand_name}{" "}
             | <span className="font-medium">WHO INN</span> |{" "}
             {product.who_inn_en} | <span className="font-medium">함량·제형</span>{" "}
             | {dosageForm(product.who_inn_en)} |{" "}
-            <span className="font-medium">HS</span> | {hsForProduct(product.who_inn_en)}{" "}
-            | <span className="font-medium">Case</span> | {judgment.case} |{" "}
+            <span className="font-medium">HS</span> |{" "}
+            {hsForProduct(product.who_inn_en)} |{" "}
+            <span className="font-medium">Case</span> | {judgment.case} |{" "}
             <span className="font-medium">confidence</span> |{" "}
             {judgment.confidence.toFixed(2)}
           </p>
@@ -68,83 +120,65 @@ export function Report1({ data }: Props) {
 
       {/* 블록 2 */}
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold text-slate-900">② 핵심 판정</h2>
+        <h2 className="text-xl font-semibold text-[#1B2A4A]">② 핵심 판정</h2>
         <CaseBadge judgment={judgment} />
       </section>
 
-      {/* 블록 3 */}
+      {/* 블록 3 — LLM */}
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-xl font-semibold text-[#1B2A4A]">
           ③ 두괄식 판정 근거
         </h2>
-        <ReasoningList items={judgment.reasoning} />
+        <ol className="list-inside list-decimal space-y-2 text-base leading-relaxed text-slate-800">
+          {llm.payload.block3_reasoning.map((line, i) => (
+            <li key={i} className="pl-1">
+              {line}
+            </li>
+          ))}
+        </ol>
       </section>
 
-      {/* 블록 4 */}
+      {/* 블록 4 — LLM */}
       <section className="space-y-6 border-b border-slate-200 pb-8">
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-xl font-semibold text-[#1B2A4A]">
           ④ 시장 진출 전략
         </h2>
 
         <div>
-          <h3 className="mb-2 font-medium text-slate-900">4-1 진입 채널 권고</h3>
-          <p className="text-base leading-relaxed">
-            {judgment.case === "A" &&
-              "우선 채널: 공공조달·민간 병행. 1단계(0~6개월) 공공 입찰 모니터링 → 2단계(6~18개월) 유통사와 민간 입점 → 3단계(18개월+) 병행 확대."}
-            {judgment.case === "B" &&
-              "우선 채널: 민간 약국. 1단계 유통 파트너와 소량 론칭 → 2단계 채널 확대 → 3단계 공공 트랙 검토."}
-            {judgment.case === "C" &&
-              "우선 채널: 재평가 전 단계. 데이터·등재 보강 후 채널 재선택."}
+          <h3 className="mb-2 font-medium text-[#1B2A4A]">4-1 진입 채널 권고</h3>
+          <p className="whitespace-pre-wrap text-base leading-relaxed">
+            {llm.payload.block4_1_channel}
           </p>
         </div>
 
         <div>
-          <h3 className="mb-2 font-medium text-slate-900">4-2 가격 포지셔닝</h3>
-          <p className="text-base leading-relaxed">
-            공공 낙찰가:{" "}
-            {tender.length > 0
-              ? `표본 ${tender.length}건 (panama tender_award)`
-              : "데이터 수집 중"}
-            . 민간 소매:{" "}
-            {retail.length > 0
-              ? `표본 ${retail.length}건`
-              : "데이터 수집 중"}
-            . 경쟁사 비교: pa_notes COMPETITOR 표기 시 반영(현재 미수집 시 생략).
+          <h3 className="mb-2 font-medium text-[#1B2A4A]">4-2 가격 포지셔닝</h3>
+          <p className="whitespace-pre-wrap text-base leading-relaxed">
+            {llm.payload.block4_2_pricing}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            (참고) 공공·민간 표본: 낙찰 {tender.length}건 · 민간 {retail.length}건
           </p>
         </div>
 
         <div>
-          <h3 className="mb-2 font-medium text-slate-900">4-3 유통 파트너 후보</h3>
-          <ul className="list-disc pl-5 text-base leading-relaxed">
-            {matchedDistributors.length === 0 ? (
-              <li>데이터 수집 중</li>
-            ) : (
-              matchedDistributors.slice(0, 8).map((d) => (
-                <li key={d.id}>
-                  {d.company_name}
-                  {d.company_name_local
-                    ? ` (${d.company_name_local})`
-                    : ""}{" "}
-                  — target: {d.target_market ?? "—"}
-                </li>
-              ))
-            )}
-          </ul>
+          <h3 className="mb-2 font-medium text-[#1B2A4A]">4-3 유통 파트너 후보</h3>
+          <p className="whitespace-pre-wrap text-base leading-relaxed">
+            {llm.payload.block4_3_partners}
+          </p>
         </div>
 
         <div>
-          <h3 className="mb-2 font-medium text-slate-900">4-4 리스크·조건</h3>
-          <ul className="list-disc pl-5 text-base leading-relaxed">
-            {judgment.risks.map((x, i) => (
-              <li key={i}>{x}</li>
-            ))}
-          </ul>
+          <h3 className="mb-2 font-medium text-[#1B2A4A]">4-4 리스크·조건</h3>
+          <p className="whitespace-pre-wrap text-base leading-relaxed">
+            {llm.payload.block4_4_risks}
+          </p>
         </div>
       </section>
 
-      {/* 블록 5 — 반드시 하단 */}
+      {/* 블록 5 */}
       <section className="space-y-6">
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-xl font-semibold text-[#1B2A4A]">
           ⑤ 근거·출처
         </h2>
 
@@ -181,20 +215,17 @@ export function Report1({ data }: Props) {
           <h3 className="mb-2 text-sm font-semibold text-slate-800">
             5-3 데이터 수집 시점
           </h3>
-          <p className="text-sm text-slate-600">
-            최종 수집: {new Date().toISOString().slice(0, 10)} · Phase A 정적
-            수집(JSON seed + 공공 크롤러) · Phase B 실시간 보강은 시연 직전
-            예정 · 신선도: freshness_checker 7일 기준
-          </p>
+          <div className="whitespace-pre-line text-sm text-slate-600">
+            {[
+              `최종 수집: ${collectedDate}`,
+              "수집 방식: L1 정적 seed (사용자 검증) + L2 조건부 크롤러",
+              "의미적 신선도 판정: Phase 2 로드맵 — 해법 C (AI 2단계 게이트)",
+              `LLM 본문 생성: ${formatLlmSourceLine(llm)}`,
+            ].join("\n")}
+          </div>
         </div>
 
-        <button
-          type="button"
-          disabled
-          className="rounded border border-slate-300 bg-slate-100 px-4 py-2 text-sm text-slate-500"
-        >
-          PDF 다운로드 (W5 엔진⑦ 연동 예정)
-        </button>
+        <PdfDownloadButton payload={pdfPayload} />
       </section>
     </article>
   );
