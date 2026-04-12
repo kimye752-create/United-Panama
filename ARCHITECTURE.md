@@ -4,6 +4,52 @@
 > Tech Stack: Next.js · TypeScript · Playwright · Supabase · GitHub Actions
 > **세션 8 / 2026-04-12 업데이트** — 9:1 표현 유지 + 3계층 세분화 + freshness 해법 C 반영
 
+## 📌 세션 12 업데이트 (2026-04-12)
+
+### PDF 엔진⑦ 상태
+- **웹 보고서**: 완성 (5개 블록 렌더링, 한글 정상, Case 판정 동작)
+- **PDF 다운로드**: Phase 2 로드맵 이월
+  - 시도 1: Pretendard TTF pathToFileURL → fetch failed (file:// 미지원)
+  - 시도 2: PretendardStd OTF 318KB → 한글 서브셋 부족
+  - 시도 3: 일반 Pretendard 2.7MB TTF → 동일 서브셋 이슈
+  - 시도 4: @fontsource/noto-sans-kr woff Buffer → isDataUrl.substring 에러
+  - 시도 5: @fontsource/nanum-gothic → TTF 미포함 (woff만)
+  - Phase 2 방향: Puppeteer + 로컬 시스템 폰트 또는 외부 PDF 서비스 API
+- **PDF API 구조**: A안 (LLM 재호출 제거) 완료. llmPayload 클라이언트 전달 구조
+- **PDF 버튼**: disabled 처리, "Phase 2" 라벨
+
+### LLM 변경
+- 기본 모델: claude-sonnet-4-5 (ANTHROPIC_MODEL 환경변수로 분기)
+- ANTHROPIC_API_KEY 사용 (CLAUDE_API_KEY deprecated)
+- API 키 trim() 적용 (401 방지)
+
+### 보고서 UI 개선
+- ② 판정 근거: 단일 박스 (좌측 라벨 제거)
+- ④ 근거 및 출처 상위 헤더 추가
+- 4-x/5-x 번호 제거, 라벨 칼럼 13%
+- 헤더: "제품명: 하이드린 캡슐 (Hydroxyurea)" + 동적 생성 시각
+- footer 중복 날짜 제거
+- gemini_seed → "1차 시드" 라벨
+
+### 시스템 프롬프트
+- 금지어: Phase 2, 크롤링, WAF, Residential Proxy, 실측, 보강 예정, 우리 시스템 등
+- 대체 표현: "2공정에서 정밀 분석 예정", "현재 가용 데이터 없음"
+- competitor_prices 블록 4-2 강제 인용
+
+### Round5/6 경쟁사 가격 적재
+- panama 테이블 +8건 (Hydroxyurea PAHO + 7종 ERP fallback)
+- 합계 47건 (panama 27 + distributors 4 + eml 16)
+
+### 배포
+- Vercel 신규 프로젝트: united-panama.vercel.app
+- 팀 공유 베타 배포 완료
+
+### 거시 데이터 신선도 (Phase 2 로드맵)
+- 현재: GDP 2024, World Bank 2022
+- 문제: 2026년 기준 "허술해 보임" 우려
+- Phase 2: World Bank API 자동 갱신 (분기별)
+- 발표 방어 논리: "WB 2년 lag 발행, 2024는 2026.6+ 릴리즈 예정"
+
 ## 👥 AI 역할 분담
 
 - **Claude** — 설계·검수·문서화. 코드 직접 작성 금지 (크레딧 절약)

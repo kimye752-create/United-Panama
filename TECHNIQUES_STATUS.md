@@ -60,6 +60,22 @@
 - 흐름: Phase 1 휴리스틱 → Phase 1.5 LLM Judge → Phase 2 web_search
 - 본격 구현은 Phase 2 로드맵 (세션 10+). 세션 9는 인터페이스 스켈레톤만 작업
 
+### 엔진⑦ PDF 자동 생성 — Phase 2 이월
+
+| 항목 | 상태 |
+|---|---|
+| PDF API A안 구조 | ✅ 완성 (세션 12) |
+| react-pdf + 한글 폰트 | 🔴 Phase 2 |
+| 폰트 번들링 전략 | 🔴 Phase 2 (Puppeteer 대체 검토) |
+| 9페이지 통합 PDF | 🔴 Phase 2 |
+
+세션 12 시도 이력: Pretendard TTF/OTF, PretendardStd, Noto Sans KR woff, Nanum Gothic woff — 모두 react-pdf v4.4.1 + 한글 호환성 이슈로 실패.
+
+다음 세션 우선 시도:
+1. Puppeteer + 웹 화면 PDF 캡처 (서버리스 환경 호환성 재검증)
+2. PDFKit 직접 사용 + 시스템 폰트
+3. 외부 PDF 생성 API (DocRaptor, PDFShift 등)
+
 ---
 
 ## 변경 이력
@@ -69,3 +85,4 @@
 - Session 7 W2: XGrammar Skeleton·Phase B stub 3종·민간 2종 Skeleton·매트릭스 재정렬.
 - Session 7 W4: Next.js 14·보고서 1장 UI·Case 판정·Supabase 조회(`src/logic/*`, `app/panama/*`).
 - Session 8: 해법 C (AI 의미 게이트) Phase 2 로드맵 섹션 신규 추가. `docs/research/freshness_2gate_architecture.md` 박제 완료.
+- Session 12: 엔진⑦ PDF Phase 2 이월 표·시도 이력·다음 우선순위 박제 (`ARCHITECTURE.md` 세션 12 블록과 연동).

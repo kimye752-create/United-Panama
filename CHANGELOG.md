@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (docs — session12 박제)
+
+### Notes
+- docs(session12): `ARCHITECTURE.md`·`TECHNIQUES_STATUS.md` 세션 12 박제, `핸드오프_세션12.md` 추가, PDF Phase 2 이월 정리
+
 ## [Unreleased] - 2026-04-11 (feat — beta: PDF Phase 2 이월)
 
 ### Added
