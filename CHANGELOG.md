@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (chore — 핸드오프 Git 제외)
+
+### Changed
+- chore(git): `핸드오프*.md`·`docs/handoffs/` 를 `.gitignore`에 추가하고, 기존 추적 파일은 `git rm --cached`로 인덱스에서만 제거(로컬 파일 유지)
+
 ## [Unreleased] - 2026-04-12 (fix — 거시 카드 인구·보건 라벨)
 
 ### Fixed
