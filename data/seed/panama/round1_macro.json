@@ -5,24 +5,58 @@
   "sites": [
     {
       "site_id": "worldbank",
-      "site_name": "World Bank Open Data",
-      "site_url": "https://data.worldbank.org/country/panama",
+      "site_name": "World Bank — GDP per capita",
+      "site_url": "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=PA",
+      "pa_released_at": "2025",
       "collected_at": "2026-04-10T15:30:00Z",
       "confidence": 0.95,
       "data": {
-        "gdp_2024_usd_billion": 86.52,
-        "gdp_per_capita_usd": 19161,
-        "population": 4515577,
-        "health_expenditure_per_capita_usd": 1547,
-        "health_expenditure_pct_gdp": 8,
-        "life_expectancy": 80,
-        "pharma_market_size_estimate": "데이터 없음"
+        "gdp_per_capita_usd": 19161.2
       },
       "source_paragraphs": [
-        "GDP (current US$) (2024 billion) 86.52.",
-        "GDP per capita (current US$) (2024) 19,161.2.",
-        "Population, total. Most recent value. (2024) 4,515,577.",
-        "Life expectancy at birth, total (years) Most recent value. (2023) 80."
+        "GDP per capita (current US$) (2024) 19,161.2. World Bank 공식 확정치. 2025년 릴리즈."
+      ]
+    },
+    {
+      "site_id": "worldbank",
+      "site_name": "World Bank — Population, total",
+      "site_url": "https://data.worldbank.org/indicator/SP.POP.TOTL?locations=PA",
+      "pa_released_at": "2025",
+      "collected_at": "2026-04-10T15:30:00Z",
+      "confidence": 0.95,
+      "data": {
+        "population_total": 4515577
+      },
+      "source_paragraphs": [
+        "Population, total. Most recent value. (2024) 4,515,577. World Bank 공식 확정치. KOTRA 2026 보고서 4.51M과 일치. 2025년 릴리즈."
+      ]
+    },
+    {
+      "site_id": "worldbank_who_ghed",
+      "site_name": "World Bank / WHO GHED — Health expenditure per capita",
+      "site_url": "https://data.worldbank.org/indicator/SH.XPD.CHEX.PC.CD?locations=PA",
+      "pa_released_at": "2025",
+      "collected_at": "2026-04-10T15:30:00Z",
+      "confidence": 0.9,
+      "data": {
+        "health_expenditure_per_capita_usd": 1557.81
+      },
+      "source_paragraphs": [
+        "Current health expenditure per capita (current US$). Most recent value. (2023) 1,557.81. World Bank / WHO Global Health Expenditure Database. 2025 릴리즈 (현재 가용 최신 공식 실측)."
+      ]
+    },
+    {
+      "site_id": "iqvia_sandoz_2024",
+      "site_name": "IQVIA / Sandoz — Pharma retail YoY",
+      "site_url": "https://eventos-cr.com/sandoz/2024/business-meeting-summit-06-24/assets/pdf/javier-villacorta.pdf",
+      "pa_released_at": "2024-06",
+      "collected_at": "2024-06-15T12:00:00Z",
+      "confidence": 0.8,
+      "data": {
+        "pa_price_local": 3.4
+      },
+      "source_paragraphs": [
+        "파나마 소매 의약품 시장 YoY 실측 3.4% (2023–2024, IQVIA·Sandoz regional brief, 2024.6). KOTRA 2026 보고서 거시 전망 10%와 병기 필요."
       ]
     },
     {
@@ -229,8 +263,8 @@
     }
   ],
   "metadata": {
-    "total_sites_attempted": 7,
-    "total_sites_successful": 7,
+    "total_sites_attempted": 10,
+    "total_sites_successful": 10,
     "failed_sites": [],
     "notes": "PubMed 검색 결과 8개 타겟 INN에 대한 파나마 현지 임상 연구 또는 규제 학술 논문은 조회되지 않았음('연구 없음'으로 처리). 관세 철폐 세부 단계 등은 MOTIE 문서 내 직접 명시 텍스트 부족으로 '데이터 없음' 처리."
   }

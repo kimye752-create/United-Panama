@@ -14,7 +14,11 @@ loadEnv();
 export const PANAMA_TABLE = "panama" as const;
 
 /** 공통 6컬럼 중 market_segment 허용 값 */
-export type MarketSegment = "public" | "private" | "macro";
+export type MarketSegment =
+  | "public"
+  | "private"
+  | "macro"
+  | "regulatory_milestone";
 
 /**
  * 1공정(Phase A) INSERT 시 공통 6컬럼 형태.
@@ -97,10 +101,15 @@ export function validatePanamaPhase1Common(row: PanamaPhase1InsertRow): void {
     );
   }
 
-  const segments: readonly MarketSegment[] = ["public", "private", "macro"];
+  const segments: readonly MarketSegment[] = [
+    "public",
+    "private",
+    "macro",
+    "regulatory_milestone",
+  ];
   if (!segments.includes(row.market_segment)) {
     throw new Error(
-      "market_segment는 public, private, macro 중 하나여야 합니다.",
+      "market_segment는 public, private, macro, regulatory_milestone 중 하나여야 합니다.",
     );
   }
 

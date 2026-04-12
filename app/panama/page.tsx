@@ -1,9 +1,17 @@
 import { ProductSelector } from "@/components/ProductSelector";
-import { getMacroSummary } from "@/src/logic/fetch_panama_data";
+import {
+  getMacroSummary,
+  getRegulatoryMilestones,
+} from "@/src/logic/fetch_panama_data";
 import { buildMacroDisplay } from "@/src/logic/macro_display";
+import {
+  milestoneCardBgClass,
+  milestoneTypeLabelKo,
+} from "@/lib/milestone_labels";
 
 export default async function PanamaPage() {
   const macroRows = await getMacroSummary();
+  const milestones = await getRegulatoryMilestones();
   const m = buildMacroDisplay(macroRows);
 
   return (
@@ -16,21 +24,80 @@ export default async function PanamaPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-slate-200 p-4">
           <p className="text-sm text-slate-500">GDP per capita</p>
-          <p className="text-xl font-semibold text-slate-900">{m.gdp}</p>
+          <p className="text-2xl font-semibold tracking-tight text-slate-900">
+            {m.gdp}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">
+            {m.footerGdp}
+          </p>
         </div>
         <div className="rounded-lg border border-slate-200 p-4">
           <p className="text-sm text-slate-500">인구</p>
-          <p className="text-xl font-semibold text-slate-900">{m.population}</p>
+          <p className="text-2xl font-semibold tracking-tight text-slate-900">
+            {m.population}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">
+            {m.footerPopulation}
+          </p>
         </div>
         <div className="rounded-lg border border-slate-200 p-4">
           <p className="text-sm text-slate-500">1인당 보건지출 (연간)</p>
-          <p className="text-xl font-semibold text-slate-900">{m.healthSpend}</p>
+          <p className="text-2xl font-semibold tracking-tight text-slate-900">
+            {m.healthSpend}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">
+            {m.footerHealth}
+          </p>
         </div>
         <div className="rounded-lg border border-slate-200 p-4">
           <p className="text-sm text-slate-500">시장 성장률(참고)</p>
-          <p className="text-xl font-semibold text-slate-900">{m.marketGrowth}</p>
+          <p className="text-2xl font-semibold tracking-tight text-slate-900">
+            {m.marketGrowth}
+          </p>
+          {m.footerMarket !== "" ? (
+            <p className="mt-2 text-xs leading-relaxed text-slate-400">
+              {m.footerMarket}
+            </p>
+          ) : null}
+          {m.footerMarketScopeNote !== "" ? (
+            <p className="mt-1 text-xs italic leading-relaxed text-slate-500">
+              {m.footerMarketScopeNote}
+            </p>
+          ) : null}
         </div>
       </div>
+
+      {milestones.length > 0 ? (
+        <section className="mt-10" aria-labelledby="milestones-heading">
+          <h2
+            id="milestones-heading"
+            className="text-lg font-semibold text-slate-900"
+          >
+            진출 호재 (Regulatory Milestones)
+          </h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {milestones.map((row, i) => (
+              <article
+                key={row.id ?? `milestone-${String(i)}`}
+                className={`rounded-lg border border-slate-200 p-4 ${milestoneCardBgClass(
+                  row.pa_milestone_type,
+                )}`}
+              >
+                <p className="text-sm font-medium text-slate-800">
+                  <span aria-hidden>🎯 </span>
+                  {milestoneTypeLabelKo(row.pa_milestone_type)}
+                </p>
+                <p className="mt-2 text-sm text-slate-700 whitespace-pre-wrap">
+                  {row.pa_notes ?? ""}
+                </p>
+                <p className="mt-3 text-xs text-slate-400">
+                  출처: {row.pa_source ?? "—"} · {row.pa_released_at ?? "—"}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className="mt-6 flex flex-wrap gap-2">
         <span className="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-sm">

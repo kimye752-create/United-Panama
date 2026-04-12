@@ -44,6 +44,8 @@ export interface GeminiMacroSite {
   site_id: string;
   site_name?: string;
   site_url?: string;
+  /** 지표·출처 데이터 릴리즈 시점(연도 또는 YYYY-MM) — panama.pa_released_at */
+  pa_released_at?: string;
   collected_at?: string;
   confidence: number;
   data?: unknown;
@@ -63,6 +65,32 @@ export interface LoadMacroResult {
 
 export interface LoadMacroOptions {
   readonly dryRun?: boolean;
+}
+
+/** JSON `data.pa_price_local` → panama.pa_price_local (IQVIA YoY % 등) */
+function readPaPriceLocalFromData(site: GeminiMacroSite): number | null {
+  const d = site.data;
+  if (d === null || d === undefined || typeof d !== "object" || Array.isArray(d)) {
+    return null;
+  }
+  const raw = (d as Record<string, unknown>)["pa_price_local"];
+  if (typeof raw !== "number" || Number.isNaN(raw)) {
+    return null;
+  }
+  return raw;
+}
+
+/** JSON `data.health_expenditure_per_capita_usd` — 보건 1인당 USD (pa_notes 파싱 폴백용) */
+function readHealthExpenditureUsdFromData(site: GeminiMacroSite): number | null {
+  const d = site.data;
+  if (d === null || d === undefined || typeof d !== "object" || Array.isArray(d)) {
+    return null;
+  }
+  const raw = (d as Record<string, unknown>)["health_expenditure_per_capita_usd"];
+  if (typeof raw !== "number" || Number.isNaN(raw)) {
+    return null;
+  }
+  return raw;
 }
 
 /** source_paragraphs를 하나의 인용 텍스트로 합침 */
@@ -101,6 +129,13 @@ export function siteToPanamaRow(site: GeminiMacroSite): PanamaPhase1InsertRow {
 
   const notes = joinParagraphs(site);
 
+  let priceLocal = readPaPriceLocalFromData(site);
+  if (priceLocal === null) {
+    priceLocal = readHealthExpenditureUsdFromData(site);
+  }
+
+  const releasedAt = site.pa_released_at?.trim();
+
   const row: PanamaPhase1InsertRow = {
     product_id: resolveProductIdForMacroSite(site),
     market_segment: "macro",
@@ -110,8 +145,11 @@ export function siteToPanamaRow(site: GeminiMacroSite): PanamaPhase1InsertRow {
     pa_source: site.site_id,
     pa_source_url: site.site_url ?? null,
     pa_collected_at: collected ?? null,
+    pa_released_at:
+      releasedAt !== undefined && releasedAt !== "" ? releasedAt : null,
     pa_product_name_local: site.site_name ?? site.site_id,
     pa_notes: notes ?? null,
+    pa_price_local: priceLocal,
   };
 
   return row;

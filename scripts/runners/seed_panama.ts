@@ -21,8 +21,9 @@ import {
   DEFAULT_ROUND3_MARKET_INTEL_PATH,
   loadMarketIntelFromFile,
 } from "../../src/seed_loaders/load_market_intel.js";
+import { loadRegulatoryMilestones } from "../../src/seed_loaders/load_regulatory_milestones.js";
 
-type StageName = "macro" | "eml" | "market_intel";
+type StageName = "macro" | "eml" | "market_intel" | "regulatory_milestones";
 
 interface StageInsertCount {
   table: string;
@@ -184,6 +185,41 @@ async function main(): Promise<void> {
     const msg = e instanceof Error ? e.message : String(e);
     stages.push({
       stage: "market_intel",
+      status: "error",
+      inserted: [],
+      error: msg,
+      durationMs: 0,
+    });
+    emitFailed(startedAt, stages, dryRun);
+    process.exit(1);
+  }
+
+  try {
+    const tReg = Date.now();
+    const reg = await loadRegulatoryMilestones({ dryRun });
+    const regMs = Date.now() - tReg;
+    if (!dryRun && reg.failed > 0) {
+      stages.push({
+        stage: "regulatory_milestones",
+        status: "error",
+        inserted: [{ table: TABLE_PANAMA, count: reg.inserted }],
+        error: reg.messages.join(" | "),
+        durationMs: regMs,
+      });
+      emitFailed(startedAt, stages, dryRun);
+      process.exit(1);
+    }
+    stages.push({
+      stage: "regulatory_milestones",
+      status: "ok",
+      inserted: [{ table: TABLE_PANAMA, count: reg.inserted }],
+      error: null,
+      durationMs: regMs,
+    });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    stages.push({
+      stage: "regulatory_milestones",
       status: "error",
       inserted: [],
       error: msg,

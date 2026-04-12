@@ -1,5 +1,36 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 / 세션13 / fix(panama): 성장률 카드 팩트체크 완료
+
+### Changed
+- fix(panama): 성장률 카드 팩트체크 완료. KOTRA 10%는 보건의료 전체 scope(의료기기 포함)로 확인되어 제거. Perplexity 제시 KOTRA CAGR 5% 주장은 PDF 원문 검증 실패로 채택 불가. IQVIA Sandoz 2024 YoY 3.4% 단일 표기 + scope 명시 footer 추가 (`macro_display.ts`, `app/panama/page.tsx` 스코프 줄 스타일).
+
+## [Unreleased] - 2026-04-12 (ui — 거시 카드 타이포·footer)
+
+### Changed
+- ui(panama): 거시 4카드 — 상단은 수치만(`text-2xl`), 연도·출처는 footer(`·` 구분). 성장률은 IQVIA 출처 + 스코프 보조 줄 (`macro_display.ts`, `fetch_panama_data.ts`, `app/panama/page.tsx`)
+
+## [Unreleased] - 2026-04-12 (fix — 거시 보건·성장률 카드 표시)
+
+### Fixed
+- fix(macro): Supabase `pa_price_local` DECIMAL가 문자열로 역직렬화될 때 `pharmaGrowthDisplayFromRows`가 건너뛰던 문제 — `coerceFiniteNumber` 적용, `pa_notes`에서 YoY 보조 파싱(`parsePharmaYoYPercentFromNotes`).
+- fix(macro): `worldbank_who_ghed` 보건 — `pa_notes` 파싱 실패 시 `pa_price_local`(시드 `health_expenditure_per_capita_usd` 매핑) 폴백, `load_macro.ts`에서 보건 USD를 `pa_price_local`에 적재.
+- fix(analysis): `toPriceRows`가 `coerceFiniteNumber`로 `PriceRow` 숫자 타입 유지.
+
+## [Unreleased] - 2026-04-12 (fix — 거시 시드 pa_released_at)
+
+### Fixed
+- fix(seed): `round1_macro.json` 거시 4 site에 `pa_released_at` 추가, `load_macro.ts`에서 `panama.pa_released_at` 매핑
+
+## [Unreleased] - 2026-04-12 (feat — 세션13 거시 4종 + 규제 마일스톤)
+
+### Added
+- feat(panama): World Bank 2024 GDP·인구 확정치 및 2023 보건지출 반영. IQVIA 2024 제약시장 YoY 3.4% + KOTRA 거시 10% 병기(국가 페이지 footer). `worldbank`·`worldbank_who_ghed`·`iqvia_sandoz_2024` 시드 행 분리 (`data/seed/panama/round1_macro.json`).
+- feat(panama): `regulatory_milestone` 2건 시드 (`src/seed_loaders/load_regulatory_milestones.ts`)·국가 페이지 「진출 호재」 카드. DDL `scripts/ddl/panama_alter_session13_macro_milestone.sql` — CHECK `panama_market_segment_check`에 `default`·`regulatory_milestone` 반영 (실행 전 `SELECT DISTINCT market_segment FROM panama` 권장).
+
+### Changed
+- chore(seed): `npm run seed:panama`에 규제 마일스톤 단계 추가. `market_segment` 타입에 `regulatory_milestone` 허용 (`db_connector.ts`).
+
 ## [Unreleased] - 2026-04-12 (chore — 핸드오프 Git 제외)
 
 ### Changed

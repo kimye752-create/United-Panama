@@ -5,7 +5,12 @@
 /// <reference types="node" />
 
 import { createSupabaseServer } from "../../lib/supabase-server";
-import { parseGdpPerCapita, parsePopulation } from "../../lib/parse_macro_notes";
+import {
+  parseGdpPerCapita,
+  parseHealthPerCapitaUsd,
+  parsePharmaYoYPercentFromNotes,
+  parsePopulation,
+} from "../../lib/parse_macro_notes";
 
 const PANAMA = "panama" as const;
 const PANAMA_EML = "panama_eml" as const;
@@ -15,7 +20,8 @@ export interface PanamaRow {
   id?: string;
   product_id?: string | null;
   pa_source?: string | null;
-  pa_price_local?: number | null;
+  /** Supabase DECIMAL 등이 문자열로 올 수 있음 */
+  pa_price_local?: number | string | null;
   pa_currency_unit?: string | null;
   pa_package_unit?: string | null;
   pa_price_type?: string | null;
@@ -24,6 +30,8 @@ export interface PanamaRow {
   pa_notes?: string | null;
   confidence?: number | null;
   market_segment?: string | null;
+  pa_milestone_type?: string | null;
+  pa_released_at?: string | null;
 }
 
 export interface DistributorRow {
@@ -48,15 +56,44 @@ export interface EmlStatus {
   emlMinsa: boolean;
 }
 
+/** Postgres DECIMAL → JS에서 string으로 올 때 대비 */
+export function coerceFiniteNumber(v: unknown): number | null {
+  if (v === null || v === undefined) {
+    return null;
+  }
+  if (typeof v === "number" && Number.isFinite(v)) {
+    return v;
+  }
+  if (typeof v === "string") {
+    const t = v.trim().replace(/,/g, "");
+    if (t === "") {
+      return null;
+    }
+    const n = Number.parseFloat(t);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+/** GDP·인구 카드 — 상단 값(연도 없음) + footer용 관측 연도 */
+export interface WorldbankMacroCardParts {
+  gdpPerCapita: string | null;
+  population: string | null;
+  gdpObservationYear: string | null;
+  populationObservationYear: string | null;
+}
+
 /**
  * worldbank 거시 행의 `pa_notes`에서 GDP per capita·인구 표시 문자열 생성
  * (pa_price_local NULL 이슈 대응)
  */
 export function worldbankMacroDisplaysFromRows(
   rows: readonly PanamaRow[],
-): { gdpPerCapita: string | null; population: string | null } {
+): WorldbankMacroCardParts {
   let gdpPerCapita: string | null = null;
   let population: string | null = null;
+  let gdpObservationYear: string | null = null;
+  let populationObservationYear: string | null = null;
 
   for (const r of rows) {
     if (r.pa_source !== "worldbank") {
@@ -74,7 +111,8 @@ export function worldbankMacroDisplaysFromRows(
           notes.match(/\(current US\$\)\s*\((\d{4})\)/i) ??
           notes.match(/\(US\$\)\s*\((\d{4})\)/);
         const yearStr = ym?.[1] ?? "2024";
-        gdpPerCapita = `$${Math.round(v).toLocaleString("en-US")} (${yearStr})`;
+        gdpPerCapita = `$${Math.round(v).toLocaleString("en-US")}`;
+        gdpObservationYear = yearStr;
       }
     }
 
@@ -83,13 +121,86 @@ export function worldbankMacroDisplaysFromRows(
       if (v !== null) {
         const ym = notes.match(/value\.?\s*\((\d{4})\)/i);
         const yearStr = ym?.[1] ?? "2024";
-        // 451만명 표기 (seed Population ≈ 4,515,577)
-        population = `${Math.floor(v / 10000)}만명 (${yearStr})`;
+        population = `${v.toLocaleString("en-US")}명`;
+        populationObservationYear = yearStr;
       }
     }
   }
 
-  return { gdpPerCapita, population };
+  return {
+    gdpPerCapita,
+    population,
+    gdpObservationYear,
+    populationObservationYear,
+  };
+}
+
+/** 보건지출 카드 — 상단 금액만, 관측 연도는 footer용 */
+export interface HealthMacroCardParts {
+  display: string | null;
+  observationYear: string | null;
+}
+
+/**
+ * worldbank_who_ghed 행 `pa_notes`에서 1인당 보건지출(USD) 표시 문자열
+ */
+export function healthMacroDisplayFromRows(
+  rows: readonly PanamaRow[],
+): HealthMacroCardParts {
+  for (const r of rows) {
+    if (r.pa_source !== "worldbank_who_ghed") {
+      continue;
+    }
+    const notes = r.pa_notes ?? "";
+    let v = notes !== "" ? parseHealthPerCapitaUsd(notes) : null;
+    if (v === null) {
+      const fb = coerceFiniteNumber(r.pa_price_local);
+      if (fb !== null && fb >= 50) {
+        v = fb;
+      }
+    }
+    if (v === null) {
+      continue;
+    }
+    const ym = notes.match(/value\.?\s*\((\d{4})\)/i);
+    const yearStr = ym?.[1] ?? "2023";
+    const rounded = Math.round(v).toLocaleString("en-US");
+    return { display: `$${rounded}`, observationYear: yearStr };
+  }
+  return { display: null, observationYear: null };
+}
+
+/** 성장률 카드 — 상단 %만, 출처·기간은 footer */
+export interface PharmaGrowthMacroCardParts {
+  display: string | null;
+  /** 예: 출처: IQVIA 2024 실측 · 2023~2024 */
+  sourceFooter: string | null;
+}
+
+/**
+ * iqvia_sandoz_2024 행에서 YoY % 메인 문구
+ */
+export function pharmaGrowthDisplayFromRows(
+  rows: readonly PanamaRow[],
+): PharmaGrowthMacroCardParts {
+  for (const r of rows) {
+    if (r.pa_source !== "iqvia_sandoz_2024") {
+      continue;
+    }
+    let pct = coerceFiniteNumber(r.pa_price_local);
+    const notes = r.pa_notes ?? "";
+    if (pct === null && notes !== "") {
+      pct = parsePharmaYoYPercentFromNotes(notes);
+    }
+    if (pct === null) {
+      continue;
+    }
+    return {
+      display: `${pct}%`,
+      sourceFooter: "출처: IQVIA 2024 실측 · 2023~2024",
+    };
+  }
+  return { display: null, sourceFooter: null };
 }
 
 function readBoolCell(
@@ -166,6 +277,24 @@ export async function getMacroSummary(): Promise<PanamaRow[]> {
       .from(PANAMA)
       .select("*")
       .eq("market_segment", "macro");
+    if (error !== null) {
+      return [];
+    }
+    return (data ?? []) as PanamaRow[];
+  } catch {
+    return [];
+  }
+}
+
+/** 규제 마일스톤 카드(진출 호재) — pa_released_at 내림차순 */
+export async function getRegulatoryMilestones(): Promise<PanamaRow[]> {
+  try {
+    const sb = createSupabaseServer();
+    const { data, error } = await sb
+      .from(PANAMA)
+      .select("*")
+      .eq("market_segment", "regulatory_milestone")
+      .order("pa_released_at", { ascending: false });
     if (error !== null) {
       return [];
     }

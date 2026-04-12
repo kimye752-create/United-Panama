@@ -16,6 +16,7 @@ import {
   countPublicOrBothDistributors,
   getDistributors,
   getEmlStatus,
+  coerceFiniteNumber,
   getMacroSummary,
   getPriceRowsByProduct,
   getSourceAggregation,
@@ -48,10 +49,7 @@ export type AnalyzePanamaResult = {
 function toPriceRows(rows: PanamaRow[]): PriceRow[] {
   return rows.map((r) => ({
     id: r.id,
-    pa_price_local:
-      r.pa_price_local === undefined || r.pa_price_local === null
-        ? null
-        : r.pa_price_local,
+    pa_price_local: coerceFiniteNumber(r.pa_price_local),
     pa_ingredient_inn: null,
   }));
 }
