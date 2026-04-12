@@ -23,7 +23,7 @@ export default async function PanamaPage() {
           <p className="text-xl font-semibold text-slate-900">{m.population}</p>
         </div>
         <div className="rounded-lg border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">보건/의료비 지표</p>
+          <p className="text-sm text-slate-500">1인당 보건지출 (연간)</p>
           <p className="text-xl font-semibold text-slate-900">{m.healthSpend}</p>
         </div>
         <div className="rounded-lg border border-slate-200 p-4">

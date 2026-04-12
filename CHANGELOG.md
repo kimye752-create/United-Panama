@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-12 (fix — 거시 카드 인구·보건 라벨)
+
+### Fixed
+- fix(macro): `parsePopulation` 정규식이 `Most recent value. (2024)` 형태(마침표) 미매칭 → 인구가 항상 「데이터 수집 중」이던 문제 수정 (`lib/parse_macro_notes.ts`, `fetch_panama_data.ts` 연도·만명 표기)
+- fix(ui): 파나마 국가 개요 보건 카드 라벨을 「1인당 보건지출 (연간)」으로 통일 (`app/panama/page.tsx`)
+
 ## [Unreleased] - 2026-04-12 (docs — session12 박제)
 
 ### Notes

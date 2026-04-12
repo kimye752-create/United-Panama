@@ -81,9 +81,10 @@ export function worldbankMacroDisplaysFromRows(
     if (notes.includes("Population")) {
       const v = parsePopulation(notes);
       if (v !== null) {
-        const ym = notes.match(/value\s*\((\d{4})\)/i);
+        const ym = notes.match(/value\.?\s*\((\d{4})\)/i);
         const yearStr = ym?.[1] ?? "2024";
-        population = `${(v / 1e6).toFixed(2)}M (${yearStr})`;
+        // 451만명 표기 (seed Population ≈ 4,515,577)
+        population = `${Math.floor(v / 10000)}만명 (${yearStr})`;
       }
     }
   }
