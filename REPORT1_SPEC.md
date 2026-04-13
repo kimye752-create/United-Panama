@@ -215,7 +215,7 @@ interface JudgmentResult {
 **Reasoning 템플릿**:
 - "민간 약국 채널 실데이터 확보 {privateRetailCount}건" (또는 유통 파트너 보유)
 - "한국 위생선진국 지정으로 등록 $500/0.5~1개월"
-- "파나마 국민 70% CSS 가입, 1인당 의료비 $1,547"
+- "파나마 국민 70% CSS 가입, 1인당 의료비 $1,557.81(World Bank/WHO GHED 2023)"
 
 **Risks**:
 - "공공조달 트랙 미확보 → 민간 유통사 의존 리스크"

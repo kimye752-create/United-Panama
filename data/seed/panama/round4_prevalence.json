@@ -75,7 +75,7 @@
     "product_id": "ba6cf610-9d7c-4fb9-9506-eabd7a5457b8",
     "inn_en": "MACRO_HEALTHCARE_INFRA",
     "target_disease": "파나마 국가 의료 인프라",
-    "metric": "총인구 4,515,577명 · 1인당 보건지출 $1,547 · CSS 사회보장 가입률 70%",
+    "metric": "총인구 4,515,577명 · 1인당 보건지출 $1,557.81(World Bank/WHO GHED 2023) · CSS 사회보장 가입률 70%",
     "source": "World Bank 2024 + KOTRA 파나마 무역관 2024",
     "panama_specific": true,
     "confidence": 0.9

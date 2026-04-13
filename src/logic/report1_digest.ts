@@ -3,14 +3,24 @@
  */
 import type { AnalyzePanamaResult } from "./panama_analysis";
 import type { PanamaRow } from "./fetch_panama_data";
+import { getPahoRegionalReferenceLine } from "./paho_reference_prices";
 
 const DIGEST_MAX = 8000;
 
-/** pa_notes에 prevalence 시드가 있으면 한 줄 추출 */
+/**
+ * pa_notes에 prevalence 시드 추출 — 반드시 해당 product_id 행만 사용
+ * (이전: macro 전역 행·round3·epidemiology MACRO 행이 먼저 매칭되어 INN 교차오염 발생)
+ */
 export function extractPrevalenceMetric(
-  rows: readonly PanamaRow[],
+  productId: string,
+  priceRows: readonly PanamaRow[],
+  macroRows: readonly PanamaRow[],
 ): string | null {
-  for (const r of rows) {
+  const combined: readonly PanamaRow[] = [...priceRows, ...macroRows];
+  for (const r of combined) {
+    if (r.product_id !== productId) {
+      continue;
+    }
     const n = r.pa_notes;
     if (n === undefined || n === null || n === "") {
       continue;
@@ -20,6 +30,25 @@ export function extractPrevalenceMetric(
     }
   }
   return null;
+}
+
+/** 유통사 상호 — 대소문자 무시 중복 제거, 입력 순서 유지 */
+export function dedupeDistributorNames(names: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of names) {
+    const n = raw.trim();
+    if (n === "") {
+      continue;
+    }
+    const key = n.toLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    out.push(n);
+  }
+  return out;
 }
 
 /** generateReport1.rawDataDigest 생성 */
@@ -37,6 +66,11 @@ export function buildRawDataDigest(result: AnalyzePanamaResult): string {
   parts.push(
     `panamacompra_count=${String(result.panamacompraCount)} private_retail=${String(result.privateRetailCount)}`,
   );
+
+  const pahoRef = getPahoRegionalReferenceLine(result.product.who_inn_en);
+  if (pahoRef !== null) {
+    parts.push(`[paho_regional_price] ${pahoRef}`);
+  }
 
   for (const r of result.macroRows.slice(0, 14)) {
     const src = r.pa_source ?? "";

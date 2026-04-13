@@ -42,6 +42,8 @@ export interface GeneratorInput {
   emlWho: boolean;
   emlPaho: boolean;
   prevalenceMetric: string | null;
+  /** PAHO 권역 참조 단가 등 — 없으면 null */
+  pahoRegionalReference: string | null;
   distributorNames: string[];
   panamacompraCount: number;
   rawDataDigest: string;
@@ -109,13 +111,18 @@ async function saveCache(
 }
 
 function buildUserPrompt(input: GeneratorInput): string {
+  const pahoLine =
+    input.pahoRegionalReference !== null && input.pahoRegionalReference !== ""
+      ? input.pahoRegionalReference
+      : "해당 INN 시드 미적재 (낙찰·민간가만 근거)";
   return `[입력 데이터]
 - 제품: ${input.brandName} (${input.innEn})
 - Case 판정: ${input.caseGrade} (${input.caseVerdict})
 - WHO EML 등재: ${input.emlWho ? "Y" : "N"}
 - PAHO Strategic Fund 등재: ${input.emlPaho ? "Y" : "N"}
 - 표적 질환 prevalence: ${input.prevalenceMetric ?? "데이터 없음 (폴백 룰 적용)"}
-- 발굴 유통 파트너: ${input.distributorNames.join(", ")}
+- PAHO 권역 참조 단가(별도 시드): ${pahoLine}
+- 발굴 유통 파트너(회사명 중복 없음): ${input.distributorNames.join(", ")}
 - PanamaCompra 최근 낙찰 건수: ${String(input.panamacompraCount)}
 
 [Supabase raw 데이터 발췌]
@@ -225,6 +232,7 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     emlWho: input.emlWho,
     emlPaho: input.emlPaho,
     prevalenceMetric: input.prevalenceMetric,
+    pahoRegionalReference: input.pahoRegionalReference,
     distributorNames: input.distributorNames,
     panamacompraCount: input.panamacompraCount,
   };

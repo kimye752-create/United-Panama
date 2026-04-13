@@ -6,9 +6,11 @@ import { NextResponse } from "next/server";
 import { analyzePanamaProduct } from "@/src/logic/panama_analysis";
 import {
   buildRawDataDigest,
+  dedupeDistributorNames,
   extractPrevalenceMetric,
 } from "@/src/logic/report1_digest";
 import { generateReport1, type GeneratorInput } from "@/src/llm/report1_generator";
+import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
 import { findProductById } from "@/src/utils/product-dictionary";
 
 export const runtime = "nodejs";
@@ -47,10 +49,14 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const result = await analyzePanamaProduct(productId);
     const rawDataDigest = buildRawDataDigest(result);
-    const prevalenceMetric = extractPrevalenceMetric([
-      ...result.priceRows,
-      ...result.macroRows,
-    ]);
+    const prevalenceMetric = extractPrevalenceMetric(
+      productId,
+      result.priceRows,
+      result.macroRows,
+    );
+    const distributorNames = dedupeDistributorNames(
+      result.matchedDistributors.map((d) => d.company_name),
+    );
 
     const generatorInput: GeneratorInput = {
       productId,
@@ -61,7 +67,10 @@ export async function POST(req: Request): Promise<Response> {
       emlWho: result.emlWho,
       emlPaho: result.emlPaho,
       prevalenceMetric,
-      distributorNames: result.matchedDistributors.map((d) => d.company_name),
+      pahoRegionalReference: getPahoRegionalReferenceLine(
+        result.product.who_inn_en,
+      ),
+      distributorNames,
       panamacompraCount: result.panamacompraCount,
       rawDataDigest,
     };

@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-11 (fix(report): 세션16 데이터 매핑 버그 4종)
+
+### Fixed
+- fix(report): 역학 prevalence INN 교차오염 — `extractPrevalenceMetric`이 `product_id` 미필터로 첫 `prevalence:` 행만 쓰던 문제를 해당 품목 행만 순회하도록 수정 (`src/logic/report1_digest.ts`).
+- fix(report): 유통 파트너 상호 반복 — `dedupeDistributorNames` + 시스템 프롬프트에 상호 1회 서술 규칙 (`report1_digest.ts`, `report1_schema.ts`).
+- fix(report): PAHO Strategic Fund 권역 참조 단가 누락 — `getPahoRegionalReferenceLine`(Hydroxyurea 등)을 digest·`GeneratorInput`·폴백 가격 블록·PDF 라우트에 반영 (`paho_reference_prices.ts`, `analyze/route.ts`, `pdf/route.ts`, `report1_generator.ts`, `report1_fallback_template.ts`).
+- fix(report): 보건지출 시드/문구 — `$1,547` → `$1,557.81`(World Bank/WHO GHED 2023) 정합 (`round4_prevalence.json` MACRO metric, `case_judgment.ts`, 폴백 템플릿, `REPORT1_SPEC.md` 예시).
+
 ## [Unreleased] - 2026-04-13 (ui — 랜딩 `/panama` + Report1 A4 문서형)
 
 ### Changed

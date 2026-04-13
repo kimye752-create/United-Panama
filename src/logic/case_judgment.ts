@@ -77,7 +77,7 @@ export function judgeCase(input: JudgmentInput): JudgmentResult {
           `민간 약국 채널 실데이터 확보 ${privateRetailCount}건`,
         ),
         clip("한국 위생선진국 지정으로 등록 $500/0.5~1개월"),
-        clip("파나마 국민 70% CSS 가입, 1인당 의료비 $1,547"),
+        clip("파나마 국민 70% CSS 가입, 1인당 의료비 $1,557.81(World Bank/WHO GHED 2023)"),
       ],
       risks: [clip("공공조달 트랙 미확보 → 민간 유통사 의존 리스크")],
     };

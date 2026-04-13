@@ -103,3 +103,29 @@ export function findProductByKeyword(keyword: string): ProductMaster | undefined
     p.panama_search_keywords.some((k) => k.toLowerCase() === normalized),
   );
 }
+
+/**
+ * Panama 현지 텍스트(품목 설명·분류 등)에 어떤 `panama_search_keywords`가
+ * 부분 일치하면 해당 제품을 반환합니다. (대소문자 무시, 첫 매칭 제품 우선)
+ */
+export function findProductByPanamaText(blob: string): ProductMaster | undefined {
+  const lower = blob.trim().toLowerCase();
+  if (lower === "") {
+    return undefined;
+  }
+  for (const p of TARGET_PRODUCTS) {
+    for (const kw of p.panama_search_keywords) {
+      if (lower.includes(kw.trim().toLowerCase())) {
+        return p;
+      }
+    }
+  }
+  /** OCDS 본문에 WHO INN(영문)만 노출되는 경우 — 실측에서 ES 키워드 0건 구간 존재 */
+  for (const p of TARGET_PRODUCTS) {
+    const inn = p.who_inn_en.trim().toLowerCase();
+    if (inn !== "" && lower.includes(inn)) {
+      return p;
+    }
+  }
+  return undefined;
+}

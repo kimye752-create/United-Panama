@@ -14,6 +14,7 @@ import {
   generateReport1,
   type GeneratorInput,
 } from "@/src/llm/report1_generator";
+import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
 import { findProductById } from "@/src/utils/product-dictionary";
 
 export const runtime = "nodejs";
@@ -162,6 +163,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     emlWho: body.emlWho,
     emlPaho: body.emlPaho,
     prevalenceMetric: body.prevalenceMetric,
+    pahoRegionalReference: getPahoRegionalReferenceLine(product.who_inn_en),
     distributorNames: body.distributorNames,
     panamacompraCount: body.panamacompraCount,
     rawDataDigest: body.rawDataDigest,

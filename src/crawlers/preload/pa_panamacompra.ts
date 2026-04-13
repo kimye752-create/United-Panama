@@ -18,6 +18,7 @@ import {
 } from "../../utils/db_connector.js";
 import {
   findProductByKeyword,
+  findProductByPanamaText,
   TARGET_PRODUCTS,
   type ProductMaster,
 } from "../../utils/product-dictionary.js";
@@ -39,7 +40,11 @@ export interface OcdsClassification {
 export interface OcdsAwardItem {
   id: string;
   description?: string;
+  /** 품목 단위 낙찰 금액(OCDS 실측 — award.value 대신 우선) */
+  totalValue?: OcdsMoney;
   classification?: OcdsClassification;
+  /** 수량(있으면 pa_notes에 반영) */
+  quantity?: number;
   unit?: {
     name?: string;
     scheme?: string;
@@ -89,11 +94,12 @@ export interface OcdsApiResponse {
 const UNSPSC_PHARMA_SEGMENT = "51000000";
 
 const PAGE_SIZE = 50;
-const MAX_PAGES_PER_KEYWORD = 8;
+/** 키워드별 OCDS 페이징 상한 — 값을 키우면 8품목·다중 검색어에서 실행 시간이 길어짐 */
+const MAX_PAGES_PER_KEYWORD = 12;
 /** 매칭 릴리스가 이 개수 이상이면 페이지 순회 중단(과도 페이징 방지) */
 const MAX_MATCHED_RELEASES = 40;
-/** 이 페이지 수까지 매칭 0이면 키워드 미존재로 보고 조기 종료 */
-const MAX_PAGES_WHEN_ZERO_MATCH = 3;
+/** 이 페이지 수까지 매칭 0이면 키워드 미존재로 보고 조기 종료 (이전 3은 과도하게 짧음) */
+const MAX_PAGES_WHEN_ZERO_MATCH = 8;
 const MAX_RESULTS_PER_INN = 20;
 const CONFIDENCE_PANAMACOMPRA = 0.9;
 const PA_SOURCE = "panamacompra" as const;
@@ -126,6 +132,7 @@ function releaseMatchesKeyword(
   if (k === "") {
     return false;
   }
+  /** 페이징 후보: tender·award·품목 텍스트 전부 (적재 단계는 itemToPanamaRow에서 재검증) */
   const chunks: string[] = [];
   if (release.tender?.title !== undefined) {
     chunks.push(release.tender.title);
@@ -144,6 +151,9 @@ function releaseMatchesKeyword(
       if (it.description !== undefined) {
         chunks.push(it.description);
       }
+      if (it.classification?.description !== undefined) {
+        chunks.push(it.classification.description);
+      }
     }
   }
   const blob = chunks.join(" ").toLowerCase();
@@ -158,27 +168,136 @@ function buildReleaseSourceUrl(release: OcdsRelease): string {
   return `${OCDS_RELEASES_BASE}?ocid=${encodeURIComponent(release.ocid)}`;
 }
 
-function awardToPanamaRow(
+/** 품목·낙찰·공고 텍스트로 매칭된 제품이 현재 루프 제품과 일치하는지 */
+function itemBlobMatchesProduct(blob: string, product: ProductMaster): boolean {
+  const resolved = findProductByPanamaText(blob);
+  return resolved !== undefined && resolved.product_id === product.product_id;
+}
+
+/** pa_ingredient_inn 표기 — 키워드 우선, 없으면 WHO INN(영문) 일치 시 사용 */
+function firstMatchedPanamaKeywordOrInn(
+  product: ProductMaster,
+  blob: string,
+): string | null {
+  const low = blob.toLowerCase();
+  for (const kw of product.panama_search_keywords) {
+    if (low.includes(kw.trim().toLowerCase())) {
+      return kw;
+    }
+  }
+  const inn = product.who_inn_en.trim().toLowerCase();
+  if (inn !== "" && low.includes(inn)) {
+    return product.who_inn_en;
+  }
+  return null;
+}
+
+function buildItemBlob(
   release: OcdsRelease,
   award: OcdsAward,
+  item: OcdsAwardItem,
+): string {
+  const parts: string[] = [];
+  if (release.tender?.title !== undefined) {
+    parts.push(release.tender.title);
+  }
+  if (release.tender?.description !== undefined) {
+    parts.push(release.tender.description);
+  }
+  if (award.title !== undefined) {
+    parts.push(award.title);
+  }
+  if (award.description !== undefined) {
+    parts.push(award.description);
+  }
+  if (item.description !== undefined) {
+    parts.push(item.description);
+  }
+  if (item.classification?.description !== undefined) {
+    parts.push(item.classification.description);
+  }
+  return parts.join(" ");
+}
+
+function pickMoneyForRow(
+  item: OcdsAwardItem,
+  award: OcdsAward,
+): OcdsMoney | null {
+  const iv = item.totalValue;
+  if (
+    iv !== undefined &&
+    typeof iv.amount === "number" &&
+    !Number.isNaN(iv.amount)
+  ) {
+    return iv;
+  }
+  const av = award.value;
+  if (
+    av !== undefined &&
+    typeof av.amount === "number" &&
+    !Number.isNaN(av.amount)
+  ) {
+    return av;
+  }
+  return null;
+}
+
+function currencyForRow(m: OcdsMoney): string {
+  const c = m.currency.trim().toUpperCase();
+  if (c === "PAB" || c === "USD") {
+    return c;
+  }
+  return m.currency;
+}
+
+/**
+ * OCDS 품목(awards[].items[]) 단위 행 — MACRO 폴백 없음, 매칭 실패 시 null
+ *
+ * (이전) award 단위 + award.value만 사용하던 구현은 품목 totalValue 누락으로 행이
+ * 버려질 수 있어 주석 보존:
+ * // function awardToPanamaRow(...) { award.value만 사용; items 미순회 }
+ */
+function itemToPanamaRow(
+  release: OcdsRelease,
+  award: OcdsAward,
+  item: OcdsAwardItem,
   product: ProductMaster,
-  matchedKeyword: string,
   crawledAt: string,
 ): PanamaPhase1InsertRow | null {
-  const v = award.value;
-  if (v === undefined || typeof v.amount !== "number") {
+  const blob = buildItemBlob(release, award, item);
+  if (!itemBlobMatchesProduct(blob, product)) {
     return null;
   }
-  const firstItem = award.items?.[0];
+  const kwTag = firstMatchedPanamaKeywordOrInn(product, blob);
+  if (kwTag === null) {
+    return null;
+  }
+  const resolved = findProductByPanamaText(blob);
+  if (resolved === undefined || resolved.product_id !== product.product_id) {
+    return null;
+  }
+  const money = pickMoneyForRow(item, award);
+  if (money === null) {
+    return null;
+  }
   const desc =
-    firstItem?.description ??
+    item.description ??
     award.description ??
     release.tender?.title ??
     release.tender?.description ??
     "";
   const supplierName = award.suppliers?.[0]?.name ?? "unknown";
+  const qty =
+    item.quantity !== undefined && !Number.isNaN(item.quantity)
+      ? String(item.quantity)
+      : "?";
+  const unitName = item.unit?.name ?? "?";
+  const collected = award.date ?? release.date;
 
-  const paNotes = `[TENDER] ocid=${release.ocid}, award_id=${award.id}, supplier=${supplierName}`;
+  const paNotes =
+    `[TENDER] ocid=${release.ocid}, award_id=${award.id}, item_id=${item.id}, ` +
+    `supplier=${supplierName}, qty=${qty}, unit=${unitName}, ` +
+    `collected=${collected}`;
 
   return {
     product_id: product.product_id,
@@ -188,32 +307,34 @@ function awardToPanamaRow(
     crawled_at: crawledAt,
     pa_source: PA_SOURCE,
     pa_source_url: buildReleaseSourceUrl(release),
-    pa_collected_at: award.date ?? release.date,
+    pa_collected_at: collected,
     pa_product_name_local: desc.slice(0, 2000),
-    pa_ingredient_inn: matchedKeyword,
+    pa_ingredient_inn: kwTag,
     pa_price_type: "tender_award",
-    pa_price_local: v.amount,
-    pa_currency_unit: "USD",
-    pa_package_unit: firstItem?.unit?.name ?? null,
+    pa_price_local: money.amount,
+    pa_currency_unit: currencyForRow(money),
+    pa_package_unit: item.unit?.name ?? null,
     pa_decree_listed: null,
     pa_stock_status: null,
     pa_notes: paNotes,
   };
 }
 
-/** 키워드에 해당하는 릴리스만 — award 평탄화는 별도 */
+/** 릴리스별 awards[].items[] 순회 — INN 키워드 미매칭 행은 스킵 */
 function flattenReleasesToRows(
   releases: readonly OcdsRelease[],
   product: ProductMaster,
-  matchedKeyword: string,
+  _matchedKeyword: string,
   crawledAt: string,
 ): PanamaPhase1InsertRow[] {
   const out: PanamaPhase1InsertRow[] = [];
   for (const rel of releases) {
     for (const award of rel.awards ?? []) {
-      const row = awardToPanamaRow(rel, award, product, matchedKeyword, crawledAt);
-      if (row !== null) {
-        out.push(row);
+      for (const item of award.items ?? []) {
+        const row = itemToPanamaRow(rel, award, item, product, crawledAt);
+        if (row !== null) {
+          out.push(row);
+        }
       }
     }
   }
@@ -249,7 +370,9 @@ function isOcdsApiResponse(v: unknown): v is OcdsApiResponse {
 function buildFirstPageUrl(): string {
   const params = new URLSearchParams();
   params.set("page[size]", String(PAGE_SIZE));
-  params.set("filter[items.classification.id]", UNSPSC_PHARMA_SEGMENT);
+  /* UNSPSC 51000000만 보면 의약품 키워드가 본문에 안 나오는 릴리스만 연속으로 잡혀
+   * 키워드 매칭 0건이 됨 → 키워드 검색 경로에서는 필터 제거(실측 세션16). */
+  // params.set("filter[items.classification.id]", UNSPSC_PHARMA_SEGMENT);
   return `${OCDS_RELEASES_BASE}?${params.toString()}`;
 }
 
@@ -322,7 +445,12 @@ export async function crawlPanamaCompra(
 
   for (const product of TARGET_PRODUCTS) {
     let hitForProduct = false;
-    for (const keyword of product.panama_search_keywords) {
+    const searchTerms = [
+      ...product.panama_search_keywords.map((k) => k.trim()),
+      product.who_inn_en.trim(),
+    ].filter((k) => k !== "");
+    const uniqueTerms = [...new Set(searchTerms)];
+    for (const keyword of uniqueTerms) {
       const byDict = findProductByKeyword(keyword);
       if (byDict !== undefined && byDict.product_id !== product.product_id) {
         continue;

@@ -13,6 +13,7 @@
     "verify:panama-sources": "tsx scripts/verify_panama_by_source.ts",
     "preload:macro": "tsx scripts/runners/preload_macro.ts",
     "preload:public": "tsx scripts/runners/preload_public.ts",
+    "preload:panamacompra": "tsx scripts/runners/preload_panamacompra.ts",
     "preload:private": "tsx scripts/runners/preload_private.ts",
     "seed:panama": "tsx scripts/runners/seed_panama.ts",
     "seed:panama:dry": "tsx scripts/runners/seed_panama.ts --dry-run"
