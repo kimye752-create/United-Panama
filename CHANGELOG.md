@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-13 (ui — 루트 → Report1 기본 진입)
+
+### Changed
+- ui(nav): `/` 리다이렉트를 `/panama`에서 `/panama/report/hydroxyurea`(하이드린·A4형 웹 보고서)로 변경 — 배포 사이트 첫 화면이 국가 대시보드가 아닌 제품 분석 보고서로 열림. 거시·규제 요약은 `/panama` 유지 (`app/page.tsx`)
+
+## [Unreleased] - 2026-04-13 (feat — 세션16 PanamaCompra OCDS)
+
+### Added
+- feat(crawler): PanamaCompra OCDS — `awards[].items[]` 단위 행, `item.totalValue` 우선·`award.value` 폴백, `pa_currency_unit` PAB/USD 반영, UNSPSC 필터 제거로 키워드 검색 노출 확대, 페이징 조기종료 완화(`MAX_PAGES_WHEN_ZERO_MATCH` 3→8 등), 검색어에 `who_inn_en` 병행, `findProductByPanamaText`에 WHO INN(영문) 보조 매칭 (`product-dictionary.ts`, `pa_panamacompra.ts`)
+- chore(scripts): `npm run preload:panamacompra` — `scripts/runners/preload_panamacompra.ts`
+
+### Notes
+- 실측: 공개 `releases` 대량 샘플에서 자사 8품목 INN/키워드가 품목 텍스트에 **등장하지 않아** 첫 실적재는 **0건**일 수 있음(코드 경로 검증은 완료). 필요 시 페이징 상한 추가 상향 또는 별도 검색 API 조사.
+
 ## [Unreleased] - 2026-04-12 / 세션13 / fix(panama): 성장률 카드 팩트체크 완료
 
 ### Changed
