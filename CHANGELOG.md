@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-13 (feat(ui): INN 빠른 전환 탭 — 세션17 작업1)
+
+### Added
+- feat(ui): INN 빠른 전환 가로 탭 UI 신규 (8 INN 즉시 전환, URL query param 기반)
+
 ## [Unreleased] - 2026-04-11 (fix(report): 세션16 마무리 — block3 항목별 maxLength + Aceclofenac scope footer)
 
 ### Fixed

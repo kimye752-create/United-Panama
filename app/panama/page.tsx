@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { ProductSelector } from "@/components/ProductSelector";
 import {
   getMacroSummary,
@@ -8,6 +10,8 @@ import {
   milestoneCardBgClass,
   milestoneTypeLabelKo,
 } from "@/lib/milestone_labels";
+
+import { PanamaReportSection } from "./PanamaReportSection";
 
 export default async function PanamaPage() {
   const macroRows = await getMacroSummary();
@@ -110,6 +114,16 @@ export default async function PanamaPage() {
       </div>
 
       <ProductSelector />
+
+      <Suspense
+        fallback={
+          <p className="mt-10 text-sm text-slate-500">보고서 영역 준비 중…</p>
+        }
+      >
+        <div id="panama-report" className="mt-10">
+          <PanamaReportSection />
+        </div>
+      </Suspense>
     </main>
   );
 }

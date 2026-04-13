@@ -11,6 +11,7 @@ import type { Report1Payload } from "@/src/llm/report1_schema";
 import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
 import type { ProductMaster } from "@/src/utils/product-dictionary";
 
+import INNTabs from "./INNTabs";
 import { Report1, type LlmBundle } from "./Report1";
 
 function isRecord(x: unknown): x is Record<string, unknown> {
@@ -47,9 +48,11 @@ type DigestState = {
 
 type Props = {
   product: ProductMaster;
+  /** `/panama?inn=` 값 — 탭 하이라이트용 */
+  currentInn: string;
 };
 
-export function PanamaReportClient({ product }: Props) {
+export function PanamaReportClient({ product, currentInn }: Props) {
   const [data, setData] = useState<AnalyzePanamaResult | null>(null);
   const [llm, setLlm] = useState<LlmBundle | null>(null);
   const [digest, setDigest] = useState<DigestState | null>(null);
@@ -181,6 +184,8 @@ export function PanamaReportClient({ product }: Props) {
           <p className="text-sm text-red-600">{error}</p>
         ) : null}
       </div>
+
+      <INNTabs currentInn={currentInn} />
 
       {loading ? (
         <p className="text-slate-600">분석 및 LLM 본문 생성 중…</p>

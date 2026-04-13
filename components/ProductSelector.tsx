@@ -6,7 +6,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { whoInnToSlug } from "@/src/logic/inn_slug";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 export function ProductSelector() {
@@ -41,7 +40,9 @@ export function ProductSelector() {
           if (p === undefined) {
             return;
           }
-          router.push(`/panama/report/${whoInnToSlug(p.who_inn_en)}`);
+          router.push(
+            `/panama?inn=${encodeURIComponent(p.who_inn_en)}#panama-report`,
+          );
         }}
       >
         분석 (A4 보고서)
