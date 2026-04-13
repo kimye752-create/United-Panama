@@ -18,7 +18,11 @@ export type MarketSegment =
   | "public"
   | "private"
   | "macro"
-  | "regulatory_milestone";
+  | "regulatory_milestone"
+  /** 민간 소매(Arrocha 등) — 세션 17 */
+  | "private_retail"
+  /** 규제·등록 조회(DNFD 등) — 세션 17 */
+  | "regulatory";
 
 /**
  * 1공정(Phase A) INSERT 시 공통 6컬럼 형태.
@@ -106,6 +110,8 @@ export function validatePanamaPhase1Common(row: PanamaPhase1InsertRow): void {
     "private",
     "macro",
     "regulatory_milestone",
+    "private_retail",
+    "regulatory",
   ];
   if (!segments.includes(row.market_segment)) {
     throw new Error(

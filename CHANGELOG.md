@@ -1,5 +1,18 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-13 (feat(crawler): Arrocha v2 + DNFD — 세션17)
+
+### Added
+- feat(crawler): `pa_arrocha_v2` 신규 (Shopify Search `suggest.json` + `products/{handle}.json`, 세션16 후퇴 결정 번복) — `pa_source: arrocha_shopify_api`, `market_segment: private_retail`, 8 INN 경쟁사 가격·`pa_notes`에 단위 단가·총액·제형 메타. `npm run preload:arrocha-v2` (LLM 미사용, `MAX_LLM_CALLS_PER_RUN=0` 동일). 선택 env: `ARROCHA_SESSION_COOKIE`.
+- feat(crawler): `pa_dnfd_consulta` 신규 (Playwright, `tramites-minsa.panamadigital.gob.pa`) — `pa_source: dnfd_consulta`, CAPTCHA 시 `MANUAL_INTERVENTION_REQUIRED`. `npm run preload:dnfd` (절차 JSON + 조회 일괄).
+- feat(seed): `src/seed_data/round6_dnfd_procedure.json` + `load_dnfd_procedure.ts` — `pa_source: dnfd_procedure_meta`, `product_id: MACRO_PRODUCT_ID`, WLA 5단계 메타.
+- feat(llm): `src/llm/system_context_panama.ts` — `PANAMA_DOMAIN_CONTEXT` (PAB=USD, 제형·티어·WLA).
+- chore(ddl): `scripts/ddl/panama_alter_session17_market_segments.sql` — `market_segment`에 `private_retail`, `regulatory` CHECK 추가 (Supabase 수동 실행).
+- chore(db): `db_connector` `MarketSegment`에 `private_retail`·`regulatory` 반영.
+
+### Notes
+- 사전 검증: `search/suggest.json` 은 **200·JSON**이나 `products[]`가 **빈 배열**일 수 있음(스토어 잠금·지역). 실측 INSERT는 0건일 수 있음 — `ARROCHA_SESSION_COOKIE` 또는 파나마 IP에서 재시도 권장.
+
 ## [Unreleased] - 2026-04-13 (feat(ui): INN 빠른 전환 탭 — 세션17 작업1)
 
 ### Added

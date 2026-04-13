@@ -19,7 +19,10 @@ function prettySource(paSource: string): string {
     minsa: "MINSA",
     css: "CSS",
     arrocha: "Arrocha",
+    arrocha_shopify_api: "Arrocha (Shopify API)",
     metroplus: "Metro Plus",
+    dnfd_consulta: "DNFD/MINSA 조회",
+    dnfd_procedure_meta: "DNFD 절차 메타",
     metro_plus: "Metro Plus",
     gemini_seed: "1차 시드",
   };

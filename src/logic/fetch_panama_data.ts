@@ -409,7 +409,11 @@ export async function countPrivateRetail(productId: string): Promise<number> {
   const rows = await getPriceRowsByProduct(productId);
   return rows.filter((r) => {
     const s = r.pa_source ?? "";
-    return s === "arrocha" || s === "metroplus";
+    return (
+      s === "arrocha" ||
+      s === "arrocha_shopify_api" ||
+      s === "metroplus"
+    );
   }).length;
 }
 

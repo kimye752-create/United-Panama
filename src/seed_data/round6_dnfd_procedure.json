@@ -1,0 +1,39 @@
+{
+  "procedure_steps": [
+    {
+      "step": 1,
+      "title": "현지 대리인 지정",
+      "detail": "공인 약사(Pharmacist) + 법정 대리인(변호사) 선임 필수",
+      "duration_weeks": 2
+    },
+    {
+      "step": 2,
+      "title": "서류 스페인어 공증",
+      "detail": "FSC, GMP 증명서, 제품 사양서, 라벨링 아트워크 등 14종 이상",
+      "duration_weeks": 4
+    },
+    {
+      "step": 3,
+      "title": "Panamá Digital 온라인 제출",
+      "detail": "tramites-minsa.panamadigital.gob.pa 15단계 신청 폼 + 수수료 결제",
+      "duration_weeks": 1
+    },
+    {
+      "step": 4,
+      "title": "신속 심사 (WLA 패스트트랙)",
+      "detail": "한국=고위생국가(Países de Alto Estándar) 지정으로 현지 임상시험·실험실 분석 면제. 기존 2~3년 → 대폭 단축",
+      "duration_weeks": 12,
+      "highlight": "WLA_FASTTRACK"
+    },
+    {
+      "step": 5,
+      "title": "허가증 발급",
+      "detail": "5년 유효 위생등록증명서 발급 → 합법 유통·공공조달 입찰 참여 가능",
+      "duration_weeks": 1
+    }
+  ],
+  "legal_basis": "Law 419 (2024.02 발효) + 2025 행정명령",
+  "wla_korea_status": "designated",
+  "source": "Gemini 리서치 + DNFD 공식 자료",
+  "collected_at": "2026-04-13"
+}
