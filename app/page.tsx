@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
 
-/**
- * 루트 접속 시 A4형 제품 보고서(Report1) 기본 진입 — Vercel 배포 첫 화면과 동일 경험
- * 국가 요약(거시 카드 등): /panama
- */
+/** 첫 화면: 국가 요약 + 품목 토글 — 제품 분석 보고서는 `/panama/report/[inn]` (토글·분석 버튼) */
 export default function HomePage() {
-  redirect("/panama/report/hydroxyurea");
+  redirect("/panama");
 }

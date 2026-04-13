@@ -44,7 +44,7 @@ export function ProductSelector() {
           router.push(`/panama/report/${whoInnToSlug(p.who_inn_en)}`);
         }}
       >
-        진출 적합 분석
+        분석 (A4 보고서)
       </button>
     </div>
   );

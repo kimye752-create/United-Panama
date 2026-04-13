@@ -18,7 +18,8 @@ export default async function PanamaPage() {
     <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="text-3xl font-bold text-slate-900">파나마 국가 개요</h1>
       <p className="mt-2 text-slate-600">
-        거시 지표 요약 및 8개 INN 진출 적합 분석 진입
+        거시 지표·규제 요약 후 아래에서 품목을 고르고 「분석 (A4 보고서)」을 누르면
+        문서형 분석 결과로 이동합니다.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

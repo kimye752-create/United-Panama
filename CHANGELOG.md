@@ -1,9 +1,11 @@
 # Vibe Coding Log
 
-## [Unreleased] - 2026-04-13 (ui — 루트 → Report1 기본 진입)
+## [Unreleased] - 2026-04-13 (ui — 랜딩 `/panama` + Report1 A4 문서형)
 
 ### Changed
-- ui(nav): `/` 리다이렉트를 `/panama`에서 `/panama/report/hydroxyurea`(하이드린·A4형 웹 보고서)로 변경 — 배포 사이트 첫 화면이 국가 대시보드가 아닌 제품 분석 보고서로 열림. 거시·규제 요약은 `/panama` 유지 (`app/page.tsx`)
+- ui(nav): `/` → `/panama` 복구 — 첫 화면은 국가 요약·품목 토글, A4형 보고서는 토글 후 「분석 (A4 보고서)」로만 진입 (`app/page.tsx`, `ProductSelector.tsx`, `app/panama/page.tsx`)
+- ui(report): `Report1`을 세로 ①②③ 나열형에서 **A4 문서형(회사 헤더·메타 배너·표 중심)** 으로 재구성 — `CaseBadge` 제거, 출처 표 `gemini_seed` → 「1차 시드」 라벨 (`Report1.tsx`, `SourceTable.tsx`)
+- ui(report): 보고서 화면 상단에 「← 파나마 국가 개요」 링크 (`PanamaReportClient.tsx`)
 
 ## [Unreleased] - 2026-04-13 (feat — 세션16 PanamaCompra OCDS)
 

@@ -3,6 +3,7 @@
  */
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { parseReport1Payload } from "@/src/llm/report1_schema";
@@ -161,6 +162,12 @@ export function PanamaReportClient({ product }: Props) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Link
+          href="/panama"
+          className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+        >
+          ← 파나마 국가 개요
+        </Link>
         <button
           type="button"
           className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"

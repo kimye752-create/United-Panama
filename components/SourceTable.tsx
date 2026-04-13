@@ -21,7 +21,7 @@ function prettySource(paSource: string): string {
     arrocha: "Arrocha",
     metroplus: "Metro Plus",
     metro_plus: "Metro Plus",
-    gemini_seed: "Gemini seed",
+    gemini_seed: "1차 시드",
   };
   return m[paSource] ?? paSource;
 }
