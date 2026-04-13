@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-11 (fix(report): 세션16 마무리 — block3 항목별 maxLength + Aceclofenac scope footer)
+
+### Fixed
+- fix(report): `REPORT1_TOOL`·`parseReport1Payload` — `block3_reasoning` 5줄을 항목별 min/max로 검증(1번 최대 200자·5번 최대 250자·2~4번 100자). `block3_latam_scope_footnote` 선택 필드(빈 문자열 → null 정규화).
+- fix(report): `report1_fallback_template` — `fitBlock3Line` 줄 인덱스별 상한(`BLOCK3_LINE_MAX`), Aceclofenac+`latam_average` 시 1번 본문에서 trailing `(…scope=latam_average…)` 제거·고정 각주(`report1_block3_utils.splitAceclofenacPrevalenceForBlock3`).
+- fix(report): `buildUserPrompt` — 줄별 차등 길이·Aceclofenac 각주 지시 보강.
+- ui(report): `Report1.tsx`·`Report1Document.tsx`·`pdf-styles` — 판정 근거 표 하단에 scope 각주(있을 때만) 표시.
+- docs: `REPORT1_SPEC.md` 블록3 — 5줄·항목별 길이·Aceclofenac 각주 명세 갱신.
+
+### Notes
+- 세션 16 보고서 관련 버그 해소 완료(명세-구현 정합). Vercel·캐시 무효화는 사용자 측 진행.
+
 ## [Unreleased] - 2026-04-11 (feat(seed+report): 세션16 prevalence 8 INN 전체 seed + 조회 로직 완전 수정)
 
 ### Added

@@ -160,6 +160,22 @@ export function Report1({
               ))}
             </tbody>
           </table>
+          {/* Aceclofenac + latam_average: 1번 본문과 분리된 scope 각주 */}
+          {(() => {
+            const f = llm.payload.block3_latam_scope_footnote;
+            const text =
+              f !== null && f !== undefined && typeof f === "string"
+                ? f.trim()
+                : "";
+            if (text === "") {
+              return null;
+            }
+            return (
+              <p className="mt-2 border-t border-slate-200 px-2 pt-2 text-xs italic leading-snug text-slate-600">
+                {text}
+              </p>
+            );
+          })()}
         </section>
 
         <section>

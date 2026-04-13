@@ -116,6 +116,12 @@ function buildUserPrompt(input: GeneratorInput): string {
     input.pahoRegionalReference !== null && input.pahoRegionalReference !== ""
       ? input.pahoRegionalReference
       : "해당 INN 시드 미적재 (낙찰·민간가만 근거)";
+  const aceclofenacFootnoteRule =
+    input.innEn === "Aceclofenac" &&
+    input.prevalenceMetric.includes("latam_average")
+      ? `INN Aceclofenac + prevalence에 scope=latam_average 포함: 1번 줄에서 괄호(scope) 구간은 쓰지 말고, block3_latam_scope_footnote에 시스템 프롬프트 고정 각주 한 줄을 넣을 것.`
+      : `INN이 Aceclofenac이 아니거나 latam_average 없음: block3_latam_scope_footnote는 빈 문자열.`;
+
   return `[입력 데이터]
 - 제품: ${input.brandName} (${input.innEn})
 - Case 판정: ${input.caseGrade} (${input.caseVerdict})
@@ -125,6 +131,12 @@ function buildUserPrompt(input: GeneratorInput): string {
 - PAHO 권역 참조 단가(별도 시드): ${pahoLine}
 - 발굴 유통 파트너(회사명 중복 없음): ${input.distributorNames.join(", ")}
 - PanamaCompra 최근 낙찰 건수: ${String(input.panamacompraCount)}
+
+[블록3 줄별 길이 — 도구 스키마와 동일]
+- 1번 시장·의료: 30~200자 (prevalence·출처 풀 인용 가능)
+- 2~4번: 각 30~100자
+- 5번 유통: 30~250자 (4개 파트너 전체명 + AHP·PSI 문구)
+${aceclofenacFootnoteRule}
 
 [Supabase raw 데이터 발췌]
 ${input.rawDataDigest}

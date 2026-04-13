@@ -1,5 +1,10 @@
 import type { Report1Payload } from "./report1_schema";
 
+import {
+  BLOCK3_LINE_MAX,
+  splitAceclofenacPrevalenceForBlock3,
+} from "../logic/report1_block3_utils";
+
 /** 폴백용 입력 인터페이스 (느슨) */
 export interface FallbackInput {
   innEn: string;
@@ -14,18 +19,19 @@ export interface FallbackInput {
   panamacompraCount: number;
 }
 
-/** 블록3 한 줄을 스키마 30~100자로 맞춤 */
-function fitBlock3Line(s: string): string {
+/** 블록3 한 줄 — 줄 인덱스별 maxLength (1번 200·5번 250·그 외 100) */
+function fitBlock3Line(s: string, idx: number): string {
+  const maxChars = BLOCK3_LINE_MAX[idx] ?? 100;
   let t = s.trim();
-  if (t.length > 100) {
-    t = t.slice(0, 100);
+  if (t.length > maxChars) {
+    t = t.slice(0, maxChars);
   }
   const pad = " 수집 데이터 범위 내 수치만 인용.";
   while (t.length < 30) {
     t += pad;
   }
-  if (t.length > 100) {
-    t = t.slice(0, 100);
+  if (t.length > maxChars) {
+    t = t.slice(0, maxChars);
   }
   return t;
 }
@@ -54,12 +60,17 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
       ? input.distributorNames.join(", ")
       : "Feduro, Celmar, Haseth, Astur";
 
-  /** 거시(인구·보건·CSS)는 1회만; prevalence는 DB/입력에 있을 때만 같은 줄에 덧붙임 */
+  const { displayForLine1, latamFootnote } = splitAceclofenacPrevalenceForBlock3(
+    input.innEn,
+    input.prevalenceMetric,
+  );
+
+  /** 거시(인구·보건·CSS)는 1회만; prevalence는 표시용 문자열( Aceclofenac 시 scope 괄호 제거 ) */
   const baseMarket =
     "시장·의료: 인구 451만, 1인당 보건지출 $1,557.81(World Bank/WHO GHED 2023), CSS 가입률 70%";
   const reasoning1 =
-    input.prevalenceMetric.trim() !== ""
-      ? `${baseMarket}; 표적 역학 ${input.prevalenceMetric.trim()}`
+    displayForLine1.trim() !== ""
+      ? `${baseMarket}; 표적 역학 ${displayForLine1.trim()}`
       : baseMarket;
 
   const reasoningRaw: string[] = [
@@ -72,7 +83,7 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
     `유통: 파트너 ${String(input.distributorNames.length)}개사 발굴(${distList}) — 3공정 AHP 엔진⑥ PSI 점수화 예정.`,
   ];
 
-  const reasoning = reasoningRaw.map((line) => fitBlock3Line(line));
+  const reasoning = reasoningRaw.map((line, idx) => fitBlock3Line(line, idx));
 
   const channelRaw =
     input.caseGrade === "A"
@@ -91,6 +102,7 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
 
   return {
     block3_reasoning: reasoning,
+    block3_latam_scope_footnote: latamFootnote,
     block4_1_channel: fitBlock4(channelRaw, 200, 500),
     block4_2_pricing: fitBlock4(pricingRaw, 200, 500),
     block4_3_partners: fitBlock4(partnersRaw, 200, 500),

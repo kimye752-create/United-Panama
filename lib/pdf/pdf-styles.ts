@@ -92,6 +92,13 @@ export const pdfStyles = StyleSheet.create({
     color: GRAY_TEXT,
     marginBottom: 2,
   },
+  /** 블록3 Aceclofenac scope=latam_average 각주 — 본문보다 한 단계 작게 */
+  scopeFootnote: {
+    fontSize: 7,
+    color: GRAY_TEXT,
+    marginTop: 4,
+    fontStyle: "italic",
+  },
   sourceTable: {
     borderWidth: 1,
     borderColor: GRAY_BORDER,

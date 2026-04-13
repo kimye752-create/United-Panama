@@ -67,6 +67,17 @@ export function Report1Document(props: Report1PdfProps) {
                   {i + 1}. {line}
                 </Text>
               ))}
+              {(() => {
+                const f = props.llmPayload.block3_latam_scope_footnote;
+                const t =
+                  f !== null && f !== undefined && typeof f === "string"
+                    ? f.trim()
+                    : "";
+                if (t === "") {
+                  return null;
+                }
+                return <Text style={pdfStyles.scopeFootnote}>{t}</Text>;
+              })()}
             </View>
           </View>
         </View>
