@@ -1,7 +1,7 @@
 # 10가지 크롤링 기법 — 적용 현황 매트릭스 (Session 16)
 
 > 출처: `ARCHITECTURE.md` § 10가지 크롤링 기법.
-> 분류: **실구현 5** / **Skeleton 2** / **Phase 2 연기 3** (Session 16 마무리 반영)
+> 분류: **실구현 5** / **Skeleton 2** / **Phase 2 연기 3** (Session 16 반영)
 
 ## 요약
 
@@ -30,39 +30,31 @@
 
 ---
 
-## 실구현 범위 (1공정, 세션 16 마무리 시점)
+## 실구현 범위 (1공정, 세션 16 시점)
 
 ### L1 정적 seed (메인, 적재 정상)
 - `load_macro` — round1_macro.json
 - `load_eml` — round2_eml.json (16건)
-- `load_market_intel` — round3_market_intel.json (panama_distributors 4건)
+- `load_market_intel` — round3_market_intel.json (panama_distributors 4건 포함)
 - `load_regulatory_milestones` — 규제 마일스톤 2건 (세션 13)
-- `load_prevalence` — round4_prevalence.json (세션 16, 9건 = 8 INN + MACRO)
-- `load_paho_reference_prices` — PAHO 권역 단가 (세션 16)
 
 ### L2 거시 크롤러 (정상 작동)
-- pa_worldbank, pa_ita, pa_kotra, pa_motie, pa_pubmed (5종)
+- `pa_worldbank` (GDP·인구·보건지출)
+- `pa_ita`, `pa_kotra`, `pa_motie`, `pa_pubmed`
 
-### L2 Phase A 크롤러 (적재 0건 — 진단·후퇴 완료)
-| 사이트 | 코드 상태 | 라이브 응답 | 적재 | 상태 |
-|---|---|---|---|---|
-| PanamaCompra OCDS | 완성 (424줄, 세션 16 명세 정정) | 200 OK | 0건 | 8 INN 부재 진단 완료 (7,500건 0매칭) |
-| MINSA faddi | 스켈레톤 (72줄) | — | 0건 | CSRF 미구현 |
-| CSS | 부분 (149줄) | 403 + Cloudflare | 0건 | 차단 (Phase 2) |
-| ACODECO | 정상 | — | 2건 | **세션 17 1순위 — 153품목 확장** |
+### L2 Phase A 크롤러 (적재 0건)
+| 사이트 | 코드 상태 | 라이브 응답 | 적재 |
+|---|---|---|---|
+| PanamaCompra OCDS | 완성 (424줄, 세션 16 명세 정정) | 200 OK | **0건** — 7,500건 샘플 8 INN 0매칭 |
+| MINSA faddi | 스켈레톤 (72줄) | — | **0건** |
+| CSS | 부분 (149줄) | 403 + Cloudflare 챌린지 | **0건** |
+| ACODECO | 정상 | — | 2건 |
 
-### L2 Phase A 규제 (세션 16 신규 발견, 세션 17 진입 예정)
-| 사이트 | URL | 우선순위 |
-|---|---|---|
-| **DNFD 공공 조회 포털** | tramites-minsa.panamadigital.gob.pa | 🔴 세션 17 2순위 |
-| **DNFD 공식 사이트** | dnfd.minsa.gob.pa | 🟡 세션 17 3순위 |
-
-### L2 Phase B 크롤러 (적재 0건, Arrocha·Metro Plus 후퇴)
-| 사이트 | 세션 16 라이브 검증 | 결정 |
-|---|---|---|
-| Arrocha | Shopify ✅, /products.json 200 ✅, **의약품 컬렉션 차단 🔴** | 후퇴 (Phase 2) |
-| Metro Plus | WordPress/WooCommerce (Shopify 가설 기각) | 후퇴 (Phase 2) |
-| El Javillo, Revilla, FarmaValue, Saba, Super 99, Riba Smith | 미검증 | 세션 17 작업 10 (정찰) |
+### L2 Phase B 크롤러 (적재 0건, 후퇴 검토 중)
+| 사이트 | 코드 상태 | 세션 16 실측 | 적재 |
+|---|---|---|---|
+| Arrocha | 스켈레톤 (55줄, dry-run) | 200 OK, cf-mitigated 헤더 없음 | **0건** |
+| Metro Plus | 스켈레톤 (43줄) | DNS 실패 (네트워크 의존) | **0건** |
 
 ### 정제·인프라
 - SAND IQR 이상치 — 적용
@@ -77,35 +69,21 @@
 - LLM 3단 체인 (Opus → Sonnet → fallback)
 - panama_report_cache 24h TTL
 - Vercel 베타 배포 (`united-panama.vercel.app`)
-- **세션 16 버그 4종 + 잘림 + scope footer 모두 통과**
-
----
-
-## 세션 16 보고서 품질 강화 — 통과 항목
-
-| # | 항목 | 통과 결과 |
-|---|---|---|
-| 1 | 역학 INN 교차오염 (H.pylori) | ✅ product_id 엄격 필터 |
-| 2 | 파트너 이름 중복 (Haseth 3회 등) | ✅ dedupe + 시스템 프롬프트 룰 |
-| 3 | PAHO $0.188 누락 | ✅ paho_reference_prices.ts 주입 |
-| 4 | 보건지출 $1,547 → $1,557.81 | ✅ World Bank/WHO GHED 2023 |
-| 5 | prevalence 8 INN 신규 적재 | ✅ gemini_prevalence (5건 파나마 실측) |
-| 6 | 판정근거 1·5번 잘림 (100자) | ✅ `[200,100,100,100,250]` 차등 |
-| 7 | Aceclofenac scope=latam_average | ✅ 본문 분리 + footer 표시 |
 
 ---
 
 ## Phase 2 로드맵 — AI 기반 의미적 신선도 판정 2단계 게이트 (해법 C)
 
-> 세션 8 박제. L3 web_search 트리거를 담당하는 게이트 설계.
+> 세션 8 신규 추가. L3 web_search 트리거를 담당하는 게이트 설계.
 
 | 항목 | 상태 | 위치 |
 |---|---|---|
-| 설계 문서 | ✅ 박제 완료 | `docs/research/freshness_2gate_architecture.md` |
+| 설계 문서 | ✅ 박제 완료 (세션 8) | `docs/research/freshness_2gate_architecture.md` |
 | 인터페이스 스켈레톤 | 🔴 미작성 | `src/logic/freshness_checker.ts` |
 | Phase 1 휴리스틱 | 🔴 Phase 2 로드맵 | 정규식+메타데이터, staleScore 가중치 |
 | Phase 1.5 LLM Judge | 🔴 Phase 2 로드맵 | Haiku, max_tokens 극단 제한 |
 | Phase 2 web_search | 🔴 Phase 2 로드맵 | Anthropic, allowed_domains 강제 |
+| 야간 배치 분리 | 🔴 운영 진입 시 | 응답 시간 회피 목적 |
 
 **핵심 원칙**:
 - 시간 규칙 단독 판정 금지 (False Negative 방지 — 2025.1 MINSA 행정령 케이스)
@@ -120,40 +98,38 @@
 |---|---|
 | PDF API A안 구조 | ✅ 완성 (세션 12) |
 | react-pdf + 한글 폰트 | 🔴 Phase 2 (5회 시도 실패) |
+| 폰트 번들링 전략 | 🔴 Phase 2 (Puppeteer 대체 검토) |
 | 9페이지 통합 PDF | 🔴 Phase 2 |
 
 세션 12 시도 이력: Pretendard TTF/OTF, PretendardStd, Noto Sans KR woff, Nanum Gothic woff — 모두 react-pdf v4.4.1 + 한글 호환성 이슈로 실패.
 
 다음 세션 우선 시도:
-1. Puppeteer + 웹 화면 PDF 캡처
+1. Puppeteer + 웹 화면 PDF 캡처 (서버리스 환경 호환성 재검증)
 2. PDFKit 직접 사용 + 시스템 폰트
 3. 외부 PDF 생성 API (DocRaptor, PDFShift 등)
 
 ---
 
-## 세션 17 작업 큐 (12개, 32~42시간)
+## 세션 17+ 신규 작업 큐 (세션 12~13 결정, 미착수)
 
-| 순서 | 작업 | 시간 | 성공 측정 |
-|---|---|---|---|
-| 🔴 1 | ACODECO PDF 파서 | 4~6h | 50건+ INSERT |
-| 🔴 2 | DNFD 공공 조회 포털 (Playwright) | 3~4h | 자사 8 INN 등록 8행 |
-| 🟡 3 | DNFD 공식 사이트 (정적) | 2~3h | 5건+ INSERT |
-| 🟡 4 | FarmaValue Playwright | 2~3h | 8 INN 매칭 가격 |
-| 🟡 5 | INN 빠른 전환 탭 UI | 2~3h | 발표 임팩트 |
-| 🟡 6 | Perplexity API + 보고서 3페이지 | 3~4h | 학술 8편 |
-| 🟢 7 | data_reconciler 6규칙 | 4~5h | 충돌 자동 해결 |
-| 🟢 8 | ATC 코드 + product_matcher 5단계 | 3~4h | 매칭 위계 |
-| 🟢 9 | product-dictionary form/strength | 2h | CR/일반 구분 |
-| 🟢 10 | 신규 6사 라이브 검증 | 2h | 정찰 |
-| 🟢 11 | ITA RAG 추출 | 2~3h | 거시 자동 갱신 |
-| 🟢 12 | 보고서 2페이지 (데이터 투명성) | 3h | 5개 블록 |
+| 작업 | 시간 | 비고 |
+|---|---|---|
+| data_reconciler.ts 4규칙 | 2h | 신규 vs 기존 충돌 판단 |
+| product-dictionary.ts 보강 | 2h | form/strength/unit 다중 필터 |
+| product_matcher.ts 5단계 위계 | 2~3h | Exact/Strong/Partial/Form Mismatch/INN Only |
+| 보고서 4-2 가격 포지셔닝 개선 | 1h | 매칭 등급 UI |
+| 보고서 2페이지 (데이터 투명성) | 3h | 5개 블록 신설 |
+| Perplexity API + 보고서 3페이지 | 3~4h | INN 5건 + 거시 3건 |
 
 ---
 
 ## 변경 이력
 
-- Session 7 W0~W4: 최초 문서화, 보고서 1장 UI 완성.
-- Session 8: 해법 C (AI 의미 게이트) Phase 2 로드맵 박제.
-- Session 12: 엔진⑦ PDF Phase 2 이월. 시스템 프롬프트 금지어 14종.
+- Session 7 W0: 최초 문서화.
+- Session 7 W1: SAND·ComEM·stealth_setup·공공 3종 크롤러·preload_public 반영.
+- Session 7 W2: XGrammar Skeleton·Phase B stub 3종·민간 2종 Skeleton·매트릭스 재정렬.
+- Session 7 W4: Next.js 14·보고서 1장 UI·Case 판정·Supabase 조회.
+- Session 8: 해법 C (AI 의미 게이트) Phase 2 로드맵 섹션 신규 추가.
+- Session 12: 엔진⑦ PDF Phase 2 이월 표·시도 이력·다음 우선순위 박제.
 - Session 13: 거시 카드 정밀화, 규제 마일스톤 시드 신규.
-- **Session 16**: 용어 체계 이중 축 정립 (L1/L2/L3 + Phase A/B). PanamaCompra 명세 정정. **버그 4종 수정 + 잘림 fix + scope footer + prevalence 8 INN 신규 적재**. Arrocha·Metro Plus 정찰·후퇴 결정. DNFD 신규 발견 (3 사이트). 사이트 19개 → 23개 매트릭스 확장. 절대원칙 18·19·20 신규 (실제 INSERT 측정 + product_id 엄격 + 판정근거 차등 maxLength).
+- Session 16: 용어 체계 이중 축 정립 (수집 시점 L1/L2/L3 + 데이터 채널 Phase A/B). PanamaCompra 명세 정정 반영. L2 크롤러 적재 0건 현황 + 8 INN 부재 발견 박제. Phase 2 → "Phase 2 로드맵" 표현 통일 (시점 Phase B와 혼동 방지).
