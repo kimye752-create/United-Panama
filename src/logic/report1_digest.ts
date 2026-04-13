@@ -4,32 +4,19 @@
 import type { AnalyzePanamaResult } from "./panama_analysis";
 import type { PanamaRow } from "./fetch_panama_data";
 import { getPahoRegionalReferenceLine } from "./paho_reference_prices";
+import { resolvePrevalenceMetric } from "./prevalence_resolve";
 
 const DIGEST_MAX = 8000;
 
 /**
- * pa_notes에 prevalence 시드 추출 — 반드시 해당 product_id 행만 사용
- * (이전: macro 전역 행·round3·epidemiology MACRO 행이 먼저 매칭되어 INN 교차오염 발생)
+ * pa_notes 역학 추출 — DB만(시드 폴백 없음). 없으면 빈 문자열.
  */
 export function extractPrevalenceMetric(
   productId: string,
   priceRows: readonly PanamaRow[],
   macroRows: readonly PanamaRow[],
-): string | null {
-  const combined: readonly PanamaRow[] = [...priceRows, ...macroRows];
-  for (const r of combined) {
-    if (r.product_id !== productId) {
-      continue;
-    }
-    const n = r.pa_notes;
-    if (n === undefined || n === null || n === "") {
-      continue;
-    }
-    if (n.toLowerCase().includes("prevalence:")) {
-      return n.length > 400 ? n.slice(0, 400) : n;
-    }
-  }
-  return null;
+): string {
+  return resolvePrevalenceMetric(productId, priceRows, macroRows);
 }
 
 /** 유통사 상호 — 대소문자 무시 중복 제거, 입력 순서 유지 */

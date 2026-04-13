@@ -41,7 +41,8 @@ export interface GeneratorInput {
   caseVerdict: string;
   emlWho: boolean;
   emlPaho: boolean;
-  prevalenceMetric: string | null;
+  /** 비어 있으면 역학 인용 생략(폴백·프롬프트에서 다른 INN·거시 행으로 채우지 않음) */
+  prevalenceMetric: string;
   /** PAHO 권역 참조 단가 등 — 없으면 null */
   pahoRegionalReference: string | null;
   distributorNames: string[];
@@ -120,7 +121,7 @@ function buildUserPrompt(input: GeneratorInput): string {
 - Case 판정: ${input.caseGrade} (${input.caseVerdict})
 - WHO EML 등재: ${input.emlWho ? "Y" : "N"}
 - PAHO Strategic Fund 등재: ${input.emlPaho ? "Y" : "N"}
-- 표적 질환 prevalence: ${input.prevalenceMetric ?? "데이터 없음 (폴백 룰 적용)"}
+- 표적 질환 prevalence: ${input.prevalenceMetric.trim() !== "" ? input.prevalenceMetric : "없음(해당 product_id DB 행 없음, 인용 생략)"}
 - PAHO 권역 참조 단가(별도 시드): ${pahoLine}
 - 발굴 유통 파트너(회사명 중복 없음): ${input.distributorNames.join(", ")}
 - PanamaCompra 최근 낙찰 건수: ${String(input.panamacompraCount)}

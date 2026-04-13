@@ -19,7 +19,7 @@ type Props = {
   data: AnalyzePanamaResult;
   llm: LlmBundle;
   rawDataDigest: string;
-  prevalenceMetric: string | null;
+  prevalenceMetric: string;
 };
 
 function hsForProduct(inn: string): string {

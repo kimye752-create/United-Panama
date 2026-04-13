@@ -26,7 +26,7 @@ interface PdfRequestBody {
   confidence: number;
   emlWho: boolean;
   emlPaho: boolean;
-  prevalenceMetric: string | null;
+  prevalenceMetric: string;
   distributorNames: string[];
   panamacompraCount: number;
   rawDataDigest: string;
@@ -87,10 +87,11 @@ function parsePdfBody(raw: unknown): PdfRequestBody | null {
   if (typeof raw.emlWho !== "boolean" || typeof raw.emlPaho !== "boolean") {
     return null;
   }
-  const pm = raw.prevalenceMetric;
-  if (pm !== null && typeof pm !== "string") {
+  const pmRaw = raw.prevalenceMetric;
+  if (pmRaw !== null && pmRaw !== undefined && typeof pmRaw !== "string") {
     return null;
   }
+  const pm = typeof pmRaw === "string" ? pmRaw : "";
   if (!Array.isArray(raw.distributorNames)) {
     return null;
   }

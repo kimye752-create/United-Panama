@@ -8,7 +8,7 @@ export interface FallbackInput {
   caseVerdict: string;
   emlWho: boolean;
   emlPaho: boolean;
-  prevalenceMetric: string | null;
+  prevalenceMetric: string;
   pahoRegionalReference: string | null;
   distributorNames: string[]; // 4개 기대
   panamacompraCount: number;
@@ -54,12 +54,16 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
       ? input.distributorNames.join(", ")
       : "Feduro, Celmar, Haseth, Astur";
 
-  const prevLine = input.prevalenceMetric
-    ? `${input.prevalenceMetric}로 표적 환자 풀 확인됨`
-    : "파나마 1인당 보건지출 $1,557.81(World Bank/WHO GHED 2023) + CSS 가입률 70%로 의료 접근성 안정적";
+  /** 거시(인구·보건·CSS)는 1회만; prevalence는 DB/입력에 있을 때만 같은 줄에 덧붙임 */
+  const baseMarket =
+    "시장·의료: 인구 451만, 1인당 보건지출 $1,557.81(World Bank/WHO GHED 2023), CSS 가입률 70%";
+  const reasoning1 =
+    input.prevalenceMetric.trim() !== ""
+      ? `${baseMarket}; 표적 역학 ${input.prevalenceMetric.trim()}`
+      : baseMarket;
 
   const reasoningRaw: string[] = [
-    `시장·의료: 인구 451만, 1인당 보건지출 $1,557.81, CSS 70%; ${prevLine}.`,
+    reasoning1,
     `규제: 한국 위생선진국 지정(2023.6.28)으로 MINSA 등록 $500·0.5~1개월 간소화 트랙 가능.`,
     `무역: 한-중미 FTA(2021.3 발효) 관세 0% + ITBMS 의약품 면세로 FOB 대비 최종가 경쟁력 확보.`,
     input.emlWho && input.emlPaho

@@ -1,5 +1,5 @@
 /**
- * Round4 prevalence + 거시 의료 인프라 — panama 9행 적재 (gemini_seed / macro)
+ * Round4 prevalence 8행 + 거시 인프라 1행 — panama 적재 (pa_source: gemini_prevalence)
  */
 /// <reference types="node" />
 
@@ -8,11 +8,13 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  getSupabaseClient,
-  insertRow,
-  PANAMA_TABLE,
-  type PanamaPhase1InsertRow,
-} from "../utils/db_connector.js";
+  buildPaNotesForMacroInfra,
+  buildPaNotesForPrevalenceEntry,
+  parseRound4PrevalenceFile,
+  type PrevalenceEntry,
+  type MacroHealthcareInfraEntry,
+} from "../logic/prevalence_seed_build.js";
+import { insertRow, type PanamaPhase1InsertRow } from "../utils/db_connector.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,119 +29,70 @@ const DEFAULT_SEED_PATH = join(
   "round4_prevalence.json",
 );
 
-interface PrevalenceSeed {
-  product_id: string;
-  inn_en: string;
-  target_disease: string;
-  metric: string;
-  source: string;
-  panama_specific: boolean;
-  confidence: number;
-}
+const PA_SOURCE_PREVALENCE = "gemini_prevalence" as const;
 
-function isRecord(x: unknown): x is Record<string, unknown> {
-  return x !== null && typeof x === "object" && !Array.isArray(x);
-}
-
-function isPrevalenceSeed(x: unknown): x is PrevalenceSeed {
-  if (!isRecord(x)) {
-    return false;
-  }
-  return (
-    typeof x.product_id === "string" &&
-    typeof x.inn_en === "string" &&
-    typeof x.target_disease === "string" &&
-    typeof x.metric === "string" &&
-    typeof x.source === "string" &&
-    typeof x.panama_specific === "boolean" &&
-    typeof x.confidence === "number" &&
-    !Number.isNaN(x.confidence)
-  );
-}
-
-function parsePrevalenceJson(raw: string): PrevalenceSeed[] {
-  const data: unknown = JSON.parse(raw);
-  if (!Array.isArray(data)) {
-    throw new Error("round4_prevalence.json은 배열(JSON)이어야 합니다.");
-  }
-  const out: PrevalenceSeed[] = [];
-  for (let i = 0; i < data.length; i++) {
-    const el = data[i];
-    if (!isPrevalenceSeed(el)) {
-      throw new Error(
-        `인덱스 ${String(i)}: PrevalenceSeed 스키마와 맞지 않습니다.`,
-      );
-    }
-    out.push(el);
-  }
-  return out;
-}
-
-function buildRow(s: PrevalenceSeed, crawledAt: string): PanamaPhase1InsertRow {
-  const pa_notes =
-    `prevalence: ${s.target_disease} | ${s.metric} | source: ${s.source} | panama_specific: ${String(s.panama_specific)}`;
+function buildDrugRow(
+  e: PrevalenceEntry,
+  crawledAt: string,
+): PanamaPhase1InsertRow {
   return {
-    product_id: s.product_id,
+    product_id: e.product_id,
     market_segment: "macro",
     fob_estimated_usd: null,
-    confidence: s.confidence,
+    confidence: 0.85,
     crawled_at: crawledAt,
-    pa_source: "gemini_seed",
-    pa_ingredient_inn: s.inn_en,
+    pa_source: PA_SOURCE_PREVALENCE,
+    pa_ingredient_inn: e.who_inn_en,
     pa_price_local: null,
-    pa_notes,
+    pa_notes: buildPaNotesForPrevalenceEntry(e),
+    pa_source_url: e.source_url,
+    pa_collected_at: String(e.prevalence_year),
   };
 }
 
-async function main(): Promise<void> {
-  const path =
-    process.env.PREVALENCE_SEED_PATH !== undefined &&
-    process.env.PREVALENCE_SEED_PATH !== ""
-      ? process.env.PREVALENCE_SEED_PATH
-      : DEFAULT_SEED_PATH;
+function buildMacroRow(
+  e: MacroHealthcareInfraEntry,
+  crawledAt: string,
+): PanamaPhase1InsertRow {
+  return {
+    product_id: e.product_id,
+    market_segment: "macro",
+    fob_estimated_usd: null,
+    confidence: 0.9,
+    crawled_at: crawledAt,
+    pa_source: PA_SOURCE_PREVALENCE,
+    pa_ingredient_inn: e.who_inn_en,
+    pa_price_local: null,
+    pa_notes: buildPaNotesForMacroInfra(e),
+    pa_source_url: e.source_url,
+    pa_collected_at: String(e.prevalence_year),
+  };
+}
 
-  const raw = await readFile(path, "utf-8");
-  const seeds = parsePrevalenceJson(raw);
-  if (seeds.length !== 9) {
-    throw new Error(`시드는 9행이어야 합니다. 현재 ${String(seeds.length)}행.`);
-  }
-
+export async function loadRound4PrevalenceFromPath(
+  path: string,
+): Promise<{ inserted: number }> {
+  const rawText = await readFile(path, "utf-8");
+  const parsed = parseRound4PrevalenceFile(JSON.parse(rawText) as unknown);
   const crawledAt = new Date().toISOString();
-  const client = getSupabaseClient();
-
   let inserted = 0;
-  for (const s of seeds) {
-    const row = buildRow(s, crawledAt);
+  for (const e of parsed.entries) {
+    const row = buildDrugRow(e, crawledAt);
     const r = await insertRow(row);
     if (!r.ok) {
       throw new Error(
-        `Round4 prevalence 적재 실패 (product_id=${s.product_id}): ${r.message}. Supabase 연결·RLS·중복 키를 확인하세요.`,
+        `Round4 prevalence 적재 실패 (product_id=${e.product_id}): ${r.message}`,
       );
     }
     inserted += 1;
   }
-
-  const productIds = seeds.map((s) => s.product_id);
-  const { count, error: countErr } = await client
-    .from(PANAMA_TABLE)
-    .select("*", { count: "exact", head: true })
-    .in("product_id", productIds)
-    .eq("pa_source", "gemini_seed")
-    .eq("market_segment", "macro")
-    .not("pa_ingredient_inn", "is", null)
-    .ilike("pa_notes", "prevalence%");
-
-  if (countErr !== null) {
-    throw new Error(`COUNT 검증 실패: ${countErr.message}`);
+  const macro = buildMacroRow(parsed.macro_healthcare_infra, crawledAt);
+  const mr = await insertRow(macro);
+  if (!mr.ok) {
+    throw new Error(
+      `macro_healthcare_infra 적재 실패: ${mr.message}`,
+    );
   }
-
-  process.stdout.write(
-    `Inserted ${String(inserted)} rows. Verified count: ${String(count ?? 0)}\n`,
-  );
+  inserted += 1;
+  return { inserted };
 }
-
-main().catch((err: unknown) => {
-  const msg = err instanceof Error ? err.message : String(err);
-  process.stderr.write(`${msg}\n`);
-  process.exit(1);
-});

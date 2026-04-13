@@ -1,5 +1,27 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-11 (feat(seed+report): 세션16 prevalence 8 INN 전체 seed + 조회 로직 완전 수정)
+
+### Added
+- feat(seed): `data/seed/panama/round4_prevalence.json` — `entries`(8 INN) + `macro_healthcare_infra`(1행), Gemini 수집 지표·출처 URL·`scope`(panama|latam_average) 반영.
+- feat(seed): `src/logic/prevalence_seed_build.ts` — 시드 파싱·`pa_notes` 문자열 생성 공용.
+- chore(scripts): `npm run seed:prevalence` — 기존 `gemini_seed`/`gemini_prevalence` prevalence 시드 행 삭제 후 `gemini_prevalence`로 9행 재적재(`scripts/runners/reseed_prevalence.ts`).
+
+### Changed
+- feat(seed): `load_prevalence.ts` — `pa_source: gemini_prevalence`, `pa_notes`에 지표·출처·연도·scope, `pa_source_url`·`pa_collected_at`(관측 연도 문자열) 매핑. `panama.pa_raw_data` 컬럼은 DDL 미존재로 미사용.
+- fix(report): `resolvePrevalenceMetric` — 시드 파일 폴백 제거, `product_id` 일치 행만·키워드(유병률·발병률·감염률·prevalence·incidencia 등) 매칭, 없으면 빈 문자열.
+- fix(report): `GeneratorInput.prevalenceMetric`·폴백·PDF 요청을 `string`으로 통일; 비어 있으면 판정근거 1번에서 거시만 1회 서술.
+- docs(prompt): `REPORT1_SYSTEM_PROMPT` — prevalence 부재 시 질환 수치 미인용·타 INN 혼입 금지.
+
+## [Unreleased] - 2026-04-11 (fix(report): 세션16 후속 — prevalence 8 INN 전역 + 버그 ① 완전 수정)
+
+### Fixed
+- fix(report): `extractPrevalenceMetric`가 `prevalence:` 단일 키워드만 인식해 DB 행 미매칭 시 null이 되던 문제 — 동일 `product_id`에 대해 GLOBOCAN·incidencia·epidemiolog 등 확장 매칭 후, 여전히 없으면 `round4_prevalence.json`과 동일 문자열 시드 폴백(`src/logic/prevalence_resolve.ts`, `report1_digest.ts`).
+- fix(report): 폴백 템플릿 판정근거 1번에서 보건지출·CSS를 `prevLine`에 한 번 더 넣어 중복되던 문제 — 거시 한 줄 + `표적 역학` 절만 분리(`report1_fallback_template.ts`).
+
+### Added
+- chore(scripts): `npm run simulate:prevalence` — 8 INN에 대해 DB 행 없을 때 시드 폴백 결과 표 형식 출력(`scripts/simulate_prevalence_8inn.ts`).
+
 ## [Unreleased] - 2026-04-11 (fix(report): 세션16 데이터 매핑 버그 4종)
 
 ### Fixed

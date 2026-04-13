@@ -42,7 +42,7 @@ function parseLlmBundle(raw: unknown): LlmBundle | null {
 
 type DigestState = {
   rawDataDigest: string;
-  prevalenceMetric: string | null;
+  prevalenceMetric: string;
 };
 
 type Props = {
@@ -99,8 +99,7 @@ export function PanamaReportClient({ product }: Props) {
         setError("prevalenceMetric 형식 오류");
         return;
       }
-      const pm: string | null =
-        pmRaw === undefined || pmRaw === null ? null : pmRaw;
+      const pm = typeof pmRaw === "string" ? pmRaw : "";
 
       if (
         raw.judgment === null ||

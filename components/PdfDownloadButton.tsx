@@ -12,7 +12,7 @@ export type PdfDownloadClientPayload = Omit<
   productId: string;
   emlWho: boolean;
   emlPaho: boolean;
-  prevalenceMetric: string | null;
+  prevalenceMetric: string;
   distributorNames: string[];
   panamacompraCount: number;
   rawDataDigest: string;
