@@ -1,5 +1,6 @@
 /**
  * 클라이언트: 분석 API + LLM → Report1 (웹·PDF 동일 payload)
+ * 로딩: 공통 단순 스피너(다국가 UX)
  */
 "use client";
 
@@ -48,7 +49,7 @@ type DigestState = {
 
 type Props = {
   product: ProductMaster;
-  /** `/panama?inn=` 값 — 탭 하이라이트용 */
+  /** URL `?inn=` — INN 탭 활성 표시 */
   currentInn: string;
 };
 
@@ -62,6 +63,9 @@ export function PanamaReportClient({ product, currentInn }: Props) {
   const run = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setData(null);
+    setLlm(null);
+    setDigest(null);
     try {
       const res = await fetch("/api/panama/analyze", {
         method: "POST",
@@ -163,41 +167,51 @@ export function PanamaReportClient({ product, currentInn }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Link
-          href="/panama"
-          className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-        >
-          ← 파나마 국가 개요
-        </Link>
-        <button
-          type="button"
-          className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"
-          disabled={loading}
-          onClick={() => {
-            void run();
-          }}
-        >
-          {loading ? "분석 중…" : "재분석"}
-        </button>
-        {error !== null ? (
-          <p className="text-sm text-red-600">{error}</p>
-        ) : null}
-      </div>
-
-      <INNTabs currentInn={currentInn} />
+      <Link
+        href="/panama"
+        className="mb-6 inline-block rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+      >
+        ← 파나마 국가 개요
+      </Link>
 
       {loading ? (
-        <p className="text-slate-600">분석 및 LLM 본문 생성 중…</p>
-      ) : null}
-      {data !== null && llm !== null && digest !== null ? (
-        <Report1
-          data={data}
-          llm={llm}
-          rawDataDigest={digest.rawDataDigest}
-          prevalenceMetric={digest.prevalenceMetric}
-        />
-      ) : null}
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+          <p className="text-lg text-gray-700">파나마 시장 분석 중...</p>
+          <p className="text-sm text-gray-500">
+            DB 조회 + 보고서 생성 (최대 3분 소요)
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+              disabled={loading}
+              onClick={() => {
+                void run();
+              }}
+            >
+              재분석
+            </button>
+            {error !== null ? (
+              <p className="text-sm text-red-600">{error}</p>
+            ) : null}
+          </div>
+
+          <INNTabs currentInn={currentInn} />
+
+          {data !== null && llm !== null && digest !== null && error === null ? (
+            <Report1
+              data={data}
+              llm={llm}
+              rawDataDigest={digest.rawDataDigest}
+              prevalenceMetric={digest.prevalenceMetric}
+            />
+          ) : null}
+        </>
+      )}
     </div>
   );
 }

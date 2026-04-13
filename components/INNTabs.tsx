@@ -1,5 +1,5 @@
 /**
- * 8개 INN 빠른 전환 — URL `/panama?inn=` 갱신 (panama_report_cache TTL 내 재사용)
+ * 8개 INN 빠른 전환 — `/panama/report?inn=` (panama_report_cache TTL 내 재사용)
  */
 "use client";
 
@@ -27,7 +27,7 @@ export default function INNTabs({ currentInn }: Props) {
             type="button"
             onClick={() => {
               router.push(
-                `/panama?inn=${encodeURIComponent(p.who_inn_en)}`,
+                `/panama/report?inn=${encodeURIComponent(p.who_inn_en)}`,
               );
             }}
             className={

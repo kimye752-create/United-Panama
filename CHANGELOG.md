@@ -13,10 +13,12 @@
 ### Notes
 - 사전 검증: `search/suggest.json` 은 **200·JSON**이나 `products[]`가 **빈 배열**일 수 있음(스토어 잠금·지역). 실측 INSERT는 0건일 수 있음 — `ARROCHA_SESSION_COOKIE` 또는 파나마 IP에서 재시도 권장.
 
-## [Unreleased] - 2026-04-13 (feat(ui): INN 빠른 전환 탭 — 세션17 작업1)
+## [Unreleased] - 2026-04-13 (feat(ux): 파나마 보고서 라우트 분리)
 
-### Added
-- feat(ui): INN 빠른 전환 가로 탭 UI 신규 (8 INN 즉시 전환, URL query param 기반)
+### Changed
+- feat(ux): 분석 페이지 분리 (`/panama` → `/panama/report?inn=`)
+- feat(ux): 단순 로딩 스피너 (20개국 공통 UX, `PanamaReportClient`)
+- feat(ui): INN 탭·품목 선택 → `/panama/report?inn=` 직접 이동; `/panama`는 국가 개요만
 
 ## [Unreleased] - 2026-04-11 (fix(report): 세션16 마무리 — block3 항목별 maxLength + Aceclofenac scope footer)
 

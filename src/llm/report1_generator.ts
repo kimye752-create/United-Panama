@@ -250,5 +250,9 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     panamacompraCount: input.panamacompraCount,
   };
   const payload = buildFallbackReport(fallbackInput);
-  return { payload, source: "fallback", modelUsed: "rule-based-template" };
+  return {
+    payload,
+    source: "fallback",
+    modelUsed: "rule-based-template",
+  };
 }

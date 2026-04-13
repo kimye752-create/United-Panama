@@ -41,7 +41,7 @@ export function ProductSelector() {
             return;
           }
           router.push(
-            `/panama?inn=${encodeURIComponent(p.who_inn_en)}#panama-report`,
+            `/panama/report?inn=${encodeURIComponent(p.who_inn_en)}`,
           );
         }}
       >

@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-
 import { ProductSelector } from "@/components/ProductSelector";
 import {
   getMacroSummary,
@@ -11,8 +9,6 @@ import {
   milestoneTypeLabelKo,
 } from "@/lib/milestone_labels";
 
-import { PanamaReportSection } from "./PanamaReportSection";
-
 export default async function PanamaPage() {
   const macroRows = await getMacroSummary();
   const milestones = await getRegulatoryMilestones();
@@ -23,7 +19,7 @@ export default async function PanamaPage() {
       <h1 className="text-3xl font-bold text-slate-900">파나마 국가 개요</h1>
       <p className="mt-2 text-slate-600">
         거시 지표·규제 요약 후 아래에서 품목을 고르고 「분석 (A4 보고서)」을 누르면
-        문서형 분석 결과로 이동합니다.
+        보고서 전용 페이지로 이동합니다.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -114,16 +110,6 @@ export default async function PanamaPage() {
       </div>
 
       <ProductSelector />
-
-      <Suspense
-        fallback={
-          <p className="mt-10 text-sm text-slate-500">보고서 영역 준비 중…</p>
-        }
-      >
-        <div id="panama-report" className="mt-10">
-          <PanamaReportSection />
-        </div>
-      </Suspense>
     </main>
   );
 }
