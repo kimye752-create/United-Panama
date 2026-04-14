@@ -3,6 +3,7 @@
 ## [Unreleased] - 2026-04-14 (ops+fix: Top 9 OCDS ATC4 실행 — lookback·전용 페이징)
 
 ### Added
+- chore(ci): `.github/workflows/acodeco_monthly.yml` — CABAMED XLSX 월간 fetch·Supabase 적재·시드 커밋(cron `0 3 1 * *`, `permissions: contents: write`).
 - docs(handoff): `docs/handoffs/핸드오프_세션_19.md` — 세션 19 맥락 통합 박제(0~7섹션, 데이터 레이어·CABAMED·Top9·코드 경로·폐기 채널).
 - docs(freshness): `docs/freshness_analysis/pa_source_inventory.md` — Supabase `panama`의 `pa_source` 17종·건수·대표 샘플·`pa_notes` JSON/평문 구분·Gemini 갱신주기 검증용 표.
 - chore(db): Supabase 마이그레이션 `create_panama_perplexity_cache` — `panama_perplexity_cache`(INN별 `papers` JSONB, `expires_at`, `idx_perplexity_cache_expires`) Top 7.5 Perplexity 캐시용.

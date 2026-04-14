@@ -1,0 +1,51 @@
+# ACODECO CABAMED XLSX 월간 갱신 — 매월 1일 03:00 UTC (헌법 2조 2항 cron 예외: 월 1회·LLM 미사용·부하 최소)
+name: ACODECO CABAMED Monthly Update
+
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-and-load:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch CABAMED XLSX
+        run: npx tsx src/crawlers/preload/pa_acodeco_fetch.ts
+
+      - name: Load to Supabase
+        run: npx tsx src/crawlers/preload/pa_acodeco_cabamed.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/seed/panama/acodeco_cabamed.xlsx
+          git add data/seed/panama/archive/acodeco_cabamed_*.xlsx 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore(data): monthly CABAMED update $(date +%Y-%m)"
+            git push
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "::error::ACODECO CABAMED 자동 갱신 실패. 수동 확인 필요."
