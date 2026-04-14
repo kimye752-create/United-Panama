@@ -4,6 +4,8 @@
  */
 /// <reference types="node" />
 
+import { fileURLToPath } from "node:url";
+import { normalize } from "node:path";
 import * as cheerio from "cheerio";
 
 import { BaseCrawler, type CrawlRowData } from "../base/BaseCrawler.js";
@@ -191,5 +193,29 @@ export class AcodecoCrawler extends BaseCrawler {
     }
 
     return out;
+  }
+}
+
+/** GitHub Actions·로컬에서 `npx tsx src/crawlers/preload/pa_acodeco.ts` 직접 실행 시 Supabase 적재 */
+async function main(): Promise<void> {
+  const crawler = new AcodecoCrawler();
+  const result = await crawler.run();
+  process.stdout.write(`${JSON.stringify(result)}\n`);
+  if (!result.ok) {
+    process.exit(1);
+  }
+}
+
+const invoked = process.argv[1];
+if (invoked !== undefined) {
+  const a = normalize(fileURLToPath(import.meta.url));
+  const b = normalize(invoked);
+  if (a === b) {
+    main().catch((e: unknown) => {
+      process.stderr.write(
+        `${e instanceof Error ? e.message : String(e)}\n`,
+      );
+      process.exit(1);
+    });
   }
 }

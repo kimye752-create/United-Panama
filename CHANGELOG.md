@@ -9,6 +9,7 @@
 - chore(db): Supabase 마이그레이션 `create_panama_perplexity_cache` — `panama_perplexity_cache`(INN별 `papers` JSONB, `expires_at`, `idx_perplexity_cache_expires`) Top 7.5 Perplexity 캐시용.
 
 ### Changed / Fixed
+- fix(ci): `acodeco_monthly.yml` — 존재하지 않는 `pa_acodeco_fetch.ts` / `pa_acodeco_cabamed.ts` 대신 `pa_acodeco.ts` 단일 스텝 + Supabase env. `pa_acodeco.ts`에 CLI 진입점 추가(GHA·`npx tsx` 직접 실행).
 - fix(crawler): `src/crawlers/preload/pa_panamacompra_atc4.ts` — `pa_panamacompra.ts` 미수정, ATC4 전용 OCDS 페이징·기본 lookback 900일·release/award 최신일 필터. 선택 env: `PANAMACOMPRA_ATC4_LOOKBACK_DAYS`, `PANAMACOMPRA_ATC4_RULE_OFFSET`, `PANAMACOMPRA_ATC4_MAX_RULES`, `PANAMACOMPRA_ATC4_MAX_KEYWORDS_PER_RULE`.
 - feat(llm): `src/llm/report1_schema.ts` — 블록4-2 OCDS·CABAMED 분리, 0건 ATC4는 낙찰가 수치 인용 금지.
 
