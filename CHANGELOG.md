@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 01:45 KST (feat(crawl): 8개 제품 경쟁품 가격 수집 — Gemini 키워드 반영)
+
+### Changed
+- feat(product-dict): 경쟁품 키워드 Gemini 교차검증 반영 (`src/utils/product-dictionary.ts` — Hydrine/Ciloduo/Gastiin CR/Rosumeg Combigel/Atmeg/Sereterol Activair/Omethyl Cutielet/Gadvoa Inj. `panama_search_keywords` 확장, Epanova·Ferumoxytol 제외 유지).
+- fix(panama): CABAMED·OCDS 경쟁품 파이프라인 재실행 — `acodeco_cabamed_*` 실측 4행 적재, `panamacompra_atc4_competitor` 이번 실행 0행(OCDS 표본·필터 한계로 정직 보고).
+
+### Notes (실측)
+- Perplexity: 8제품 INN+파나마 키워드 쿼리로 `fetchPerplexityInsight` 일괄 호출(api_fresh), 캐시 갱신(Hydroxyurea·Atorvastatin+Omega-3 일부 논문 0건).
+- 검증 API(`POST /api/panama/analyze`, 포트 3010): Rosumeg·Sereterol `block4_2`에 CABAMED 경쟁가(0.67·10.78 PAB) 문구 확인, Gastiin·Hydrine 등 CABAMED 미매칭 제품은 무가격 문구.
+
 ## [Unreleased] - 2026-04-14 (feat(realtime): Top 6 복구 — 환율 + OCDS 실시간 연결)
 
 ### Added
