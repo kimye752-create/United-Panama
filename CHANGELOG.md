@@ -14,6 +14,7 @@
 - 보고서 출력 로직(`report1_schema.ts`, rawDataDigest 빌더)은 미수정.
 
 ### Changed
+- chore(cleanup): 긴급 중단 정리로 임시 테스트 산출물(`r_*.json`, `scripts/test_*.ts`) 제거 및 구조 개선 변경만 부분 커밋 준비.
 - fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
 - chore(perplexity): Perplexity 모델 sonar-pro → sonar 다운그레이드 (비용 최적화)
 - docs(handoff): 세션 19 핸드오프 실측 기반 전면 재작성 (유령 구현 복구 내역 반영)

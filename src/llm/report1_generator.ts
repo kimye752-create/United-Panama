@@ -118,7 +118,12 @@ async function saveCache(
 function buildUserPrompt(input: GeneratorInput): string {
   const selectedProduct = findProductById(input.productId);
   const selectedInn = selectedProduct?.who_inn_en ?? "UNKNOWN";
-  const selectedAtc4 = selectedProduct?.atc4_code ?? "UNKNOWN";
+  const selectedAtc4 =
+    selectedProduct?.is_combination_drug === true &&
+    selectedProduct.secondary_atc4 !== undefined &&
+    selectedProduct.secondary_atc4.trim() !== ""
+      ? `${selectedProduct.atc4_code} + ${selectedProduct.secondary_atc4}`
+      : (selectedProduct?.atc4_code ?? "UNKNOWN");
   const selectedKrBrand = selectedProduct?.kr_brand_name ?? "UNKNOWN";
   const pahoLine =
     input.pahoRegionalReference !== null && input.pahoRegionalReference !== ""
