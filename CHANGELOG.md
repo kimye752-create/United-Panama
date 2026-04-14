@@ -15,6 +15,9 @@
 
 ### Changed
 - chore(cleanup): 긴급 중단 정리로 임시 테스트 산출물(`r_*.json`, `scripts/test_*.ts`) 제거 및 구조 개선 변경만 부분 커밋 준비.
+- feat(product-dict): 8개 제품 정보를 실제 유나이티드 포트폴리오로 전면 교체(UUID 유지, 조합제 보조 ATC4/타깃 플래그 포함).
+- feat(crawler): CABAMED 매칭 토큰 및 ATC4 매핑을 신규 포트폴리오 기준으로 재정렬(`cabamed_match`, `pa_acodeco_cabamed`, `pa_panamacompra_atc4`).
+- chore(db): `panama` 경쟁품·prevalence·Perplexity 캐시 정리 쿼리 실행(실측 삭제 0건).
 - fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
 - chore(perplexity): Perplexity 모델 sonar-pro → sonar 다운그레이드 (비용 최적화)
 - docs(handoff): 세션 19 핸드오프 실측 기반 전면 재작성 (유령 구현 복구 내역 반영)

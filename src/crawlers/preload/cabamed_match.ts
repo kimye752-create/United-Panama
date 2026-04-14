@@ -1,20 +1,11 @@
 /**
  * CABAMED XLSX 행 → 자사/경쟁품 매칭 (순수 로직, UI 없음)
- * 세션 18/19: M01AB 국소 제형 제외, DEXTROMETORFANO 키워드 제외(R05 혼선 방지)
+ * 세션 20: 실제 유나이티드 8개 포트폴리오 기준 토큰 재정렬
  */
 /// <reference types="node" />
 
 import type { ProductMaster } from "../../utils/product-dictionary.js";
 import { findProductByPanamaText, TARGET_PRODUCTS } from "../../utils/product-dictionary.js";
-
-/** M01AB 경쟁품 매칭 시 국소 제형 제외 */
-const EXCLUDED_FORMS_M01AB = [
-  "GEL",
-  "TÓPICO",
-  "TROPICO",
-  "CREMA",
-  "POMADA",
-] as const;
 
 const DEXTROMETORFANO = "DEXTROMETORFANO";
 
@@ -45,42 +36,70 @@ export type CabamedMatchResult = SelfMatch | CompetitorMatch;
 const COMPETITOR_TOKENS_BY_PRODUCT_ID: Readonly<
   Record<string, readonly string[]>
 > = {
-  // Aceclofenac M01AB — 세션 실측 3행: 디클로페낙 계열만 (이부프로펜·나프록센 제외)
-  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": ["DICLOFENAC", "DICLOFENACO"],
-  // Rabeprazole A02BC — 실측 OMEPRAZOL·ESOMEPRAZOL
-  "859e60f9-8544-43b3-a6a0-f6c7529847eb": ["ESOMEPRAZOL", "OMEPRAZOL"],
-  // Erdosteine R05CB — AMBROXOL·BROMHEXINA
-  "014fd4d2-dc66-4fc1-8d4f-59695183387f": ["AMBROXOL", "BROMHEXINA"],
-  // Cilostazol B01AC
-  "fcae4399-aa80-4318-ad55-89d6401c10a9": ["CLOPIDOGREL"],
-  // Hydroxyurea L01XX — CABAMED 표본에서 경쟁품 미포함 시 빈 배열
+  // Hydrine (L01XX)
   "bdfc9883-6040-438a-8e7a-df01f1230682": [],
-  // Itopride A03FA
+  // Ciloduo (B01AC + C10AA)
+  "fcae4399-aa80-4318-ad55-89d6401c10a9": [
+    "CLOPIDOGREL",
+    "ROSUVASTATINA",
+    "ATORVASTATINA",
+    "SIMVASTATINA",
+  ],
+  // Gastiin CR (A03FA)
   "24738c3b-3a5b-40a9-9e8e-889ec075b453": [
     "METOCLOPRAMIDA",
     "DOMPERIDONA",
   ],
-  // Omega-3 — 광범위 'OMEGA' 단독 매칭 제외(중복 행 방지)
+  // Rosumeg Combigel (C10AA + C10AX)
+  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": [
+    "ROSUVASTATINA",
+    "ATORVASTATINA",
+    "SIMVASTATINA",
+    "LOVASTATINA",
+    "FLUVASTATINA",
+    "PRAVASTATINA",
+    "OMEGA",
+    "OMEGA-3",
+    "ÉSTERES ETÍLICOS",
+    "ESTERES ETILICOS",
+  ],
+  // Atmeg Combigel (C10AA + C10AX)
+  "859e60f9-8544-43b3-a6a0-f6c7529847eb": [
+    "ATORVASTATINA",
+    "ROSUVASTATINA",
+    "SIMVASTATINA",
+    "LOVASTATINA",
+    "FLUVASTATINA",
+    "PRAVASTATINA",
+    "OMEGA",
+    "OMEGA-3",
+    "ÉSTERES ETÍLICOS",
+    "ESTERES ETILICOS",
+  ],
+  // Sereterol Activair (R03AK)
+  "014fd4d2-dc66-4fc1-8d4f-59695183387f": [
+    "BUDESONIDA",
+    "FORMOTEROL",
+    "BECLOMETASONA",
+    "MOMETASONA",
+  ],
+  // Omethyl Cutielet (C10AX)
   "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": [
     "ÉSTERES ETÍLICOS",
     "ESTERES ETILICOS",
     "ÁCIDOS GRASOS",
     "ACIDOS GRASOS",
   ],
-  // Levodropropizine R05DB — 코데인계와 구분, 덱스트로메토르판 명시 행 제외는 별도
+  // Gadvoa Inj. (V08CA)
   "895f49ae-6ce3-44a3-93bd-bb77e027ba59": [
-    "LEVODROPROPIZINA",
-    "LEVODROPROPIZINE",
-    "CLOPERASTINA",
+    "GADOBUTROL",
+    "GADOTERIDOL",
+    "GADOPENTETATO",
   ],
 };
 
 function normalizeUpper(s: string): string {
   return s.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase();
-}
-
-function isExcludedM01abTopical(descUpper: string): boolean {
-  return EXCLUDED_FORMS_M01AB.some((f) => descUpper.includes(f));
 }
 
 /**
@@ -101,11 +120,6 @@ export function matchCabamedRow(desc: string): CabamedMatchResult | null {
   for (const p of TARGET_PRODUCTS) {
     const tokens = COMPETITOR_TOKENS_BY_PRODUCT_ID[p.product_id];
     if (tokens === undefined || tokens.length === 0) {
-      continue;
-    }
-    const pid = p.product_id;
-    const isM01ab = pid === "2504d79b-c2ce-4660-9ea7-5576c8bb755f";
-    if (isM01ab && isExcludedM01abTopical(u)) {
       continue;
     }
     for (const tok of tokens) {

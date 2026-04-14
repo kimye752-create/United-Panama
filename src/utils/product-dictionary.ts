@@ -1,10 +1,9 @@
 /**
  * D2 작업 — product_id UUID 정책 확정
- * 한 번 발급 후 절대 변경 금지.
- * 이 값이 모든 panama 테이블의 product_id 기준이 됨.
- * 변경 시 기존 적재 데이터 전부 무효화됨.
- *
- * 발급 일시: 2026-04-11 (crypto.randomUUID() v4)
+ * 세션 19 긴급 수정 (2026-04-14):
+ * 기존 8개 제품 정보가 실제 유나이티드 제품 포트폴리오와 불일치
+ * 발견되어 전면 교체. UUID는 그대로 재사용.
+ * 근거: 유나이티드_8개제품_분석.docx
  */
 
 export interface ProductMaster {
@@ -12,87 +11,174 @@ export interface ProductMaster {
   kr_brand_name: string;
   who_inn_en: string;
   atc4_code: string;
-  /** Panama 현지 검색 키워드 — 순차 시도, 첫 hit에서 stop */
+  secondary_atc4?: string;
+  is_combination_drug?: boolean;
+  hs_code: string;
+  therapeutic_area: string;
+  formulation: string;
+  patent_tech?: string;
+  panama_target: boolean;
   panama_search_keywords: string[];
 }
 
-// ─────────────────────────────────────────────────
-// 거시 데이터 전용 UUID
-// WorldBank, ITA, KOTRA, MOTIE, 일부 PubMed 거시 지표에 사용
-// ─────────────────────────────────────────────────
 export const MACRO_PRODUCT_ID = "ba6cf610-9d7c-4fb9-9506-eabd7a5457b8" as const;
 
-// ─────────────────────────────────────────────────
-// 8종 자사 제품 UUID 매핑
-// ─────────────────────────────────────────────────
 export const TARGET_PRODUCTS: readonly ProductMaster[] = [
   {
     product_id: "bdfc9883-6040-438a-8e7a-df01f1230682",
-    kr_brand_name: "하이드린 캡슐",
+    kr_brand_name: "Hydrine",
     who_inn_en: "Hydroxyurea",
     atc4_code: "L01XX",
-    panama_search_keywords: ["Hidroxiurea", "Hidroxicarbamida"],
+    hs_code: "3004.90.1000",
+    therapeutic_area: "종양학 (항암)",
+    formulation: "Cap.",
+    panama_target: false,
+    panama_search_keywords: ["Hidroxiurea", "Hidroxicarbamida", "Hydroxyurea"],
   },
   {
     product_id: "fcae4399-aa80-4318-ad55-89d6401c10a9",
-    kr_brand_name: "실로스탄 CR정",
-    who_inn_en: "Cilostazol",
+    kr_brand_name: "Ciloduo",
+    who_inn_en: "Cilostazol + Rosuvastatin",
     atc4_code: "B01AC",
-    panama_search_keywords: ["Cilostazol"],
+    secondary_atc4: "C10AA",
+    is_combination_drug: true,
+    hs_code: "3004.90",
+    therapeutic_area: "순환기 (항혈전+고지혈증)",
+    formulation: "Tab.",
+    panama_target: false,
+    panama_search_keywords: [
+      "Cilostazol",
+      "Rosuvastatina",
+      "Rosuvastatin",
+      "Atorvastatina",
+      "Simvastatina",
+      "Clopidogrel",
+      "Acetilsalicilico",
+    ],
   },
   {
     product_id: "24738c3b-3a5b-40a9-9e8e-889ec075b453",
-    kr_brand_name: "가스티인 CR정",
-    who_inn_en: "Itopride",
+    kr_brand_name: "Gastiin CR",
+    who_inn_en: "Mosapride Citrate",
     atc4_code: "A03FA",
-    panama_search_keywords: ["Itoprida"],
+    hs_code: "3004.90",
+    therapeutic_area: "소화기 (기능성 소화불량)",
+    formulation: "Tab. CR (BILDAS)",
+    patent_tech: "BILDAS (Controlled Release)",
+    panama_target: false,
+    panama_search_keywords: [
+      "Mosaprida",
+      "Mosapride",
+      "Itoprida",
+      "Domperidona",
+      "Metoclopramida",
+    ],
   },
   {
     product_id: "2504d79b-c2ce-4660-9ea7-5576c8bb755f",
-    kr_brand_name: "클란자 CR정",
-    who_inn_en: "Aceclofenac",
-    atc4_code: "M01AB",
-    panama_search_keywords: ["Aceclofenaco"],
+    kr_brand_name: "Rosumeg Combigel",
+    who_inn_en: "Rosuvastatin + Omega-3-acid ethyl esters",
+    atc4_code: "C10AA",
+    secondary_atc4: "C10AX",
+    is_combination_drug: true,
+    hs_code: "3004.90",
+    therapeutic_area: "순환기 (고지혈증)",
+    formulation: "Soft Cap.",
+    patent_tech: "CombiGel",
+    panama_target: true,
+    panama_search_keywords: [
+      "Rosuvastatina",
+      "Rosuvastatin",
+      "Atorvastatina",
+      "Atorvastatin",
+      "Simvastatina",
+      "Simvastatin",
+      "Lovastatina",
+      "Pravastatina",
+      "Omega 3",
+      "Omega-3",
+      "Ésteres etílicos",
+    ],
   },
   {
     product_id: "859e60f9-8544-43b3-a6a0-f6c7529847eb",
-    kr_brand_name: "라베맥스 정",
-    who_inn_en: "Rabeprazole",
-    atc4_code: "A02BC",
-    panama_search_keywords: ["Rabeprazol"],
+    kr_brand_name: "Atmeg Combigel",
+    who_inn_en: "Atorvastatin + Omega-3-acid ethyl esters",
+    atc4_code: "C10AA",
+    secondary_atc4: "C10AX",
+    is_combination_drug: true,
+    hs_code: "3004.90",
+    therapeutic_area: "순환기 (고지혈증)",
+    formulation: "Soft Cap.",
+    patent_tech: "CombiGel",
+    panama_target: false,
+    panama_search_keywords: [
+      "Atorvastatina",
+      "Atorvastatin",
+      "Rosuvastatina",
+      "Simvastatina",
+      "Omega 3",
+      "Omega-3",
+    ],
   },
   {
     product_id: "014fd4d2-dc66-4fc1-8d4f-59695183387f",
-    kr_brand_name: "에르도스테인 캡슐",
-    who_inn_en: "Erdosteine",
-    atc4_code: "R05CB",
-    panama_search_keywords: ["Erdosteina"],
+    kr_brand_name: "Sereterol Activair",
+    who_inn_en: "Salmeterol + Fluticasone",
+    atc4_code: "R03AK",
+    is_combination_drug: true,
+    hs_code: "3004.90",
+    therapeutic_area: "호흡기 (천식/COPD)",
+    formulation: "Inhaler DPI",
+    patent_tech: "Activair DPI",
+    panama_target: false,
+    panama_search_keywords: [
+      "Salmeterol",
+      "Fluticasona",
+      "Fluticasone",
+      "Budesonida",
+      "Formoterol",
+      "Beclometasona",
+      "Mometasona",
+    ],
   },
   {
     product_id: "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18",
-    kr_brand_name: "오메가-3 연질캡슐",
+    kr_brand_name: "Omethyl Cutielet",
     who_inn_en: "Omega-3-acid ethyl esters",
     atc4_code: "C10AX",
-    panama_search_keywords: ["Omega 3", "Omega-3", "Ésteres etílicos"],
+    hs_code: "3004.90",
+    therapeutic_area: "순환기 (고중성지방)",
+    formulation: "Pouch (Seamless)",
+    patent_tech: "Seamless Pouch",
+    panama_target: true,
+    panama_search_keywords: [
+      "Omega 3",
+      "Omega-3",
+      "Ésteres etílicos",
+      "Omacor",
+      "Lovaza",
+    ],
   },
   {
     product_id: "895f49ae-6ce3-44a3-93bd-bb77e027ba59",
-    kr_brand_name: "레보틱스 시럽 90mg",
-    who_inn_en: "Levodropropizine",
-    atc4_code: "R05DB",
+    kr_brand_name: "Gadvoa Inj.",
+    who_inn_en: "Gadobutrol",
+    atc4_code: "V08CA",
+    hs_code: "3006.30",
+    therapeutic_area: "영상진단 (MRI 조영)",
+    formulation: "PFS 주사",
+    panama_target: false,
     panama_search_keywords: [
-      "Levodropropizine",
-      "Levodropropizina",
-      "레보틱스",
+      "Gadobutrol",
+      "Gadolinio",
+      "Gadoteridol",
+      "Gadopentetato",
+      "medio de contraste",
     ],
   },
 ] as const;
 
-// ─────────────────────────────────────────────────
-// 헬퍼 함수
-// ─────────────────────────────────────────────────
-
-/** WHO INN(영문)으로 제품 찾기 — 대소문자 무관 */
 export function findProductByInn(inn: string): ProductMaster | undefined {
   const normalized = inn.toLowerCase();
   return TARGET_PRODUCTS.find(
@@ -100,12 +186,10 @@ export function findProductByInn(inn: string): ProductMaster | undefined {
   );
 }
 
-/** product_id(UUID)로 제품 찾기 */
 export function findProductById(id: string): ProductMaster | undefined {
   return TARGET_PRODUCTS.find((p) => p.product_id === id);
 }
 
-/** Panama 검색 키워드로 제품 역매핑 */
 export function findProductByKeyword(keyword: string): ProductMaster | undefined {
   const normalized = keyword.toLowerCase();
   return TARGET_PRODUCTS.find((p) =>
@@ -113,28 +197,27 @@ export function findProductByKeyword(keyword: string): ProductMaster | undefined
   );
 }
 
-/**
- * Panama 현지 텍스트(품목 설명·분류 등)에 어떤 `panama_search_keywords`가
- * 부분 일치하면 해당 제품을 반환합니다. (대소문자 무시, 첫 매칭 제품 우선)
- */
 export function findProductByPanamaText(blob: string): ProductMaster | undefined {
   const lower = blob.trim().toLowerCase();
   if (lower === "") {
     return undefined;
   }
-  for (const p of TARGET_PRODUCTS) {
-    for (const kw of p.panama_search_keywords) {
-      if (lower.includes(kw.trim().toLowerCase())) {
-        return p;
+  for (const product of TARGET_PRODUCTS) {
+    for (const keyword of product.panama_search_keywords) {
+      if (lower.includes(keyword.trim().toLowerCase())) {
+        return product;
       }
     }
   }
-  /** OCDS 본문에 WHO INN(영문)만 노출되는 경우 — 실측에서 ES 키워드 0건 구간 존재 */
-  for (const p of TARGET_PRODUCTS) {
-    const inn = p.who_inn_en.trim().toLowerCase();
+  for (const product of TARGET_PRODUCTS) {
+    const inn = product.who_inn_en.trim().toLowerCase();
     if (inn !== "" && lower.includes(inn)) {
-      return p;
+      return product;
     }
   }
   return undefined;
+}
+
+export function getPanamaTargetProducts(): ProductMaster[] {
+  return TARGET_PRODUCTS.filter((p) => p.panama_target);
 }

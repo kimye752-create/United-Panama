@@ -33,11 +33,11 @@ const ATC4_BY_PRODUCT: Readonly<Record<string, string>> = {
   "bdfc9883-6040-438a-8e7a-df01f1230682": "L01XX",
   "fcae4399-aa80-4318-ad55-89d6401c10a9": "B01AC",
   "24738c3b-3a5b-40a9-9e8e-889ec075b453": "A03FA",
-  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": "M01AB",
-  "859e60f9-8544-43b3-a6a0-f6c7529847eb": "A02BC",
-  "014fd4d2-dc66-4fc1-8d4f-59695183387f": "R05CB",
+  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": "C10AA",
+  "859e60f9-8544-43b3-a6a0-f6c7529847eb": "C10AA",
+  "014fd4d2-dc66-4fc1-8d4f-59695183387f": "R03AK",
   "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": "C10AX",
-  "895f49ae-6ce3-44a3-93bd-bb77e027ba59": "R05DB",
+  "895f49ae-6ce3-44a3-93bd-bb77e027ba59": "V08CA",
 };
 
 /** 열 인덱스(0-based): 세션 19 XLSX 샘플 기준 */
