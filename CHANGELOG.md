@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 02:35 KST (feat(ui): 파나마 랜딩 SG 레이아웃 반영)
+
+### Changed
+- feat(panama-ui): 랜딩 페이지를 SG 스크린샷 구조로 재배치 (`app/panama/page.tsx`) — 상단 헤더/AI 배지, 핑크톤 4카드, 분석 실행 박스, 신약 분석 박스 순서로 정렬.
+- feat(panama-ui): 거시카드 4종 DB 실측 조회 로직 추가 (`src/logic/panama_landing.ts`) — GDP/인구/의약품시장규모/실질성장률을 `MACRO_PRODUCT_ID` 기준으로 개별 SELECT, 결측 시 `데이터 준비 중` 반환.
+- feat(panama-ui): 품목 선택 UI를 SG 스타일로 변경 (`components/ProductSelector.tsx`) — `▶ 진출 적합 분석` 버튼, Rosumeg 기본 선택, 우선순위( Rosumeg > Sereterol > Omethyl > 나머지 ) 정렬.
+- feat(panama-ui): 재사용 컴포넌트 추가 (`components/panama/LandingHeader.tsx`, `MacroCards.tsx`, `NewDrugAnalysis.tsx`) — 신약 분석은 현재 비활성 UI만 제공(추후 백엔드 연동 예정).
+
+### Notes (실측)
+- lint: `npm run lint` 통과(경고/오류 0).
+- 기존 분석 API(`/api/panama/analyze`), Report1 렌더링, PDF 로직은 미수정.
+
 ## [Unreleased] - 2026-04-15 01:45 KST (feat(crawl): 8개 제품 경쟁품 가격 수집 — Gemini 키워드 반영)
 
 ### Changed
