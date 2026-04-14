@@ -58,10 +58,10 @@ function addDays(date: Date, days: number): Date {
 }
 
 function resolveEximApiKey(): string {
-  const key = process.env.KOREAEXIM_API_KEY ?? process.env.EXIM_API_KEY;
+  const key = process.env.EXIM_API_KEY;
   if (key === undefined || key.trim() === "") {
     throw new Error(
-      "KOREAEXIM_API_KEY(EXIM_API_KEY 대체 허용)가 비어 있습니다. .env.local 또는 Vercel 환경변수에 키를 등록하세요.",
+      "EXIM_API_KEY가 비어 있습니다. .env.local 또는 Vercel 환경변수에 키를 등록하세요.",
     );
   }
   return key.trim();

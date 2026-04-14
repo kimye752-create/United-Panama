@@ -10,6 +10,9 @@
 ### Notes
 - 보고서 출력 로직(`report1_schema.ts`, rawDataDigest 빌더)은 미수정.
 
+### Changed
+- fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
+
 ## [Unreleased] - 2026-04-14 (feat(freshness): AI 게이트 백그라운드 점검 — DB 기록만)
 
 ### Added
