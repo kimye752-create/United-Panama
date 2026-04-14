@@ -7,7 +7,7 @@ import { config as loadEnv } from "dotenv";
 import { createSupabaseServer } from "../../lib/supabase-server";
 
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
-const PERPLEXITY_MODEL = "sonar-pro";
+const PERPLEXITY_MODEL = "sonar";
 const CACHE_TABLE = "panama_perplexity_cache";
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
 

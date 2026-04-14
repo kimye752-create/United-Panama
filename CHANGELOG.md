@@ -15,6 +15,7 @@
 
 ### Changed
 - fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
+- chore(perplexity): Perplexity 모델 sonar-pro → sonar 다운그레이드 (비용 최적화)
 
 ### Fixed
 - fix(realtime): PanamaCompra OCDS 서버 SSL 인증서 만료 대응 — `undici` Agent(`rejectUnauthorized: false`) 적용 (`panamacompra_recent.ts`).
