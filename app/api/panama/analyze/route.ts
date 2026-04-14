@@ -10,6 +10,7 @@ import {
   extractPrevalenceMetric,
 } from "@/src/logic/report1_digest";
 import { generateReport1, type GeneratorInput } from "@/src/llm/report1_generator";
+import { getCabamedStats, getPanamacompraStats } from "@/src/logic/market_stats";
 import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
 import { getPerplexityCacheInsight } from "@/src/logic/perplexity_insights";
 import { findProductById } from "@/src/utils/product-dictionary";
@@ -58,6 +59,8 @@ export async function POST(req: Request): Promise<Response> {
     const distributorNames = dedupeDistributorNames(
       result.matchedDistributors.map((d) => d.company_name),
     );
+    const panamacompraStats = getPanamacompraStats(productId, result.priceRows);
+    const cabamedStats = getCabamedStats(productId, result.priceRows);
 
     const generatorInput: GeneratorInput = {
       productId,
@@ -73,6 +76,8 @@ export async function POST(req: Request): Promise<Response> {
       ),
       distributorNames,
       panamacompraCount: result.panamacompraCount,
+      panamacompraStats,
+      cabamedStats,
       rawDataDigest,
     };
 
@@ -107,10 +112,15 @@ export async function POST(req: Request): Promise<Response> {
         source: llm.source,
         modelUsed: llm.modelUsed,
       },
+      marketStats: {
+        panamacompra: panamacompraStats,
+        cabamed: cabamedStats,
+      },
       perplexity: {
         source: perplexityInsight?.source ?? "cache_miss",
         papers: perplexityInsight?.papers ?? [],
       },
+      perplexityPapers: perplexityInsight?.papers ?? [],
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "분석 실패";

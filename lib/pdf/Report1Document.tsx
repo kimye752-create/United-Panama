@@ -1,5 +1,5 @@
 /**
- * Report1 A4 1페이지 PDF — 엔진⑦
+ * Report1 A4 2페이지 PDF — 엔진⑦
  */
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
@@ -137,31 +137,33 @@ export function Report1Document(props: Report1PdfProps) {
           ))}
         </View>
 
-        <Text style={pdfStyles.blockHeader}>
-          ⑤ Perplexity 추천 논문 ({props.perplexitySource})
-        </Text>
-        <View style={pdfStyles.paperTable}>
-          {props.perplexityPapers.length > 0 ? (
-            props.perplexityPapers.slice(0, 8).map((paper, index) => (
-              <View key={`${paper.url}-${paper.title}`} style={pdfStyles.paperRow}>
-                <Text style={pdfStyles.paperIndex}>{index + 1}.</Text>
-                <View style={pdfStyles.paperBody}>
-                  <Text style={pdfStyles.paperTitle}>{paper.title}</Text>
-                  <Text style={pdfStyles.paperMeta}>
-                    {paper.source}
-                    {paper.published_at !== null
-                      ? ` · ${paper.published_at.slice(0, 10)}`
-                      : ""}
-                  </Text>
-                  <Text style={pdfStyles.paperUrl}>{paper.url}</Text>
+        <View style={pdfStyles.perplexitySection}>
+          <Text style={pdfStyles.blockHeader}>
+            ⑤ Perplexity 추천 논문 ({props.perplexitySource})
+          </Text>
+          <View style={pdfStyles.paperTable}>
+            {props.perplexityPapers.length > 0 ? (
+              props.perplexityPapers.slice(0, 8).map((paper, index) => (
+                <View key={`${paper.url}-${paper.title}`} style={pdfStyles.paperRow}>
+                  <Text style={pdfStyles.paperIndex}>{index + 1}.</Text>
+                  <View style={pdfStyles.paperBody}>
+                    <Text style={pdfStyles.paperTitle}>{paper.title}</Text>
+                    <Text style={pdfStyles.paperMeta}>
+                      {paper.source}
+                      {paper.published_at !== null
+                        ? ` · ${paper.published_at.slice(0, 10)}`
+                        : ""}
+                    </Text>
+                    <Text style={pdfStyles.paperUrl}>{paper.url}</Text>
+                  </View>
                 </View>
-              </View>
-            ))
-          ) : (
-            <Text style={pdfStyles.emptyPaperText}>
-              캐시된 추천 논문이 아직 없어 표시할 항목이 없습니다.
-            </Text>
-          )}
+              ))
+            ) : (
+              <Text style={pdfStyles.emptyPaperText}>
+                캐시된 추천 논문이 아직 없어 표시할 항목이 없습니다.
+              </Text>
+            )}
+          </View>
         </View>
 
         <View style={pdfStyles.footer}>

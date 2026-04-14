@@ -17,6 +17,12 @@
 - fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
 - chore(perplexity): Perplexity 모델 sonar-pro → sonar 다운그레이드 (비용 최적화)
 - docs(handoff): 세션 19 핸드오프 실측 기반 전면 재작성 (유령 구현 복구 내역 반영)
+- fix(pdf): Pretendard 한글 폰트 실제 적용 (깨짐 수정)
+- feat(pdf): A4 2페이지 완전 분리 (파선 구분 → Page 태그 2개)
+- feat(pdf): Perplexity 논문 섹션 2페이지 최하단 고정
+- feat(report): 섹션 3 "사실 + ※ 인사이트" 2줄 구조로 재설계
+- feat(analyze): 실거래 통계(panamacompra_atc4 + cabamed) 프롬프트 주입 강화
+- fix(analyze): 0건 INN 처리 로직 추가 (유보 표현 금지)
 
 ### Fixed
 - fix(realtime): PanamaCompra OCDS 서버 SSL 인증서 만료 대응 — `undici` Agent(`rejectUnauthorized: false`) 적용 (`panamacompra_recent.ts`).

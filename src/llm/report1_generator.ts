@@ -6,6 +6,7 @@ import type { Message } from "@anthropic-ai/sdk/resources/messages/messages.js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { buildFallbackReport, type FallbackInput } from "./report1_fallback_template";
+import type { MarketPriceStats } from "../logic/market_stats";
 import { getSupabaseClient } from "../utils/db_connector";
 import {
   parseReport1Payload,
@@ -47,6 +48,8 @@ export interface GeneratorInput {
   pahoRegionalReference: string | null;
   distributorNames: string[];
   panamacompraCount: number;
+  panamacompraStats: MarketPriceStats | null;
+  cabamedStats: MarketPriceStats | null;
   rawDataDigest: string;
 }
 
@@ -122,6 +125,27 @@ function buildUserPrompt(input: GeneratorInput): string {
       ? `INN Aceclofenac + prevalence에 scope=latam_average 포함: 1번 줄에서 괄호(scope) 구간은 쓰지 말고, block3_latam_scope_footnote에 시스템 프롬프트 고정 각주 한 줄을 넣을 것.`
       : `INN이 Aceclofenac이 아니거나 latam_average 없음: block3_latam_scope_footnote는 빈 문자열.`;
 
+  const statLine = (label: string, stats: MarketPriceStats | null): string => {
+    if (stats === null) {
+      return `${label}: 해당 INN 매칭 경쟁품 없음`;
+    }
+    return `${label}: 건수 ${String(stats.count)} / 평균 ${String(stats.avgPrice)} / 최고 ${String(
+      stats.maxPrice,
+    )} / 최저 ${String(stats.minPrice)}`;
+  };
+  const pricingFallbackGuidance =
+    input.panamacompraStats === null && input.cabamedStats === null
+      ? "해당 INN은 파나마 공공조달 데이터 매칭 경쟁품 없음. 거시 지표 기반 진입 분석."
+      : "";
+
+  const INSIGHT_FORMAT_RULES = `[출력 형식 규칙 - 필수 준수]
+1. 섹션 3의 각 항목은 2줄 구조:
+   - 1줄째: 숫자/건수 포함 사실 1문장
+   - 2줄째: 반드시 "※"로 시작하고 "~ 가능" 또는 "~ 완료"로 종료
+2. "추가 확인 필요", "수집 중", "데이터 부족", "보강 예정" 금지
+3. 1줄째에 없는 숫자는 2줄째에 사용 금지
+4. "FOB 역산 기준점으로 활용 가능" 문구 금지, 대신 "Phase 2 역산식 적용" 사용`;
+
   return `[입력 데이터]
 - 제품: ${input.brandName} (${input.innEn})
 - Case 판정: ${input.caseGrade} (${input.caseVerdict})
@@ -131,6 +155,14 @@ function buildUserPrompt(input: GeneratorInput): string {
 - PAHO 권역 참조 단가(별도 시드): ${pahoLine}
 - 발굴 유통 파트너(회사명 중복 없음): ${input.distributorNames.join(", ")}
 - PanamaCompra 최근 낙찰 건수: ${String(input.panamacompraCount)}
+
+[실거래 통계 - 이 숫자를 우선 인용]
+- ${statLine("공공 낙찰가(panamacompra_atc4_competitor)", input.panamacompraStats)}
+- ${statLine("민간 CABAMED(acodeco_cabamed_competitor)", input.cabamedStats)}
+${pricingFallbackGuidance !== "" ? `- 대체 문구: ${pricingFallbackGuidance}` : ""}
+
+[섹션 3 형식 강제]
+${INSIGHT_FORMAT_RULES}
 
 [블록3 줄별 길이 — 도구 스키마와 동일]
 - 1번 시장·의료: 30~200자 (prevalence·출처 풀 인용 가능)
@@ -248,6 +280,8 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     pahoRegionalReference: input.pahoRegionalReference,
     distributorNames: input.distributorNames,
     panamacompraCount: input.panamacompraCount,
+    panamacompraStats: input.panamacompraStats,
+    cabamedStats: input.cabamedStats,
   };
   const payload = buildFallbackReport(fallbackInput);
   return {

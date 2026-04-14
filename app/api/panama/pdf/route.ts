@@ -15,7 +15,16 @@ import {
   generateReport1,
   type GeneratorInput,
 } from "@/src/llm/report1_generator";
+import type { MarketPriceStats } from "@/src/logic/market_stats";
+import { analyzePanamaProduct } from "@/src/logic/panama_analysis";
+import {
+  buildRawDataDigest,
+  dedupeDistributorNames,
+  extractPrevalenceMetric,
+} from "@/src/logic/report1_digest";
+import { getCabamedStats, getPanamacompraStats } from "@/src/logic/market_stats";
 import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
+import { getPerplexityCacheInsight } from "@/src/logic/perplexity_insights";
 import { findProductById } from "@/src/utils/product-dictionary";
 
 export const runtime = "nodejs";
@@ -36,6 +45,12 @@ interface PdfRequestBody {
   perplexitySource: string;
   dosageForm: string;
   hsCode: string;
+  panamacompraStats?: MarketPriceStats | null;
+  cabamedStats?: MarketPriceStats | null;
+}
+
+interface MinimalPdfRequestBody {
+  productId: string;
 }
 
 function parsePerplexityPapers(raw: unknown): PerplexityPaper[] | null {
@@ -174,6 +189,72 @@ function parsePdfBody(raw: unknown): PdfRequestBody | null {
   };
 }
 
+function parseMinimalPdfBody(raw: unknown): MinimalPdfRequestBody | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+  if (typeof raw.productId !== "string" || raw.productId.trim() === "") {
+    return null;
+  }
+  return { productId: raw.productId };
+}
+
+function defaultHsCode(): string {
+  return "3004";
+}
+
+function defaultDosageForm(inn: string): string {
+  const byInn: Record<string, string> = {
+    Hydroxyurea: "500mg Capsule",
+    Cilostazol: "100mg Tablet",
+    Itopride: "50mg Tablet",
+    Aceclofenac: "100mg Tablet",
+    Rabeprazole: "20mg Tablet",
+    Erdosteine: "300mg Capsule",
+    "Omega-3-acid ethyl esters": "1000mg Soft capsule",
+    Levodropropizine: "90mg/5mL Syrup",
+  };
+  return byInn[inn] ?? "제형 조회 중";
+}
+
+async function buildPdfBodyFromProductId(productId: string): Promise<PdfRequestBody> {
+  const analyzed = await analyzePanamaProduct(productId);
+  const rawDataDigest = buildRawDataDigest(analyzed);
+  const prevalenceMetric = extractPrevalenceMetric(
+    productId,
+    analyzed.priceRows,
+    analyzed.macroRows,
+  );
+  const perplexityInsight = await getPerplexityCacheInsight(analyzed.product.who_inn_en);
+  const panamacompraStats = getPanamacompraStats(productId, analyzed.priceRows);
+  const cabamedStats = getCabamedStats(productId, analyzed.priceRows);
+  return {
+    productId,
+    caseGrade: analyzed.judgment.case,
+    caseVerdict: analyzed.judgment.verdict,
+    confidence: analyzed.judgment.confidence,
+    emlWho: analyzed.emlWho,
+    emlPaho: analyzed.emlPaho,
+    prevalenceMetric,
+    distributorNames: dedupeDistributorNames(
+      analyzed.matchedDistributors.map((d) => d.company_name),
+    ),
+    panamacompraCount: analyzed.panamacompraCount,
+    rawDataDigest,
+    sourceRows: analyzed.sourceAggregation.map((row) => ({
+      source: row.pa_source,
+      count: row.count,
+      avgConfidence: row.avgConfidence ?? 0,
+    })),
+    perplexityPapers: perplexityInsight?.papers ?? [],
+    perplexitySource: perplexityInsight?.source ?? "cache_miss",
+    dosageForm: defaultDosageForm(analyzed.product.who_inn_en),
+    hsCode: defaultHsCode(),
+    panamacompraStats,
+    cabamedStats,
+  };
+}
+
 function safeFilenameSegment(inn: string): string {
   return inn.replace(/[^\w\-.]+/g, "_").slice(0, 80);
 }
@@ -187,28 +268,37 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 
   const body = parsePdfBody(rawJson);
-  if (body === null) {
+  const minimalBody = body === null ? parseMinimalPdfBody(rawJson) : null;
+  if (body === null && minimalBody === null) {
     return NextResponse.json({ error: "요청 본문 스키마 불일치" }, { status: 400 });
   }
+  const resolvedBody =
+    body !== null
+      ? body
+      : await buildPdfBodyFromProductId(
+          minimalBody !== null ? minimalBody.productId : "",
+        );
 
-  const product = findProductById(body.productId);
+  const product = findProductById(resolvedBody.productId);
   if (product === undefined) {
     return NextResponse.json({ error: "product not found" }, { status: 404 });
   }
 
   const generatorInput: GeneratorInput = {
-    productId: body.productId,
+    productId: resolvedBody.productId,
     innEn: product.who_inn_en,
     brandName: product.kr_brand_name,
-    caseGrade: body.caseGrade,
-    caseVerdict: body.caseVerdict,
-    emlWho: body.emlWho,
-    emlPaho: body.emlPaho,
-    prevalenceMetric: body.prevalenceMetric,
+    caseGrade: resolvedBody.caseGrade,
+    caseVerdict: resolvedBody.caseVerdict,
+    emlWho: resolvedBody.emlWho,
+    emlPaho: resolvedBody.emlPaho,
+    prevalenceMetric: resolvedBody.prevalenceMetric,
     pahoRegionalReference: getPahoRegionalReferenceLine(product.who_inn_en),
-    distributorNames: body.distributorNames,
-    panamacompraCount: body.panamacompraCount,
-    rawDataDigest: body.rawDataDigest,
+    distributorNames: resolvedBody.distributorNames,
+    panamacompraCount: resolvedBody.panamacompraCount,
+    panamacompraStats: resolvedBody.panamacompraStats ?? null,
+    cabamedStats: resolvedBody.cabamedStats ?? null,
+    rawDataDigest: resolvedBody.rawDataDigest,
   };
 
   try {
@@ -217,15 +307,15 @@ export async function POST(req: NextRequest): Promise<Response> {
     const pdfProps: Report1PdfProps = {
       brandName: product.kr_brand_name,
       innEn: product.who_inn_en,
-      dosageForm: body.dosageForm,
-      hsCode: body.hsCode,
-      caseGrade: body.caseGrade,
-      caseVerdict: body.caseVerdict,
-      confidence: body.confidence,
+      dosageForm: resolvedBody.dosageForm,
+      hsCode: resolvedBody.hsCode,
+      caseGrade: resolvedBody.caseGrade,
+      caseVerdict: resolvedBody.caseVerdict,
+      confidence: resolvedBody.confidence,
       llmPayload: llmResult.payload,
-      sourceRows: body.sourceRows,
-      perplexityPapers: body.perplexityPapers,
-      perplexitySource: body.perplexitySource,
+      sourceRows: resolvedBody.sourceRows,
+      perplexityPapers: resolvedBody.perplexityPapers,
+      perplexitySource: resolvedBody.perplexitySource,
       collectedAt: new Date().toISOString().slice(0, 10),
     };
 

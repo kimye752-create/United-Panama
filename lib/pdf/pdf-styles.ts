@@ -142,6 +142,9 @@ export const pdfStyles = StyleSheet.create({
     padding: 6,
     minHeight: 180,
   },
+  perplexitySection: {
+    marginTop: "auto",
+  },
   paperRow: {
     flexDirection: "row",
     marginBottom: 6,

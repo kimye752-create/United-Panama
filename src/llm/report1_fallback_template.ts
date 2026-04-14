@@ -4,6 +4,7 @@ import {
   BLOCK3_LINE_MAX,
   splitAceclofenacPrevalenceForBlock3,
 } from "../logic/report1_block3_utils";
+import type { MarketPriceStats } from "../logic/market_stats";
 
 /** 폴백용 입력 인터페이스 (느슨) */
 export interface FallbackInput {
@@ -17,6 +18,8 @@ export interface FallbackInput {
   pahoRegionalReference: string | null;
   distributorNames: string[]; // 4개 기대
   panamacompraCount: number;
+  panamacompraStats: MarketPriceStats | null;
+  cabamedStats: MarketPriceStats | null;
 }
 
 /** 블록3 한 줄 — 줄 인덱스별 maxLength (1번 200·5번 250·그 외 100) */
@@ -53,6 +56,10 @@ function fitBlock4(s: string, minLen: number, maxLen: number): string {
   return t;
 }
 
+function toTwoLineInsight(fact: string, insight: string): string {
+  return `${fact}\n※ ${insight}`;
+}
+
 /** LLM 호출 실패 시 마지막 안전망. 규칙 기반 풀 본문 생성. */
 export function buildFallbackReport(input: FallbackInput): Report1Payload {
   const distList =
@@ -85,27 +92,48 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
 
   const reasoning = reasoningRaw.map((line, idx) => fitBlock3Line(line, idx));
 
-  const channelRaw =
+  const channelFact =
     input.caseGrade === "A"
       ? `우선 채널: 공공조달과 민간 병행. 1단계(0~6개월) PanamaCompra OCDS API 주간 모니터링 + MINSA 직접 제안 루트 가동, ${input.brandName} 입찰 공고 추적. 2단계(6~18개월) 발굴 파트너 ${distList} 중 public 채널 보유사 우선 접촉, MAH 위임 협의 착수. 3단계(18개월+) 공공 낙찰 실적 기반 민간 약국(Arrocha·Metro Plus) 입점 확대. 선결: MINSA 등록 완료·파트너 LOI.`
       : `우선 채널: 민간 약국 단독. 1단계(0~6개월) ${distList} 중 both 채널 보유사 우선 컨택, MAH 위임 협의. 2단계(6~18개월) Arrocha·Metro Plus 입점 추진. 3단계(18개월+) 민간 실적 누적 후 공공조달 재진입 평가. 선결: 샘플 공급·가격 리스트 확보.`;
+  const channelRaw = toTwoLineInsight(
+    channelFact,
+    "단계별 채널 실행안과 선결 조건 정의 완료",
+  );
 
-  const pahoBlock =
-    input.pahoRegionalReference !== null && input.pahoRegionalReference !== ""
-      ? `${input.pahoRegionalReference} `
-      : "";
-  const pricingRaw = `${pahoBlock}공공 낙찰가: PanamaCompra 최근 낙찰 ${String(input.panamacompraCount)}건. 민간 소매가: Arrocha·Metro Plus 데이터 수집 중(Phase 2 크롤링 완료 후 보강). CABAMED 가격 통제 리스트 적용 여부는 ACODECO Resolución No. 174 기준 추가 확인 필요. 경쟁사 포지셔닝: 현지 제조사 Medipan·Rigar 및 다국적 임포터(GSK 등) 대비 차별화 포인트는 한국 GMP 기반 품질 + FTA 관세 0% 가격 경쟁력.`;
+  const panamacompraLine =
+    input.panamacompraStats === null
+      ? "해당 INN은 파나마 공공조달 데이터 매칭 경쟁품 없음."
+      : `PanamaCompra ATC4 경쟁품 ${String(input.panamacompraStats.count)}건, 평균 ${String(
+          input.panamacompraStats.avgPrice,
+        )} PAB / 최고 ${String(input.panamacompraStats.maxPrice)} PAB.`;
+  const cabamedLine =
+    input.cabamedStats === null
+      ? "CABAMED 경쟁품 매칭 데이터 없음."
+      : `ACODECO CABAMED 경쟁품 ${String(input.cabamedStats.count)}건, 평균 ${String(
+          input.cabamedStats.avgPrice,
+        )} PAB / 최고 ${String(input.cabamedStats.maxPrice)} PAB.`;
+  const pricingRaw = toTwoLineInsight(
+    `${panamacompraLine} ${cabamedLine}`,
+    "위 가격 정보를 Phase 2 역산식 적용으로 자사 출고가 산출 가능",
+  );
 
-  const partnersRaw = `발굴된 4개 파트너: Agencias Feduro(both), Agencias Celmar(both), C. G. de Haseth & Cia.(public 전문), Compañía Astur(both). Case ${input.caseGrade} 판정에 따라 ${input.caseGrade === "A" ? "public 채널 보유 Haseth 우선 접촉" : "both 채널 3개사 병행 컨택"} 권장. 각 파트너의 GMP·MAH 보유 현황은 3공정 AHP 엔진⑥의 PSI 점수화 단계에서 정량 평가 예정.`;
+  const partnersRaw = toTwoLineInsight(
+    `발굴된 4개 파트너: Agencias Feduro(both), Agencias Celmar(both), C. G. de Haseth & Cia.(public), Compañía Astur(both).`,
+    "Case 판정 기반 both 채널 3개사 우선 컨택 및 3공정 AHP PSI 적용 가능",
+  );
 
-  const risksRaw = `데이터 공백 리스크: Arrocha·Metro Plus 민간 소매가 미수집 → Phase 2 크롤링 후 가격 포지셔닝 재평가 필요. 규제 리스크: MINSA 위생등록 5년 만료 강제, 갱신 일정 사전 관리 필수. 경쟁 구도: 현지 제조사 Medipan·Rigar 가격 경쟁 → CDMO 전환으로 파트너화 옵션 검토. 선결 조건: 공공조달 트랙 진입 전 MINSA 등록 완료 + 4개 파트너 중 1개사 MAH 위임 계약 확보.`;
+  const risksRaw = toTwoLineInsight(
+    "MINSA 등록 5년 갱신 의무와 현지 제조사 가격 경쟁 리스크가 동시 존재함.",
+    "등록 일정 사전 관리와 CDMO 파트너화 전략으로 리스크 완화 가능",
+  );
 
   return {
     block3_reasoning: reasoning,
     block3_latam_scope_footnote: latamFootnote,
-    block4_1_channel: fitBlock4(channelRaw, 200, 500),
-    block4_2_pricing: fitBlock4(pricingRaw, 200, 500),
-    block4_3_partners: fitBlock4(partnersRaw, 200, 500),
-    block4_4_risks: fitBlock4(risksRaw, 150, 400),
+    block4_1_channel: fitBlock4(channelRaw, 60, 500),
+    block4_2_pricing: fitBlock4(pricingRaw, 60, 500),
+    block4_3_partners: fitBlock4(partnersRaw, 60, 500),
+    block4_4_risks: fitBlock4(risksRaw, 60, 400),
   };
 }
