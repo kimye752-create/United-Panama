@@ -13,6 +13,10 @@
 ### Changed
 - fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
 
+### Fixed
+- fix(realtime): PanamaCompra OCDS 서버 SSL 인증서 만료 대응 — `undici` Agent(`rejectUnauthorized: false`) 적용 (`panamacompra_recent.ts`).
+- fix(preload): `pa_panamacompra.ts`, `pa_panamacompra_atc4.ts` 동일 SSL 우회 패치 적용.
+
 ## [Unreleased] - 2026-04-14 (feat(freshness): AI 게이트 백그라운드 점검 — DB 기록만)
 
 ### Added

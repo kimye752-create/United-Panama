@@ -3,6 +3,7 @@
  */
 /// <reference types="node" />
 
+import { Agent, fetch as undiciFetch } from "undici";
 import { insertRow, PANAMA_TABLE, getSupabaseClient } from "../../utils/db_connector";
 
 const MAX_KEYWORDS_PER_RUN = 10;
@@ -23,6 +24,11 @@ const OCDS_RELEASES_BASE =
   "https://ocdsv2dev.panamacompraencifras.gob.pa/api/v1/releases";
 const PAGE_SIZE = 50;
 const MAX_PAGES_PER_KEYWORD = 6;
+// 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+// 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+const PANAMACOMPRA_AGENT = new Agent({
+  connect: { rejectUnauthorized: false },
+});
 
 interface OcdsMoney {
   amount: number;
@@ -108,8 +114,11 @@ async function fetchOcdsReleases(keyword: string): Promise<OcdsRelease[]> {
   let nextUrl: string | null = buildFirstPageUrl();
   let page = 0;
   while (nextUrl !== null && page < MAX_PAGES_PER_KEYWORD) {
-    const response = await fetch(nextUrl, {
+    const response = await undiciFetch(nextUrl, {
       method: "GET",
+      // 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+      // 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+      dispatcher: PANAMACOMPRA_AGENT,
       headers: {
         Accept: "application/json",
         "User-Agent": "Mozilla/5.0 (compatible; UnitedPanama/1.0)",

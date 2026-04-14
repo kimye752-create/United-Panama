@@ -6,6 +6,7 @@
 
 import { normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Agent, fetch as undiciFetch } from "undici";
 
 import {
   getSupabaseClient,
@@ -30,6 +31,11 @@ const OCDS_RELEASES_BASE =
   "https://ocdsv2dev.panamacompraencifras.gob.pa/api/v1/releases";
 const USER_AGENT_ATC4 =
   "Mozilla/5.0 (compatible; UnitedPanama-ATC4/1.0)";
+// 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+// 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+const PANAMACOMPRA_AGENT = new Agent({
+  connect: { rejectUnauthorized: false },
+});
 /** pa_panamacompra.ts 기본값(8페이지 조기 종료)은 비의약품 연속 페이지에서 키워드 0건이 되므로 ATC4 전용으로 상향 */
 const PAGE_SIZE_ATC4 = 50;
 const MAX_PAGES_PER_KEYWORD_ATC4 = 40;
@@ -53,17 +59,11 @@ function procurementLookbackMs(): number {
 /** 전체 적재 상한 */
 const MAX_TOTAL_INSERTS = 250;
 
-function tlsStrictVerifyAtc4(): boolean {
-  return process.env.PANAMACOMPRA_OCDS_STRICT_TLS === "1";
-}
-
 async function fetchJsonWithTlsAtc4(url: string): Promise<unknown> {
-  const { Agent, fetch: undiciFetch } = await import("undici");
-  const agent = new Agent({
-    connect: { rejectUnauthorized: tlsStrictVerifyAtc4() },
-  });
   const res = await undiciFetch(url, {
-    dispatcher: agent,
+    // 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+    // 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+    dispatcher: PANAMACOMPRA_AGENT,
     headers: {
       Accept: "application/json",
       "User-Agent": USER_AGENT_ATC4,

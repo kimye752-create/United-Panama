@@ -9,6 +9,7 @@
  */
 import { normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Agent, fetch as undiciFetch } from "undici";
 
 import {
   getSupabaseClient,
@@ -109,10 +110,11 @@ const OCDS_RELEASES_BASE =
 
 const USER_AGENT = "Mozilla/5.0 (compatible; KitaAxResearch/1.0)";
 
-/** true면 TLS 인증서 엄격 검증(기본 false — ocdsv2dev 만료 인증서 대응) */
-function tlsStrictVerify(): boolean {
-  return process.env.PANAMACOMPRA_OCDS_STRICT_TLS === "1";
-}
+// 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+// 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+const PANAMACOMPRA_AGENT = new Agent({
+  connect: { rejectUnauthorized: false },
+});
 
 function sleepMs(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -342,12 +344,10 @@ function flattenReleasesToRows(
 }
 
 async function fetchJsonWithTls(url: string): Promise<unknown> {
-  const { Agent, fetch: undiciFetch } = await import("undici");
-  const agent = new Agent({
-    connect: { rejectUnauthorized: tlsStrictVerify() },
-  });
   const res = await undiciFetch(url, {
-    dispatcher: agent,
+    // 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+    // 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+    dispatcher: PANAMACOMPRA_AGENT,
     headers: {
       Accept: "application/json",
       "User-Agent": USER_AGENT,
