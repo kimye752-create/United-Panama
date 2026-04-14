@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-14 (ops+fix: Top 9 OCDS ATC4 실행 — lookback·전용 페이징)
+
+### Added
+- docs(handoff): `docs/handoffs/핸드오프_세션_19.md` — 세션 19 맥락 통합 박제(0~7섹션, 데이터 레이어·CABAMED·Top9·코드 경로·폐기 채널).
+- docs(freshness): `docs/freshness_analysis/pa_source_inventory.md` — Supabase `panama`의 `pa_source` 17종·건수·대표 샘플·`pa_notes` JSON/평문 구분·Gemini 갱신주기 검증용 표.
+- chore(db): Supabase 마이그레이션 `create_panama_perplexity_cache` — `panama_perplexity_cache`(INN별 `papers` JSONB, `expires_at`, `idx_perplexity_cache_expires`) Top 7.5 Perplexity 캐시용.
+
+### Changed / Fixed
+- fix(crawler): `src/crawlers/preload/pa_panamacompra_atc4.ts` — `pa_panamacompra.ts` 미수정, ATC4 전용 OCDS 페이징·기본 lookback 900일·release/award 최신일 필터. 선택 env: `PANAMACOMPRA_ATC4_LOOKBACK_DAYS`, `PANAMACOMPRA_ATC4_RULE_OFFSET`, `PANAMACOMPRA_ATC4_MAX_RULES`, `PANAMACOMPRA_ATC4_MAX_KEYWORDS_PER_RULE`.
+- feat(llm): `src/llm/report1_schema.ts` — 블록4-2 OCDS·CABAMED 분리, 0건 ATC4는 낙찰가 수치 인용 금지.
+
+### Verification
+- 실제 적재: inserted=8, skippedDuplicate=2, matchedCandidates=10, 약 48분, MAX 250 미도달.
+
 ## [Unreleased] - 2026-04-13 (feat(crawler): Arrocha v2 + DNFD — 세션17)
 
 ### Added
