@@ -26,6 +26,11 @@ import {
   type SourceAggRow,
 } from "./fetch_panama_data";
 import { runFreshnessCheckInBackground } from "./freshness_background";
+import {
+  fetchExchangeRateUsdKrw,
+  upsertExchangeRateToDb,
+} from "../crawlers/realtime/exchange_rate_exim";
+import { fetchAndInsertOcdsRecent } from "../crawlers/realtime/panamacompra_recent";
 
 const ANALYSIS_TIMEOUT_MS = 10_000;
 
@@ -123,6 +128,35 @@ async function runCore(
 export async function analyzePanamaProduct(
   productId: string,
 ): Promise<AnalyzePanamaResult> {
+  try {
+    const rateResult = await fetchExchangeRateUsdKrw();
+    await upsertExchangeRateToDb(rateResult);
+    console.info(
+      `[exchange_rate] 갱신 완료: ${rateResult.rate.toFixed(2)} KRW (${rateResult.source})`,
+    );
+  } catch (err: unknown) {
+    console.error(
+      "[exchange_rate] 환율 갱신 실패, DB 폴백 사용:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+
+  const product = findProductById(productId);
+  if (product !== undefined) {
+    void fetchAndInsertOcdsRecent(productId, product.panama_search_keywords)
+      .then((result) => {
+        console.info(
+          `[ocds_recent] 완료: fetched=${String(result.totalFetched)} inserted=${String(result.newInserted)} duplicate=${String(result.skippedDuplicate)} failed=${String(result.failed)} elapsedMs=${String(result.elapsedMs)}`,
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(
+          "[ocds_recent] 백그라운드 실패:",
+          err instanceof Error ? err.message : err,
+        );
+      });
+  }
+
   const raced = await Promise.race([
     runCore(productId),
     new Promise<never>((_, reject) => {
