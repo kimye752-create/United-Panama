@@ -3,13 +3,15 @@
 ## [Unreleased] - 2026-04-14 (ops+fix: Top 9 OCDS ATC4 실행 — lookback·전용 페이징)
 
 ### Added
+- feat(logic): `src/logic/freshness_checker.ts` — Top 7 Haiku(`claude-haiku-4-5-20251001`) 신선도 `checkFreshness`·`batchCheckFreshness`(호출부 미연동).
+- feat(crawler): `pa_acodeco_fetch.ts`·`pa_acodeco_cabamed.ts`·`cabamed_match.ts` — CABAMED XLSX 다운로드·파싱·`acodeco_cabamed_*` 적재, `acodeco_monthly.yml` fetch→load 복구.
 - chore(ci): `.github/workflows/acodeco_monthly.yml` — CABAMED XLSX 월간 fetch·Supabase 적재·시드 커밋(cron `0 3 1 * *`, `permissions: contents: write`).
 - docs(handoff): `docs/handoffs/핸드오프_세션_19.md` — 세션 19 맥락 통합 박제(0~7섹션, 데이터 레이어·CABAMED·Top9·코드 경로·폐기 채널).
 - docs(freshness): `docs/freshness_analysis/pa_source_inventory.md` — Supabase `panama`의 `pa_source` 17종·건수·대표 샘플·`pa_notes` JSON/평문 구분·Gemini 갱신주기 검증용 표.
 - chore(db): Supabase 마이그레이션 `create_panama_perplexity_cache` — `panama_perplexity_cache`(INN별 `papers` JSONB, `expires_at`, `idx_perplexity_cache_expires`) Top 7.5 Perplexity 캐시용.
 
 ### Changed / Fixed
-- fix(ci): `acodeco_monthly.yml` — 존재하지 않는 `pa_acodeco_fetch.ts` / `pa_acodeco_cabamed.ts` 대신 `pa_acodeco.ts` 단일 스텝 + Supabase env. `pa_acodeco.ts`에 CLI 진입점 추가(GHA·`npx tsx` 직접 실행).
+- fix(ci): `acodeco_monthly.yml` — `pa_acodeco_fetch` → `pa_acodeco_cabamed` 이단 실행 복구; `pa_acodeco.ts`는 HTML 크롤 클래스 전용·CLI 제거.
 - fix(crawler): `src/crawlers/preload/pa_panamacompra_atc4.ts` — `pa_panamacompra.ts` 미수정, ATC4 전용 OCDS 페이징·기본 lookback 900일·release/award 최신일 필터. 선택 env: `PANAMACOMPRA_ATC4_LOOKBACK_DAYS`, `PANAMACOMPRA_ATC4_RULE_OFFSET`, `PANAMACOMPRA_ATC4_MAX_RULES`, `PANAMACOMPRA_ATC4_MAX_KEYWORDS_PER_RULE`.
 - feat(llm): `src/llm/report1_schema.ts` — 블록4-2 OCDS·CABAMED 분리, 0건 ATC4는 낙찰가 수치 인용 금지.
 

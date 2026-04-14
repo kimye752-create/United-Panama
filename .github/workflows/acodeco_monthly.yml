@@ -24,8 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Fetch and Load CABAMED
-        run: npx tsx src/crawlers/preload/pa_acodeco.ts
+      - name: Fetch CABAMED XLSX
+        run: npx tsx src/crawlers/preload/pa_acodeco_fetch.ts
+
+      - name: Load CABAMED to Supabase
+        run: npx tsx src/crawlers/preload/pa_acodeco_cabamed.ts
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
