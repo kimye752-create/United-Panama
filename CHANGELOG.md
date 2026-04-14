@@ -6,6 +6,9 @@
 - feat(realtime): `src/crawlers/realtime/exchange_rate_exim.ts` — 한국수출입은행 `exchangeJSON(data=AP01)` USD/KRW 조회, 영업일 최대 5일 역추적, DB fallback, `exchange_rate_exim` upsert.
 - feat(realtime): `src/crawlers/realtime/panamacompra_recent.ts` — PanamaCompra OCDS 최근 7일 실시간 적재(`panamacompra_recent`), 키워드 제한·키워드별 타임아웃·전체 타임아웃·중복 스킵.
 - feat(analyze): `src/logic/panama_analysis.ts` — 분석 시작 시 환율 갱신(블로킹), OCDS 최근 7일 백그라운드(fire-and-forget) 연결.
+- feat(insights): Perplexity Sonar Pro 모듈 신규 구현 (`src/logic/perplexity_insights.ts`).
+- feat(insights): `panama_perplexity_cache` 7일 TTL 캐시 연동.
+- feat(analyze): Perplexity 백그라운드 호출 연결 (보고서 출력 무영향).
 
 ### Notes
 - 보고서 출력 로직(`report1_schema.ts`, rawDataDigest 빌더)은 미수정.

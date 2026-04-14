@@ -31,6 +31,7 @@ import {
   upsertExchangeRateToDb,
 } from "../crawlers/realtime/exchange_rate_exim";
 import { fetchAndInsertOcdsRecent } from "../crawlers/realtime/panamacompra_recent";
+import { fetchPerplexityInsight } from "./perplexity_insights";
 
 const ANALYSIS_TIMEOUT_MS = 10_000;
 
@@ -152,6 +153,19 @@ export async function analyzePanamaProduct(
       .catch((err: unknown) => {
         console.error(
           "[ocds_recent] 백그라운드 실패:",
+          err instanceof Error ? err.message : err,
+        );
+      });
+
+    void fetchPerplexityInsight(product.who_inn_en)
+      .then((insight) => {
+        console.info(
+          `[perplexity] ${product.who_inn_en}: ${String(insight.papers.length)}개 논문 (${insight.source})`,
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(
+          "[perplexity] 백그라운드 실패:",
           err instanceof Error ? err.message : err,
         );
       });
