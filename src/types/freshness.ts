@@ -10,3 +10,10 @@ export type RefreshCycle =
   | "1y"
   | "immutable"
   | "unknown";
+
+/** DB `pa_freshness_status` — Haiku 판정 저장값 */
+export type PanamaFreshnessStatusValue =
+  | "fresh"
+  | "stale_likely"
+  | "stale_confirmed"
+  | null;

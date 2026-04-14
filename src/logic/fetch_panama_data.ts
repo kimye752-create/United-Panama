@@ -11,6 +11,7 @@ import {
   parsePharmaYoYPercentFromNotes,
   parsePopulation,
 } from "../../lib/parse_macro_notes";
+import type { PanamaFreshnessStatusValue } from "../types/freshness";
 
 const PANAMA = "panama" as const;
 const PANAMA_EML = "panama_eml" as const;
@@ -26,6 +27,10 @@ export interface PanamaRow {
   pa_refresh_cycle?: string | null;
   /** 원본 데이터 시점 */
   pa_item_collected_at?: string | null;
+  /** Haiku 신선도 판정 (DB 저장, 보고서 미사용) */
+  pa_freshness_status?: PanamaFreshnessStatusValue | string | null;
+  /** 마지막 Haiku 판정 시각 */
+  pa_freshness_checked_at?: string | null;
   /** Supabase DECIMAL 등이 문자열로 올 수 있음 */
   pa_price_local?: number | string | null;
   pa_currency_unit?: string | null;

@@ -25,6 +25,7 @@ import {
   type PanamaRow,
   type SourceAggRow,
 } from "./fetch_panama_data";
+import { runFreshnessCheckInBackground } from "./freshness_background";
 
 const ANALYSIS_TIMEOUT_MS = 10_000;
 
@@ -130,5 +131,11 @@ export async function analyzePanamaProduct(
       }, ANALYSIS_TIMEOUT_MS);
     }),
   ]);
+  void runFreshnessCheckInBackground(raced.priceRows).catch((err: unknown) => {
+    console.error(
+      "freshness check background job failed:",
+      err instanceof Error ? err.message : err,
+    );
+  });
   return raced;
 }

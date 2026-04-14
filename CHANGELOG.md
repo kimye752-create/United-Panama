@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-14 (feat(freshness): AI 게이트 백그라운드 점검 — DB 기록만)
+
+### Added
+- feat(db): Supabase `panama` — `pa_freshness_status`(TEXT), `pa_freshness_checked_at`(TIMESTAMPTZ), 인덱스·COMMENT (마이그레이션명 `add_panama_freshness_status_columns`, MCP `apply_migration`).
+- feat(analysis): `src/logic/freshness_background.ts` — 분석 직후 `runFreshnessCheckInBackground`가 `batchCheckFreshness` 후 행별 UPDATE (응답 비블로킹).
+- feat(perf): 1시간 내 재판정 skip, `immutable` 카테고리는 1회 판정 후 영구 skip.
+
+### Notes
+- `report1_digest`·`report1_schema`·rawDataDigest 빌더 미변경 — 보고서 출력 동일.
+
 ## [Unreleased] - 2026-04-14 (feat(freshness): panama 신선도 2컬럼 + 레지스트리 + 마이그레이션)
 
 ### Added
