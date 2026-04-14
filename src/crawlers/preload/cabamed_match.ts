@@ -5,9 +5,29 @@
 /// <reference types="node" />
 
 import type { ProductMaster } from "../../utils/product-dictionary.js";
-import { findProductByPanamaText, TARGET_PRODUCTS } from "../../utils/product-dictionary.js";
+import { TARGET_PRODUCTS } from "../../utils/product-dictionary.js";
 
 const DEXTROMETORFANO = "DEXTROMETORFANO";
+const COMPETITOR_MATCH_PRIORITY: readonly string[] = [
+  "2504d79b-c2ce-4660-9ea7-5576c8bb755f",
+  "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18",
+  "859e60f9-8544-43b3-a6a0-f6c7529847eb",
+  "fcae4399-aa80-4318-ad55-89d6401c10a9",
+  "014fd4d2-dc66-4fc1-8d4f-59695183387f",
+  "24738c3b-3a5b-40a9-9e8e-889ec075b453",
+  "bdfc9883-6040-438a-8e7a-df01f1230682",
+  "895f49ae-6ce3-44a3-93bd-bb77e027ba59",
+] as const;
+
+const ATC4_TO_INNS: Readonly<Record<string, readonly string[]>> = {
+  R03AK: ["Budesonida", "Beclometasona", "Mometasona", "Formoterol", "Indacaterol"],
+  C10AA: ["Atorvastatina", "Rosuvastatina", "Simvastatina", "Lovastatina", "Pravastatina", "Fluvastatina"],
+  C10AX: ["Omega 3", "Omega-3", "Ezetimiba", "Fenofibrato", "Gemfibrozilo", "Ésteres etílicos"],
+  B01AC: ["Cilostazol", "Clopidogrel", "Acetilsalicilico", "Ticagrelor"],
+  A03FA: ["Mosaprida", "Domperidona", "Metoclopramida", "Itoprida"],
+  L01XX: ["Hidroxiurea", "Hidroxicarbamida", "Hydroxyurea"],
+  V08CA: ["Gadobutrol", "Gadolinio", "Gadoteridol", "Gadopentetato"],
+};
 
 export type CabamedRowParsed = {
   itemNo: number | null;
@@ -102,6 +122,62 @@ function normalizeUpper(s: string): string {
   return s.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase();
 }
 
+function buildSelfTokens(product: ProductMaster): readonly string[] {
+  const fromInn = product.who_inn_en
+    .split("+")
+    .map((token) => token.trim())
+    .filter((token) => token !== "");
+  const core = [
+    product.kr_brand_name,
+    ...fromInn,
+  ];
+  return core
+    .map((token) => token.trim())
+    .filter((token) => token !== "");
+}
+
+function includesAnyToken(blobUpper: string, tokens: readonly string[]): boolean {
+  for (const token of tokens) {
+    if (token !== "" && blobUpper.includes(normalizeUpper(token))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function buildCompetitorTokens(product: ProductMaster): readonly string[] {
+  const atcCodes = [product.atc4_code];
+  if (
+    product.secondary_atc4 !== undefined &&
+    product.secondary_atc4.trim() !== ""
+  ) {
+    atcCodes.push(product.secondary_atc4);
+  }
+  const own = new Set(
+    [
+      product.kr_brand_name,
+      product.who_inn_en,
+      ...product.panama_search_keywords,
+    ]
+      .map((token) => normalizeUpper(token))
+      .filter((token) => token !== ""),
+  );
+  const out = new Set<string>();
+  for (const atc of atcCodes) {
+    const candidate = ATC4_TO_INNS[atc] ?? [];
+    for (const inn of candidate) {
+      const norm = normalizeUpper(inn);
+      if (norm === "") {
+        continue;
+      }
+      if (!own.has(norm)) {
+        out.add(inn);
+      }
+    }
+  }
+  return [...out];
+}
+
 /**
  * 한 행에 대해 자사 또는 경쟁품(단일) 매칭 시도 — 우선 자사, 다음 경쟁품
  */
@@ -111,14 +187,22 @@ export function matchCabamedRow(desc: string): CabamedMatchResult | null {
     return null;
   }
 
-  /** findProductByPanamaText는 키워드·INN 부분일치 시에만 반환 */
-  const matchedSelf = findProductByPanamaText(desc);
-  if (matchedSelf !== undefined) {
-    return { kind: "self", product: matchedSelf };
+  /** 기존 로직 보존(참고): const matchedSelf = findProductByPanamaText(desc); */
+  for (const product of TARGET_PRODUCTS) {
+    const selfTokens = buildSelfTokens(product);
+    if (includesAnyToken(u, selfTokens)) {
+      return { kind: "self", product };
+    }
   }
 
-  for (const p of TARGET_PRODUCTS) {
-    const tokens = COMPETITOR_TOKENS_BY_PRODUCT_ID[p.product_id];
+  for (const productId of COMPETITOR_MATCH_PRIORITY) {
+    const p = TARGET_PRODUCTS.find((it) => it.product_id === productId);
+    if (p === undefined) {
+      continue;
+    }
+    const fallbackTokens = COMPETITOR_TOKENS_BY_PRODUCT_ID[p.product_id] ?? [];
+    const atc4Tokens = buildCompetitorTokens(p);
+    const tokens = [...new Set([...atc4Tokens, ...fallbackTokens])];
     if (tokens === undefined || tokens.length === 0) {
       continue;
     }

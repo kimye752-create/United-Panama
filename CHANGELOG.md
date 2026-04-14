@@ -18,6 +18,9 @@
 - feat(product-dict): 8개 제품 정보를 실제 유나이티드 포트폴리오로 전면 교체(UUID 유지, 조합제 보조 ATC4/타깃 플래그 포함).
 - feat(crawler): CABAMED 매칭 토큰 및 ATC4 매핑을 신규 포트폴리오 기준으로 재정렬(`cabamed_match`, `pa_acodeco_cabamed`, `pa_panamacompra_atc4`).
 - chore(db): `panama` 경쟁품·prevalence·Perplexity 캐시 정리 쿼리 실행(실측 삭제 0건).
+- fix(crawl): `pa_panamacompra_atc4`에 페이지별 timeout(30s) + retry(backoff) + 연속 timeout 스킵 + 전체 10분 제한 + 키워드별 fetch 통계 추가(장시간 hang 방지).
+- fix(crawl): `cabamed_match` self 판정을 엄격화(브랜드/자사 INN 중심)하고 ATC4 기반 competitor 토큰 생성을 분리해 `acodeco_cabamed_competitor` 적재 복구.
+- chore(gitignore): `r_*.json`, `test_report*.pdf` 무시 규칙 추가 및 기존 `r_*.json` 정리.
 - fix(realtime): 환율 크롤러 환경변수 `KOREAEXIM_API_KEY` → `EXIM_API_KEY` 통일.
 - chore(perplexity): Perplexity 모델 sonar-pro → sonar 다운그레이드 (비용 최적화)
 - docs(handoff): 세션 19 핸드오프 실측 기반 전면 재작성 (유령 구현 복구 내역 반영)

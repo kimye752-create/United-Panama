@@ -38,9 +38,13 @@ const PANAMACOMPRA_AGENT = new Agent({
 });
 /** pa_panamacompra.ts 기본값(8페이지 조기 종료)은 비의약품 연속 페이지에서 키워드 0건이 되므로 ATC4 전용으로 상향 */
 const PAGE_SIZE_ATC4 = 50;
-const MAX_PAGES_PER_KEYWORD_ATC4 = 40;
+const MAX_PAGES_PER_KEYWORD_ATC4 = 50;
 const MAX_MATCHED_RELEASES_ATC4 = 120;
 const MAX_PAGES_WHEN_ZERO_ATC4 = 35;
+const PAGE_TIMEOUT_MS = 30_000;
+const FETCH_MAX_RETRIES = 3;
+const KEYWORD_MAX_CONSECUTIVE_TIMEOUTS = 5;
+const TOTAL_JOB_TIMEOUT_MS = 10 * 60 * 1000;
 /**
  * 기본 900일 — OCDS 피드에 노출되는 낙찰이 2024년 상반기인 경우가 많아 730일이면 제외됨(실측 2024-03).
  * 365일만 원하면 PANAMACOMPRA_ATC4_LOOKBACK_DAYS=365
@@ -59,20 +63,77 @@ function procurementLookbackMs(): number {
 /** 전체 적재 상한 */
 const MAX_TOTAL_INSERTS = 250;
 
-async function fetchJsonWithTlsAtc4(url: string): Promise<unknown> {
-  const res = await undiciFetch(url, {
-    // 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
-    // 파나마 측 갱신 시 dispatcher 옵션 제거 예정
-    dispatcher: PANAMACOMPRA_AGENT,
-    headers: {
-      Accept: "application/json",
-      "User-Agent": USER_AGENT_ATC4,
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`HTTP ${String(res.status)} ${res.statusText}`);
+type RetryFetchResult = {
+  ok: true;
+  payload: unknown;
+} | {
+  ok: false;
+  timedOut: boolean;
+  message: string;
+};
+
+type KeywordFetchStats = {
+  fetchSuccess: number;
+  fetchFailure: number;
+  timeout: number;
+};
+
+async function fetchJsonWithRetryAtc4(url: string): Promise<RetryFetchResult> {
+  for (let attempt = 0; attempt < FETCH_MAX_RETRIES; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, PAGE_TIMEOUT_MS);
+    try {
+      const res = await undiciFetch(url, {
+        signal: controller.signal,
+        // 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
+        // 파나마 측 갱신 시 dispatcher 옵션 제거 예정
+        dispatcher: PANAMACOMPRA_AGENT,
+        headers: {
+          Accept: "application/json",
+          "User-Agent": USER_AGENT_ATC4,
+        },
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) {
+        throw new Error(`HTTP ${String(res.status)} ${res.statusText}`);
+      }
+      return {
+        ok: true,
+        payload: (await res.json()) as unknown,
+      };
+    } catch (error: unknown) {
+      clearTimeout(timeoutId);
+      const isAbort =
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message.toLowerCase().includes("aborted"));
+      if (isAbort) {
+        return {
+          ok: false,
+          timedOut: true,
+          message: `페이지 타임아웃(${String(PAGE_TIMEOUT_MS)}ms)`,
+        };
+      }
+      if (attempt === FETCH_MAX_RETRIES - 1) {
+        return {
+          ok: false,
+          timedOut: false,
+          message: error instanceof Error ? error.message : String(error),
+        };
+      }
+      const delayMs = 2 ** attempt * 1000;
+      console.warn(
+        `[ocds] retry ${String(attempt + 1)}/${String(FETCH_MAX_RETRIES)} after ${String(delayMs)}ms`,
+      );
+      await sleepMs(delayMs);
+    }
   }
-  return (await res.json()) as unknown;
+  return {
+    ok: false,
+    timedOut: false,
+    message: "알 수 없는 fetch 실패",
+  };
 }
 
 function isOcdsApiResponseAtc4(v: unknown): v is OcdsApiResponse {
@@ -131,17 +192,41 @@ function releaseMatchesKeywordAtc4(
  */
 export async function fetchOcdsReleasesByKeywordAtc4(
   keyword: string,
+  stats: KeywordFetchStats,
 ): Promise<OcdsRelease[]> {
   const matched: OcdsRelease[] = [];
   let nextUrl: string | null = buildFirstPageUrlAtc4();
   let pages = 0;
+  let consecutiveTimeouts = 0;
 
   while (nextUrl !== null && pages < MAX_PAGES_PER_KEYWORD_ATC4) {
     if (pages > 0) {
       await sleepMs(randomDelayMs());
     }
-    const raw = await fetchJsonWithTlsAtc4(nextUrl);
+    const rawResult = await fetchJsonWithRetryAtc4(nextUrl);
+    if (!rawResult.ok) {
+      if (rawResult.timedOut) {
+        stats.timeout += 1;
+        consecutiveTimeouts += 1;
+        console.warn(
+          `[ocds] 키워드 "${keyword}" 페이지 ${String(pages + 1)} timeout, 다음 페이지 진행`,
+        );
+        if (consecutiveTimeouts >= KEYWORD_MAX_CONSECUTIVE_TIMEOUTS) {
+          console.warn(
+            `[ocds] 키워드 "${keyword}" 연속 timeout ${String(KEYWORD_MAX_CONSECUTIVE_TIMEOUTS)}회로 스킵`,
+          );
+          break;
+        }
+        pages += 1;
+        continue;
+      }
+      stats.fetchFailure += 1;
+      throw new Error(rawResult.message);
+    }
+    stats.fetchSuccess += 1;
+    consecutiveTimeouts = 0;
     pages += 1;
+    const raw = rawResult.payload;
     if (!isOcdsApiResponseAtc4(raw)) {
       throw new Error("OCDS 응답 형식이 올바르지 않습니다(releases 배열 없음).");
     }
@@ -531,6 +616,7 @@ export interface CrawlPanamaCompraAtc4Result {
   failed: number;
   dryRun: boolean;
   hitMaxTotal: boolean;
+  keywordFetchStats: Record<string, KeywordFetchStats>;
 }
 
 export async function crawlPanamaCompraAtc4(
@@ -545,6 +631,8 @@ export async function crawlPanamaCompraAtc4(
   const acceptedByAtc4: Record<string, number> = {};
   let acceptedNonDuplicate = 0;
   let hitMaxTotal = false;
+  const keywordFetchStats: Record<string, KeywordFetchStats> = {};
+  const startedAt = Date.now();
 
   const existingFp = dryRun ? new Set<string>() : await loadExistingFingerprints();
   const sessionFp = new Set<string>();
@@ -587,9 +675,25 @@ export async function crawlPanamaCompraAtc4(
         : [...rule.keywords];
 
     for (const kw of kws) {
+      const elapsedMs = Date.now() - startedAt;
+      if (elapsedMs >= TOTAL_JOB_TIMEOUT_MS) {
+        console.warn(
+          `[panamacompra_atc4] 전체 작업 시간 제한(${String(TOTAL_JOB_TIMEOUT_MS)}ms) 도달로 종료합니다.`,
+        );
+        hitMaxTotal = true;
+        break outer;
+      }
+      keywordFetchStats[kw] = {
+        fetchSuccess: 0,
+        fetchFailure: 0,
+        timeout: 0,
+      };
       try {
         await sleepMs(randomDelayMs());
-        const releases = await fetchOcdsReleasesByKeywordAtc4(kw);
+        const releases = await fetchOcdsReleasesByKeywordAtc4(
+          kw,
+          keywordFetchStats[kw],
+        );
         for (const rel of releases) {
           if (!isReleaseRecentForProcurement(rel)) {
             continue;
@@ -644,6 +748,7 @@ export async function crawlPanamaCompraAtc4(
           }
         }
       } catch (error: unknown) {
+        keywordFetchStats[kw].fetchFailure += 1;
         const msg = error instanceof Error ? error.message : String(error);
         console.warn(
           `[panamacompra_atc4] 키워드 "${kw}" OCDS 조회 실패: ${msg}. 다음 키워드로 진행합니다.`,
@@ -662,6 +767,7 @@ export async function crawlPanamaCompraAtc4(
     failed,
     dryRun,
     hitMaxTotal,
+    keywordFetchStats,
   };
 }
 

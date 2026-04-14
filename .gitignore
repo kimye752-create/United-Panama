@@ -21,6 +21,8 @@ coverage/
 tmp/
 temp/
 .cache/
+r_*.json
+test_report*.pdf
 
 # 핸드오프(세션 내부 공유용 — GitHub 원격에 올리지 않음)
 **/핸드오프*.md
