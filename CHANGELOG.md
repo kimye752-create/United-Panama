@@ -1,5 +1,23 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-14 (feat(freshness): panama 신선도 2컬럼 + 레지스트리 + 마이그레이션)
+
+### Added
+- feat(freshness): Supabase `panama` — `pa_refresh_cycle`(TEXT), `pa_item_collected_at`(TIMESTAMPTZ), 인덱스·COMMENT (마이그레이션명 `add_panama_freshness_columns`, MCP `apply_migration` 적용).
+- feat(freshness): `src/types/freshness.ts` — `RefreshCycle` 유니온.
+- feat(freshness): `src/constants/freshness_registry.ts` — `FRESHNESS_REGISTRY`(17+2종)·`getFreshnessMetadata`.
+- feat(freshness): `src/utils/panama_freshness_attach.ts` — INSERT 직전 `pa_refresh_cycle`·`pa_item_collected_at`·폴백 시 `pa_notes.item_collected_at_fallback`.
+- feat(freshness): `src/logic/freshness_rules.ts` — digest용 규칙 기반 신선도 상태.
+- feat(freshness): `src/logic/freshness_checker.ts` — `FreshnessInput`에 `itemCollectedAt`·`refreshCycle`, 시스템 프롬프트에 주기별 허용 기준 블록.
+- feat(llm): `src/logic/report1_digest.ts` — `rawDataDigest` 줄에 `[L1|L2|L3][fresh|stale_*]` 접두.
+- feat(llm): `src/llm/report1_schema.ts` — `REPORT1_SYSTEM_PROMPT`에 rawDataDigest 신선도 접두 설명.
+- chore(migration): `scripts/migrate_freshness_columns.ts` — 기존 행 일괄 UPDATE (실행 결과 `updatedRows`: 74).
+
+### Changed
+- feat(db): `src/utils/db_connector.ts` — `insertRow`가 `applyPanamaFreshnessToInsertRow` 경유; `PanamaPhase1InsertRow`에 `pa_refresh_cycle`·`pa_item_collected_at` 선택 필드.
+- feat(seed): `src/seed_loaders/load_market_intel.ts` — bulk insert 전 행별 신선도 보강.
+- fix(build): Next 번들 해석 호환 — 신선도 관련 모듈 import를 확장자 없음 형태로 정리 (`panama_freshness_attach` 체인).
+
 ## [Unreleased] - 2026-04-14 (ops+fix: Top 9 OCDS ATC4 실행 — lookback·전용 페이징)
 
 ### Added

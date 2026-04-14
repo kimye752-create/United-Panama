@@ -1,12 +1,38 @@
 /**
  * LLM generateReport1용 Supabase 데이터 압축 텍스트 (순수 로직)
  */
+import { getFreshnessMetadata } from "../constants/freshness_registry";
+import type { RefreshCycle } from "../types/freshness";
 import type { AnalyzePanamaResult } from "./panama_analysis";
 import type { PanamaRow } from "./fetch_panama_data";
+import {
+  freshnessDigestLayer,
+  ruleBasedFreshnessStatus,
+} from "./freshness_rules";
 import { getPahoRegionalReferenceLine } from "./paho_reference_prices";
 import { resolvePrevalenceMetric } from "./prevalence_resolve";
 
 const DIGEST_MAX = 8000;
+
+function digestTaggedLine(
+  kind: "macro" | "price",
+  r: PanamaRow,
+  notesSnippet: string,
+): string {
+  const src = r.pa_source ?? "";
+  const meta = getFreshnessMetadata(src);
+  const cycle: RefreshCycle =
+    (r.pa_refresh_cycle as RefreshCycle | undefined) ?? meta.refreshCycle;
+  const itemRaw = r.pa_item_collected_at ?? r.crawled_at ?? "";
+  const status = ruleBasedFreshnessStatus(
+    itemRaw === "" ? null : itemRaw,
+    cycle,
+    new Date(),
+  );
+  const layer = freshnessDigestLayer(meta);
+  const itemShort = itemRaw === "" ? "unknown" : itemRaw.slice(0, 10);
+  return `[${layer}][${status}] [${kind} ${src}] 원본 ${itemShort} 주기 ${cycle} ${notesSnippet}`;
+}
 
 /**
  * pa_notes 역학 추출 — DB만(시드 폴백 없음). 없으면 빈 문자열.
@@ -60,15 +86,15 @@ export function buildRawDataDigest(result: AnalyzePanamaResult): string {
   }
 
   for (const r of result.macroRows.slice(0, 14)) {
-    const src = r.pa_source ?? "";
     const notes = (r.pa_notes ?? "").slice(0, 260);
-    parts.push(`[macro ${src}] ${notes}`);
+    parts.push(digestTaggedLine("macro", r, notes));
   }
   for (const r of result.priceRows.slice(0, 35)) {
-    const src = r.pa_source ?? "";
     const typ = r.pa_price_type ?? "";
     const notes = (r.pa_notes ?? "").slice(0, 140);
-    parts.push(`[price ${src}] type=${typ} ${notes}`);
+    parts.push(
+      digestTaggedLine("price", r, `type=${typ} ${notes}`),
+    );
   }
 
   let s = parts.join("\n");

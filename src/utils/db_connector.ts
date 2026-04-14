@@ -7,6 +7,8 @@
 import { config as loadEnv } from "dotenv";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+import { applyPanamaFreshnessToInsertRow } from "./panama_freshness_attach";
+
 // .env 로드 (크롤러/스크립트가 최초로 이 모듈을 불러올 때 한 번 적용)
 loadEnv();
 
@@ -44,6 +46,10 @@ export interface PanamaCommonPhase1 {
  * 인덱스 시그니처 값 타입은 JSON/DB에 넣을 수 있는 범위로 제한.
  */
 export interface PanamaPhase1InsertRow extends PanamaCommonPhase1 {
+  /** 신선도 권장 주기 — insert 시 자동 보강 가능 */
+  pa_refresh_cycle?: string;
+  /** 원본 데이터 시점 — insert 시 자동 보강 가능 */
+  pa_item_collected_at?: string | null;
   [key: string]: string | number | boolean | null | undefined | MarketSegment;
 }
 
@@ -162,10 +168,11 @@ export async function insertRow(
   row: PanamaPhase1InsertRow,
 ): Promise<InsertRowResult> {
   try {
-    validatePanamaPhase1Common(row);
+    const enriched = applyPanamaFreshnessToInsertRow(row);
+    validatePanamaPhase1Common(enriched);
 
     const client = getSupabaseClient();
-    const { error } = await client.from(PANAMA_TABLE).insert(row);
+    const { error } = await client.from(PANAMA_TABLE).insert(enriched);
 
     if (error !== null) {
       const detail = error.message;

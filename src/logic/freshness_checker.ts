@@ -6,6 +6,8 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 
+import type { RefreshCycle } from "../types/freshness";
+
 const HAIKU_MODEL = "claude-haiku-4-5-20251001" as const;
 const MAX_TOKENS = 200;
 const TEMPERATURE = 0;
@@ -22,6 +24,26 @@ const SYSTEM_PROMPT = `당신은 파나마 제약 시장 분석 시스템의 데
 - 법령/규제 메타데이터: 법령 개정 없으면 불변
 - 약가 리스트 (CABAMED): 월 1회 갱신 정상
 
+신선도 판정 강화 규칙:
+
+1. 원본 나이 = 현재 - itemCollectedAt (일 단위)
+
+2. 주기별 허용 기준:
+   - immutable: stale 판정 금지 (USD 페그, 과거 낙찰 등)
+   - immediate: 1일 초과 시 stale_confirmed
+   - 1d: 2일 초과 → stale_likely
+   - 7d: 10일 초과 → stale_likely, 14일 초과 → stale_confirmed
+   - 1m: 45일 초과 → stale_likely, 60일 초과 → stale_confirmed
+   - 3m: 120일 초과 → stale_likely, 180일 초과 → stale_confirmed
+   - 1y: 540일 초과 → stale_likely, 730일 초과 → stale_confirmed
+   - unknown: 보수적, 경과 긴 경우 stale_likely
+
+3. 의미 기반 판정 (기존 규칙 유지):
+   - 규제 변경 이벤트 감지 시 오버라이드
+   - 시장 충격 감지 시 오버라이드
+
+4. itemCollectedAt null인 경우: collectedAt 기준으로 판정
+
 반드시 JSON 한 객체만 출력하세요. 키: status, confidence, reasoning, suggested_action
 status는 "fresh" | "stale_likely" | "stale_confirmed" 중 하나.
 confidence는 0.0~1.0 숫자.
@@ -31,6 +53,8 @@ suggested_action은 "pass" | "refresh" | "manual_review" 중 하나.`;
 export type FreshnessInput = {
   source: string;
   collectedAt: string;
+  itemCollectedAt: string | null;
+  refreshCycle: RefreshCycle;
   paNotes: Record<string, unknown>;
   valueDescription: string;
 };
@@ -115,6 +139,8 @@ export async function checkFreshness(
     const userPayload = JSON.stringify({
       source: input.source,
       collectedAt: input.collectedAt,
+      itemCollectedAt: input.itemCollectedAt,
+      refreshCycle: input.refreshCycle,
       paNotes: input.paNotes,
       valueDescription: input.valueDescription,
     });
@@ -151,7 +177,6 @@ export async function batchCheckFreshness(
 ): Promise<FreshnessResult[]> {
   const out: FreshnessResult[] = [];
   for (const input of inputs) {
-    // 순차 호출로 레이트 한도 완화
     out.push(await checkFreshness(input));
   }
   return out;

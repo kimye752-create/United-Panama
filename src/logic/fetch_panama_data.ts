@@ -20,6 +20,12 @@ export interface PanamaRow {
   id?: string;
   product_id?: string | null;
   pa_source?: string | null;
+  /** 수집 시각 */
+  crawled_at?: string | null;
+  /** 권장 갱신 주기 */
+  pa_refresh_cycle?: string | null;
+  /** 원본 데이터 시점 */
+  pa_item_collected_at?: string | null;
   /** Supabase DECIMAL 등이 문자열로 올 수 있음 */
   pa_price_local?: number | string | null;
   pa_currency_unit?: string | null;

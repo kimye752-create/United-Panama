@@ -11,6 +11,7 @@ import {
   validatePanamaPhase1Common,
   type PanamaPhase1InsertRow,
 } from "../utils/db_connector.js";
+import { applyPanamaFreshnessToInsertRow } from "../utils/panama_freshness_attach";
 import { MACRO_PRODUCT_ID } from "../utils/product-dictionary.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -393,7 +394,10 @@ export async function loadMarketIntelFromFile(
 
   const file = parseRound3MarketIntelJson(parsed);
   const crawledAt = new Date().toISOString();
-  const panamaRows = marketIntelFileToPanamaRows(file, crawledAt);
+  const panamaRowsRaw = marketIntelFileToPanamaRows(file, crawledAt);
+  const panamaRows = panamaRowsRaw.map((row) =>
+    applyPanamaFreshnessToInsertRow(row),
+  );
   const distRows = distributorsToRows(file.distributors, crawledAt);
 
   for (const row of panamaRows) {
