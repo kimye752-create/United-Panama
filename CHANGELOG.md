@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 (chore(ui): 호재 섹션 + 최하단 배지 2개 제거 (랜딩 단순화))
+
+### Changed
+- chore(ui): `app/panama/page.tsx` — 「진출 호재 (Regulatory Milestones)」 섹션 전체 및 「한-중미 FTA 0%」「한국 위생선진국 지정 2023.6.28」 배지 제거. 거시 카드 + 진출 적합 분석 + 신약 분석만 유지.
+- chore(ui): 과거 인라인 호재 마크업 참고용 `components/panama/RegulatoryMilestones.legacy.tsx` 추가(전체 블록 주석 보관).
+- docs(logic): `src/logic/panama_landing.ts` — milestones 조회는 본 모듈에 없음을 명시하는 주석 추가(랜딩 단순화와 정합).
+
+### Notes (실측)
+- `npm run build` 통과(2026-04-15).
+
 ## [Unreleased] - 2026-04-15 02:35 KST (feat(ui): 파나마 랜딩 SG 레이아웃 반영)
 
 ### Changed

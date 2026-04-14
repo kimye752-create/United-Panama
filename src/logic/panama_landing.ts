@@ -1,3 +1,8 @@
+/**
+ * 파나마 랜딩 거시 카드 전용 조회.
+ * regulatory_milestones(getRegulatoryMilestones)는 원래 이 파일에 없었고 page에서만 호출됐음 —
+ * 2026-04-15 랜딩 단순화로 호재 섹션 제거 시에도 여기서 milestones 조회를 추가하지 않음.
+ */
 import { createSupabaseServer } from "../../lib/supabase-server";
 import { MACRO_PRODUCT_ID } from "../utils/product-dictionary";
 import {
