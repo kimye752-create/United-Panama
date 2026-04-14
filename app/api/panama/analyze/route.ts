@@ -11,6 +11,7 @@ import {
 } from "@/src/logic/report1_digest";
 import { generateReport1, type GeneratorInput } from "@/src/llm/report1_generator";
 import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
+import { getPerplexityCacheInsight } from "@/src/logic/perplexity_insights";
 import { findProductById } from "@/src/utils/product-dictionary";
 
 export const runtime = "nodejs";
@@ -76,6 +77,9 @@ export async function POST(req: Request): Promise<Response> {
     };
 
     const llm = await generateReport1(generatorInput);
+    const perplexityInsight = await getPerplexityCacheInsight(
+      result.product.who_inn_en,
+    );
 
     return NextResponse.json({
       judgment: result.judgment,
@@ -102,6 +106,10 @@ export async function POST(req: Request): Promise<Response> {
         payload: llm.payload,
         source: llm.source,
         modelUsed: llm.modelUsed,
+      },
+      perplexity: {
+        source: perplexityInsight?.source ?? "cache_miss",
+        papers: perplexityInsight?.papers ?? [],
       },
     });
   } catch (error: unknown) {

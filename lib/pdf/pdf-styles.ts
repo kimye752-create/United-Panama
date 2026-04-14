@@ -136,4 +136,43 @@ export const pdfStyles = StyleSheet.create({
     fontSize: 7,
     color: GRAY_TEXT,
   },
+  paperTable: {
+    borderWidth: 1,
+    borderColor: GRAY_BORDER,
+    padding: 6,
+    minHeight: 180,
+  },
+  paperRow: {
+    flexDirection: "row",
+    marginBottom: 6,
+  },
+  paperIndex: {
+    width: 14,
+    fontSize: 8,
+    color: NAVY,
+    fontWeight: "bold",
+  },
+  paperBody: {
+    flex: 1,
+  },
+  paperTitle: {
+    fontSize: 8,
+    color: NAVY,
+    fontWeight: "bold",
+  },
+  paperMeta: {
+    fontSize: 7,
+    color: GRAY_TEXT,
+    marginTop: 1,
+  },
+  paperUrl: {
+    fontSize: 7,
+    color: "#3b82f6",
+    marginTop: 1,
+  },
+  emptyPaperText: {
+    fontSize: 8,
+    color: GRAY_TEXT,
+    fontStyle: "italic",
+  },
 });

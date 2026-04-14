@@ -152,6 +152,12 @@ async function checkCache(inn: string): Promise<PerplexityInsight | null> {
   };
 }
 
+export async function getPerplexityCacheInsight(
+  inn: string,
+): Promise<PerplexityInsight | null> {
+  return checkCache(inn);
+}
+
 async function upsertCache(inn: string, papers: PerplexityPaper[]): Promise<void> {
   const supabase = createSupabaseServer();
   const now = new Date();

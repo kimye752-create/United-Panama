@@ -4,6 +4,7 @@
  */
 import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
 import type { Report1Payload } from "@/src/llm/report1_schema";
+import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 
 import type { PdfDownloadClientPayload } from "./PdfDownloadButton";
 import { PdfDownloadButton } from "./PdfDownloadButton";
@@ -20,6 +21,8 @@ type Props = {
   llm: LlmBundle;
   rawDataDigest: string;
   prevalenceMetric: string;
+  perplexityPapers: PerplexityPaper[];
+  perplexitySource: string;
 };
 
 function hsForProduct(inn: string): string {
@@ -71,6 +74,8 @@ export function Report1({
   llm,
   rawDataDigest,
   prevalenceMetric,
+  perplexityPapers,
+  perplexitySource,
 }: Props) {
   const { product, judgment, priceRows, matchedDistributors, sourceAggregation } =
     data;
@@ -102,6 +107,8 @@ export function Report1({
       count: r.count,
       avgConfidence: r.avgConfidence ?? 0,
     })),
+    perplexityPapers,
+    perplexitySource,
   };
 
   return (
@@ -221,7 +228,7 @@ export function Report1({
           </p>
         </section>
 
-        <section className="space-y-3">
+        <section className="space-y-3 border-t-2 border-dashed border-slate-300 pt-5">
           <h2 className={sectionBar}>4. 근거 및 출처</h2>
           <div>
             <p className="mb-1 text-xs font-semibold text-slate-800">참조 데이터</p>
@@ -257,6 +264,37 @@ export function Report1({
               "의미적 신선도 판정: Phase 2 로드맵 — 해법 C (AI 2단계 게이트)",
               `LLM 본문 생성: ${formatLlmSourceLine(llm)}`,
             ].join(" · ")}
+          </div>
+
+          <div className="rounded border border-slate-300 bg-white p-3 text-sm">
+            <p className="mb-2 text-xs font-semibold text-slate-800">
+              Perplexity 추천 논문 ({perplexitySource})
+            </p>
+            {perplexityPapers.length > 0 ? (
+              <ol className="list-decimal space-y-1 pl-4 text-xs leading-relaxed text-slate-700">
+                {perplexityPapers.slice(0, 8).map((paper) => (
+                  <li key={`${paper.url}-${paper.title}`}>
+                    <a
+                      href={paper.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-medium text-slate-800 underline"
+                    >
+                      {paper.title}
+                    </a>
+                    <span className="ml-1 text-slate-500">
+                      ({paper.source}
+                      {paper.published_at !== null ? `, ${paper.published_at.slice(0, 10)}` : ""}
+                      )
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-xs text-slate-500">
+                캐시된 Perplexity 추천 논문이 아직 없습니다. 분석 후 잠시 뒤 다시 시도하세요.
+              </p>
+            )}
           </div>
 
           <PdfDownloadButton payload={pdfPayload} />

@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { parseReport1Payload } from "@/src/llm/report1_schema";
 import type { Report1Payload } from "@/src/llm/report1_schema";
 import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
+import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 import type { ProductMaster } from "@/src/utils/product-dictionary";
 
 import INNTabs from "./INNTabs";
@@ -45,6 +46,8 @@ function parseLlmBundle(raw: unknown): LlmBundle | null {
 type DigestState = {
   rawDataDigest: string;
   prevalenceMetric: string;
+  perplexityPapers: PerplexityPaper[];
+  perplexitySource: string;
 };
 
 type Props = {
@@ -107,6 +110,28 @@ export function PanamaReportClient({ product, currentInn }: Props) {
         return;
       }
       const pm = typeof pmRaw === "string" ? pmRaw : "";
+      const perplexityRaw = raw.perplexity;
+      let perplexityPapers: PerplexityPaper[] = [];
+      let perplexitySource = "cache_miss";
+      if (
+        isRecord(perplexityRaw) &&
+        Array.isArray(perplexityRaw.papers) &&
+        typeof perplexityRaw.source === "string"
+      ) {
+        perplexityPapers = perplexityRaw.papers.filter((paper): paper is PerplexityPaper => {
+          if (!isRecord(paper)) {
+            return false;
+          }
+          return (
+            typeof paper.title === "string" &&
+            typeof paper.url === "string" &&
+            (typeof paper.published_at === "string" || paper.published_at === null) &&
+            typeof paper.summary === "string" &&
+            typeof paper.source === "string"
+          );
+        });
+        perplexitySource = perplexityRaw.source;
+      }
 
       if (
         raw.judgment === null ||
@@ -152,6 +177,8 @@ export function PanamaReportClient({ product, currentInn }: Props) {
       setDigest({
         rawDataDigest: dr,
         prevalenceMetric: pm,
+        perplexityPapers,
+        perplexitySource,
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "네트워크 오류";
@@ -208,6 +235,8 @@ export function PanamaReportClient({ product, currentInn }: Props) {
               llm={llm}
               rawDataDigest={digest.rawDataDigest}
               prevalenceMetric={digest.prevalenceMetric}
+              perplexityPapers={digest.perplexityPapers}
+              perplexitySource={digest.perplexitySource}
             />
           ) : null}
         </>

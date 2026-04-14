@@ -10,6 +10,7 @@ import {
   Report1Document,
   type Report1PdfProps,
 } from "@/lib/pdf/Report1Document";
+import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 import {
   generateReport1,
   type GeneratorInput,
@@ -31,8 +32,39 @@ interface PdfRequestBody {
   panamacompraCount: number;
   rawDataDigest: string;
   sourceRows: Array<{ source: string; count: number; avgConfidence: number }>;
+  perplexityPapers: PerplexityPaper[];
+  perplexitySource: string;
   dosageForm: string;
   hsCode: string;
+}
+
+function parsePerplexityPapers(raw: unknown): PerplexityPaper[] | null {
+  if (!Array.isArray(raw)) {
+    return null;
+  }
+  const out: PerplexityPaper[] = [];
+  for (const item of raw) {
+    if (!isRecord(item)) {
+      return null;
+    }
+    if (
+      typeof item.title !== "string" ||
+      typeof item.url !== "string" ||
+      (typeof item.published_at !== "string" && item.published_at !== null) ||
+      typeof item.summary !== "string" ||
+      typeof item.source !== "string"
+    ) {
+      return null;
+    }
+    out.push({
+      title: item.title,
+      url: item.url,
+      published_at: item.published_at,
+      summary: item.summary,
+      source: item.source,
+    });
+  }
+  return out;
 }
 
 function isRecord(x: unknown): x is Record<string, unknown> {
@@ -112,6 +144,13 @@ function parsePdfBody(raw: unknown): PdfRequestBody | null {
   if (sr === null) {
     return null;
   }
+  const papers = parsePerplexityPapers(raw.perplexityPapers);
+  if (papers === null) {
+    return null;
+  }
+  if (typeof raw.perplexitySource !== "string") {
+    return null;
+  }
   if (typeof raw.dosageForm !== "string" || typeof raw.hsCode !== "string") {
     return null;
   }
@@ -128,6 +167,8 @@ function parsePdfBody(raw: unknown): PdfRequestBody | null {
     panamacompraCount: raw.panamacompraCount,
     rawDataDigest: raw.rawDataDigest,
     sourceRows: sr,
+    perplexityPapers: papers,
+    perplexitySource: raw.perplexitySource,
     dosageForm: raw.dosageForm,
     hsCode: raw.hsCode,
   };
@@ -183,6 +224,8 @@ export async function POST(req: NextRequest): Promise<Response> {
       confidence: body.confidence,
       llmPayload: llmResult.payload,
       sourceRows: body.sourceRows,
+      perplexityPapers: body.perplexityPapers,
+      perplexitySource: body.perplexitySource,
       collectedAt: new Date().toISOString().slice(0, 10),
     };
 

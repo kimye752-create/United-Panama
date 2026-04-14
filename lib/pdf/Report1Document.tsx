@@ -5,6 +5,7 @@ import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 
 import type { Report1Payload } from "@/src/llm/report1_schema";
+import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 
 import "./pdf-fonts";
 import { pdfStyles } from "./pdf-styles";
@@ -25,6 +26,8 @@ export interface Report1PdfProps {
   confidence: number;
   llmPayload: Report1Payload;
   sourceRows: SourceRow[];
+  perplexityPapers: PerplexityPaper[];
+  perplexitySource: string;
   collectedAt: string;
 }
 
@@ -109,7 +112,13 @@ export function Report1Document(props: Report1PdfProps) {
             </Text>
           </View>
         </View>
+      </Page>
 
+      <Page size="A4" style={pdfStyles.page} wrap={false}>
+        <Text style={pdfStyles.titleBar}>④ 근거·출처 및 논문 참고</Text>
+        <Text style={pdfStyles.subTitle}>
+          출처 집계·근거 메타·Perplexity 추천 논문
+        </Text>
         <Text style={pdfStyles.blockHeader}>④ 근거·출처 (Supabase 실적재)</Text>
         <View style={pdfStyles.sourceTable}>
           <View style={pdfStyles.sourceHeaderRow}>
@@ -126,6 +135,33 @@ export function Report1Document(props: Report1PdfProps) {
               </Text>
             </View>
           ))}
+        </View>
+
+        <Text style={pdfStyles.blockHeader}>
+          ⑤ Perplexity 추천 논문 ({props.perplexitySource})
+        </Text>
+        <View style={pdfStyles.paperTable}>
+          {props.perplexityPapers.length > 0 ? (
+            props.perplexityPapers.slice(0, 8).map((paper, index) => (
+              <View key={`${paper.url}-${paper.title}`} style={pdfStyles.paperRow}>
+                <Text style={pdfStyles.paperIndex}>{index + 1}.</Text>
+                <View style={pdfStyles.paperBody}>
+                  <Text style={pdfStyles.paperTitle}>{paper.title}</Text>
+                  <Text style={pdfStyles.paperMeta}>
+                    {paper.source}
+                    {paper.published_at !== null
+                      ? ` · ${paper.published_at.slice(0, 10)}`
+                      : ""}
+                  </Text>
+                  <Text style={pdfStyles.paperUrl}>{paper.url}</Text>
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text style={pdfStyles.emptyPaperText}>
+              캐시된 추천 논문이 아직 없어 표시할 항목이 없습니다.
+            </Text>
+          )}
         </View>
 
         <View style={pdfStyles.footer}>
