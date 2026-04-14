@@ -5,6 +5,7 @@ import {
   splitAceclofenacPrevalenceForBlock3,
 } from "../logic/report1_block3_utils";
 import type { MarketPriceStats } from "../logic/market_stats";
+import { findProductByInn } from "../utils/product-dictionary";
 
 /** 폴백용 입력 인터페이스 (느슨) */
 export interface FallbackInput {
@@ -62,6 +63,8 @@ function toTwoLineInsight(fact: string, insight: string): string {
 
 /** LLM 호출 실패 시 마지막 안전망. 규칙 기반 풀 본문 생성. */
 export function buildFallbackReport(input: FallbackInput): Report1Payload {
+  const productMeta = findProductByInn(input.innEn);
+  const atc4 = productMeta?.atc4_code ?? "UNKNOWN";
   const distList =
     input.distributorNames.length > 0
       ? input.distributorNames.join(", ")
@@ -103,19 +106,27 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
 
   const panamacompraLine =
     input.panamacompraStats === null
-      ? "해당 INN은 파나마 공공조달 데이터 매칭 경쟁품 없음."
-      : `PanamaCompra ATC4 경쟁품 ${String(input.panamacompraStats.count)}건, 평균 ${String(
+      ? `${input.innEn} 해당 ATC4(${atc4}) 파나마 공공조달 매칭 경쟁품 데이터 없음.`
+      : `${input.innEn} 동일 ATC4(${atc4}) 경쟁품 ${String(
+          input.panamacompraStats.count,
+        )}건 낙찰 확인, 평균 ${String(
           input.panamacompraStats.avgPrice,
         )} PAB / 최고 ${String(input.panamacompraStats.maxPrice)} PAB.`;
   const cabamedLine =
     input.cabamedStats === null
-      ? "CABAMED 경쟁품 매칭 데이터 없음."
-      : `ACODECO CABAMED 경쟁품 ${String(input.cabamedStats.count)}건, 평균 ${String(
+      ? `${input.innEn} 동일 ATC4(${atc4}) CABAMED 경쟁품 데이터 없음.`
+      : `${input.innEn} 동일 ATC4(${atc4}) CABAMED 경쟁품 ${String(
+          input.cabamedStats.count,
+        )}건 등재, 소비자 평균 ${String(
           input.cabamedStats.avgPrice,
         )} PAB / 최고 ${String(input.cabamedStats.maxPrice)} PAB.`;
+  const pricingInsightLine =
+    input.panamacompraStats === null && input.cabamedStats === null
+      ? `WHO/World Bank 거시 지표 및 ${input.innEn} 처방 패턴 학술 논거 기반 진입 분석 수행 가능`
+      : "위 가격 정보를 Phase 2 역산식 적용으로 자사 출고가 산출 가능";
   const pricingRaw = toTwoLineInsight(
     `${panamacompraLine} ${cabamedLine}`,
-    "위 가격 정보를 Phase 2 역산식 적용으로 자사 출고가 산출 가능",
+    pricingInsightLine,
   );
 
   const partnersRaw = toTwoLineInsight(

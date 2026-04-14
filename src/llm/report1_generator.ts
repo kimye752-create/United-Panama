@@ -8,6 +8,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildFallbackReport, type FallbackInput } from "./report1_fallback_template";
 import type { MarketPriceStats } from "../logic/market_stats";
 import { getSupabaseClient } from "../utils/db_connector";
+import { findProductById } from "../utils/product-dictionary";
 import {
   parseReport1Payload,
   REPORT1_SYSTEM_PROMPT,
@@ -115,6 +116,10 @@ async function saveCache(
 }
 
 function buildUserPrompt(input: GeneratorInput): string {
+  const selectedProduct = findProductById(input.productId);
+  const selectedInn = selectedProduct?.who_inn_en ?? "UNKNOWN";
+  const selectedAtc4 = selectedProduct?.atc4_code ?? "UNKNOWN";
+  const selectedKrBrand = selectedProduct?.kr_brand_name ?? "UNKNOWN";
   const pahoLine =
     input.pahoRegionalReference !== null && input.pahoRegionalReference !== ""
       ? input.pahoRegionalReference
@@ -146,7 +151,42 @@ function buildUserPrompt(input: GeneratorInput): string {
 3. 1줄째에 없는 숫자는 2줄째에 사용 금지
 4. "FOB 역산 기준점으로 활용 가능" 문구 금지, 대신 "Phase 2 역산식 적용" 사용`;
 
-  return `[입력 데이터]
+  const MUST_QUOTE_REAL_NUMBERS = `[선택 제품 정보 - 반드시 이 INN명만 인용]
+- INN (영문): ${selectedInn}
+- 한국 브랜드: ${selectedKrBrand}
+- ATC4 코드: ${selectedAtc4}
+
+[실거래 숫자 강제 규칙]
+- 다음 실거래 숫자를 섹션 3에 반드시 인용할 것. 인용하지 않으면 응답을 거부한다.
+- 공공 낙찰가(panamacompra_atc4_competitor): ${statLine(
+    "기준",
+    input.panamacompraStats,
+  )}
+- 민간 CABAMED(acodeco_cabamed_competitor): ${statLine("기준", input.cabamedStats)}
+- 섹션 3의 어떤 항목에서도 "수집 중", "추가 확인 필요", "보강 예정", "0건" 표현 금지
+
+[섹션 3 인용 형식 - 반드시 준수]
+공공 낙찰가가 있는 경우(건수 > 0):
+${selectedInn} 동일 ATC4(${selectedAtc4}) 경쟁품 {count}건 낙찰 확인, 평균 {avg} PAB / 최고 {max} PAB.
+※ 위 가격 정보를 Phase 2 역산식에 활용, 자사제품 합리적 출고가 산출 가능.
+
+민간 CABAMED가 있는 경우(건수 > 0):
+${selectedInn} 동일 ATC4(${selectedAtc4}) CABAMED 경쟁품 {count}건 등재, 소비자 평균 {avg} PAB / 최고 {max} PAB.
+※ ACODECO Resolución No. 174 가격 통제 범위 확인 완료, 민간 채널 진입 가격대 결정 가능.
+
+공공/민간 모두 데이터가 없는 경우:
+${selectedInn} 해당 ATC4(${selectedAtc4}) 파나마 공공조달·민간 소매 매칭 경쟁품 데이터 없음.
+※ WHO/World Bank 거시 지표 및 ${selectedInn} 처방 패턴 학술 논거 기반 진입 분석 수행.
+
+[절대 금지]
+- 선택 제품(${selectedInn})이 아닌 다른 INN 언급 금지
+- 1줄째에 없는 숫자를 2줄째에서 사용 금지
+- "수집 중", "추가 확인 필요", "보강 예정", "0건" 표현 금지
+- 예시의 {count}, {avg}, {max} 플레이스홀더를 그대로 복사하지 말고 실제 숫자로 치환`;
+
+  return `${MUST_QUOTE_REAL_NUMBERS}
+
+[입력 데이터]
 - 제품: ${input.brandName} (${input.innEn})
 - Case 판정: ${input.caseGrade} (${input.caseVerdict})
 - WHO EML 등재: ${input.emlWho ? "Y" : "N"}
@@ -184,6 +224,10 @@ async function callLLM(model: string, input: GeneratorInput): Promise<Report1Pay
     );
   }
   const client = new Anthropic({ apiKey });
+  const userPrompt = buildUserPrompt(input);
+  console.log(`[report1_generator] USER_PROMPT_BEGIN model=${model}`);
+  console.log(userPrompt);
+  console.log("[report1_generator] USER_PROMPT_END");
 
   const response: Message = await new Promise<Message>((resolve, reject) => {
     const t = setTimeout(() => {
@@ -197,7 +241,7 @@ async function callLLM(model: string, input: GeneratorInput): Promise<Report1Pay
         system: REPORT1_SYSTEM_PROMPT,
         tools: [REPORT1_TOOL],
         tool_choice: { type: "tool", name: "generate_report1" },
-        messages: [{ role: "user", content: buildUserPrompt(input) }],
+        messages: [{ role: "user", content: userPrompt }],
       })
       .then((msg) => {
         clearTimeout(t);

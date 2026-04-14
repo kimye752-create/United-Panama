@@ -23,6 +23,10 @@
 - feat(report): 섹션 3 "사실 + ※ 인사이트" 2줄 구조로 재설계
 - feat(analyze): 실거래 통계(panamacompra_atc4 + cabamed) 프롬프트 주입 강화
 - fix(analyze): 0건 INN 처리 로직 추가 (유보 표현 금지)
+- feat(product-dict): 8개 INN에 atc4_code 필드 추가 (M01AB, A02BC 등)
+- feat(market_stats): getPanamacompraStats 유니크 낙찰 기준 중복 제거 로직 추가
+- feat(report): 섹션 3 본문에 선택 INN/ATC4 동적 주입 (환각 방지)
+- fix(report): judgment.reasoning 유보 표현 정리 (0건 → 데이터 없음)
 
 ### Fixed
 - fix(realtime): PanamaCompra OCDS 서버 SSL 인증서 만료 대응 — `undici` Agent(`rejectUnauthorized: false`) 적용 (`panamacompra_recent.ts`).

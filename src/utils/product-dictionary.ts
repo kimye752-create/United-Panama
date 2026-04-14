@@ -11,6 +11,7 @@ export interface ProductMaster {
   product_id: string;
   kr_brand_name: string;
   who_inn_en: string;
+  atc4_code: string;
   /** Panama 현지 검색 키워드 — 순차 시도, 첫 hit에서 stop */
   panama_search_keywords: string[];
 }
@@ -29,48 +30,56 @@ export const TARGET_PRODUCTS: readonly ProductMaster[] = [
     product_id: "bdfc9883-6040-438a-8e7a-df01f1230682",
     kr_brand_name: "하이드린 캡슐",
     who_inn_en: "Hydroxyurea",
+    atc4_code: "L01XX",
     panama_search_keywords: ["Hidroxiurea", "Hidroxicarbamida"],
   },
   {
     product_id: "fcae4399-aa80-4318-ad55-89d6401c10a9",
     kr_brand_name: "실로스탄 CR정",
     who_inn_en: "Cilostazol",
+    atc4_code: "B01AC",
     panama_search_keywords: ["Cilostazol"],
   },
   {
     product_id: "24738c3b-3a5b-40a9-9e8e-889ec075b453",
     kr_brand_name: "가스티인 CR정",
     who_inn_en: "Itopride",
+    atc4_code: "A03FA",
     panama_search_keywords: ["Itoprida"],
   },
   {
     product_id: "2504d79b-c2ce-4660-9ea7-5576c8bb755f",
     kr_brand_name: "클란자 CR정",
     who_inn_en: "Aceclofenac",
+    atc4_code: "M01AB",
     panama_search_keywords: ["Aceclofenaco"],
   },
   {
     product_id: "859e60f9-8544-43b3-a6a0-f6c7529847eb",
     kr_brand_name: "라베맥스 정",
     who_inn_en: "Rabeprazole",
+    atc4_code: "A02BC",
     panama_search_keywords: ["Rabeprazol"],
   },
   {
     product_id: "014fd4d2-dc66-4fc1-8d4f-59695183387f",
     kr_brand_name: "에르도스테인 캡슐",
     who_inn_en: "Erdosteine",
+    atc4_code: "R05CB",
     panama_search_keywords: ["Erdosteina"],
   },
   {
     product_id: "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18",
     kr_brand_name: "오메가-3 연질캡슐",
     who_inn_en: "Omega-3-acid ethyl esters",
+    atc4_code: "C10AX",
     panama_search_keywords: ["Omega 3", "Omega-3", "Ésteres etílicos"],
   },
   {
     product_id: "895f49ae-6ce3-44a3-93bd-bb77e027ba59",
     kr_brand_name: "레보틱스 시럽 90mg",
     who_inn_en: "Levodropropizine",
+    atc4_code: "R05DB",
     panama_search_keywords: [
       "Levodropropizine",
       "Levodropropizina",

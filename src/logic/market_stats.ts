@@ -22,21 +22,43 @@ function buildStats(rows: readonly PanamaRow[]): MarketPriceStats | null {
   const total = prices.reduce((acc, cur) => acc + cur, 0);
   return {
     count: prices.length,
-    avgPrice: Math.round(total / prices.length),
+    avgPrice: Math.round((total / prices.length) * 100) / 100,
     maxPrice: Math.max(...prices),
     minPrice: Math.min(...prices),
   };
+}
+
+function contractDateFromNotes(notes: string | null | undefined): string {
+  if (notes === null || notes === undefined || notes.trim() === "") {
+    return "";
+  }
+  try {
+    const parsed = JSON.parse(notes) as { contract_date?: unknown };
+    return typeof parsed.contract_date === "string" ? parsed.contract_date : "";
+  } catch {
+    return "";
+  }
 }
 
 export function getPanamacompraStats(
   productId: string,
   rows: readonly PanamaRow[],
 ): MarketPriceStats | null {
-  const targetRows = rows.filter(
+  const rawRows = rows.filter(
     (row) =>
       row.product_id === productId && row.pa_source === "panamacompra_atc4_competitor",
   );
-  return buildStats(targetRows);
+  const uniqueMap = new Map<string, PanamaRow>();
+  for (const row of rawRows) {
+    const contractDate = contractDateFromNotes(row.pa_notes);
+    const key = `${row.pa_product_name_local ?? ""}__${String(
+      row.pa_price_local ?? "",
+    )}__${contractDate}`;
+    if (!uniqueMap.has(key)) {
+      uniqueMap.set(key, row);
+    }
+  }
+  return buildStats(Array.from(uniqueMap.values()));
 }
 
 export function getCabamedStats(

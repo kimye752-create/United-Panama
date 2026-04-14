@@ -68,14 +68,16 @@ export function judgeCase(input: JudgmentInput): JudgmentResult {
   }
 
   if (privateRetailCount > 0 || distributorCount >= 1) {
+    const channelLine =
+      privateRetailCount > 0
+        ? `민간 약국 채널 실데이터 확보 ${privateRetailCount}건`
+        : "민간 약국 채널 데이터 없음, 거시 지표 기반 판단";
     return {
       case: "B",
       verdict: "조건부",
       confidence: 0.75,
       reasoning: [
-        clip(
-          `민간 약국 채널 실데이터 확보 ${privateRetailCount}건`,
-        ),
+        clip(channelLine),
         clip("한국 위생선진국 지정으로 등록 $500/0.5~1개월"),
         clip("파나마 국민 70% CSS 가입, 1인당 의료비 $1,557.81(World Bank/WHO GHED 2023)"),
       ],
@@ -89,7 +91,7 @@ export function judgeCase(input: JudgmentInput): JudgmentResult {
     confidence: 0.65,
     reasoning: [
       clip("EML 등재 없음 + 민간 채널 가격 데이터 없음"),
-      clip("공공조달 낙찰 이력 없음"),
+      clip("공공조달 매칭 데이터 없음"),
       clip("유통 파트너 매칭 실패"),
     ],
     risks: [
