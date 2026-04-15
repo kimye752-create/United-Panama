@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 18:13:23 (chore(llm): 공공조달 가격 패턴 문구 사용자 지정안 반영)
+
+### Changed
+- chore(llm): `src/llm/system_context_panama.ts` 6번 항목 마지막 불릿을 사용자 지정 문구로 교체: `INDIA 제네릭 vs ESPAÑA 제네릭 가격 차 미미 (10% 이하), ORIGINAL (Servier/GSK) 30~40% 프리미엄`.
+
 ## [Unreleased] - 2026-04-15 18:12:06 (fix(llm): system context 문자열 종료 복구 후 재푸시)
 
 ### Changed
