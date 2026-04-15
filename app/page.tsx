@@ -1,6 +1,16 @@
-import { redirect } from "next/navigation";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { MarketNewsCard } from "@/components/dashboard/main/MarketNewsCard";
+import { ProgressChecklistCard } from "@/components/dashboard/main/ProgressChecklistCard";
+import { TariffExchangeCard } from "@/components/dashboard/main/TariffExchangeCard";
 
-/** 첫 화면: 국가 요약 + 품목 토글 — 제품 분석 보고서는 `/panama/report/[inn]` (토글·분석 버튼) */
 export default function HomePage() {
-  redirect("/panama");
+  return (
+    <DashboardShell>
+      <div className="mb-3.5 grid grid-cols-1 items-stretch gap-3.5 md:grid-cols-3">
+        <TariffExchangeCard />
+        <ProgressChecklistCard />
+        <MarketNewsCard />
+      </div>
+    </DashboardShell>
+  );
 }

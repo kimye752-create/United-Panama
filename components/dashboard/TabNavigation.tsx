@@ -1,0 +1,37 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const TABS = [
+  { href: "/", label: "메인 프리뷰" },
+  { href: "/process-1", label: "1공정 · 시장조사" },
+  { href: "/process-2", label: "2공정 · 수출전략" },
+  { href: "/process-3", label: "3공정 · 바이어 발굴" },
+  { href: "/reports", label: "보고서" },
+] as const;
+
+export function TabNavigation() {
+  const pathname = usePathname();
+  return (
+    <nav className="relative mb-6 flex justify-center border-b-2 border-navy/10">
+      {TABS.map((tab) => {
+        const isActive = pathname === tab.href;
+        return (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={`relative inline-flex h-[46px] select-none items-center px-6 text-[13.5px] font-bold tracking-[-0.01em] transition-colors duration-200 ${
+              isActive ? "font-extrabold text-navy" : "text-muted hover:text-navy"
+            }`}
+          >
+            {tab.label}
+            {isActive ? (
+              <span className="absolute -bottom-[2px] left-1/2 h-[2px] w-4/5 -translate-x-1/2 rounded-t-[2px] bg-navy" />
+            ) : null}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}

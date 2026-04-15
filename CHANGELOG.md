@@ -1,5 +1,45 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 19:42:28 (fix(front): 1공정 분석 버튼 반복 실행 안정화 + 보고서 탭 자동 동기화)
+
+### Changed
+- fix(front): `components/dashboard/process1/Process1Workbench.tsx`에서 `진출 적합 분석` 클릭 시 `analysisNonce` 기반 key 재마운트로 매 클릭마다 분석이 확실히 재실행되도록 보강.
+- fix(front): 동일 컴포넌트에서 분석 시작 시 보고서 출력 영역으로 자동 스크롤되도록 `scrollIntoView` 동선 추가.
+- fix(front): `components/dashboard/reports/GeneratedReportsList.tsx`에 `storage`/`focus` 이벤트 동기화 추가로 보고서 탭 재진입 시 최신 localStorage 목록 즉시 반영.
+- verify: `npx tsc --noEmit` 통과, 백엔드 무손상(`app/api`, `src/llm` 변경 없음) 재확인.
+
+## [Unreleased] - 2026-04-15 19:40:49 (chore(front): process1 임베드 보고서의 INN 탭 숨김)
+
+### Changed
+- chore(front): `components/PanamaReportClient.tsx`에 `showInnTabs` 옵션 추가(기본 true).
+- chore(front): `components/dashboard/process1/Process1Workbench.tsx`에서 임베드 호출 시 `showInnTabs={false}` 적용해 1공정 분석 흐름을 "목록 선택 → 진출 적합 분석 버튼" 단일 동선으로 고정.
+- verify: `npx tsc --noEmit` 통과, 백엔드 무손상(`app/api`, `src/llm` 변경 없음).
+
+## [Unreleased] - 2026-04-15 19:37:07 (feat(dashboard): 분석 완료 보고서 목록 자동 적재 연결)
+
+### Changed
+- feat(front): `src/lib/dashboard/reports_store.ts`에 `upsertStoredReport` 추가 — 동일 productId 중복을 제거하고 최신 보고서를 맨 앞에 유지.
+- feat(front): `components/PanamaReportClient.tsx`에서 분석 성공 시(`data+llm` 확보) `pa_upharma_reports_v1`에 보고서 메타를 자동 저장해 `/reports` 탭 목록이 실제 데이터로 채워지도록 연결.
+- verify: 백엔드 무손상 재확인(`git diff --stat app/api src/llm` 결과 비어 있음), `npx tsc --noEmit` 통과.
+
+## [Unreleased] - 2026-04-15 19:33:34 (feat(dashboard): process1 분석 버튼→A4 보고서 하단 도출 흐름 복원)
+
+### Changed
+- feat(front): `components/dashboard/process1/Process1Workbench.tsx` 신규 추가 — 제품 선택 + `진출 적합 분석` 버튼 클릭 시 기존 `PanamaReportClient`를 신약분석 카드 하단에 렌더링하도록 배치.
+- feat(front): `app/process-1/page.tsx`를 워크벤치 단일 구성으로 교체해 보고서 노출 위치를 요청 UI 흐름(신약분석 검색창 하단)과 일치시킴.
+- feat(front): `components/PanamaReportClient.tsx`에 `showBackLink` 옵션 추가(기본 true)하여 대시보드 임베드 시 불필요한 상단 복귀 링크를 숨길 수 있도록 개선.
+- feat(asset): 첨부 로고 파일을 `public/images/logo.png`로 반영하고 `components/dashboard/Topbar.tsx`에서 실제 이미지 렌더링으로 전환.
+
+## [Unreleased] - 2026-04-15 19:27:58 (feat(dashboard): integrate SG-prototype design for PA frontend-only phase1-2)
+
+### Changed
+- feat(dashboard): `tailwind.config.ts`에 PA 대시보드 디자인 토큰(colors/shadows/fontFamily.pretendard) 추가.
+- feat(dashboard): `components/dashboard/` 공통 UI 추가(`DashboardShell`, `Topbar`, `TabNavigation`, `shared/Card`, `shared/EmptyPage`).
+- feat(dashboard): 메인 프리뷰 카드 추가(`TariffExchangeCard`, `ProgressChecklistCard`, `MarketNewsCard`) 및 `/` 경로를 대시보드 홈으로 전환.
+- feat(dashboard): 5탭 라우트 골격 추가(`/process-1`, `/process-2`, `/process-3`, `/reports`) 및 process2/3 준비중 페이지 구성.
+- feat(dashboard): `src/lib/dashboard/` 로컬 상태 저장 유틸 추가(`todo_store.ts`, `reports_store.ts`, `product_dictionary.ts`)로 `pa_*` 키 규칙 적용.
+- note(asset): `newfrontend`에 실제 `logo.png` 대신 `._logo.png`만 존재해 임시 브랜드 마크를 적용(추후 로고 원본 수신 시 `/public/images/logo.png` 치환 예정).
+
 ## [Unreleased] - 2026-04-15 18:24:17 (fix(report1): panamacompraV3Top 전달 추적 로그 + PDF 경로 누락 전달 복구)
 
 ### Changed

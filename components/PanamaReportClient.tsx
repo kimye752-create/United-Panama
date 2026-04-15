@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { upsertStoredReport } from "@/src/lib/dashboard/reports_store";
 import { parseReport1Payload } from "@/src/llm/report1_schema";
 import type { Report1Payload } from "@/src/llm/report1_schema";
 import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
@@ -57,9 +58,18 @@ type Props = {
   product: ProductMaster;
   /** URL `?inn=` — INN 탭 활성 표시 */
   currentInn: string;
+  /** 대시보드 임베드 시 상단 복귀 링크 숨김 */
+  showBackLink?: boolean;
+  /** 임베드 모드에서 INN 탭 숨김 */
+  showInnTabs?: boolean;
 };
 
-export function PanamaReportClient({ product, currentInn }: Props) {
+export function PanamaReportClient({
+  product,
+  currentInn,
+  showBackLink = true,
+  showInnTabs = true,
+}: Props) {
   const [data, setData] = useState<AnalyzePanamaResult | null>(null);
   const [llm, setLlm] = useState<LlmBundle | null>(null);
   const [digest, setDigest] = useState<DigestState | null>(null);
@@ -195,14 +205,28 @@ export function PanamaReportClient({ product, currentInn }: Props) {
     void run();
   }, [run]);
 
+  useEffect(() => {
+    if (data === null || llm === null || error !== null) {
+      return;
+    }
+    upsertStoredReport({
+      productId: data.product.product_id,
+      brand: data.product.kr_brand_name,
+      inn: data.product.who_inn_en,
+      caseGrade: data.judgment.case,
+    });
+  }, [data, llm, error]);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <Link
-        href="/panama"
-        className="mb-6 inline-block rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-      >
-        ← 파나마 국가 개요
-      </Link>
+      {showBackLink ? (
+        <Link
+          href="/panama"
+          className="mb-6 inline-block rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+        >
+          ← 파나마 국가 개요
+        </Link>
+      ) : null}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -230,7 +254,7 @@ export function PanamaReportClient({ product, currentInn }: Props) {
             ) : null}
           </div>
 
-          <INNTabs currentInn={currentInn} />
+          {showInnTabs ? <INNTabs currentInn={currentInn} /> : null}
 
           {data !== null && llm !== null && digest !== null && error === null ? (
             <Report1
