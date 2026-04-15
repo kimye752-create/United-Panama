@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 18:03:24 (feat(report1): 양식 강화 잔여 패치 1/2/5 + 캐시 초기화 + 3개 품목 검증)
+
+### Changed
+- feat(llm): `src/llm/report1_schema.ts` 시스템 프롬프트 강화 — PanamaCompra V3 필수 항목 누락 시 무효 규칙과 블록4-3의 `유통 파트너 매트릭스` 명시 규칙 추가.
+- feat(llm): `src/llm/report1_generator.ts` 사용자 프롬프트 강화 — V3 메타(총건수/핵심 proveedor/제조사/원산지/발주기관/발주일/대표단가) 직접 주입 및 블록4-2·4-3 강제 인용 규칙 추가, Fallback 경로에도 `panamacompraV3Top` 전달.
+- feat(api): `app/api/panama/analyze/route.ts`에 `panamacompraV3Top` 계산 로직 추가 — `pa_notes` JSON에서 proveedor 빈도 상위 1개를 추출하고 제조사/원산지/발주기관/발주일/대표단가를 함께 생성.
+- fix(fallback): `src/llm/report1_fallback_template.ts` V3 메타 스키마를 신규 `GeneratorInput` 구조에 맞춰 정렬하고, 블록4-2 본문에 V3 메타 + DGCP 출처가 노출되도록 보강.
+- chore(cache): `panama_report_cache` 전체 삭제 실행으로 신규 프롬프트·양식 규칙 재생성 유도.
+- test(report): Rosumeg/Hydrine/Sereterol 3개 보고서 캡처 및 API 기반 본문 검증 수행(`scripts/capture_report1_triplet.ts`, `scripts/runners/verify_report1_v3_meta.ts`) — 3건 모두 V3 출처/메타 노출 플래그 true 확인.
+
 ## [Unreleased] - 2026-04-16 (fix(report): PanamaCompra V3 공공조달 통계 반영 + ATC4 길이 통일)
 
 ### Changed

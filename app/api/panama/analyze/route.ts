@@ -17,6 +17,144 @@ import { findProductById } from "@/src/utils/product-dictionary";
 
 export const runtime = "nodejs";
 
+type PriceRowLite = {
+  product_id?: string | null;
+  pa_source?: string | null;
+  pa_price_local?: number | string | null;
+  pa_notes?: string | null;
+};
+
+type PanamaCompraV3Top = {
+  totalCount: number;
+  proveedor: string;
+  proveedorWins: number;
+  fabricante: string;
+  paisOrigen: string;
+  entidadCompradora: string;
+  fechaOrden: string;
+  representativePrice: number | null;
+};
+
+function toFiniteNumber(value: number | string | null | undefined): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const n = Number.parseFloat(value.trim());
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+function parseNotesObject(notes: string | null | undefined): Record<string, unknown> {
+  if (notes === null || notes === undefined || notes.trim() === "") {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(notes) as unknown;
+    if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function extractPanamaCompraV3Top(
+  productId: string,
+  rows: readonly PriceRowLite[],
+): PanamaCompraV3Top | null {
+  const v3Rows = rows.filter(
+    (row) => row.product_id === productId && row.pa_source === "panamacompra_v3",
+  );
+  if (v3Rows.length === 0) {
+    return null;
+  }
+
+  const groups = new Map<
+    string,
+    {
+      wins: number;
+      fabricante: string;
+      paisOrigen: string;
+      entidad: string;
+      fecha: string;
+      price: number | null;
+    }
+  >();
+
+  for (const row of v3Rows) {
+    const notes = parseNotesObject(row.pa_notes);
+    const proveedor = String(notes["proveedor"] ?? "").trim();
+    const key = proveedor !== "" ? proveedor : "UNKNOWN_PROVEEDOR";
+    const current = groups.get(key);
+    if (current === undefined) {
+      groups.set(key, {
+        wins: 1,
+        fabricante: String(notes["fabricante"] ?? "").trim(),
+        paisOrigen: String(notes["pais_origen"] ?? "").trim(),
+        entidad: String(notes["entidad_compradora"] ?? "").trim(),
+        fecha: String(notes["fecha_orden"] ?? "").trim(),
+        price: toFiniteNumber(row.pa_price_local),
+      });
+      continue;
+    }
+    current.wins += 1;
+    if (current.fabricante === "") {
+      current.fabricante = String(notes["fabricante"] ?? "").trim();
+    }
+    if (current.paisOrigen === "") {
+      current.paisOrigen = String(notes["pais_origen"] ?? "").trim();
+    }
+    if (current.entidad === "") {
+      current.entidad = String(notes["entidad_compradora"] ?? "").trim();
+    }
+    if (current.fecha === "") {
+      current.fecha = String(notes["fecha_orden"] ?? "").trim();
+    }
+    if (current.price === null) {
+      current.price = toFiniteNumber(row.pa_price_local);
+    }
+  }
+
+  let bestProveedor = "";
+  let bestWins = -1;
+  let bestMeta:
+    | {
+        wins: number;
+        fabricante: string;
+        paisOrigen: string;
+        entidad: string;
+        fecha: string;
+        price: number | null;
+      }
+    | undefined;
+
+  for (const [proveedor, meta] of groups.entries()) {
+    if (meta.wins > bestWins) {
+      bestWins = meta.wins;
+      bestProveedor = proveedor;
+      bestMeta = meta;
+    }
+  }
+
+  if (bestMeta === undefined) {
+    return null;
+  }
+
+  return {
+    totalCount: v3Rows.length,
+    proveedor: bestProveedor,
+    proveedorWins: bestMeta.wins,
+    fabricante: bestMeta.fabricante,
+    paisOrigen: bestMeta.paisOrigen,
+    entidadCompradora: bestMeta.entidad,
+    fechaOrden: bestMeta.fecha,
+    representativePrice: bestMeta.price,
+  };
+}
+
 export async function POST(req: Request): Promise<Response> {
   let body: unknown;
   try {
@@ -61,6 +199,10 @@ export async function POST(req: Request): Promise<Response> {
     );
     const panamacompraStats = getPanamacompraStats(productId, result.priceRows);
     const cabamedStats = getCabamedStats(productId, result.priceRows);
+    const panamacompraV3Top = extractPanamaCompraV3Top(
+      productId,
+      result.priceRows as PriceRowLite[],
+    );
 
     const generatorInput: GeneratorInput = {
       productId,
@@ -77,6 +219,7 @@ export async function POST(req: Request): Promise<Response> {
       distributorNames,
       panamacompraCount: result.panamacompraCount,
       panamacompraStats,
+      panamacompraV3Top,
       cabamedStats,
       rawDataDigest,
     };
