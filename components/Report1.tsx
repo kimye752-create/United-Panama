@@ -12,7 +12,7 @@ import { SourceTable } from "./SourceTable";
 
 export type LlmBundle = {
   payload: Report1Payload;
-  source: "cache" | "opus" | "sonnet" | "fallback";
+  source: "cache" | "haiku" | "fallback";
   modelUsed: string;
 };
 
@@ -59,9 +59,11 @@ function formatLlmSourceLine(bundle: LlmBundle): string {
   return bundle.modelUsed;
 }
 
-/** A4 폭에 가깝게 — 인쇄 시 한 페이지에 가깝게 보이도록 */
+/** A4 폭·카드 높이 — 웹은 2장 분리, 인쇄는 globals.css page-break */
 const docShell =
   "mx-auto max-w-[210mm] bg-white text-slate-900 shadow-md border border-slate-300 print:shadow-none print:border-0";
+
+const pageCardShell = `${docShell} flex min-h-[297mm] flex-col`;
 
 const sectionBar =
   "bg-slate-200 text-slate-900 text-sm font-semibold px-2 py-1.5 border border-slate-300 border-b-0";
@@ -112,194 +114,235 @@ export function Report1({
   };
 
   return (
-    <article className={docShell}>
-      <div className="space-y-5 p-6 md:p-8">
-        <header className="border-b-2 border-slate-800 pb-4 text-center">
-          <p className="text-xs font-medium tracking-wide text-slate-600">
-            KOREA UNITED PHARM INC.
-          </p>
-          <h1 className="mt-1 text-xl font-bold text-slate-900">
-            파나마 시장 분석 보고서
-          </h1>
-          <p className="mt-2 text-xs text-slate-500">{collectedDate}</p>
-        </header>
-
-        <div className="bg-[#2c3e50] px-3 py-2.5 text-sm leading-snug text-white">
-          {product.kr_brand_name} — {product.who_inn_en} |{" "}
-          {dosageForm(product.who_inn_en)} | HS {hsForProduct(product.who_inn_en)}{" "}
-          | Case {judgment.case} | confidence {judgment.confidence.toFixed(2)}
-        </div>
-
-        <section>
-          <h2 className={sectionBar}>1. 진출 적합 판정</h2>
-          <table className="w-full border-collapse border border-slate-300 text-sm">
-            <tbody>
-              <tr>
-                <td
-                  className={`${cellLabel} w-[28%] px-2 py-2 align-middle`}
-                  scope="row"
-                >
-                  판정
-                </td>
-                <td className={`${cellValue} px-2 py-2 align-middle`}>
-                  {judgment.verdict}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-
-        <section>
-          <h2 className={sectionBar}>2. 판정 근거</h2>
-          <table className="w-full border-collapse border border-slate-300 text-sm">
-            <tbody>
-              {llm.payload.block3_reasoning.map((line, i) => (
-                <tr key={i}>
-                  <td
-                    className={`${cellLabel} w-10 text-center align-top text-xs`}
-                  >
-                    {i + 1}
-                  </td>
-                  <td className={`${cellValue} px-2 py-1.5 align-top leading-relaxed`}>
-                    {line}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Aceclofenac + latam_average: 1번 본문과 분리된 scope 각주 */}
-          {(() => {
-            const f = llm.payload.block3_latam_scope_footnote;
-            const text =
-              f !== null && f !== undefined && typeof f === "string"
-                ? f.trim()
-                : "";
-            if (text === "") {
-              return null;
-            }
-            return (
-              <p className="mt-2 border-t border-slate-200 px-2 pt-2 text-xs italic leading-snug text-slate-600">
-                {text}
+    <div className="report-a4-web-root space-y-6 bg-slate-100 py-4">
+      <article className={pageCardShell}>
+        <div className="flex flex-1 flex-col px-6 pb-4 pt-6 md:px-8 md:pt-8">
+          <div className="min-h-0 flex-1 space-y-5">
+            <header className="border-b-2 border-slate-800 pb-4 text-center">
+              <p className="text-xs font-medium tracking-wide text-slate-600">
+                KOREA UNITED PHARM INC.
               </p>
-            );
-          })()}
-        </section>
+              <h1 className="mt-1 text-xl font-bold text-slate-900">
+                파나마 시장 분석 보고서
+              </h1>
+              <p className="mt-2 text-xs text-slate-500">{collectedDate}</p>
+            </header>
 
-        <section>
-          <h2 className={sectionBar}>3. 시장 진출 전략</h2>
-          <table className="w-full border-collapse border border-slate-300 text-sm">
-            <tbody>
-              <tr>
-                <td className={`${cellLabel} w-[28%] align-top px-2 py-2`}>
-                  진입 채널 전략
-                </td>
-                <td className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}>
-                  {llm.payload.block4_1_channel}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${cellLabel} align-top px-2 py-2`}>
-                  가격 포지셔닝
-                </td>
-                <td className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}>
-                  {llm.payload.block4_2_pricing}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${cellLabel} align-top px-2 py-2`}>
-                  유통 파트너
-                </td>
-                <td className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}>
-                  {llm.payload.block4_3_partners}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${cellLabel} align-top px-2 py-2`}>
-                  리스크·조건
-                </td>
-                <td className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}>
-                  {llm.payload.block4_4_risks}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="mt-1 text-xs text-slate-500">
-            (참고) 공공·민간 표본: 낙찰 {tender.length}건 · 민간 {retail.length}건
-          </p>
-        </section>
+            <div className="bg-[#2c3e50] px-3 py-2.5 text-sm leading-snug text-white">
+              {product.kr_brand_name} — {product.who_inn_en} |{" "}
+              {dosageForm(product.who_inn_en)} | HS{" "}
+              {hsForProduct(product.who_inn_en)} | Case {judgment.case} | confidence{" "}
+              {judgment.confidence.toFixed(2)}
+            </div>
 
-        <section className="space-y-3 border-t-2 border-dashed border-slate-300 pt-5">
-          <h2 className={sectionBar}>4. 근거 및 출처</h2>
-          <div>
-            <p className="mb-1 text-xs font-semibold text-slate-800">참조 데이터</p>
-            <SourceTable rows={sourceAggregation} />
-          </div>
-
-          <div className="rounded border border-slate-300 bg-slate-50/80 p-3 text-sm leading-relaxed text-slate-700">
-            <p className="mb-2 text-xs font-semibold text-slate-800">
-              참조 사이트 (카테고리)
-            </p>
-            <p>
-              <span className="font-medium">▸ 공공조달</span> — PanamaCompra OCDS
-              API, PAHO Strategic Fund, MINSA faddi
-            </p>
-            <p>
-              <span className="font-medium">▸ 규제·등재</span> — WHO EML 2023,
-              PAHO Formulary, ACODECO CABAMED
-            </p>
-            <p>
-              <span className="font-medium">▸ 시장 거시</span> — World Bank
-              Panama, KOTRA 무역관, ITA Healthcare Guide
-            </p>
-            <p>
-              <span className="font-medium">▸ 규제 프레임워크</span> — 한-중미 FTA
-              (MOTIE), 한국 위생선진국 지정(MINSA 2023.6.28), PubMed
-            </p>
-          </div>
-
-          <div className="rounded border border-slate-200 bg-white px-2 py-2 text-xs text-slate-600">
-            {[
-              `최종 수집: ${collectedDate}`,
-              "수집 방식: L1 정적 seed (사용자 검증) + L2 조건부 크롤러",
-              "의미적 신선도 판정: Phase 2 로드맵 — 해법 C (AI 2단계 게이트)",
-              `LLM 본문 생성: ${formatLlmSourceLine(llm)}`,
-            ].join(" · ")}
-          </div>
-
-          <div className="rounded border border-slate-300 bg-white p-3 text-sm">
-            <p className="mb-2 text-xs font-semibold text-slate-800">
-              Perplexity 추천 논문 ({perplexitySource})
-            </p>
-            {perplexityPapers.length > 0 ? (
-              <ol className="list-decimal space-y-1 pl-4 text-xs leading-relaxed text-slate-700">
-                {perplexityPapers.slice(0, 8).map((paper) => (
-                  <li key={`${paper.url}-${paper.title}`}>
-                    <a
-                      href={paper.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-medium text-slate-800 underline"
+            <section>
+              <h2 className={sectionBar}>1. 진출 적합 판정</h2>
+              <table className="w-full border-collapse border border-slate-300 text-sm">
+                <tbody>
+                  <tr>
+                    <td
+                      className={`${cellLabel} w-[28%] px-2 py-2 align-middle`}
+                      scope="row"
                     >
-                      {paper.title}
-                    </a>
-                    <span className="ml-1 text-slate-500">
-                      ({paper.source}
-                      {paper.published_at !== null ? `, ${paper.published_at.slice(0, 10)}` : ""}
-                      )
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-xs text-slate-500">
-                캐시된 Perplexity 추천 논문이 아직 없습니다. 분석 후 잠시 뒤 다시 시도하세요.
+                      판정
+                    </td>
+                    <td className={`${cellValue} px-2 py-2 align-middle`}>
+                      {judgment.verdict}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section>
+              <h2 className={sectionBar}>2. 판정 근거</h2>
+              <table className="w-full border-collapse border border-slate-300 text-sm">
+                <tbody>
+                  {llm.payload.block3_reasoning.map((line, i) => (
+                    <tr key={i}>
+                      <td
+                        className={`${cellLabel} w-10 text-center align-top text-xs`}
+                      >
+                        {i + 1}
+                      </td>
+                      <td
+                        className={`${cellValue} px-2 py-1.5 align-top leading-relaxed`}
+                      >
+                        {line}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Aceclofenac + latam_average: 1번 본문과 분리된 scope 각주 */}
+              {(() => {
+                const f = llm.payload.block3_latam_scope_footnote;
+                const text =
+                  f !== null && f !== undefined && typeof f === "string"
+                    ? f.trim()
+                    : "";
+                if (text === "") {
+                  return null;
+                }
+                return (
+                  <p className="mt-2 border-t border-slate-200 px-2 pt-2 text-xs italic leading-snug text-slate-600">
+                    {text}
+                  </p>
+                );
+              })()}
+            </section>
+
+            <section>
+              <h2 className={sectionBar}>3. 시장 진출 전략</h2>
+              <table className="w-full border-collapse border border-slate-300 text-sm">
+                <tbody>
+                  <tr>
+                    <td className={`${cellLabel} w-[28%] align-top px-2 py-2`}>
+                      진입 채널 전략
+                    </td>
+                    <td
+                      className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}
+                    >
+                      {llm.payload.block4_1_channel}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className={`${cellLabel} align-top px-2 py-2`}>
+                      가격 포지셔닝
+                    </td>
+                    <td
+                      className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}
+                    >
+                      {llm.payload.block4_2_pricing}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className={`${cellLabel} align-top px-2 py-2`}>
+                      유통 파트너
+                    </td>
+                    <td
+                      className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}
+                    >
+                      {llm.payload.block4_3_partners}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className={`${cellLabel} align-top px-2 py-2`}>
+                      리스크·조건
+                    </td>
+                    <td
+                      className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}
+                    >
+                      {llm.payload.block4_4_risks}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="mt-1 text-xs text-slate-500">
+                (참고) 공공·민간 표본: 낙찰 {tender.length}건 · 민간{" "}
+                {retail.length}건
               </p>
-            )}
+            </section>
+          </div>
+          <p className="mt-auto pt-6 text-right text-sm text-slate-500">
+            — 1 / 2 —
+          </p>
+        </div>
+      </article>
+
+      <article className={pageCardShell}>
+        <div className="flex flex-1 flex-col px-6 pb-4 pt-6 md:px-8 md:pt-8">
+          <div className="mb-4 border-b border-slate-200 pb-3 text-center text-sm text-slate-700">
+            <span className="font-semibold text-slate-900">
+              {product.kr_brand_name}
+            </span>
+            <span className="text-slate-500"> | </span>
+            <span>파나마 시장 분석 보고서 (계속)</span>
           </div>
 
-          <PdfDownloadButton payload={pdfPayload} />
-        </section>
-      </div>
-    </article>
+          <div className="min-h-0 flex-1 space-y-3">
+            <section className="space-y-3">
+              <h2 className={sectionBar}>4. 근거 및 출처</h2>
+              <div>
+                <p className="mb-1 text-xs font-semibold text-slate-800">
+                  참조 데이터
+                </p>
+                <SourceTable rows={sourceAggregation} />
+              </div>
+
+              <div className="rounded border border-slate-300 bg-slate-50/80 p-3 text-sm leading-relaxed text-slate-700">
+                <p className="mb-2 text-xs font-semibold text-slate-800">
+                  참조 사이트 (카테고리)
+                </p>
+                <p>
+                  <span className="font-medium">▸ 공공조달</span> — PanamaCompra
+                  OCDS API, PAHO Strategic Fund, MINSA faddi
+                </p>
+                <p>
+                  <span className="font-medium">▸ 규제·등재</span> — WHO EML 2023,
+                  PAHO Formulary, ACODECO CABAMED
+                </p>
+                <p>
+                  <span className="font-medium">▸ 시장 거시</span> — World Bank
+                  Panama, KOTRA 무역관, ITA Healthcare Guide
+                </p>
+                <p>
+                  <span className="font-medium">▸ 규제 프레임워크</span> — 한-중미
+                  FTA (MOTIE), 한국 위생선진국 지정(MINSA 2023.6.28), PubMed
+                </p>
+              </div>
+
+              <div className="rounded border border-slate-200 bg-white px-2 py-2 text-xs text-slate-600">
+                {[
+                  `최종 수집: ${collectedDate}`,
+                  "수집 방식: L1 정적 seed (사용자 검증) + L2 조건부 크롤러",
+                  "의미적 신선도 판정: Phase 2 로드맵 — 해법 C (AI 2단계 게이트)",
+                  `LLM 본문 생성: ${formatLlmSourceLine(llm)}`,
+                ].join(" · ")}
+              </div>
+
+              <div className="rounded border border-slate-300 bg-white p-3 text-sm">
+                <p className="mb-2 text-xs font-semibold text-slate-800">
+                  Perplexity 추천 논문 ({perplexitySource})
+                </p>
+                {perplexityPapers.length > 0 ? (
+                  <ol className="list-decimal space-y-1 pl-4 text-xs leading-relaxed text-slate-700">
+                    {perplexityPapers.slice(0, 8).map((paper) => (
+                      <li key={`${paper.url}-${paper.title}`}>
+                        <a
+                          href={paper.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-medium text-slate-800 underline"
+                        >
+                          {paper.title}
+                        </a>
+                        <span className="ml-1 text-slate-500">
+                          ({paper.source}
+                          {paper.published_at !== null
+                            ? `, ${paper.published_at.slice(0, 10)}`
+                            : ""}
+                          )
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-xs text-slate-500">
+                    캐시된 Perplexity 추천 논문이 아직 없습니다. 분석 후 잠시 뒤
+                    다시 시도하세요.
+                  </p>
+                )}
+              </div>
+
+              <PdfDownloadButton payload={pdfPayload} />
+            </section>
+          </div>
+          <p className="mt-auto pt-6 text-right text-sm text-slate-500">
+            — 2 / 2 —
+          </p>
+        </div>
+      </article>
+    </div>
   );
 }

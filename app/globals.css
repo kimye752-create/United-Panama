@@ -7,3 +7,22 @@
 body {
   font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
 }
+
+/* Report1 웹 A4 2장 — 인쇄 시 페이지 분리(다른 페이지 article에는 영향 없도록 스코프) */
+@media print {
+  .report-a4-web-root {
+    background: white !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .report-a4-web-root > article {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .report-a4-web-root > article:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}

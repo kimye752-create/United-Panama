@@ -1,5 +1,43 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 (feat(report): Report1 웹 화면 A4 2페이지 시각 분리 + 인쇄용 page-break)
+
+### Changed
+- feat(ui): `components/Report1.tsx` — 단일 article를 A4 카드 2장(①~③ / ④+Perplexity+PDF)으로 분리, `min-h-[297mm]`, Page2 간소 헤더·`— 1/2 —` `— 2/2 —` 페이지 번호, 점선 구분 제거, 스택 영역 `bg-slate-100` 간격.
+- chore(css): `app/globals.css` — `.report-a4-web-root > article` 인쇄용 `page-break-after` (마지막 카드는 auto).
+
+## [Unreleased] - 2026-04-15 (feat(seed): round4_prevalence.json 신 8제품 기준 전체 교체 + 적재)
+
+### Changed
+- feat(seed): `data/seed/panama/round4_prevalence.json` — 구 INN 8엔트리 폐기, `product-dictionary.ts` 8제품 INN(Hydroxyurea·Cilostazol+Rosuvastatin·Mosapride·Rosuvastatin+Omega-3·Atorvastatin+Omega-3·Salmeterol+Fluticasone·Omega-3·Gadobutrol)+`macro_healthcare_infra`로 교체. 백업: `data/seed/panama/archive/round4_prevalence_backup_session20.json`.
+- chore(scripts): `scripts/runners/reseed_prevalence.ts` — `--dry-run` 시 파싱만 수행(DB 미변경).
+- chore(db): `npm run seed:prevalence` 실행 — 대상 9 `product_id`의 `gemini_seed`/`gemini_prevalence` 행 삭제 후 `gemini_prevalence` 9행 재적재.
+
+## [Unreleased] - 2026-04-15 (chore(db): panama_eml 구 INN 30행 청소, 신 제품 18행 보존)
+
+### Changed
+- chore(db): Supabase 마이그레이션 `panama_eml_backup_session20` — `panama_eml_backup_session20 AS SELECT * FROM panama_eml`(48행 스냅샷).
+- chore(db): Supabase `panama_eml` — `pa_inn_name IN (Aceclofenac, Itopride, Rabeprazole, Erdosteine, Levodropropizine)` 30행 DELETE. 잔존 18행(Hydroxyurea·Omega-3-acid ethyl esters·Cilostazol 각 6행). `panama_backup_session13`·`panama` 미변경.
+
+## [Unreleased] - 2026-04-15 (chore(db): panama 구 INN gemini_seed 10행 삭제 + report_cache 비움)
+
+### Changed
+- chore(db): Supabase `panama` — `product_id != MACRO`·`pa_source = 'gemini_seed'`·지정 9종 INN 문자열 일치 10행 DELETE(구 시드). CABAMED 경쟁품 SIMVASTATINA·BECLOMETASONA·CLOPIDOGREL 행은 보존. `panama_backup_session13`·`panama_eml` 미변경.
+- chore(db): Supabase `panama_report_cache` — 전량 DELETE(1건)로 보고서 재생성 시 신규 `panama` 기준 캐시 미스 유도.
+- Notes(실측): `panama` 총 55→45행. 일부 UUID(Gastiin CR·Atmeg·Gadvoa)는 `panama` 잔존 0행(후속 시드/크롤 필요).
+
+## [Unreleased] - 2026-04-15 (chore(llm): Report1 생성 모델 Haiku 단일화)
+
+### Changed
+- chore(llm): `src/llm/report1_generator.ts` — 보고서 생성을 `claude-haiku-4-5-20251001`만 호출(기존 Opus → Sonnet 체인 제거). 캐시·폴백 유지, `GeneratorResult.source`는 `cache` | `haiku` | `fallback`.
+- chore(ui): `components/Report1.tsx`, `components/PanamaReportClient.tsx` — 소스 타입 정합; 레거시 API `opus`/`sonnet` 응답은 클라이언트에서 `haiku`로 정규화.
+- chore(pdf): `lib/pdf/Report1Document.tsx` — 푸터를 Claude Haiku 명시.
+
+## [Unreleased] - 2026-04-15 09:40 KST (docs: Supabase DB 스냅샷 리포트 — 세션20)
+
+### Added
+- docs: `docs/DB_SNAPSHOT_세션20.md` — Supabase `public` 스키마 전 테이블·`panama` 컬럼 스펙·`product_id` 분포·`pa_source` 분포·MACRO UUID(`ba6cf610-…`) 소스별 건수·최근 7일 `crawled_at` 추이·`panama_backup_session13` 전량 덤프·`src/utils/product-dictionary.ts` 전문·핸드오프(세션18/`docs/handoffs`) 존재 여부 기록. 실행은 Supabase MCP `execute_sql`(쿼리 9는 `pa_metric_name` 부재로 `market_segment` 집계로 대체).
+
 ## [Unreleased] - 2026-04-15 (chore(ui): 호재 섹션 + 최하단 배지 2개 제거 (랜딩 단순화))
 
 ### Changed
