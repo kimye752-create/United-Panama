@@ -110,6 +110,128 @@ const OCDS_RELEASES_BASE =
 
 const USER_AGENT = "Mozilla/5.0 (compatible; KitaAxResearch/1.0)";
 
+/**
+ * PanamaCompra OCDS 전용 검색어(스페인어·처방 빈도 키워드) — product-dictionary와 별도
+ * 세션22: 신 8제품 재조사용
+ */
+export const OCDS_SEARCH_KEYWORDS_BY_PRODUCT_ID: Readonly<
+  Record<string, readonly string[]>
+> = {
+  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": [
+    "Rosuvastatina",
+    "Atorvastatina",
+    "Simvastatina",
+    "Pravastatina",
+    "Lovastatina",
+    "Pitavastatina",
+    "Estatina",
+    "Hipolipemiante",
+    "Dislipidemia",
+    "Omega-3",
+    "Omega 3",
+    "Ésteres etílicos",
+    "Ezetimiba",
+  ],
+  "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": [
+    "Omega 3",
+    "Omega-3",
+    "Ésteres etílicos del ácido omega-3",
+    "Omacor",
+    "Lovaza",
+    "Vascepa",
+    "Hipertrigliceridemia",
+    "Ácidos grasos omega 3",
+  ],
+  "859e60f9-8544-43b3-a6a0-f6c7529847eb": [
+    "Atorvastatina",
+    "Estatina",
+    "Omega 3",
+    "Hipolipemiante",
+    "Dislipidemia mixta",
+  ],
+  "fcae4399-aa80-4318-ad55-89d6401c10a9": [
+    "Cilostazol",
+    "Clopidogrel",
+    "Aspirina",
+    "Ácido acetilsalicílico",
+    "Antiplaquetario",
+    "Enfermedad arterial periférica",
+    "Pletal",
+  ],
+  "24738c3b-3a5b-40a9-9e8e-889ec075b453": [
+    "Mosaprida",
+    "Mosapride",
+    "Itoprida",
+    "Domperidona",
+    "Metoclopramida",
+    "Cinitaprida",
+    "Levosulpirida",
+    "Procinético",
+    "Dispepsia funcional",
+  ],
+  "014fd4d2-dc66-4fc1-8d4f-59695183387f": [
+    "Salmeterol",
+    "Fluticasona",
+    "Salmeterol/Fluticasona",
+    "Budesonida",
+    "Formoterol",
+    "Beclometasona",
+    "Mometasona",
+    "Vilanterol",
+    "Inhalador",
+    "Asma",
+    "EPOC",
+    "Seretide",
+    "Advair",
+    "Symbicort",
+    "Relvar",
+  ],
+  "895f49ae-6ce3-44a3-93bd-bb77e027ba59": [
+    "Gadobutrol",
+    "Gadolinio",
+    "Gadoteridol",
+    "Gadopentetato",
+    "Gadoterato",
+    "Gadovist",
+    "ProHance",
+    "Dotarem",
+    "Magnevist",
+    "Medio de contraste",
+    "Resonancia magnética",
+  ],
+  "bdfc9883-6040-438a-8e7a-df01f1230682": [
+    "Hidroxiurea",
+    "Hidroxicarbamida",
+    "Hydroxyurea",
+    "Hydrea",
+    "Siklos",
+    "Antineoplásico",
+    "Leucemia mieloide crónica",
+    "LMC",
+  ],
+};
+
+export function ocdsSearchTermsForProduct(product: ProductMaster): string[] {
+  const mapped = OCDS_SEARCH_KEYWORDS_BY_PRODUCT_ID[product.product_id];
+  if (mapped !== undefined && mapped.length > 0) {
+    return [...new Set(mapped.map((k) => k.trim()).filter((k) => k !== ""))];
+  }
+  return [
+    ...new Set(
+      [
+        ...product.panama_search_keywords.map((k) => k.trim()),
+        product.who_inn_en.trim(),
+      ].filter((k) => k !== ""),
+    ),
+  ];
+}
+
+/** OCDS 전용 맵을 쓰는 경우 — 공유 키워드가 타 제품에 먼저 매칭돼 검색이 스킵되지 않게 함 */
+function productHasOcdsKeywordMap(product: ProductMaster): boolean {
+  const mapped = OCDS_SEARCH_KEYWORDS_BY_PRODUCT_ID[product.product_id];
+  return mapped !== undefined && mapped.length > 0;
+}
+
 // 파나마 정부 OCDS 서버 SSL 인증서 만료 상태 (2026-04)
 // 파나마 측 갱신 시 dispatcher 옵션 제거 예정
 const PANAMACOMPRA_AGENT = new Agent({
@@ -379,14 +501,26 @@ function buildFirstPageUrl(): string {
 /**
  * UNSPSC 51000000 구간을 페이지 순회하며 키워드가 본문에 포함된 릴리스만 수집.
  */
+function effectiveMaxPagesPerKeyword(): number {
+  const r = process.env.PANAMACOMPRA_OCDS_MAX_PAGES?.trim();
+  if (r !== undefined && r !== "") {
+    const n = Number.parseInt(r, 10);
+    if (Number.isFinite(n) && n >= 1) {
+      return Math.min(n, MAX_PAGES_PER_KEYWORD);
+    }
+  }
+  return MAX_PAGES_PER_KEYWORD;
+}
+
 export async function fetchOcdsReleasesByKeyword(
   keyword: string,
 ): Promise<OcdsRelease[]> {
   const matched: OcdsRelease[] = [];
   let nextUrl: string | null = buildFirstPageUrl();
   let pages = 0;
+  const pageLimit = effectiveMaxPagesPerKeyword();
 
-  while (nextUrl !== null && pages < MAX_PAGES_PER_KEYWORD) {
+  while (nextUrl !== null && pages < pageLimit) {
     if (pages > 0) {
       await sleepMs(randomDelayMs());
     }
@@ -432,6 +566,130 @@ export function summarizeByProduct(
     .sort((a, b) => a.who_inn_en.localeCompare(b.who_inn_en, "en"));
 }
 
+/** 한국·자사 공급자명 휴리스틱 (낙찰 supplier 텍스트) */
+function supplierLooksLikeKoreaUnited(name: string): boolean {
+  const n = name.trim().toLowerCase();
+  if (n === "") {
+    return false;
+  }
+  return (
+    n.includes("korea united") ||
+    n.includes("united pharm") ||
+    n.includes("유나이티드")
+  );
+}
+
+export interface OcdsDryRunProductRow {
+  brandName: string;
+  productId: string;
+  apiUniqueReleases: number;
+  matchedItemRows: number;
+  sampleDescriptions: string[];
+  koreaUnitedLikeCount: number;
+  minPab: number | null;
+  maxPab: number | null;
+  error?: string;
+}
+
+/**
+ * INSERT 없이 제품별 OCDS 키워드 순회 → 릴리스 합집합 → 품목 매칭 건수 집계
+ * PANAMACOMPRA_DRY_RUN_KEYWORDS_PER_PRODUCT>0 이면 각 제품의 검색어를 앞에서부터 N개만 사용(시간 단축).
+ */
+export async function runOcdsDryRunDetailed(): Promise<{
+  products: OcdsDryRunProductRow[];
+  keywordCapApplied: number | null;
+}> {
+  const crawledAt = new Date().toISOString();
+  const products: OcdsDryRunProductRow[] = [];
+  const capRaw = process.env.PANAMACOMPRA_DRY_RUN_KEYWORDS_PER_PRODUCT?.trim() ?? "";
+  const keywordCap =
+    capRaw !== "" ? Number.parseInt(capRaw, 10) : NaN;
+  const keywordCapApplied =
+    Number.isFinite(keywordCap) && keywordCap > 0 ? keywordCap : null;
+
+  for (const product of TARGET_PRODUCTS) {
+    let terms = ocdsSearchTermsForProduct(product);
+    if (keywordCapApplied !== null) {
+      terms = terms.slice(0, keywordCapApplied);
+    }
+    const releaseMap = new Map<string, OcdsRelease>();
+    try {
+      const skipCrossInn = !productHasOcdsKeywordMap(product);
+      for (const keyword of terms) {
+        if (skipCrossInn) {
+          const byDict = findProductByKeyword(keyword);
+          if (byDict !== undefined && byDict.product_id !== product.product_id) {
+            continue;
+          }
+        }
+        await sleepMs(randomDelayMs());
+        const rels = await fetchOcdsReleasesByKeyword(keyword);
+        for (const r of rels) {
+          releaseMap.set(r.ocid, r);
+        }
+      }
+      const merged = [...releaseMap.values()];
+      const rows = flattenReleasesToRows(merged, product, "dry-run", crawledAt);
+      const sliced = rows.slice(0, MAX_RESULTS_PER_INN);
+      const pabAmounts = sliced
+        .filter((r) => String(r.pa_currency_unit ?? "").toUpperCase() === "PAB")
+        .map((r) => r.pa_price_local)
+        .filter((n): n is number => typeof n === "number" && !Number.isNaN(n));
+      const minPab = pabAmounts.length > 0 ? Math.min(...pabAmounts) : null;
+      const maxPab = pabAmounts.length > 0 ? Math.max(...pabAmounts) : null;
+
+      let koreaCount = 0;
+      for (const rel of merged) {
+        for (const award of rel.awards ?? []) {
+          const supName = award.suppliers?.[0]?.name ?? "";
+          const koreaAward = supplierLooksLikeKoreaUnited(supName);
+          for (const item of award.items ?? []) {
+            const row = itemToPanamaRow(rel, award, item, product, crawledAt);
+            if (row === null) {
+              continue;
+            }
+            if (koreaAward) {
+              koreaCount += 1;
+            }
+          }
+        }
+      }
+
+      products.push({
+        brandName: product.kr_brand_name,
+        productId: product.product_id,
+        apiUniqueReleases: releaseMap.size,
+        matchedItemRows: sliced.length,
+        sampleDescriptions: sliced
+          .slice(0, 3)
+          .map((r) =>
+            String(r.pa_product_name_local ?? "")
+              .trim()
+              .slice(0, 160),
+          ),
+        koreaUnitedLikeCount: koreaCount,
+        minPab,
+        maxPab,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      products.push({
+        brandName: product.kr_brand_name,
+        productId: product.product_id,
+        apiUniqueReleases: 0,
+        matchedItemRows: 0,
+        sampleDescriptions: [],
+        koreaUnitedLikeCount: 0,
+        minPab: null,
+        maxPab: null,
+        error: msg,
+      });
+    }
+  }
+
+  return { products, keywordCapApplied };
+}
+
 export async function crawlPanamaCompra(
   dryRun: boolean,
 ): Promise<{
@@ -445,15 +703,15 @@ export async function crawlPanamaCompra(
 
   for (const product of TARGET_PRODUCTS) {
     let hitForProduct = false;
-    const searchTerms = [
-      ...product.panama_search_keywords.map((k) => k.trim()),
-      product.who_inn_en.trim(),
-    ].filter((k) => k !== "");
+    const searchTerms = ocdsSearchTermsForProduct(product);
     const uniqueTerms = [...new Set(searchTerms)];
+    const skipCrossInn = !productHasOcdsKeywordMap(product);
     for (const keyword of uniqueTerms) {
-      const byDict = findProductByKeyword(keyword);
-      if (byDict !== undefined && byDict.product_id !== product.product_id) {
-        continue;
+      if (skipCrossInn) {
+        const byDict = findProductByKeyword(keyword);
+        if (byDict !== undefined && byDict.product_id !== product.product_id) {
+          continue;
+        }
       }
       try {
         await sleepMs(randomDelayMs());
@@ -516,18 +774,19 @@ function writeStdoutJson(obj: unknown): void {
 
 async function main(): Promise<void> {
   const dryRun = process.argv.includes("--dry-run");
-  const result = await crawlPanamaCompra(dryRun);
-
   if (dryRun) {
+    const detailed = await runOcdsDryRunDetailed();
     writeStdoutJson({
       dryRun: true,
-      rowCount: result.rows.length,
-      sample: result.rows[0] ?? null,
-      byProduct: summarizeByProduct(result.rows),
+      ocdsEndpoint: OCDS_RELEASES_BASE,
+      note:
+        "제품별 키워드 순회 후 ocid 합집합 기준 apiUniqueReleases, itemToPanamaRow 통과=matchedItemRows. PANAMACOMPRA_DRY_RUN_KEYWORDS_PER_PRODUCT 로 검색어 개수 제한 가능.",
+      ...detailed,
     });
     return;
   }
 
+  const result = await crawlPanamaCompra(false);
   writeStdoutJson({
     dryRun: false,
     inserted: result.inserted,

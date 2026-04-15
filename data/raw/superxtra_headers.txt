@@ -1,0 +1,26 @@
+HTTP/1.1 206 Partial Content
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Date: Wed, 15 Apr 2026 02:25:09 GMT
+X-VTEX-Cache-Server: ip-172-16-62-172.ec2.internal
+X-VTEX-Cache-Time: 0.000
+Cache-Control: public,max-age=0,s-maxage=300
+ETag: "F8C7DD63197F459E96CED8F766B14764"
+X-VTEX-Janus-Router-Backend-App: portal-search-v3.7.6
+no: 8ddae42e73c6
+P3P: policyref="/w3c/p3p.xml",CP="ADMa OUR NOR CNT NID DSP NOI COR"
+powered: vtex
+resources: 0-4/2765
+x-vtex-operation-id: 9518c739-baad-4cce-8413-65be77367ad4
+X-vtex-processed-at: 04/15/2026 02:24:55
+X-vtex-remote-cache: true
+X-VTEX-ApiCache-Time: 300
+X-VTEX-Cache-Status-Janus-ApiCache: HIT
+X-Powered-By-VTEX-Cache: 2.6.1
+Vary: resources
+X-Cache: Miss from cloudfront
+Via: 1.1 ca56b3ee23ee40fa0075f20b9167539c.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: ICN57-P5
+X-Amz-Cf-Id: Iv7e22-y8haImCUtmCxlP0TGFlihndp29xKl_70Ax0hT6cm100Vx6g==
+

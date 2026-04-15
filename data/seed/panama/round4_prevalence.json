@@ -11,16 +11,16 @@
     },
     {
       "product_id": "fcae4399-aa80-4318-ad55-89d6401c10a9",
-      "who_inn_en": "Cilostazol",
-      "prevalence_metric": "말초혈관질환(PAD) 유병률 4.44%",
+      "who_inn_en": "Cilostazol + Rosuvastatin",
+      "prevalence_metric": "말초동맥질환(PAD) 유병률 4.44% (파나마·중미 성인 코호트 근거); 이상지질혈증은 동일 코호트에서 성인 35~40%대 보고와 병존",
       "prevalence_year": 2021,
-      "source": "Environmental Pollution and Peripheral Artery Disease (Vasc Health Risk Manag)",
+      "source": "Environmental Pollution and Peripheral Artery Disease (Vasc Health Risk Manag) + MINSA PREFREC/PAHO lipid context",
       "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8166356/",
       "scope": "panama"
     },
     {
       "product_id": "24738c3b-3a5b-40a9-9e8e-889ec075b453",
-      "who_inn_en": "Itopride",
+      "who_inn_en": "Mosapride Citrate",
       "prevalence_metric": "위장관 기능성 장애(소화불량 등) 유병률 28.7%",
       "prevalence_year": 2021,
       "source": "Prevalence of Functional Gastrointestinal Disorders in School Children and Adolescents (Panama Data)",
@@ -29,25 +29,25 @@
     },
     {
       "product_id": "2504d79b-c2ce-4660-9ea7-5576c8bb755f",
-      "who_inn_en": "Aceclofenac",
-      "prevalence_metric": "골관절염 등 근골격계 질환 유병률 약 10.5% (중남미 평균)",
+      "who_inn_en": "Rosuvastatin + Omega-3-acid ethyl esters",
+      "prevalence_metric": "성인 이상지질혈증 유병률 35~40% (고중성지방·LDL 조절 수요와 정합)",
       "prevalence_year": 2019,
-      "source": "PAHO / Global Burden of Disease (GBD) Database",
-      "source_url": "https://www.paho.org/en/enlace/burden-disease",
-      "scope": "latam_average"
+      "source": "MINSA Estudio PREFREC / PAHO Cardiovascular Risk Factors",
+      "source_url": "https://www.paho.org/hq/index.php?option=com_content&view=article&id=10673:2015-panama-estudio-prefrec&Itemid=41334&lang=es",
+      "scope": "panama"
     },
     {
       "product_id": "859e60f9-8544-43b3-a6a0-f6c7529847eb",
-      "who_inn_en": "Rabeprazole",
-      "prevalence_metric": "헬리코박터 파일로리(H. pylori) 감염률 약 70~86%",
-      "prevalence_year": 2021,
-      "source": "Gorgas Memorial Institute / Quantitative Detection of Helicobacter pylori",
-      "source_url": "https://www.scirp.org/journal/paperinformation?paperid=59605",
+      "who_inn_en": "Atorvastatin + Omega-3-acid ethyl esters",
+      "prevalence_metric": "성인 이상지질혈증 유병률 35~40% (스타틴+오메가 병용 적응과 정합)",
+      "prevalence_year": 2019,
+      "source": "MINSA Estudio PREFREC / PAHO Cardiovascular Risk Factors",
+      "source_url": "https://www.paho.org/hq/index.php?option=com_content&view=article&id=10673:2015-panama-estudio-prefrec&Itemid=41334&lang=es",
       "scope": "panama"
     },
     {
       "product_id": "014fd4d2-dc66-4fc1-8d4f-59695183387f",
-      "who_inn_en": "Erdosteine",
+      "who_inn_en": "Salmeterol + Fluticasone",
       "prevalence_metric": "40세 이상 성인 COPD 유병률 4.4%",
       "prevalence_year": 2021,
       "source": "Prevalencia y características de la EPOC en la República de Panamá (SciELO)",
@@ -65,11 +65,11 @@
     },
     {
       "product_id": "895f49ae-6ce3-44a3-93bd-bb77e027ba59",
-      "who_inn_en": "Levodropropizine",
-      "prevalence_metric": "급성 호흡기 감염(ARI) 입원 환자의 56.7%에서 마른기침(Dry cough) 동반",
-      "prevalence_year": 2021,
-      "source": "Epidemiology of viral respiratory infections in a pediatric reference hospital in Central Panama",
-      "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7796567/",
+      "who_inn_en": "Gadobutrol",
+      "prevalence_metric": "악성 종양 등 MRI 기반 진단·추적 수요의 거시 지표: 파나마 암 부담은 GLOBOCAN 국가 시트(동일 출처)에서 연령표준화 발생·사망 지표 확인",
+      "prevalence_year": 2022,
+      "source": "GLOBOCAN 2022 Panama Fact Sheet",
+      "source_url": "https://gco.iarc.fr/today/data/factsheets/populations/591-panama-fact-sheets.pdf",
       "scope": "panama"
     }
   ],

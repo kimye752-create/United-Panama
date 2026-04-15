@@ -39,6 +39,10 @@ async function deleteOldPrevalenceRows(productIds: readonly string[]): Promise<v
   }
 }
 
+/** true면 JSON 파싱만 검증하고 Supabase 삭제·INSERT는 하지 않음 */
+const isDryRun =
+  process.argv.includes("--dry-run") || process.argv.includes("-n");
+
 async function main(): Promise<void> {
   const path =
     process.env.PREVALENCE_SEED_PATH !== undefined &&
@@ -48,6 +52,13 @@ async function main(): Promise<void> {
 
   const raw = await readFile(path, "utf-8");
   const file = parseRound4PrevalenceFile(JSON.parse(raw) as unknown);
+
+  if (isDryRun) {
+    process.stdout.write(
+      `[dry-run] OK — entries ${String(file.entries.length)}건 + macro_healthcare_infra 1건 파싱됨 (${path})\n`,
+    );
+    return;
+  }
   const productIds = [
     ...file.entries.map((e) => e.product_id),
     file.macro_healthcare_infra.product_id,

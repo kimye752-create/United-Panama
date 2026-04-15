@@ -25,12 +25,15 @@ function parseLlmBundle(raw: unknown): LlmBundle | null {
     return null;
   }
   const s = raw.source;
-  if (
-    s !== "cache" &&
-    s !== "opus" &&
-    s !== "sonnet" &&
-    s !== "fallback"
-  ) {
+  /** 레거시: 이전 빌드(opus/sonnet) API 응답도 haiku로 표시 */
+  let normalized: LlmBundle["source"];
+  if (s === "cache") {
+    normalized = "cache";
+  } else if (s === "fallback") {
+    normalized = "fallback";
+  } else if (s === "haiku" || s === "opus" || s === "sonnet") {
+    normalized = "haiku";
+  } else {
     return null;
   }
   if (typeof raw.modelUsed !== "string") {
@@ -40,7 +43,7 @@ function parseLlmBundle(raw: unknown): LlmBundle | null {
   if (parsed === null) {
     return null;
   }
-  return { payload: parsed, source: s, modelUsed: raw.modelUsed };
+  return { payload: parsed, source: normalized, modelUsed: raw.modelUsed };
 }
 
 type DigestState = {

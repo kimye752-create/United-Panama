@@ -129,6 +129,7 @@ function buildNotes(
     competitor_inn: match.competitorInnToken,
     self_inn_target: p.who_inn_en,
     self_inn_atc4: atc4,
+    premium_grade: "generic",
     precio_referencia_promedio: price,
     precio_generico_promedio: price,
     precio_referencia_brand: null,
@@ -243,9 +244,106 @@ export async function loadCabamedFromXlsx(
   return { inserted, skipped };
 }
 
+/** INSERT 없이 XLSX 매칭만 집계 (경쟁품 대상 product_id별 건수) */
+export type CabamedDryRunStats = {
+  file: string;
+  totalRows: number;
+  headerOrEmptySkipped: number;
+  noPriceSkipped: number;
+  noMatchSkipped: number;
+  selfMatches: number;
+  competitorMatches: number;
+  byCompetitorTargetProductId: Record<string, number>;
+  bySelfProductId: Record<string, number>;
+};
+
+export async function dryRunCabamedFromXlsx(
+  xlsxPath: string,
+): Promise<CabamedDryRunStats> {
+  const buf = await readFile(xlsxPath);
+  const wb = XLSX.read(buf, { type: "buffer" });
+  const sheetName = wb.SheetNames[0];
+  if (sheetName === undefined) {
+    throw new Error("XLSX에 시트가 없습니다.");
+  }
+  const sheet = wb.Sheets[sheetName];
+  const rowsUnknown: unknown = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    defval: "",
+    raw: false,
+  });
+  if (!Array.isArray(rowsUnknown)) {
+    throw new Error("시트 행 파싱 실패");
+  }
+  const rows = rowsUnknown as unknown[][];
+
+  let headerOrEmptySkipped = 0;
+  let noPriceSkipped = 0;
+  let noMatchSkipped = 0;
+  let selfMatches = 0;
+  let competitorMatches = 0;
+  const byCompetitorTargetProductId: Record<string, number> = {};
+  const bySelfProductId: Record<string, number> = {};
+
+  for (const row of rows) {
+    if (!Array.isArray(row)) {
+      continue;
+    }
+    const descRaw = row[COL.descripcion];
+    const descripcion =
+      typeof descRaw === "string" ? descRaw.trim() : String(descRaw ?? "").trim();
+    if (isHeaderOrEmpty(descripcion)) {
+      headerOrEmptySkipped += 1;
+      continue;
+    }
+
+    const refP = parseNumericCell(row[COL.refPromedio]);
+    const genP = parseNumericCell(row[COL.genPromedio]);
+    const price = pickRetailPrice(refP, genP);
+    if (price === null) {
+      noPriceSkipped += 1;
+      continue;
+    }
+
+    const match = matchCabamedRow(descripcion);
+    if (match === null) {
+      noMatchSkipped += 1;
+      continue;
+    }
+
+    if (match.kind === "self") {
+      selfMatches += 1;
+      const id = match.product.product_id;
+      bySelfProductId[id] = (bySelfProductId[id] ?? 0) + 1;
+    } else {
+      competitorMatches += 1;
+      const id = match.targetProduct.product_id;
+      byCompetitorTargetProductId[id] =
+        (byCompetitorTargetProductId[id] ?? 0) + 1;
+    }
+  }
+
+  return {
+    file: xlsxPath,
+    totalRows: rows.length,
+    headerOrEmptySkipped,
+    noPriceSkipped,
+    noMatchSkipped,
+    selfMatches,
+    competitorMatches,
+    byCompetitorTargetProductId,
+    bySelfProductId,
+  };
+}
+
 async function main(): Promise<void> {
   const arg = process.argv.find((a) => a.startsWith("--file="));
   const path = arg !== undefined ? arg.slice("--file=".length) : DEFAULT_XLSX;
+  if (process.argv.includes("--dry-run")) {
+    const dry = await dryRunCabamedFromXlsx(path);
+    process.stdout.write(`${JSON.stringify({ ok: true, dryRun: dry }, null, 2)}\n`);
+    return;
+  }
   const result = await loadCabamedFromXlsx(path);
   process.stdout.write(`${JSON.stringify({ ok: true, ...result })}\n`);
 }

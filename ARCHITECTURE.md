@@ -235,10 +235,11 @@ GitHub Actions `workflow_dispatch`만. cron 금지.
 
 (후퇴) Panamá Digital — panamadigital.gob.pa — 로그인 차단으로 외부 봇 크롤링 원천 불가
 
-### Phase B 민간 소매 8개 (L2)
+### Phase B 민간 소매 (L2)
 
 | 사이트 | URL | 방식 | 상태 | 비고 |
 |---|---|---|---|---|
+| Super Xtra | superxtra.com | **VTEX** `api/catalog_system/pub/products/search` (카테고리·`ft` 검색) | 🟢 세션22 프로브 | Xtra Farmacia 의약품 **~2765 SKU** 공개, 가격·재고 `commertialOffer` |
 | Arrocha | arrocha.com | Shopify JSON API | 🔴 후퇴 | 의약품 컬렉션 의도적 차단 |
 | Metro Plus | metroplus.com.pa | WordPress/WooCommerce | 🔴 후퇴 | Shopify 가설 기각 |
 | El Javillo | eljavillo.com | Playwright (Dynamic) | 🟢 미검증 | 세션 17 라이브 검증 대상 |
@@ -301,6 +302,15 @@ GitHub Actions `workflow_dispatch`만. cron 금지.
 - **세션 17 1순위**: PDF/Excel 파서로 153품목 전체 적재 → 50건+ 확장
 
 ### Phase B 사이트 상세
+
+#### Super Xtra (세션 22 VTEX 프로브)
+- **URL**: `https://www.superxtra.com` — 카탈로그: `/xtra-farmacia/medicamentos`
+- **플랫폼**: VTEX (`powered: vtex`, `X-VTEX-*` 헤더). Arrocha Shopify와 **별계열**.
+- **공개 API 예시**: `GET /api/catalog_system/pub/products/search/xtra-farmacia/medicamentos?_from=0&_to=49` → 응답 헤더 `resources: 0-49/2765` (총 의약품 **2765** 추정), 본문 JSON 배열.
+- **검색**: `GET .../products/search?ft=rosuvastatina` 등 `ft` 풀텍스트.
+- **가격 필드**: `items[].sellers[].commertialOffer.Price` (VTEX 오타 `commertialOffer` 그대로).
+- **민감도**: `findProductByPanamaText`로 8제품 매칭 시 스타틴·Omega 등 **키워드가 겹치면 딕셔너리 우선순위에 따라 한 제품으로만 귀속**될 수 있음 → 적재 로직에서 `product_id` 고정 매칭 규칙 필요.
+- **차단**: 본 프로브 구간 **206 Partial Content + JSON 정상**, Rate limit 메시지 없음 (2s 간격 권장).
 
 #### Arrocha (세션 16 라이브 정찰 결과)
 - **URL**: `https://arrocha.com`

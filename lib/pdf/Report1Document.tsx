@@ -170,7 +170,7 @@ export function Report1Document(props: Report1PdfProps) {
           <Text>최종 수집: {props.collectedAt}</Text>
           <Text>수집 방식: L1 정적 seed (사용자 검증) + L2 조건부 크롤러</Text>
           <Text>의미적 신선도 판정: Phase 2 로드맵 — 해법 C (AI 2단계 게이트)</Text>
-          <Text>LLM 본문 생성: Anthropic Claude (Tool Use 강제 양식)</Text>
+          <Text>LLM 본문 생성: Anthropic Claude Haiku (Tool Use 강제 양식)</Text>
         </View>
       </Page>
     </Document>

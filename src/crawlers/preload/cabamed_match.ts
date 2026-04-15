@@ -52,69 +52,102 @@ export type CompetitorMatch = {
 
 export type CabamedMatchResult = SelfMatch | CompetitorMatch;
 
-/** product_id → 경쟁품 설명에 나타나는 스페인어/영문 토큰(대문자 비교) */
+/** product_id → 경쟁품 설명에 나타나는 스페인어/영문 토큰(대문자 비교). ATC4 풀과 합쳐져 매칭됨 */
 const COMPETITOR_TOKENS_BY_PRODUCT_ID: Readonly<
   Record<string, readonly string[]>
 > = {
-  // Hydrine (L01XX)
-  "bdfc9883-6040-438a-8e7a-df01f1230682": [],
+  // Hydrine (L01XX) — 세션21 키워드 확장
+  "bdfc9883-6040-438a-8e7a-df01f1230682": [
+    "HIDROXIUREA",
+    "HIDROXICARBAMIDA",
+    "HYDROXYUREA",
+    "HYDREA",
+    "SIKLOS",
+  ],
   // Ciloduo (B01AC + C10AA)
   "fcae4399-aa80-4318-ad55-89d6401c10a9": [
+    "CILOSTAZOL",
     "CLOPIDOGREL",
+    "ASPIRINA",
+    "ÁCIDO ACETILSALICÍLICO",
+    "ACIDO ACETILSALICILICO",
     "ROSUVASTATINA",
-    "ATORVASTATINA",
-    "SIMVASTATINA",
+    "ANTIPLAQUETARIO",
   ],
   // Gastiin CR (A03FA)
   "24738c3b-3a5b-40a9-9e8e-889ec075b453": [
-    "METOCLOPRAMIDA",
+    "MOSAPRIDA",
+    "MOSAPRIDE",
+    "ITOPRIDA",
+    "ITOPRIDE",
     "DOMPERIDONA",
+    "METOCLOPRAMIDA",
+    "CINITAPRIDA",
+    "LEVOSULPIRIDA",
   ],
   // Rosumeg Combigel (C10AA + C10AX)
   "2504d79b-c2ce-4660-9ea7-5576c8bb755f": [
     "ROSUVASTATINA",
     "ATORVASTATINA",
     "SIMVASTATINA",
-    "LOVASTATINA",
-    "FLUVASTATINA",
     "PRAVASTATINA",
-    "OMEGA",
+    "LOVASTATINA",
+    "PITAVASTATINA",
+    "EZETIMIBA",
+    "EZETIMIBE",
     "OMEGA-3",
+    "OMEGA 3",
     "ÉSTERES ETÍLICOS",
     "ESTERES ETILICOS",
   ],
-  // Atmeg Combigel (C10AA + C10AX)
+  // Atmeg Combigel — Rosumeg와 동일 계열, ATORVASTATINA 우선 매칭되도록 선두 배치
   "859e60f9-8544-43b3-a6a0-f6c7529847eb": [
     "ATORVASTATINA",
     "ROSUVASTATINA",
     "SIMVASTATINA",
-    "LOVASTATINA",
-    "FLUVASTATINA",
     "PRAVASTATINA",
-    "OMEGA",
+    "LOVASTATINA",
+    "PITAVASTATINA",
+    "EZETIMIBA",
+    "EZETIMIBE",
     "OMEGA-3",
+    "OMEGA 3",
     "ÉSTERES ETÍLICOS",
     "ESTERES ETILICOS",
   ],
   // Sereterol Activair (R03AK)
   "014fd4d2-dc66-4fc1-8d4f-59695183387f": [
+    "SALMETEROL",
+    "FLUTICASONA",
+    "FLUTICASONE",
     "BUDESONIDA",
     "FORMOTEROL",
     "BECLOMETASONA",
     "MOMETASONA",
+    "VILANTEROL",
+    "INHALADOR",
   ],
   // Omethyl Cutielet (C10AX)
   "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": [
+    "OMEGA-3",
+    "OMEGA 3",
     "ÉSTERES ETÍLICOS",
     "ESTERES ETILICOS",
+    "OMACOR",
+    "LOVAZA",
+    "VASCEPA",
     "ÁCIDOS GRASOS",
     "ACIDOS GRASOS",
   ],
   // Gadvoa Inj. (V08CA)
   "895f49ae-6ce3-44a3-93bd-bb77e027ba59": [
     "GADOBUTROL",
+    "GADOLINIO",
     "GADOTERIDOL",
     "GADOPENTETATO",
+    "GADOTERATO",
+    "GADOVIST",
+    "MEDIO DE CONTRASTE",
   ],
 };
 

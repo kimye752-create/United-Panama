@@ -20,7 +20,9 @@
     "seed:panama": "tsx scripts/runners/seed_panama.ts",
     "seed:panama:dry": "tsx scripts/runners/seed_panama.ts --dry-run",
     "simulate:prevalence": "tsx scripts/simulate_prevalence_8inn.ts",
-    "seed:prevalence": "tsx scripts/runners/reseed_prevalence.ts"
+    "seed:prevalence": "tsx scripts/runners/reseed_prevalence.ts",
+    "crawl:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts",
+    "test:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts"
   },
   "keywords": [],
   "author": "",
