@@ -1,5 +1,37 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 21:54:31 (feat(report1): 파나마 진출 가능성 자동 판정 로직 및 4-5 블록 연동)
+
+### Changed
+- feat(llm-logic): `src/llm/logic/panama_entry_feasibility.ts` 신규 추가. `panama_product_registration`/`panama_ingredient_eligibility` 기반 A~F 자동 판정 + 보고서용 텍스트 변환 유틸 구현.
+- fix(api): `app/api/panama/analyze/route.ts`에서 자동 판정(`entryFeasibility`, `entryFeasibilityText`)을 계산해 LLM 입력과 API 응답에 포함.
+- fix(api): `app/api/panama/pdf/route.ts`도 동일 자동 판정 필드를 생성/파싱하여 PDF 경로와 웹 경로의 본문 생성 입력을 일치시킴.
+- feat(llm): `src/llm/report1_generator.ts` `GeneratorInput` 확장 및 프롬프트에 `[진출 가능성 자동 판정 - 블록 4-5]` 섹션 추가.
+- feat(schema): `src/llm/report1_schema.ts`에 `block4_5_entry_feasibility` 필드(스키마/required/파서/시스템 프롬프트 규칙) 추가.
+- feat(fallback): `src/llm/report1_fallback_template.ts` `FallbackInput` 확장 및 `block4_5_entry_feasibility` 생성 로직 추가.
+- feat(ui): `components/Report1.tsx`, `lib/pdf/Report1Document.tsx`에 4-5 진출 가능성 표시 영역 추가.
+- ops: `panama_report_cache` 전체 삭제 수행.
+- verify: `npx tsc --noEmit` 통과, Rosumeg 로컬 스모크 테스트에서 `block4_5_entry_feasibility` 노출 확인(LLM timeout 시 폴백 본문 포함 확인).
+
+## [Unreleased] - 2026-04-15 21:19:25 (fix(report1): PanamaCompra V3 경쟁사 제품명(nombre_comercial) 본문 노출 추가)
+
+### Changed
+- fix(api): `app/api/panama/analyze/route.ts`의 PanamaCompra V3 대표 메타 추출에 `pa_product_name_local` 기반 `nombreComercial`과 낙찰 건수 `count`를 추가.
+- fix(api): `app/api/panama/pdf/route.ts`에도 동일한 `nombreComercial`/`count` 추출 로직을 반영해 PDF 생성 경로와 웹 분석 경로의 메타 일관성 확보.
+- fix(llm): `src/llm/report1_generator.ts`의 `GeneratorInput.panamacompraV3Top` 타입을 확장하고, V3 메타 라인에 `nombre_comercial`을 포함해 프롬프트 근거 강화.
+- fix(llm): `src/llm/report1_fallback_template.ts`의 `FallbackInput` 타입을 확장하고 가격 문구에 경쟁사 제품명 + 건수 + 유통사 연결 문장을 반영.
+- chore(prompt): `src/llm/report1_schema.ts`의 pa_notes 메타정보 활용 규칙에 `nombre_comercial` 항목을 추가.
+- verify: `npx tsc --noEmit` 통과.
+
+## [Unreleased] - 2026-04-15 21:11:44 (fix(front): PDF 한글 깨짐 완화 + 체크리스트 Enter 중복 생성 방지)
+
+### Changed
+- fix(pdf): `public/fonts/NotoSansCJKkr-Regular.otf`, `public/fonts/NotoSansCJKkr-Bold.otf` 추가로 PDF 한글 글리프 폰트 자산을 프로젝트에 포함.
+- fix(pdf): `lib/pdf/pdf-fonts.ts`에서 `NotoSansKR` 폰트 패밀리를 조건부 등록하도록 확장.
+- fix(pdf): `lib/pdf/pdf-styles.ts` 기본 `fontFamily`를 `NotoSansKR`로 전환하고 line-height를 `1.55`로 상향해 한글 겹침 현상 완화.
+- fix(front): `components/dashboard/main/ProgressChecklistCard.tsx` Enter 입력 시 `isComposing`/`repeat` 가드 + 짧은 시간 중복 시그니처 차단 로직을 추가해 항목 2개 생성 이슈 방지.
+- verify: `npx tsc --noEmit` 통과, 백엔드 무손상(`app/api`, `src/llm` 변경 없음) 재확인.
+
 ## [Unreleased] - 2026-04-15 20:20:00 (style(front): 표본2 기준 1공정 선택/입력 폼 타이포·박스 정밀 보정)
 
 ### Changed

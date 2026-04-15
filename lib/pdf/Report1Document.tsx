@@ -111,6 +111,12 @@ export function Report1Document(props: Report1PdfProps) {
               {props.llmPayload.block4_4_risks}
             </Text>
           </View>
+          <View style={pdfStyles.twoColRowLast}>
+            <Text style={pdfStyles.labelCell}>4-5 진출 가능성</Text>
+            <Text style={pdfStyles.contentCell}>
+              {props.llmPayload.block4_5_entry_feasibility}
+            </Text>
+          </View>
         </View>
       </Page>
 

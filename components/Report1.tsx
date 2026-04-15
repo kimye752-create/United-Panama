@@ -236,6 +236,16 @@ export function Report1({
                       {llm.payload.block4_4_risks}
                     </td>
                   </tr>
+                  <tr>
+                    <td className={`${cellLabel} align-top px-2 py-2`}>
+                      진출 가능성 자동 판정
+                    </td>
+                    <td
+                      className={`${cellValue} whitespace-pre-wrap px-2 py-2 align-top`}
+                    >
+                      {llm.payload.block4_5_entry_feasibility}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
               <p className="mt-1 text-xs text-slate-500">

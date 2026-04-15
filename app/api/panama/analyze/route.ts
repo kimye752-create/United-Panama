@@ -14,6 +14,11 @@ import { getCabamedStats, getPanamacompraStats } from "@/src/logic/market_stats"
 import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
 import { getPerplexityCacheInsight } from "@/src/logic/perplexity_insights";
 import { findProductById } from "@/src/utils/product-dictionary";
+import type { PanamaRow } from "@/src/logic/fetch_panama_data";
+import {
+  evaluatePanamaEntryFeasibility,
+  feasibilityToReportText,
+} from "@/src/llm/logic/panama_entry_feasibility";
 
 export const runtime = "nodejs";
 
@@ -22,14 +27,17 @@ type PriceRowLite = {
   pa_source?: string | null;
   pa_price_local?: number | string | null;
   pa_notes?: string | null;
+  pa_product_name_local?: string | null;
 };
 
 type PanamaCompraV3Top = {
   totalCount: number;
   proveedor: string;
+  count: number;
   proveedorWins: number;
   fabricante: string;
   paisOrigen: string;
+  nombreComercial: string;
   entidadCompradora: string;
   fechaOrden: string;
   representativePrice: number | null;
@@ -142,13 +150,29 @@ function extractPanamaCompraV3Top(
   if (bestMeta === undefined) {
     return null;
   }
+  const topRow = v3Rows.find((row) => {
+    if (row.pa_source !== "panamacompra_v3") {
+      return false;
+    }
+    const notes = parseNotesObject(row.pa_notes);
+    const fabricante = String(notes["fabricante"] ?? "").trim();
+    const proveedor = String(notes["proveedor"] ?? "").trim();
+    return fabricante === bestMeta.fabricante && proveedor === bestProveedor;
+  });
+  const nombreComercial =
+    typeof topRow?.pa_product_name_local === "string" &&
+    topRow.pa_product_name_local.trim() !== ""
+      ? topRow.pa_product_name_local.trim()
+      : "?";
 
   return {
     totalCount: v3Rows.length,
     proveedor: bestProveedor,
+    count: bestMeta.wins,
     proveedorWins: bestMeta.wins,
     fabricante: bestMeta.fabricante,
     paisOrigen: bestMeta.paisOrigen,
+    nombreComercial,
     entidadCompradora: bestMeta.entidad,
     fechaOrden: bestMeta.fecha,
     representativePrice: bestMeta.price,
@@ -203,6 +227,11 @@ export async function POST(req: Request): Promise<Response> {
       productId,
       result.priceRows as PriceRowLite[],
     );
+    const entryFeasibility = await evaluatePanamaEntryFeasibility(
+      productId,
+      result.priceRows as PanamaRow[],
+    );
+    const entryFeasibilityText = feasibilityToReportText(entryFeasibility);
     if (process.env.DEBUG_REPORT1_V3 === "1") {
       console.log(
         "[DEBUG] panamacompraV3Top:",
@@ -228,6 +257,8 @@ export async function POST(req: Request): Promise<Response> {
       panamacompraV3Top,
       cabamedStats,
       rawDataDigest,
+      entryFeasibility,
+      entryFeasibilityText,
     };
     if (process.env.DEBUG_REPORT1_V3 === "1") {
       console.log(
@@ -271,6 +302,8 @@ export async function POST(req: Request): Promise<Response> {
         panamacompra: panamacompraStats,
         cabamed: cabamedStats,
       },
+      entryFeasibility,
+      entryFeasibilityText,
       perplexity: {
         source: perplexityInsight?.source ?? "cache_miss",
         papers: perplexityInsight?.papers ?? [],

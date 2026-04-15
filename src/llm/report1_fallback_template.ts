@@ -6,6 +6,7 @@ import {
 } from "../logic/report1_block3_utils";
 import type { MarketPriceStats } from "../logic/market_stats";
 import { findProductByInn } from "../utils/product-dictionary";
+import type { EntryFeasibility } from "./logic/panama_entry_feasibility";
 
 /** 폴백용 입력 인터페이스 (느슨) */
 export interface FallbackInput {
@@ -24,14 +25,18 @@ export interface FallbackInput {
   /** PanamaCompra V3 데이터에서 가장 빈도 높은 (fabricante, proveedor) 페어 */
   panamacompraV3Top?: {
     totalCount: number;
+    count: number;
     proveedorWins: number;
     fabricante: string;
     proveedor: string;
     paisOrigen: string;
+    nombreComercial?: string;
     entidadCompradora: string;
     fechaOrden: string;
     representativePrice: number | null;
   } | null;
+  entryFeasibility: EntryFeasibility;
+  entryFeasibilityText: string;
 }
 
 /** 블록3 한 줄 — 줄 인덱스별 maxLength (1번 200·5번 250·그 외 100) */
@@ -139,9 +144,9 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
             input.panamacompraStats.avgPrice,
           )} PAB / 최고 ${String(
             input.panamacompraStats.maxPrice,
-          )} PAB. ${input.panamacompraV3Top.fabricante}(${input.panamacompraV3Top.paisOrigen}) 제조, ${input.panamacompraV3Top.proveedor} 유통 ${String(
-            input.panamacompraV3Top.proveedorWins,
-          )}건, 발주기관 ${input.panamacompraV3Top.entidadCompradora}, 발주일 ${input.panamacompraV3Top.fechaOrden}.`
+          )} PAB. ${input.panamacompraV3Top.fabricante}(${input.panamacompraV3Top.paisOrigen}) 제조 '${input.panamacompraV3Top.nombreComercial ?? "?"}' ${String(
+            input.panamacompraV3Top.count,
+          )}건 → ${input.panamacompraV3Top.proveedor} 유통.`
         : `${input.innEn} 동일 ATC4(${atc4}) 경쟁품 ${String(
             input.panamacompraStats.count,
           )}건 낙찰 확인, 평균 ${String(
@@ -178,6 +183,10 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
     "MINSA 등록 5년 갱신 의무와 현지 제조사 가격 경쟁 리스크가 동시 존재함.",
     "등록 일정 사전 관리와 CDMO 파트너화 전략으로 리스크 완화 가능",
   );
+  const entryFeasibilityRaw = toTwoLineInsight(
+    input.entryFeasibilityText,
+    "한국유나이티드제약 WLA 트랙 활용으로 일반 제네릭 대비 시장 선점 가능",
+  );
 
   return {
     block3_reasoning: reasoning,
@@ -186,5 +195,6 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
     block4_2_pricing: fitBlock4(pricingRaw, 60, 500),
     block4_3_partners: fitBlock4(partnersRaw, 60, 500),
     block4_4_risks: fitBlock4(risksRaw, 60, 400),
+    block4_5_entry_feasibility: fitBlock4(entryFeasibilityRaw, 60, 400),
   };
 }

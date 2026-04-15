@@ -26,6 +26,12 @@ import { getCabamedStats, getPanamacompraStats } from "@/src/logic/market_stats"
 import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
 import { getPerplexityCacheInsight } from "@/src/logic/perplexity_insights";
 import { findProductById } from "@/src/utils/product-dictionary";
+import type { PanamaRow } from "@/src/logic/fetch_panama_data";
+import {
+  evaluatePanamaEntryFeasibility,
+  feasibilityToReportText,
+  type EntryFeasibility,
+} from "@/src/llm/logic/panama_entry_feasibility";
 
 export const runtime = "nodejs";
 
@@ -50,13 +56,17 @@ interface PdfRequestBody {
   panamacompraV3Top?: {
     totalCount: number;
     proveedor: string;
+    count: number;
     proveedorWins: number;
     fabricante: string;
     paisOrigen: string;
+    nombreComercial: string;
     entidadCompradora: string;
     fechaOrden: string;
     representativePrice: number | null;
   } | null;
+  entryFeasibility?: EntryFeasibility;
+  entryFeasibilityText?: string;
 }
 
 interface MinimalPdfRequestBody {
@@ -94,6 +104,57 @@ function parsePerplexityPapers(raw: unknown): PerplexityPaper[] | null {
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return x !== null && typeof x === "object" && !Array.isArray(x);
+}
+
+function parseEntryFeasibility(raw: unknown): EntryFeasibility | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+  const grade = raw.grade;
+  const verdict = raw.verdict;
+  const durationDays = raw.duration_days;
+  const costUsd = raw.cost_usd;
+  const path = raw.path;
+  const evidence = raw.evidence;
+  const allowedGrades: EntryFeasibility["grade"][] = [
+    "A_immediate",
+    "B_short_term",
+    "C_mid_term",
+    "D_long_term",
+    "F_blocked",
+    "unknown",
+  ];
+  if (
+    typeof grade !== "string" ||
+    !allowedGrades.includes(grade as EntryFeasibility["grade"])
+  ) {
+    return null;
+  }
+  if (typeof verdict !== "string" || typeof path !== "string" || !isRecord(evidence)) {
+    return null;
+  }
+  if (
+    durationDays !== null &&
+    durationDays !== undefined &&
+    typeof durationDays !== "number"
+  ) {
+    return null;
+  }
+  if (costUsd !== null && costUsd !== undefined && typeof costUsd !== "number") {
+    return null;
+  }
+  return {
+    grade: grade as EntryFeasibility["grade"],
+    verdict,
+    duration_days:
+      typeof durationDays === "number" && Number.isFinite(durationDays)
+        ? durationDays
+        : null,
+    cost_usd:
+      typeof costUsd === "number" && Number.isFinite(costUsd) ? costUsd : null,
+    path,
+    evidence,
+  };
 }
 
 function parseSourceRows(
@@ -180,7 +241,7 @@ function parsePdfBody(raw: unknown): PdfRequestBody | null {
     return null;
   }
 
-  return {
+  const parsed: PdfRequestBody = {
     productId: raw.productId,
     caseGrade: cg,
     caseVerdict: raw.caseVerdict,
@@ -197,6 +258,20 @@ function parsePdfBody(raw: unknown): PdfRequestBody | null {
     dosageForm: raw.dosageForm,
     hsCode: raw.hsCode,
   };
+  if (
+    "entryFeasibilityText" in raw &&
+    typeof raw.entryFeasibilityText === "string" &&
+    raw.entryFeasibilityText.trim() !== ""
+  ) {
+    parsed.entryFeasibilityText = raw.entryFeasibilityText;
+  }
+  if ("entryFeasibility" in raw) {
+    const parsedFeasibility = parseEntryFeasibility(raw.entryFeasibility);
+    if (parsedFeasibility !== null) {
+      parsed.entryFeasibility = parsedFeasibility;
+    }
+  }
+  return parsed;
 }
 
 function parseMinimalPdfBody(raw: unknown): MinimalPdfRequestBody | null {
@@ -232,6 +307,7 @@ type PriceRowLite = {
   pa_source?: string | null;
   pa_price_local?: number | string | null;
   pa_notes?: string | null;
+  pa_product_name_local?: string | null;
 };
 
 function toFiniteNumber(value: number | string | null | undefined): number | null {
@@ -336,12 +412,28 @@ function extractPanamaCompraV3Top(
   if (bestMeta === undefined) {
     return null;
   }
+  const topRow = v3Rows.find((row) => {
+    if (row.pa_source !== "panamacompra_v3") {
+      return false;
+    }
+    const notes = parseNotesObject(row.pa_notes);
+    const fabricante = String(notes["fabricante"] ?? "").trim();
+    const proveedor = String(notes["proveedor"] ?? "").trim();
+    return fabricante === bestMeta.fabricante && proveedor === bestProveedor;
+  });
+  const nombreComercial =
+    typeof topRow?.pa_product_name_local === "string" &&
+    topRow.pa_product_name_local.trim() !== ""
+      ? topRow.pa_product_name_local.trim()
+      : "?";
   return {
     totalCount: v3Rows.length,
     proveedor: bestProveedor,
+    count: bestMeta.wins,
     proveedorWins: bestMeta.wins,
     fabricante: bestMeta.fabricante,
     paisOrigen: bestMeta.paisOrigen,
+    nombreComercial,
     entidadCompradora: bestMeta.entidad,
     fechaOrden: bestMeta.fecha,
     representativePrice: bestMeta.price,
@@ -363,6 +455,11 @@ async function buildPdfBodyFromProductId(productId: string): Promise<PdfRequestB
     productId,
     analyzed.priceRows as PriceRowLite[],
   );
+  const entryFeasibility = await evaluatePanamaEntryFeasibility(
+    productId,
+    analyzed.priceRows as PanamaRow[],
+  );
+  const entryFeasibilityText = feasibilityToReportText(entryFeasibility);
   return {
     productId,
     caseGrade: analyzed.judgment.case,
@@ -388,6 +485,8 @@ async function buildPdfBodyFromProductId(productId: string): Promise<PdfRequestB
     panamacompraStats,
     cabamedStats,
     panamacompraV3Top,
+    entryFeasibility,
+    entryFeasibilityText,
   };
 }
 
@@ -419,6 +518,18 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (product === undefined) {
     return NextResponse.json({ error: "product not found" }, { status: 404 });
   }
+  const analyzedForEntry =
+    resolvedBody.entryFeasibility === undefined
+      ? await analyzePanamaProduct(resolvedBody.productId)
+      : null;
+  const entryFeasibility =
+    resolvedBody.entryFeasibility ??
+    (await evaluatePanamaEntryFeasibility(
+      resolvedBody.productId,
+      (analyzedForEntry?.priceRows ?? []) as PanamaRow[],
+    ));
+  const entryFeasibilityText =
+    resolvedBody.entryFeasibilityText ?? feasibilityToReportText(entryFeasibility);
 
   const generatorInput: GeneratorInput = {
     productId: resolvedBody.productId,
@@ -436,6 +547,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     panamacompraV3Top: resolvedBody.panamacompraV3Top ?? null,
     cabamedStats: resolvedBody.cabamedStats ?? null,
     rawDataDigest: resolvedBody.rawDataDigest,
+    entryFeasibility,
+    entryFeasibilityText,
   };
 
   try {
