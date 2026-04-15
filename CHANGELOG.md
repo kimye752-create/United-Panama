@@ -1,5 +1,122 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-16 (fix(report): PanamaCompra V3 공공조달 통계 반영 + ATC4 길이 통일)
+
+### Changed
+- fix(report): `market_stats.ts` — 공공 통계를 `panamacompra_atc4_competitor` + `panamacompra_v3` 합산으로 집계하고 `pa_price_local` 문자열도 숫자로 강제 파싱.
+- fix(report): `panama_analysis.ts`/`fetch_panama_data.ts` — `panamacompraCount`를 `panamacompra`/`panamacompra_v3`/`panamacompra_atc4_competitor` 통합 카운트로 변경.
+- fix(llm): `report1_generator.ts`/`report1_schema.ts` — 프롬프트 표기 출처를 V3 포함으로 갱신하고, PanamaCompra V3 인용 시 `PanamaCompra V3 - DGCP (Ley 419 de 2024)` 명시 규칙 추가.
+- fix(data): `insert_panamacompra_v3_curated.ts`의 `self_inn_atc4` 생성 규칙을 ATC4 5자리(`C10AA`)로 통일, 기존 `panamacompra_v3` 16건 `pa_notes.self_inn_atc4`를 DB에서 일괄 보정.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): PanamaCompra V3 정형 데이터 INSERT — 19건 중 16건 자사 매칭)
+
+### Changed
+- 자사 매칭 16건: Rosumeg 5건 + Hydrine 3건 + Ciloduo 3건 + Atmeg 2건 + Sereterol 3건.
+- BONUS SKIP 3건: Dacarbazina, Metotrexato, Triplixam (self_product_uuid=null, 참고용 박제).
+- 출처: PanamaCompra V3 - DGCP (Ley 419 de 2024), 수집 방법: 사용자 수동 PDF 다운로드 + Claude 정형화 추출.
+- PanamaCompra V3 Playwright 자동화는 보류, confidence=0.98 기준으로 정형 데이터 직접 INSERT.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): PanamaCompra V3 13건 정형 INSERT (PDF 사용자 수집 + Claude 추출))
+
+### Added
+- feat(crawl): `data/seed/panama/round6_panamacompra_v3_curated.json` 신규 추가(현재 전달받은 1건 스키마 반영).
+- feat(crawl): `scripts/runners/insert_panamacompra_v3_curated.ts` 신규 추가. curated JSON을 `panama`에 직접 INSERT하고, `proceso_numero + inn` 기준 중복 SKIP, `panama_report_cache` 삭제 및 `pa_source`/`product_id` 집계 출력.
+
+## [Unreleased] - 2026-04-16 (fix(crawl): PanamaCompra V3 Angular SPA 진입 경로 교정 (메인→팝업닫기→V3 검색페이지) + 단계별 스크린샷)
+
+### Changed
+- fix(crawl): `pa_panamacompra_v3.ts` — `PANAMACOMPRA_V3_HOME_URL`·`PANAMACOMPRA_V3_SEARCH_URL`(`#/busqueda-avanzada`)로 진입; `closePromoModalIfPresent`·`navigateToBusquedaAvanzadaV3`로 메인→모달 닫기→V3 검색·`input#descripcion` 대기; 레거시 `ambiente_publico` 라우트 패치 제거; `debug_01_home`~`debug_04_after_search` 단계 PNG.
+
+## [Unreleased] - 2026-04-16 (fix(crawl): PanamaCompra V3 Angular SPA selector 교정 (input#descripcion + button[aria-label]))
+
+### Changed
+- fix(crawl): `pa_panamacompra_v3.ts` — Angular 우선(`input[name="descripcion"]`·`#descripcion`), 검색 `button[aria-label="찾아보세요"]`·`btn-blue-dark`; 날짜 `fechaDesde`/`fechaInicio`/`dateFrom` 등 추정 후 미존재 시 SKIP; `networkidle`·`input#descripcion` 대기 10초; 결과 `table tbody tr`·레코드 문구 대기; 디버그 `debug_{timestamp}_*.png/html`.
+- fix(crawl): `pa_panamacompra_v3.ts` — `javascript/ambiente_publico.js`의 `location.replace(origin)` 패치로 레거시 Pliego 검색 폼 유지, `divFiltros` 표시·`txtNombreAdquisicion`·빈 `btnBuscar` 앵커 `force` 클릭·`txtFechaDesde/Hasta` 보강.
+- chore: `npm run crawl:panamacompra-v3:dry` → Rosuvastatina 5건 `test_panamacompra_v3_dry_run.ts` 연결.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): PanamaCompra V3 Playwright dry-run - Rosumeg 5건 검증)
+
+### Added
+- feat(crawl): `src/utils/panamacompra_pdf_parser.ts` — ORDEN PDF `renglones[]`·`rawTextFirstPage`·파이프 표 형식 단가 파싱.
+- feat(crawl): `scripts/runners/test_panamacompra_v3_dry_run.ts` — Rosuvastatina 상위 5건 검색→PDF→파싱→매칭 표(INSERT 없음).
+- chore(crawl): `npm run test:panamacompra-v3:dry` 스크립트 추가.
+
+### Changed
+- feat(crawl): `pa_panamacompra_v3.ts` — `searchPanamaCompraV3(키워드만)` 기본 5건·날짜 env; `searchPanamaCompraV3WithDates` 분리; `fetchProcessDetail` → PDF 절대경로 `string | null`; 검색 실패 시 `debug_search.png`/`debug_search.html`; 재시도 간격 30초·PDF 후 3초 대기.
+- feat(crawl): `resolvePanamaCompraProduct(descripcion, atc)` ATC4 우선·C10AA는 설명으로 Rosumeg/Atmeg 분기.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): PanamaCompra V3 운영 서버 Playwright 자동화 + 신 8제품 ATC 매칭 + N건 적재)
+
+### Added
+- feat(crawl): `src/crawlers/preload/pa_panamacompra_v3.ts` — 고급 검색(`searchPanamaCompraV3`/`searchPanamaCompraV3OnPage`), 상세 `fetchProcessDetail`, ORDEN PDF `extractPriceFromOrdenPDF`(pdf-parse `PDFParse`), PDF 저장 `data/raw/panamacompra_v3/`.
+- feat(crawl): `resolvePanamaCompraProduct` — `src/utils/competitor_price_filters.ts`에 ATC5·키워드 우선순위 매칭.
+- feat(crawl): `scripts/runners/insert_panamacompra_v3_panama.ts` — **dry-run 전용**(단계 7: INSERT 없음), 키워드별 집계 JSON.
+
+### Notes
+- 운영 포털 DOM·차단 여부에 따라 검색 입력란 선택자는 로컬에서 `page.pause()` 또는 스크린샷으로 보정 필요할 수 있음.
+- 단계 8 INSERT·캐시 삭제는 Claude GO 후 별도 실행.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): Super Xtra N건 + Colombia Socrata N건 적재 완료)
+
+### Added
+- feat(crawl): `src/utils/competitor_price_filters.ts` — USD 단가 상한·Omethyl 건기식 블랙리스트(VTEX·Colombia 공통).
+- feat(crawl): `src/utils/vtex_product_helpers.ts` — VTEX `commertialOffer`·slug·재고 추출.
+- feat(crawl): `src/utils/colombia_socrata_blocks.ts` — Socrata 키워드 블록(드라이런·적재 공용).
+- feat(crawl): `scripts/runners/insert_superxtra_vtex_panama.ts` — `resolveSuperXtraProduct` 후 가격·상한·중복(`pa_product_name_local`+`pa_ingredient_inn`+`pa_source`) 필터·`pa_source=superxtra_vtex` INSERT.
+- feat(crawl): `scripts/runners/insert_colombia_socrata_panama.ts` — `resolveCompetitorProduct(principio+nombre)`·동일 상한·`pa_source=datos_gov_co` INSERT(COP÷4000→USD).
+- feat(ops): `scripts/runners/panama_post_import_verify.ts` — `panama_report_cache` 전량 삭제·소스별·product_id별 집계 JSON.
+
+### Changed
+- feat(crawl): `src/utils/superxtra_product_matcher.ts` — `resolveCompetitorProduct(combinedText)` 추가(Colombia 텍스트 블롭용).
+- chore(crawl): `scripts/runners/test_colombia_socrata_dry_run.ts` — `COLOMBIA_SOCRATA_BLOCKS` 재사용.
+
+### Results (세션 실행)
+- Super Xtra: 적재 **15건**(수집 84 SKU, 상한·가격≤0·미매칭으로 다수 SKIP).
+- Colombia: 적재 **109건**(병합 208행, 동일 상품명+INN 중복 **84건** SKIP).
+- `panama` 총 **159행**·`panama_report_cache` 비움.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): Super Xtra VTEX API 신 8제품 적재 N건 + 매칭 우선순위 교정)
+
+### Added
+- feat(crawl): `src/utils/superxtra_product_matcher.ts` — `resolveSuperXtraProduct(name, desc)` 우선순위(조합제 1~4 → 단일 5~14)로 SKU를 1개 product_id에만 귀속. `innUpperForSuperXtraProductId`는 INSERT 시 `pa_ingredient_inn`용.
+- feat(crawl): `scripts/runners/test_superxtra_vtex_dry_run.ts` — `findProductByPanamaText`(교정 전) vs `resolveSuperXtraProduct`(교정 후) 동시 집계·`summary` 합계 출력.
+
+### Notes
+- Dry-run 합계: 교정 전 28 SKU 귀속 / 교정 후 57 SKU 귀속(Claude GO 후 `pa_source=superxtra_vtex` INSERT·캐시 삭제는 별도 단계).
+
+## [Unreleased] - 2026-04-16 (feat(crawl): Colombia datos.gov.co 신 8제품 Socrata API dry-run)
+
+### Added
+- feat(research): `scripts/runners/test_colombia_socrata_dry_run.ts` — Socrata `3t73-n4q9` (`$q`·`$limit=50`) 키워드별 조회, ocid 유사 dedupe, INN 부분일치 필터, `precio_por_tableta` COP→USD(4000:1 근사). INSERT 없음.
+
+## [Unreleased] - 2026-04-16 (feat(research): Super Xtra VTEX 카탈로그 API 8제품 dry-run)
+
+### Added
+- feat(research): `scripts/runners/test_superxtra_vtex_dry_run.ts` — Super Xtra VTEX `products/search` + `ocdsSearchTermsForProduct` 키워드로 `findProductByPanamaText` 매칭·가격 범위 JSON(INSERT 없음). 2초 간격·브라우저 UA.
+- chore(crawl): `pa_panamacompra.ts` — `ocdsSearchTermsForProduct` export(타 모듈·스크립트 재사용).
+- docs: `ARCHITECTURE.md` — Phase B 표·상세에 **Super Xtra (VTEX)** 추가(의약 ~2765 SKU, `commertialOffer`).
+
+## [Unreleased] - 2026-04-16 (chore(research): ACODECO Decreto 3/2023 의약품 PDF 다운로드·텍스트 추출 검증)
+
+### Added
+- chore(research): `data/raw/acodeco/decreto3_2023_medicamentos.pdf` — La Prensa CDN `MEDICAMENTOS.pdf` (Decreto Ejecutivo 참조 상한가, ~4.2MB).
+- chore(scripts): `scripts/runners/test_decreto3_pdf_extract.ts` — `pdf-parse`(PDFParse) 전체 텍스트·INN 키워드·가격 패턴 카운트·상위 30줄 샘플 JSON 출력(DB 미사용).
+
+## [Unreleased] - 2026-04-16 (feat(crawl): PanamaCompra OCDS 신 8제품 키워드로 dry-run 재조사)
+
+### Changed
+- feat(crawl): `src/crawlers/preload/pa_panamacompra.ts` — `OCDS_SEARCH_KEYWORDS_BY_PRODUCT_ID`(신 8제품 스페인어·치료분야 키워드), `ocdsSearchTermsForProduct`로 OCDS 검색어 분리. 맵 사용 시 `findProductByKeyword` 교차 스킵 비활성화(공유 키워드 누락 방지).
+- feat(crawl): `runOcdsDryRunDetailed()` — `--dry-run` 시 제품별 키워드 순회·ocid 합집합·품목 매칭 건수·PAB 범위·Korea United supplier 휴리스틱·샘플 설명 JSON 출력(INSERT 없음).
+- chore(crawl): dry-run 시간·API 부하 조절용 환경변수 `PANAMACOMPRA_DRY_RUN_KEYWORDS_PER_PRODUCT`, `PANAMACOMPRA_OCDS_MAX_PAGES`(페이징 상한, 기본 12).
+- fix(crawl): `productHasOcdsKeywordMap` 명명(ESLint react-hooks 오탐 방지), dry-run PAB·샘플 문자열 타입 안전 처리.
+
+## [Unreleased] - 2026-04-16 (feat(crawl): CABAMED 경쟁품 키워드 8제품 확장 + dry-run 집계)
+
+### Changed
+- feat(crawl): `src/crawlers/preload/cabamed_match.ts` — `COMPETITOR_TOKENS_BY_PRODUCT_ID`를 신 8제품 ATC4 스페인어·영문 키워드로 확장(Hydrine·Ciloduo·Gastiin·Rosumeg·Atmeg·Sereterol·Omethyl·Gadvoa).
+- feat(crawl): `src/crawlers/preload/pa_acodeco_cabamed.ts` — 경쟁품 `pa_notes`에 `premium_grade: "generic"` 박제, `--dry-run`으로 INSERT 없이 매칭 집계(`dryRunCabamedFromXlsx`).
+- chore(seed): 루트 `CABAMED-Formato-Publicacion-Farmacias-Privadas.xlsx`를 `data/seed/panama/acodeco_cabamed.xlsx`로 복사(파서 기본 경로).
+
 ## [Unreleased] - 2026-04-15 (feat(report): Report1 웹 화면 A4 2페이지 시각 분리 + 인쇄용 page-break)
 
 ### Changed

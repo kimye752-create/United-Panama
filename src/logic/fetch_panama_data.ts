@@ -416,6 +416,20 @@ export async function countPanamaBySource(
   return rows.filter((r) => r.pa_source === paSource).length;
 }
 
+export async function countPanamaPublicProcurement(
+  productId: string,
+): Promise<number> {
+  const rows = await getPriceRowsByProduct(productId);
+  return rows.filter((r) => {
+    const src = r.pa_source ?? "";
+    return (
+      src === "panamacompra" ||
+      src === "panamacompra_v3" ||
+      src === "panamacompra_atc4_competitor"
+    );
+  }).length;
+}
+
 export async function countPrivateRetail(productId: string): Promise<number> {
   const rows = await getPriceRowsByProduct(productId);
   return rows.filter((r) => {

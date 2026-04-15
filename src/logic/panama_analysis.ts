@@ -11,7 +11,7 @@ import {
 } from "./case_judgment";
 import { matchDistributorsForProduct } from "./distributor_matcher";
 import {
-  countPanamaBySource,
+  countPanamaPublicProcurement,
   countPrivateRetail,
   countPublicOrBothDistributors,
   getDistributors,
@@ -84,7 +84,7 @@ async function runCore(
     getDistributors(),
     getPriceRowsByProduct(productId),
     getSourceAggregation(),
-    countPanamaBySource(productId, "panamacompra"),
+    countPanamaPublicProcurement(productId),
     countPrivateRetail(productId),
     hasCabamedRegulated(productId),
   ]);

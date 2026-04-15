@@ -10,7 +10,17 @@ export interface MarketPriceStats {
 function toValidPrices(rows: readonly PanamaRow[]): number[] {
   return rows
     .map((row) => row.pa_price_local)
-    .filter((value): value is number => typeof value === "number" && Number.isFinite(value))
+    .map((value) => {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+      }
+      if (typeof value === "string") {
+        const n = Number.parseFloat(value.trim());
+        return Number.isFinite(n) ? n : null;
+      }
+      return null;
+    })
+    .filter((value): value is number => value !== null)
     .filter((value) => value > 0);
 }
 
@@ -45,8 +55,13 @@ export function getPanamacompraStats(
   rows: readonly PanamaRow[],
 ): MarketPriceStats | null {
   const rawRows = rows.filter(
-    (row) =>
-      row.product_id === productId && row.pa_source === "panamacompra_atc4_competitor",
+    (row) => {
+      if (row.product_id !== productId) {
+        return false;
+      }
+      const src = row.pa_source ?? "";
+      return src === "panamacompra_atc4_competitor" || src === "panamacompra_v3";
+    },
   );
   const uniqueMap = new Map<string, PanamaRow>();
   for (const row of rawRows) {
