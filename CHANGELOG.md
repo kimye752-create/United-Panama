@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 19:52:54 (style(front): 1공정 입력 UI 명도/폰트 통일 + 신약 분석 버튼 활성화)
+
+### Changed
+- style(front): `components/dashboard/process1/Process1Workbench.tsx`의 1공정 select/input 타이포(13px, semibold/medium)와 배경/그림자 톤을 표본 화면에 맞춰 통일.
+- fix(front): 신약 분석 영역 입력칸 3개를 활성화(입력 가능)하고 버튼도 클릭 가능 상태로 전환.
+- fix(front): 신약 분석 버튼 클릭 시 최소 입력 검증 및 사용자 안내(alert) 동작 추가로 "클릭 불가" 체감 이슈 해소.
+- verify: `npx tsc --noEmit` 통과, 백엔드 무손상(`app/api`, `src/llm` 변경 없음) 재확인.
+
 ## [Unreleased] - 2026-04-15 19:42:28 (fix(front): 1공정 분석 버튼 반복 실행 안정화 + 보고서 탭 자동 동기화)
 
 ### Changed
