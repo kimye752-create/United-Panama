@@ -50,14 +50,14 @@ export function Process1Workbench() {
   return (
     <div className="space-y-3.5">
       <Card title="품목 선택 후 파나마 진출 적합 분석 실행">
-        <p className="mb-2 text-[12px] font-bold text-muted">
+        <p className="mb-2 text-[10px] font-semibold tracking-[0.01em] text-muted">
           등록 제품 분석 실행
         </p>
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <select
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className="h-11 flex-1 rounded-[10px] bg-white px-3.5 text-[13px] font-semibold text-text shadow-sh2 outline-none focus:ring-2 focus:ring-navy/20"
+            className="h-[38px] flex-1 rounded-[8px] border border-[#98a4b8] bg-white px-3 text-[11.5px] font-semibold text-[#253753] outline-none focus:border-navy2 focus:ring-2 focus:ring-navy/15"
           >
             {sortedProducts.map((p) => (
               <option key={p.product_id} value={p.product_id}>
@@ -67,7 +67,7 @@ export function Process1Workbench() {
           </select>
           <button
             type="button"
-            className="inline-flex h-11 items-center justify-center rounded-[10px] bg-navy px-6 text-[14px] font-bold text-white transition-colors hover:bg-navy2"
+            className="inline-flex h-[38px] items-center justify-center rounded-[8px] bg-navy px-5 text-[11.5px] font-bold text-white transition-colors hover:bg-navy2"
             onClick={() => {
               const product = TARGET_PRODUCTS.find((p) => p.product_id === productId);
               if (product === undefined) {
@@ -89,42 +89,44 @@ export function Process1Workbench() {
         <div className="mt-4 grid grid-cols-4 gap-2">
           {["DB 조회", "Claude 분석", "논문 검색", "PDF 생성"].map((label, idx) => (
             <div key={label} className="flex flex-col items-center gap-1">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-inner text-[11px] font-bold text-muted shadow-sh2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-inner text-[10px] font-bold text-muted shadow-sh3">
                 {idx + 1}
               </div>
-              <div className="text-[11px] text-muted">{label}</div>
+              <div className="text-[10px] text-muted">{label}</div>
             </div>
           ))}
         </div>
       </Card>
 
       <Card title="신약 분석" subtitle="다음 단계에서 연결 예정">
-        <p className="mb-2 text-[12px] font-bold text-muted">미등록 신약 분석 입력</p>
+        <p className="mb-2 text-[10px] font-semibold tracking-[0.01em] text-muted">
+          미등록 신약 분석 입력
+        </p>
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
           <input
             type="text"
             value={customTradeName}
             onChange={(e) => setCustomTradeName(e.target.value)}
             placeholder="약품명 (예: Nexavar)"
-            className="h-11 rounded-[10px] bg-white px-3.5 text-[13px] font-medium text-text placeholder:text-muted shadow-sh2 outline-none focus:ring-2 focus:ring-navy/20"
+            className="h-[38px] rounded-[8px] border border-[#98a4b8] bg-white px-3 text-[11.5px] font-medium text-[#253753] placeholder:text-[#8a95a8] outline-none focus:border-navy2 focus:ring-2 focus:ring-navy/15"
           />
           <input
             type="text"
             value={customInn}
             onChange={(e) => setCustomInn(e.target.value)}
             placeholder="성분명 (예: sorafenib)"
-            className="h-11 rounded-[10px] bg-white px-3.5 text-[13px] font-medium text-text placeholder:text-muted shadow-sh2 outline-none focus:ring-2 focus:ring-navy/20"
+            className="h-[38px] rounded-[8px] border border-[#98a4b8] bg-white px-3 text-[11.5px] font-medium text-[#253753] placeholder:text-[#8a95a8] outline-none focus:border-navy2 focus:ring-2 focus:ring-navy/15"
           />
           <input
             type="text"
             value={customDosage}
             onChange={(e) => setCustomDosage(e.target.value)}
             placeholder="제형 (예: 200mg tablet)"
-            className="h-11 rounded-[10px] bg-white px-3.5 text-[13px] font-medium text-text placeholder:text-muted shadow-sh2 outline-none focus:ring-2 focus:ring-navy/20"
+            className="h-[38px] rounded-[8px] border border-[#98a4b8] bg-white px-3 text-[11.5px] font-medium text-[#253753] placeholder:text-[#8a95a8] outline-none focus:border-navy2 focus:ring-2 focus:ring-navy/15"
           />
           <button
             type="button"
-            className="h-11 rounded-[10px] bg-navy px-6 text-[14px] font-bold text-white transition-colors hover:bg-navy2"
+            className="h-[38px] rounded-[8px] bg-navy px-5 text-[11.5px] font-bold text-white transition-colors hover:bg-navy2"
             title="신약 분석은 현재 백엔드 연동 준비 중입니다."
             onClick={() => {
               const hasInput =

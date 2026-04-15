@@ -85,7 +85,7 @@ export function ProgressChecklistCard() {
               addItem();
             }
           }}
-          placeholder="항목 추가 후 Enter…"
+          placeholder="기타 업무 추가 입력란"
           className="h-10 flex-1 rounded-[10px] bg-inner px-3.5 text-[13px] font-medium text-navy placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-navy/20"
         />
         <button

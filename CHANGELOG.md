@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 20:20:00 (style(front): 표본2 기준 1공정 선택/입력 폼 타이포·박스 정밀 보정)
+
+### Changed
+- style(front): `components/dashboard/process1/Process1Workbench.tsx`의 제품 선택 select와 신약 분석 입력 3종을 `38px` 높이, `8px` 라운드, 얇은 라인(border) 기반으로 재정렬.
+- style(front): 입력/선택 텍스트를 `11.5px` 중심으로 통일하고 placeholder 명도(`#8a95a8`)를 조정해 표본2 대비 옅음 이슈 완화.
+- style(front): 액션 버튼(`진출 적합 분석`/`신약 분석`)의 높이·패딩·폰트 크기를 폼 컨트롤과 동일 리듬으로 축소 정렬.
+- style(front): 진행 스텝 숫자·라벨을 한 단계 축소(`10px`)해 표본2의 밀도감에 맞춤.
+- verify: `npx tsc --noEmit` 통과, 백엔드 무손상(`app/api`, `src/llm` 변경 없음) 재확인.
+
+## [Unreleased] - 2026-04-15 19:55:17 (chore(front): 1페이지 체크리스트 입력 placeholder 문구 수정)
+
+### Changed
+- chore(front): `components/dashboard/main/ProgressChecklistCard.tsx` 입력 placeholder를 `항목 추가 후 Enter…`에서 `기타 업무 추가 입력란`으로 변경.
+
 ## [Unreleased] - 2026-04-15 19:52:54 (style(front): 1공정 입력 UI 명도/폰트 통일 + 신약 분석 버튼 활성화)
 
 ### Changed
