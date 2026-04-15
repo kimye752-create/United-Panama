@@ -74,6 +74,20 @@ function toTwoLineInsight(fact: string, insight: string): string {
 
 /** LLM 호출 실패 시 마지막 안전망. 규칙 기반 풀 본문 생성. */
 export function buildFallbackReport(input: FallbackInput): Report1Payload {
+  if (process.env.DEBUG_REPORT1_V3 === "1") {
+    console.log(
+      "[DEBUG] input.panamacompraV3Top:",
+      JSON.stringify(input.panamacompraV3Top),
+    );
+    console.log(
+      "[DEBUG] panamacompraStats null?:",
+      input.panamacompraStats === null,
+    );
+    console.log(
+      "[DEBUG] panamacompraV3Top null?:",
+      input.panamacompraV3Top === null || input.panamacompraV3Top === undefined,
+    );
+  }
   const productMeta = findProductByInn(input.innEn);
   const atc4 = productMeta?.atc4_code ?? "UNKNOWN";
   const distList =

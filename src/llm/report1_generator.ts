@@ -354,6 +354,12 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     panamacompraV3Top: input.panamacompraV3Top,
     cabamedStats: input.cabamedStats,
   };
+  if (process.env.DEBUG_REPORT1_V3 === "1") {
+    console.log(
+      "[DEBUG] fallbackInput.panamacompraV3Top:",
+      JSON.stringify(fallbackInput.panamacompraV3Top),
+    );
+  }
   const payload = buildFallbackReport(fallbackInput);
   return {
     payload,

@@ -203,6 +203,12 @@ export async function POST(req: Request): Promise<Response> {
       productId,
       result.priceRows as PriceRowLite[],
     );
+    if (process.env.DEBUG_REPORT1_V3 === "1") {
+      console.log(
+        "[DEBUG] panamacompraV3Top:",
+        JSON.stringify({ productId, panamacompraV3Top }),
+      );
+    }
 
     const generatorInput: GeneratorInput = {
       productId,
@@ -223,6 +229,12 @@ export async function POST(req: Request): Promise<Response> {
       cabamedStats,
       rawDataDigest,
     };
+    if (process.env.DEBUG_REPORT1_V3 === "1") {
+      console.log(
+        "[DEBUG] generatorInput.panamacompraV3Top:",
+        JSON.stringify(generatorInput.panamacompraV3Top),
+      );
+    }
 
     const llm = await generateReport1(generatorInput);
     const perplexityInsight = await getPerplexityCacheInsight(

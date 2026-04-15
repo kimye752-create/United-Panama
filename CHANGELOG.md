@@ -1,5 +1,14 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 18:24:17 (fix(report1): panamacompraV3Top 전달 추적 로그 + PDF 경로 누락 전달 복구)
+
+### Changed
+- fix(debug): `app/api/panama/analyze/route.ts`에 `DEBUG_REPORT1_V3=1` 조건부 로그 추가 (`panamacompraV3Top`, `generatorInput.panamacompraV3Top`)로 데이터 흐름 추적 가능하게 보강.
+- fix(debug): `src/llm/report1_generator.ts`에 `fallbackInput.panamacompraV3Top` 조건부 로그 추가.
+- fix(debug): `src/llm/report1_fallback_template.ts`에 폴백 분기 판단 로그(`panamacompraStats null 여부`, `panamacompraV3Top null 여부`) 추가.
+- fix(api): `app/api/panama/pdf/route.ts`가 `generateReport1` 호출 시 `panamacompraV3Top`을 누락하던 경로를 복구하고, analyze 경로와 동일한 V3 상위 메타 계산을 추가해 PDF/폴백 경로 일관성 확보.
+- test(verify): `scripts/runners/verify_report1_v3_meta.ts`를 로컬(`http://localhost:3030`)과 실서비스(`https://united-panama.vercel.app`)에 각각 실행해 응답 차이 확인.
+
 ## [Unreleased] - 2026-04-15 18:13:23 (chore(llm): 공공조달 가격 패턴 문구 사용자 지정안 반영)
 
 ### Changed
