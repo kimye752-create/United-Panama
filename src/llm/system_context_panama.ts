@@ -26,4 +26,17 @@ export const PANAMA_DOMAIN_CONTEXT = `
 - Tier 3보다 비싸게, Tier 1보다 싸게, Tier 2와 유사한 가격대
 - 무기: "고품질 + 한국=고위생국가(WLA) 패스트트랙"
 - WLA 효과: 위생등록 심사 기존 2~3년 → 대폭 단축 (Law 419, 2024.02 발효)
+
+5. PanamaCompra V3 핵심 유통 파트너 (Distribution Partner Intelligence)
+- SEVEN PHARMA PANAMA S.A.: INDIA Hetero/Celon 제네릭 유통 최강 (잠재 한국유나이티드 파트너 1순위)
+- COMPAÑÍA ASTOR S.A.: Servier (프랑스) + GSK 오리지널 독점 채널 (Sereterol 직접 경쟁사)
+- REPRICO S.A.: Merck Colombia Cilostazol 단독 공급 (Ciloduo 직접 경쟁사)
+- C.G. DE HASETH & CIA S.A.: Laboratorios Normon (스페인) 유통 (Public 채널)
+- MEDIPAN S.A.: 파나마 자체 제조 + 유통 (Tier 3 로컬 제네릭)
+
+6. 파나마 공공조달 가격 패턴 (Public Procurement Price Pattern)
+- 동일 제품 동일 공급사도 병원별 수의계약 시 가격 편차 ±20~110%
+- → FOB 산정 시 단일 시장가 대신 중앙값 또는 가중평균 사용 권장
+- 대량 구매 (10만 정 이상) vs 소량 구매 (1만 정 이하) 가격 차 평균 2배
+- 입찰 전략 수립 시 단일 최저가보다 분포 기반 밴드 전략을 우선 적용
 `.trim();

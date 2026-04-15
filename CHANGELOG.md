@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-15 18:12:06 (fix(llm): system context 문자열 종료 복구 후 재푸시)
+
+### Changed
+- fix(llm): `src/llm/system_context_panama.ts` 말미가 `- I`에서 끊겨 템플릿 문자열이 닫히지 않던 상태를 복구하고, 공공조달 가격 패턴 마지막 문장을 완결형으로 정리.
+- chore(git): 미커밋 변경 원인 파일을 단독 커밋 대상으로 정리하여 원격 푸시 가능 상태로 전환.
+
 ## [Unreleased] - 2026-04-15 18:03:24 (feat(report1): 양식 강화 잔여 패치 1/2/5 + 캐시 초기화 + 3개 품목 검증)
 
 ### Changed
