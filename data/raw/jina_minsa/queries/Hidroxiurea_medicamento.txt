@@ -1,0 +1,25 @@
+Title: MINSA-CONSULTA DE MEDICAMENTOS
+
+URL Source: https://consultamedicamentos.minsa.gob.pa/?medicamento=Hidroxiurea
+
+Markdown Content:
+### Consulta de Disponibilidad de Medicamentos
+
+Medicamento
+
+Región de Salud
+
+### Ingrese el nombre genérico del medicamento para revisar la disponibilidad.
+
+| # | Medicamento | Precio Mínimo Farmacia | Precio MINSA | Ahorro $ | Porcentaje de Ahorro |
+| --- | --- | --- | --- | --- | --- |
+| 1 | AMLODIPINA 5 mg tableta | B/. 0,31 | B/. 0,08 | B/. 0,23 | 74% |
+| 2 | AMBROXOL jarabe, frasco 120 ml | B/. 4,21 | B/. 1,65 | B/. 2,56 | 61% |
+| 3 | ATENOLOL 100mg comprimido | B/. 0,33 | B/. 0,10 | B/. 0,23 | 70% |
+| 4 | AZITROMICINA 500 mg cápsula | B/. 1,98 | B/. 0,90 | B/. 1,08 | 55% |
+| 5 | CEFTRIAXONA 1 gramo I.M. víal | B/. 2,33 | B/. 1,50 | B/. 0,83 | 36% |
+| 6 | CIPROFLOXACINA, 500 mg tableta | B/. 0,82 | B/. 0,15 | B/. 0,67 | 82% |
+| 7 | CLARITROMICINA 500 MG tableta | B/. 1,09 | B/. 0,40 | B/. 0,69 | 63% |
+| 8 | DEXTROMETORFANO Jarabe frasco | B/. 5,30 | B/. 0,90 | B/. 4,40 | 83% |
+| 9 | ENALAPRIL 20 mg tableta | B/. 0,21 | B/. 0,10 | B/. 0,11 | 51% |
+| 10 | FLUOXETINA 20mg tableta | B/. 0,50 | B/. 0,10 | B/. 0,40 | 80% |

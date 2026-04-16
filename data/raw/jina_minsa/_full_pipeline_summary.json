@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-15T15:22:20.824Z",
+  "phase1": {
+    "success_count": 3,
+    "fail_count": 1
+  },
+  "phase2": {
+    "found_count": 470,
+    "unique_count": 187
+  },
+  "phase3": {
+    "skipped": false,
+    "success_count": 8,
+    "fail_count": 0
+  },
+  "phase4": {
+    "extracted_products": 0,
+    "overlap_count": 0
+  },
+  "phase5": {
+    "ingredient_upsert_count": 0,
+    "product_upsert_count": 0
+  }
+}

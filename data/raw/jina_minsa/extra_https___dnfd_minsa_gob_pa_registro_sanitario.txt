@@ -1,0 +1,59 @@
+Title: | Dirección Nacional de Farmacias y Drogas
+
+URL Source: https://dnfd.minsa.gob.pa/registro-sanitario
+
+Markdown Content:
+Comunicado Nº 001-/DNFD-2026 Suspensión de uso de formularios de la Sección de Modificaciones al Registro Sanitario El Departamento de Registro Sanitario de Medicamentos y Otros Productos para la Salud Humana informa a todos los usuarios que, a partir del lunes 26 de enero de 2026, dejarán de utilizarse los siguientes formularios.Sección de Modificaciones 23/01/2026 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2026-02/Comunicado%20N%C2%B0%20001-DNFD-2026_1.pdf)
+F-05-BE-PF-DRS Formulario para la presentación de la solicitud de bioequivalencia de medicamentos.###### **"Nuevo" Entra en vigencia en enero 2026.**
+
+Formulario que presenta la solicitud "_física"_ de bioequivalencia, ya sea como "medicamento intercambiable" o "medicamento de referencia", junto con los demás requisitos que exija la normativa.Sección de Bioequivalencia 22/12/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-12/f-05-be-pf-drs%20Formulario%20Solicitud%20Bioequivalencia_v03.docx)
+F-07-RE-PF-DRS Formulario para control de recepción de expedientes de bioequivalencia.###### **"Nuevo" Entra en vigencia en enero 2026.**
+
+Formulario destinado a presentarse en ventanilla, quien recibirá todo el dossier en físico. Recuerde traer 2 para que se lleve su constancia de recibido.Sección de Bioequivalencia 22/12/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-12/f-07-re-pf-drs_formulario_para_control_de_recepcion.docx)
+HC-04-BE-PF-DRS Hoja de chequeo para la presentación de la solicitud de bioequivalencia.###### **"Nuevo" Entra en vigencia en enero 2026.**
+
+La presente hoja es para checar los requisitos que se presentan con la solicitud de bioequivalencia.
+
+Se presenta en conjunto con el formulario de solicitud de bioequivalencia F-05-BE-PF-DRS, señalando el número de foja donde se encuentra el requisito, para cuando se presente en físico.Sección de Bioequivalencia 22/12/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-12/hc-04-be-pf-drs_hoja_de_chequeo_bioequivalencia.docx)
+F-RS-CER Formulario para Solicitud de Certificación de Registro Sanitario Para Solicitud de Certificación de Registro Sanitario Sección de Evaluación de Registro Sanitario 12/12/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-12/f-rs-cer_formulario_para_solicitud_de_certificacion_de_registro_sanitario_05.12.2019_ver01.docx)
+MA-MINSA-F&D-Excepción de registro Manual de Usuario para Excepción de registro sanitario En este Manual para Usario le indica los pasos para realizar el trámite de excepción al registro.
+
+Versión 1.0 Sección de Evaluación de Registro Sanitario 11/06/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-06/manual_de_usuario_-_excepciones.pdf)
+MA-MINSA-F&D-Publicidad Manual de Usuario Publicidad Manual para el usuario llene la información en la plataforma para el trámite de publicidad.
+
+Versión 1.1 Sección de Evaluación de Registro Sanitario 11/06/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-06/manual_de_usuario_-_publicidad.pdf)
+MA-MINSA-F&D Manual de Usuario para Registro sanitario de Medicamentos Este Manual de procedimiento para el usuario le indica cómo debe llenar la plataforma con la información del medicamento que quiere registrar para la obtención de registro sanitario.
+
+Versión 1.2 Sección de Evaluación de Registro Sanitario 11/06/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-06/manual_de_usuario_-_registro_sanitario_de_medicamentos.pdf)
+HC-02-MOD-PF-DRS Hoja de chequeo de las solicitudes de modificaciones al registro sanitario de productos higiénicos, antisépticos y desinfectantes de uso hospitalario que requieren aprobación previa Documento para uso del tramitante, y en el cual marcara cada uno de los documentos que se presenten con la solicitud de modificaciones de productos higiénicos, antisépticos y desinfectantes de uso hospitalario que requieren aprobación previa.
+
+Versión: 01 Sección de Modificaciones 21/03/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/13.%20%20HOJA%20DE%20CHEQUEO%20DE%20PRODUCTOS%20HIGIENICOS%2C%20ANTISEPTICOS%2C%20DESINFECTANTES.docx)
+F-02-RI-PF-DRS Formulario para la presentación de reingresos de trámites de registro sanitario Documento destinado para presentar las respuestas a las observaciones realizadas a los trámites ingresados y evaluados en la Sección de Modificaciones al Registro Sanitario.
+
+Versión: 01 Sección de Modificaciones 02/03/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/15.%20%20formulario_para_la_presentacion_de_reingresos_de_tramites_de_registro_sanitario_f-02-ri-pf-drs%20%282%29.docx)
+HC-03-MOD-PF-DRS Hoja de chequeo de las solicitudes de modificaciones al registro sanitario de productos farmacéuticos que deben notificarse y no requieren aprobación previa Documento para uso del tramitante, y en el cual marcara cada uno de los documentos que se presenten con la solicitud de notificaciones de un producto farmacéutico.
+
+Versión: 02 Sección de Modificaciones 01/03/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/7.%20%20hoja%20de%20chequeo%20%20de%20notificaciones%20de%20medicamentos.docx)
+F-02-RI-PF-DRS Formulario para la presentación de reingresos Formulario destinado para presentar las respuestas a las observaciones que se le realicen a las solicitudes de bioequivalencia.
+
+Versión 02.Sección de Bioequivalencia 13/02/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-06/f-02-ri-pf-drs_formulario_para_la_presentacion_de_reingresos_V02.docx)
+HC-02-MOD-NOT-PG-HG-DRS Hoja de chequeo de las solicitudes de modificaciones al registro sanitario de plaguicidas, higiénicos, antisépticos y desinfectantes, que deben notificarse y no requieren aprobación previa Documento para uso del tramitante, y en el cual marcara cada uno de los documentos que se presenten con la solicitud de notificacionesmodificaciones de productos higiénicos, antisépticos y desinfectantes de uso hospitalario que requieren aprobación previa.
+
+Versión: 01 Sección de Modificaciones 02/01/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/14.%20%20hoja%20de%20chequeo%20%20de%20notificaciones%20de%20%20plaguicidas%2C%20higienicos.docx)
+F-10-MOD-HG-DRS Formulario para la solicitud de modificaciones al registro sanitario de productos higiénicos, antisépticos y desinfectantes Documento destinado para el primer ingreso de las actualizaciones de productos higiénicos, antisépticos y desinfectante, y en el cual se detallarán las modificaciones o notificaciones que se desean realizar y la información general ya sea de un producto higiénico, antiséptico o desinfectante.
+
+Versión: 02 Sección de Modificaciones 02/01/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/12.%20%20f-10-mod-hg-drs_formulario_de_solicitud_de_modificaciones_al_registro_sanitario_%20higienicos.docx)
+HC-03-MOD-PLAG-DRS Hoja de chequeo de las solicitudes de modificaciones al registro sanitario de plaguicidas de uso doméstico y de uso profesional que requieran aprobación previa Documento para uso del tramitante, y en el cual marcara cada uno de los documentos que se presenten con la solicitud de modificaciones de plaguicidas de uso doméstico y de uso profesional que requieran aprobación previa.
+
+Versión: 01 Sección de Modificaciones 02/01/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/11.%20%20HOJA%20DE%20CHEQUEO%20PLAGUICIDAS%20USO%20DOMESTICO%20Y%20PROFESIONAL.docx)
+HC-02-MOD-PF-DRS Hoja de chequeo de las solicitudes de modificaciones al registro sanitario de productos farmacéuticos que requiren aprobación previa Documento para uso del tramitante, y en el cual marcara cada uno de los documentos que se presenten con la solicitud de modificaciones de productos farmacéuticos.
+
+Versión: 02 Sección de Modificaciones 02/01/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/6.%20%20hoja%20de%20chequeo%20%20de%20medicamentos.docx)
+F-09-MOD-PG-DRS Formulario para la solicitud de modificaciones al registro sanitario de productos plaguicidas de uso doméstico y de uso profesional Documento destinado para el primer ingreso de las actualizaciones de plaguicidas, y en el cual se detallarán las modificaciones o notificaciones que se desean realizar y la información general del producto plaguicida de uso doméstico o uso profesional.
+
+Versión: 02 Sección de Modificaciones 01/01/2025 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/10.%20%20f-09-mod-pg-drs_formulario_de_solicitud_de_modificaciones_al_registro_sanitario_%20plaguicidas.docx)
+Comunicado Nº 2024 Nuevo proceso de recepción de ventanilla de la Sección de Modificaciones Se comunica a los usuarios de la Dirección Nacional de Farmacia y Drogas el proceso único por el cual se recibirán los trámites de modificaciones para los productos con registros emitidos o renovados tanto por la plataforma SYSFARMA como FADDI, y que se encuentren vigentes.Sección de Modificaciones 03/10/2024 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/3.%20%20COMUNICADO%202024%20circular_ventanilla_modificacion.pdf)
+F-08-MOD-CO-DRS Formulario para la solicitud de modificaciones al registro sanitario de cosméticos Documento destinado para el primer ingreso de las actualizaciones de cosméticos, y en el cual se detallarán las modificaciones o notificaciones que se desean realizar y la información general del producto cosmético.
+
+Versión: 02 Sección de Modificaciones 01/10/2024 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-08/8.%20%20f-08-mod-co-drs_formulario_de_solicitud_de_modificaciones_al_registro_sanitario_de_cosmeticos.docx)
+Resoluciones 2023 Listado de medicamentos que presentaron evidencias bajo condición de medicamento de referencia e intercambiables y el tipo de reconocimiento aplicado (4-ene-2023 al 28-dic-2023)Este documento posee un listado de los productos a los que se le emitió resolución durante el 04-enero-2023 al 28-diciembre-2023. (Leer el comunicado 051/DNFD de 7. mayo.2024 "Actualización del Certificado de Registro Sanitario Digital")Sección de Bioequivalencia 20/06/2024 - 07:00[](https://dnfd.minsa.gob.pa/sites/default/files/2025-06/Resoluciones%20emitidas%20a%C3%B1o%202023.pdf)

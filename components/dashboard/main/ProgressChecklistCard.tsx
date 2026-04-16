@@ -15,6 +15,7 @@ const COUNTRY_CODE = "PA";
 export function ProgressChecklistCard() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [lastAddSignature, setLastAddSignature] = useState<string>("");
 
   useEffect(() => {
     setTodos(loadTodos(COUNTRY_CODE));
@@ -35,6 +36,11 @@ export function ProgressChecklistCard() {
     if (label === "") {
       return;
     }
+    const signature = `${label}::${String(Math.floor(Date.now() / 400))}`;
+    if (signature === lastAddSignature) {
+      return;
+    }
+    setLastAddSignature(signature);
     setTodos(addCustomTodo(COUNTRY_CODE, label));
     setInputValue("");
   };
@@ -80,6 +86,9 @@ export function ProgressChecklistCard() {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => {
+            if (e.nativeEvent.isComposing || e.repeat) {
+              return;
+            }
             if (e.key === "Enter") {
               e.preventDefault();
               addItem();

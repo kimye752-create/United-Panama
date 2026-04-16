@@ -13,9 +13,9 @@ export const pdfStyles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
     padding: 32,
-    fontFamily: "Pretendard",
+    fontFamily: "NotoSansKR",
     fontSize: 9,
-    lineHeight: 1.4,
+    lineHeight: 1.55,
     color: GRAY_TEXT,
   },
   titleBar: {

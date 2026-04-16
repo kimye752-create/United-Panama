@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-04-15T15:21:44.787Z",
+  "output_dir": "data/raw/jina_minsa",
+  "results": [
+    {
+      "url": "https://www.minsa.gob.pa",
+      "success": true,
+      "size": 11349,
+      "file": "data\\raw\\jina_minsa\\https___www_minsa_gob_pa.txt"
+    },
+    {
+      "url": "https://tramites-minsa.panamadigital.gob.pa/",
+      "success": true,
+      "size": 147,
+      "file": "data\\raw\\jina_minsa\\https___tramites_minsa_panamadigital_gob_pa_.txt"
+    },
+    {
+      "url": "https://www.acodeco.gob.pa",
+      "success": true,
+      "size": 3193,
+      "file": "data\\raw\\jina_minsa\\https___www_acodeco_gob_pa.txt"
+    },
+    {
+      "url": "https://www.dnfd.minsa.gob.pa",
+      "success": false,
+      "size": 0,
+      "file": "Jina Reader 호출 실패: Jina fetch failed: 400 Bad Request. URL=https://www.dnfd.minsa.gob.pa 네트워크/차단 상태를 확인하세요."
+    }
+  ]
+}

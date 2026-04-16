@@ -1,0 +1,167 @@
+{
+  "message": "page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://consultamedicamentos.minsa.gob.pa/\", waiting until \"networkidle\"\n",
+  "requests": [
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor/initializers",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor/negotiate?negotiateVersion=1",
+      "method": "POST",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266556483",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266556736",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "{\"protocol\":\"blazorpack\",\"version\":1}\u001e",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266556995",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "�\u0005�\u0001��0�StartCircuit��*https://consultamedicamentos.minsa.gob.pa/�*https://consultamedicamentos.minsa.gob.pa/�[]�\u00020CfDJ8PeCe3RFmh9Mm13LfbwP2TJwLFCEJIxZfN0V+9jLvyXP3IjSIUQBqD78pekvRKwn15HdKfPQ9GrA59TVyX82zBIn0+KlUlxs/41kvUtKvyy4PO9+sbSzaCt+sYB8XT3DylqkD5+tk8v79+Ywt5kU2OopiW7yRhSw2G4njd8YrtMMay22bInrgKJovtJ1jM9QioqaufSs8tNJtL/z6qdHNXXEQwnnZHKnykfXhsaPZG4OQ+7gxbW1mXmTsn2cV7Ay8ELQUvUgR5gWaqFsXNPJRzMsJMqwKHEuO1vzgKzPduTFBvsQIgZ524xS1+ebIYA7rS2KDK3Pr7H6wWDxlqldY2mCcc7fmMJL/g+sUFqNTGnb4cbA15KRo1Ky7dQPJVDVGGSZFlTrrpoVgLDwoSeEZimuVWzTHDyr4AdAGHR/uiiWyE+gdFVvyXeryR08o7P5oUxx4k9xeSfrZD6/oYwGG6xDZTmT3bh9OqypGCd9GSp96xjWUAnRnYgG+xDr+1UxyI7Bw2ZfLkXTiaon9FV7epTTBhL2VP9iKtMFxRMPnWvO",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266557257",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "+�\u0001���EndInvokeJSFromDotNet�\u0002í[2,true,null]",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266557510",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "�\u0011�\u0001���UpdateRootComponents��\u0006e{\"batchId\":1,\"operations\":[{\"type\":\"add\",\"ssrComponentId\":1,\"marker\":{\"type\":\"server\",\"key\":{\"locationHash\":\"77D12F14A8105320B1AAED6AE7E689DA0EC4483270A645E84079EAA0FFDF550D:6\",\"formattedComponentKey\":\"\"},\"sequence\":0,\"descriptor\":\"CfDJ8PeCe3RFmh9Mm13LfbwP2TJo4xpiMR+rP4B6ld7/gBLeleEZMx7vA/xhAFPmT2Nfhd64lAwaYF1wrXyEyDdztK5UuHEXo4Cc7XFAwS8Ttm7xVxt+pnsFZ4KQW1934XrM+2zPzc/Ufko19zZgoJzkF6ZzLsC26gRaiLNaIeVzW6TRCS7UM/bQPuMMuXGm8ArmLqOc65VkuELwlo24e4EmZ5EuYzlOZjNY/erT0nCbLkcQOd1xgdoAkKH4oFkJhVYQRrqUbXs6azDTMRTA1iNz8UfMXI3LccRVCMbN48LHFWKYQSawdDxUdFzqyDERpCK3sAHz9Y22tU3K/Jk7YcnsOi7/O0uWKTNNDKfgxVljHpWTkJ8wWtqgjiiXd0RMh61eiTazX41ol9Q4tUhCp1t4guQK7wMVJRyNo7MlF6H2el6IC8p6B93UvQLJUmqyT4TaT6bPSUB/ZGBMOFGNJaMr7zyg6yJBUfAj66VHtdJ4txWt9Q6vvntvnohncNuaYgt2R3YeRBNVak6qvABhP1Iva3GNV+lvXN7ro7z8FFAibs5NOmamxE38quMxs6YW4XQLA6jtVuKiwUfSq2v//6bJAx0=\",\"uniqueId\":0}},{\"type\":\"add\",\"ssrComponentId\":2,\"marker\":{\"type\":\"server\",\"key\":{\"locationHash\":\"013CF296FF4A07CEF6728E00C8416F7DEAD920F6D4B43FA41F9AA93C527AC7EE:10\",\"formattedComponentKey\":\"\"},\"sequence\":1,\"descriptor\":\"CfDJ8PeCe3RFmh9Mm13LfbwP2TJT5YK/4T8SxJ3QQYLrC4Dcgnx8AOoslfhSjSo7Qv22fRd502qqzJJ+F0wGcEKzp5GXN7VNTIKnqecPYnozxOcoRAfsqtg+VLYw7jLGZ8EG3ywD4tCRSiUPmGZVSNAUTTDXHHvsDold0Att4wxhxLcghXS2q+7IbDBDti8nI0MbJ3XpPWQGWX1hVSa/z+bu/nj7woNDQD+Ij+ail98R0XaatXwtNV8Z3yQILOsl2GPDyHusrPLIOJRdkiQhTAXPlXx1q7YqsfuJNkgQBC69HXK45xRESWRo1rNqlZEku4x89ThjfPIG6mnLwHEGynxqW37og2oJjh3UPNduXAeCcuO/f5O64WZeGhCLvkioPQd9yTp/GIN+fENQoMyiVnM5HSKJ7E4H6/Ygo2KMePXy4tn96SjQxI1Wp5kgBHMYqg+t0jENKualXWlVVESgqevpdPY8CZYMHSdL15oqQDR/ppexL52XvgUmbi+dzKhlgiiVzPa+fDwH/16RnOMkRvji/WPzv7M6qZBNCFvewNR49w1R\",\"uniqueId\":1}}]}�\u00020CfDJ8PeCe3RFmh9Mm13LfbwP2TJwLFCEJIxZfN0V+9jLvyXP3IjSIUQBqD78pekvRKwn15HdKfPQ9GrA59TVyX82zBIn0+KlUlxs/41kvUtKvyy4PO9+sbSzaCt+sYB8XT3DylqkD5+tk8v79+Ywt5kU2OopiW7yRhSw2G4njd8YrtMMay22bInrgKJovtJ1jM9QioqaufSs8tNJtL/z6qdHNXXEQwnnZHKnykfXhsaPZG4OQ+7gxbW1mXmTsn2cV7Ay8ELQUvUgR5gWaqFsXNPJRzMsJMqwKHEuO1vzgKzPduTFBvsQIgZ524xS1+ebIYA7rS2KDK3Pr7H6wWDxlqldY2mCcc7fmMJL/g+sUFqNTGnb4cbA15KRo1Ky7dQPJVDVGGSZFlTrrpoVgLDwoSeEZimuVWzTHDyr4AdAGHR/uiiWyE+gdFVvyXeryR08o7P5oUxx4k9xeSfrZD6/oYwGG6xDZTmT3bh9OqypGCd9GSp96xjWUAnRnYgG+xDr+1UxyI7Bw2ZfLkXTiaon9FV7epTTBhL2VP9iKtMFxRMPnWvO",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266557769",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266558028",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "\u0019�\u0001���OnRenderCompleted�\u0002�\u0019�\u0001���OnRenderCompleted�\u0003�",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "+�\u0001���EndInvokeJSFromDotNet�\u0003í[3,true,null]",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266558282",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "H�\u0001���EndInvokeJSFromDotNet�\u0004��)[4,true,\"MINSA-CONSULTA DE MEDICAMENTOS\"]",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266558550",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "\u0019�\u0001���OnRenderCompleted�\u0004�+�\u0001���EndInvokeJSFromDotNet�\u0005í[5,true,null]+�\u0001���EndInvokeJSFromDotNet�\u0006í[6,true,null]+�\u0001���EndInvokeJSFromDotNet�\u0007í[7,true,null]+�\u0001���EndInvokeJSFromDotNet�\bí[8,true,null]+�\u0001���EndInvokeJSFromDotNet�\tí[9,true,null]",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266559443",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "\u0019�\u0001���OnRenderCompleted�\u0005�",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266559728",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "\u0019�\u0001���OnRenderCompleted�\u0006�",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA&_=1776266559982",
+      "method": "GET",
+      "postData": null,
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor?id=PhU9BCu9c8Qm0_5Ln9PDJA",
+      "method": "POST",
+      "postData": "\u0019�\u0001���OnRenderCompleted�\u0007�",
+      "resourceType": "fetch"
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor/initializers",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8"
+    },
+    {
+      "url": "https://consultamedicamentos.minsa.gob.pa/_blazor/negotiate?negotiateVersion=1",
+      "status": 200,
+      "contentType": "application/json"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-04-15T15:22:20.822Z",
+  "ingredient_upsert_count": 0,
+  "product_upsert_count": 0,
+  "ingredient_errors": [
+    "[Rosuvastatina] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Atorvastatina] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Cilostazol] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Mosaprida] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Salmeterol] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Hidroxiurea] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Gadobutrol] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache",
+    "[Esteres etilicos del acido omega] Could not find the table 'public.panama_ingredient_eligibility' in the schema cache"
+  ],
+  "product_errors": [
+    "[bdfc9883-6040-438a-8e7a-df01f1230682] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[fcae4399-aa80-4318-ad55-89d6401c10a9] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[24738c3b-3a5b-40a9-9e8e-889ec075b453] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[2504d79b-c2ce-4660-9ea7-5576c8bb755f] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[859e60f9-8544-43b3-a6a0-f6c7529847eb] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[014fd4d2-dc66-4fc1-8d4f-59695183387f] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18] Could not find the table 'public.panama_product_registration' in the schema cache",
+    "[895f49ae-6ce3-44a3-93bd-bb77e027ba59] Could not find the table 'public.panama_product_registration' in the schema cache"
+  ]
+}

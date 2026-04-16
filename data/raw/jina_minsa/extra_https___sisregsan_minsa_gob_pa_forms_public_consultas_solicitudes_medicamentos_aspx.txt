@@ -1,0 +1,1 @@
+AssertionFailureError: Failed to goto https://sisregsan.minsa.gob.pa/forms/public/consultas/solicitudes/medicamentos.aspx: TimeoutError: Navigation timeout of 15000 ms exceeded

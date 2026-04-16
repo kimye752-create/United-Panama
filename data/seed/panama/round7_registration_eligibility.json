@@ -1,0 +1,394 @@
+{
+  "ingredients": [
+    {
+      "inn": "Rosuvastatin",
+      "inn_es": "Rosuvastatina",
+      "atc_code": "C10AA07",
+      "panama_distributable": true,
+      "example_registration_no": "R-94983",
+      "registered_brand_count": 3,
+      "market_status": "mainstream",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "registered_brands": ["ROSUMED 10 (MEDIPAN/Panama)", "Hetero (India)", "NORMON (Spain)"],
+        "registration_numbers": ["R-94983", "R1-103758", "R1-105165"],
+        "primary_source_strength": "high"
+      },
+      "confidence": 0.95
+    },
+    {
+      "inn": "Atorvastatin",
+      "inn_es": "Atorvastatina",
+      "atc_code": "C10AA05",
+      "panama_distributable": true,
+      "example_registration_no": "101026-R1",
+      "registered_brand_count": null,
+      "market_status": "mainstream",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "single_brand_examples": ["Lipitor", "다수 제네릭"],
+        "combination_examples": ["TRIVERAM 20MG/5MG/5MG (Servier)"],
+        "primary_source_strength": "high"
+      },
+      "confidence": 0.9
+    },
+    {
+      "inn": "Omega-3-acid ethyl esters",
+      "inn_es": "Esteres etilicos del acido omega-3",
+      "atc_code": "C10AX06",
+      "panama_distributable": true,
+      "example_registration_no": null,
+      "registered_brand_count": null,
+      "market_status": "minimal",
+      "evidence_source": "gemini_research + panamacompra_v3_zero_result",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "main_form": "OTC 건강기능식품 (병 형태 연질캡슐)",
+        "prescription_form": "Omacor 계열 소수 등록 (Gemini 추론)",
+        "panama_compra_v3_count": 0,
+        "warning": "처방약 카테고리 미발달, 시장 교육 필요",
+        "primary_source_strength": "medium"
+      },
+      "confidence": 0.75
+    },
+    {
+      "inn": "Cilostazol",
+      "inn_es": "Cilostazol",
+      "atc_code": "B01AC23",
+      "panama_distributable": true,
+      "example_registration_no": "109109",
+      "registered_brand_count": 1,
+      "market_status": "mainstream",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "registered_brand": "Cilostal 50mg (Merck Colombia / Altea Farmacéutica)",
+        "ctni": "12270",
+        "supplier": "REPRICO S.A. 단독",
+        "primary_source_strength": "high"
+      },
+      "confidence": 0.95
+    },
+    {
+      "inn": "Mosapride",
+      "inn_es": "Mosaprida",
+      "atc_code": "A03FA",
+      "panama_distributable": true,
+      "example_registration_no": null,
+      "registered_brand_count": null,
+      "market_status": "niche",
+      "evidence_source": "gemini_research",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "panama_compra_v3_count": 0,
+        "main_market": "Domperidone/Metoclopramide 우세",
+        "warning": "Mosapride 자체가 비주류, 시장 교육 필요",
+        "primary_source_strength": "medium"
+      },
+      "confidence": 0.75
+    },
+    {
+      "inn": "Salmeterol",
+      "inn_es": "Salmeterol",
+      "atc_code": "R03AC12",
+      "panama_distributable": true,
+      "example_registration_no": "77278-R2",
+      "registered_brand_count": 2,
+      "market_status": "mainstream",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "main_use": "Fluticasone 복합제 위주",
+        "registered_combos": ["Seretide (GSK Spain) 77278-R2", "Flusacort (Hetero India) 202202"],
+        "primary_source_strength": "high"
+      },
+      "confidence": 0.95
+    },
+    {
+      "inn": "Fluticasone",
+      "inn_es": "Fluticasona",
+      "atc_code": "R03BA05",
+      "panama_distributable": true,
+      "example_registration_no": "77278-R2",
+      "registered_brand_count": 2,
+      "market_status": "mainstream",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "main_use": "Salmeterol 복합제 위주",
+        "primary_source_strength": "high"
+      },
+      "confidence": 0.95
+    },
+    {
+      "inn": "Hydroxyurea",
+      "inn_es": "Hidroxiurea",
+      "atc_code": "L01XX05",
+      "panama_distributable": true,
+      "example_registration_no": "R-94837",
+      "registered_brand_count": 1,
+      "market_status": "mainstream",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "main_supplier": "SEVEN PHARMA / Celon Laboratories (India)",
+        "main_buyer": "Instituto Oncológico Nacional + MINSA",
+        "primary_source_strength": "high"
+      },
+      "confidence": 0.98
+    },
+    {
+      "inn": "Gadobutrol",
+      "inn_es": "Gadobutrol",
+      "atc_code": "V08CA09",
+      "panama_distributable": true,
+      "example_registration_no": null,
+      "registered_brand_count": null,
+      "market_status": "niche",
+      "evidence_source": "gemini_research",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "main_brand": "Gadovist (Bayer)",
+        "panama_compra_v3_count": 0,
+        "channel": "병원 영상의학과 직접 조달",
+        "primary_source_strength": "medium"
+      },
+      "confidence": 0.8
+    }
+  ],
+  "products": [
+    {
+      "product_id": "bdfc9883-6040-438a-8e7a-df01f1230682",
+      "self_brand": "Hydrine",
+      "self_inn_combined": "Hydroxyurea",
+      "self_concentration": "500mg",
+      "self_form": "Capsule",
+      "is_combination": false,
+      "is_special_form": false,
+      "identical_set_registered": true,
+      "identical_registration_no": "R-94837",
+      "identical_examples": [{ "brand": "Hidroxiurea USP (Celon)", "supplier": "SEVEN PHARMA" }],
+      "similar_combination_exists": true,
+      "individual_ingredients_registered": true,
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 35,
+      "market_entry_priority": 1,
+      "market_entry_category": "immediate",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "comment": "동일 조합 다수 등록, India Hetero 점유 시장. 가격 경쟁만 하면 즉시 진입 가능.",
+        "primary_source_strength": "high"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.98
+    },
+    {
+      "product_id": "014fd4d2-dc66-4fc1-8d4f-59695183387f",
+      "self_brand": "Sereterol Activair",
+      "self_inn_combined": "Salmeterol + Fluticasone",
+      "self_concentration": "50μg + 250/500μg",
+      "self_form": "DPI Inhaler",
+      "is_combination": true,
+      "is_special_form": true,
+      "special_form_type": "dpi_inhaler",
+      "identical_set_registered": true,
+      "identical_registration_no": "77278-R2",
+      "identical_examples": [
+        { "brand": "Seretide Evohaler (GSK)", "registration": "77278-R2", "country": "Spain" },
+        { "brand": "Flusacort (Hetero)", "registration": "202202", "country": "India" }
+      ],
+      "similar_combination_exists": true,
+      "individual_ingredients_registered": true,
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 40,
+      "market_entry_priority": 2,
+      "market_entry_category": "immediate",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "comment": "동일 조합 다수 등록, 디바이스(DPI) 차이만 있음. WLA 트랙 빠른 진입 가능. 오리지널 GSK + 인도 제네릭 사이 포지셔닝.",
+        "primary_source_strength": "high"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.95
+    },
+    {
+      "product_id": "895f49ae-6ce3-44a3-93bd-bb77e027ba59",
+      "self_brand": "Gadvoa Inj.",
+      "self_inn_combined": "Gadobutrol",
+      "self_concentration": "604.72mg/mL (1.0M)",
+      "self_form": "Pre-filled Syringe",
+      "is_combination": false,
+      "is_special_form": true,
+      "special_form_type": "prefilled_syringe",
+      "identical_set_registered": false,
+      "identical_registration_no": null,
+      "identical_examples": [],
+      "similar_combination_exists": true,
+      "similar_examples": [
+        { "brand": "Gadovist (Bayer)", "country": "Germany" },
+        { "brand": "Dotarem 0.5M GBCA" }
+      ],
+      "individual_ingredients_registered": true,
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 40,
+      "market_entry_priority": 3,
+      "market_entry_category": "short_term",
+      "evidence_source": "gemini_research",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "comment": "Gadovist 등록 확인 (Gemini). 1.0M 농도 차이만 있음. 병원 영상의학과 직접 조달 채널.",
+        "primary_source_strength": "medium"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.85
+    },
+    {
+      "product_id": "2504d79b-c2ce-4660-9ea7-5576c8bb755f",
+      "self_brand": "Rosumeg Combigel",
+      "self_inn_combined": "Rosuvastatin + Omega-3-acid ethyl esters",
+      "self_concentration": "5mg + 1g",
+      "self_form": "Soft Capsule (CombiGel)",
+      "is_combination": true,
+      "is_special_form": true,
+      "special_form_type": "combigel_patent",
+      "identical_set_registered": false,
+      "identical_registration_no": null,
+      "similar_combination_exists": false,
+      "similar_examples": [{ "note": "현지 심혈관 복합제는 Statin+Ezetimibe 조합 위주" }],
+      "individual_ingredients_registered": true,
+      "individual_examples": [
+        { "brand": "Crestor 등 Rosuvastatin 단일제" },
+        { "brand": "Omega-3 단일제 (소수)" }
+      ],
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 45,
+      "market_entry_priority": 4,
+      "market_entry_category": "mid_term",
+      "evidence_source": "gemini_research + panamacompra_v3_individual",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "comment": "복합제 신규 등록 필요. WLA 트랙 30~45일 활용 시 빠른 진입. CombiGel 특허 차별화 + 신규 카테고리 시장 개척.",
+        "primary_source_strength": "medium"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.85
+    },
+    {
+      "product_id": "859e60f9-8544-43b3-a6a0-f6c7529847eb",
+      "self_brand": "Atmeg Combigel",
+      "self_inn_combined": "Atorvastatin + Omega-3-acid ethyl esters",
+      "self_concentration": "10mg + 1g",
+      "self_form": "Soft Capsule (CombiGel)",
+      "is_combination": true,
+      "is_special_form": true,
+      "special_form_type": "combigel_patent",
+      "identical_set_registered": false,
+      "similar_combination_exists": false,
+      "individual_ingredients_registered": true,
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 45,
+      "market_entry_priority": 5,
+      "market_entry_category": "mid_term",
+      "evidence_source": "gemini_research + panamacompra_v3_individual",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "comment": "Rosumeg와 동일 패턴. 복합제 신규 등록 필요. WLA 트랙 활용.",
+        "primary_source_strength": "medium"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.85
+    },
+    {
+      "product_id": "fcae4399-aa80-4318-ad55-89d6401c10a9",
+      "self_brand": "Ciloduo",
+      "self_inn_combined": "Cilostazol + Rosuvastatin",
+      "self_concentration": "100/200mg + 10/20mg",
+      "self_form": "Tablet",
+      "is_combination": true,
+      "is_special_form": false,
+      "identical_set_registered": false,
+      "similar_combination_exists": false,
+      "individual_ingredients_registered": true,
+      "individual_examples": [
+        { "brand": "Cilostal 50mg (Merck Colombia)", "registration": "109109" },
+        { "brand": "Rosuvastatin 단일제 다수", "registration": "R-94983 등" }
+      ],
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 45,
+      "market_entry_priority": 6,
+      "market_entry_category": "mid_term",
+      "evidence_source": "panamacompra_v3 + gemini_research",
+      "evidence_url": "https://www.panamacompra.gob.pa/Inicio/#/busqueda-avanzada",
+      "evidence_notes": {
+        "comment": "복합제 신규 등록 필요. Reprico/Merck Cilostazol 단독 시장에 새 조합 진입.",
+        "primary_source_strength": "medium-high"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.88
+    },
+    {
+      "product_id": "24738c3b-3a5b-40a9-9e8e-889ec075b453",
+      "self_brand": "Gastiin CR",
+      "self_inn_combined": "Mosapride citrate (CR)",
+      "self_concentration": "15mg",
+      "self_form": "Bilayered CR Tablet (BILDAS)",
+      "is_combination": false,
+      "is_special_form": true,
+      "special_form_type": "controlled_release_bilayer",
+      "identical_set_registered": false,
+      "similar_combination_exists": false,
+      "individual_ingredients_registered": false,
+      "individual_examples": [{ "note": "Mosapride 자체가 비주류, Domperidone/Metoclopramide 우세" }],
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 45,
+      "market_entry_priority": 7,
+      "market_entry_category": "long_term",
+      "evidence_source": "gemini_research",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "comment": "WLA 트랙으로 등록은 빠르지만 시장 교육 필요. Mosapride 자체 비주류 + CR 제형 신규 카테고리.",
+        "primary_source_strength": "medium"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.75
+    },
+    {
+      "product_id": "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18",
+      "self_brand": "Omethyl Cutielet",
+      "self_inn_combined": "Omega-3-acid ethyl esters",
+      "self_concentration": "2g",
+      "self_form": "Seamless Soft Capsule (Pouch)",
+      "is_combination": false,
+      "is_special_form": true,
+      "special_form_type": "seamless_pouch",
+      "identical_set_registered": false,
+      "similar_combination_exists": true,
+      "similar_examples": [{ "brand": "Omacor 계열 (병 형태)", "note": "소수 등록" }],
+      "individual_ingredients_registered": true,
+      "registration_path": "wla_korea_fast",
+      "estimated_cost_usd": 500,
+      "estimated_duration_days": 45,
+      "market_entry_priority": 8,
+      "market_entry_category": "long_term",
+      "evidence_source": "gemini_research",
+      "evidence_url": "https://www.minsa.gob.pa",
+      "evidence_notes": {
+        "comment": "처방용 Omega-3 카테고리 미발달. WLA 트랙 빠르지만 민간 약국 + 처방의 영업 채널 개척 필요. PanamaCompra V3 0건 (세션 20 검증).",
+        "primary_source_strength": "medium"
+      },
+      "collected_by": "claude_session_20",
+      "confidence": 0.75
+    }
+  ]
+}

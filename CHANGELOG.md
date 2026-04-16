@@ -1,5 +1,39 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-16 15:45:00 (feat(report1): nombre_comercial 보고서 노출 + Gemini 추론 1차출처 분리 플래그 + WLA 출처 추출)
+
+### Changed
+- feat(ops): `scripts/runners/extract_wla_from_dnfd.ts` 추가. Jina 원문(`data/raw/jina_minsa` 3파일)에서 WLA·패스트트랙 키워드 스캔 후 `data/raw/jina_minsa/_wla_evidence.json` 저장.
+- feat(ops): `scripts/runners/panamacompra_v3_additional_search.ts` 추가. Gadvoa/Gastiin/Omethyl PanamaCompra V3 수동 검색 가이드 콘솔 출력.
+- feat(db): `panama_ingredient_eligibility`·`panama_product_registration`의 `evidence_notes`에 `requires_primary_source` / `report_displayable` / `display_note`(해당 시) 병합 업데이트(Gadobutrol, Mosapride, Omega-3, Gadvoa, Gastiin, Omethyl).
+- ops: `panama_report_cache` 전체 삭제로 리포트 재생성 유도.
+- run(ops): WLA 키워드 매칭 0건(정적 Jina 텍스트 내 해당 문구 없음). 추가 검색 가이드 스크립트 출력 확인.
+- fix(script): `panamacompra_v3_additional_search.ts`·`verify_report1_v3_meta.ts`에 `export {}` 추가로 전역 `main` 중복(TS2393) 제거.
+
+## [Unreleased] - 2026-04-16 14:30:00 (feat(registration): 자사 8제품 파나마 등록 가능성 DB 적재 (PanamaCompra V3 + Gemini 조사 기반))
+
+### Changed
+- feat(db): Supabase 마이그레이션 `panama_registration_tables_round7` 적용. `panama_ingredient_eligibility`(INN 차원), `panama_product_registration`(자사 제품 차원) 테이블 및 인덱스 생성. 동일 내용 SQL 사본: `sql/panama_registration_tables_round7.sql`.
+- feat(seed): `data/seed/panama/round7_registration_eligibility.json` 추가. 성분 9건 + 자사 제품 8건, 근거 출처 강도(`primary_source_strength` 등)를 `evidence_notes` JSONB에 박제.
+- feat(ops): `scripts/runners/insert_panama_registration.ts` 추가. 시드 JSON을 읽어 `inn` / `product_id` 기준 upsert.
+- verify: `npx tsx scripts/runners/insert_panama_registration.ts` 성공(성분 9, 제품 8). SQL 검증 쿼리 2종으로 행·우선순위·카테고리 확인.
+
+## [Unreleased] - 2026-04-16 00:25:28 (feat(registration): Jina Reader 우회 MINSA 데이터 수집 파이프라인 + DB 적재)
+
+### Changed
+- feat(crawl): `scripts/runners/jina_minsa_shared.ts` 공통 유틸(타깃 URL, Jina fetch, 출력 경로, 키워드, 8개 INN 목록) 추가.
+- feat(crawl): `scripts/runners/jina_minsa_phase1.ts`~`jina_minsa_phase5.ts` 신규 추가. 수집→URL 식별→8개 INN 조회→등록번호 추출→DB upsert 단계 자동화.
+- feat(crawl): `scripts/runners/jina_minsa_full_pipeline.ts` 신규 추가. Phase 1~5를 순차 실행하고 통합 요약 JSON(`_full_pipeline_summary.json`) 생성.
+- fix(crawl): Phase 모듈 import 시 `main()`이 중복 실행되던 사이드이펙트를 엔트리 가드로 제거.
+- run(crawl): 실제 파이프라인 실행 결과 `phase1 3/4 성공`, `phase3 8/8 성공`, `phase4 등록번호 0건`, `phase5 upsert 0건(대상 테이블 미존재)` 확인.
+
+## [Unreleased] - 2026-04-16 00:25:28 (feat(crawl): Playwright MINSA consulta API 캡처 (시간 제한 30분))
+
+### Changed
+- feat(crawl): `scripts/runners/playwright_minsa_consulta.ts` 신규 추가. headful 접속, input/button 탐색, 검색 시도, XHR/fetch·JSON 응답 캡처 및 HTML/PNG/JSON 저장.
+- run(crawl): `consultamedicamentos.minsa.gob.pa` 접속 시 `networkidle` 대기 타임아웃 발생(봇 차단 문구는 미확인), 대신 `_blazor` 협상/회선 요청 엔드포인트 캡처 성공.
+- fallback(crawl): robots 확인 결과 `consultamedicamentos.minsa.gob.pa/robots.txt`는 404, `dnfd.minsa.gob.pa/robots.txt`는 200 응답 확인.
+
 ## [Unreleased] - 2026-04-15 21:54:31 (feat(report1): 파나마 진출 가능성 자동 판정 로직 및 4-5 블록 연동)
 
 ### Changed

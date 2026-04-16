@@ -1,0 +1,120 @@
+{
+  "generated_at": "2026-04-15T15:22:19.399Z",
+  "base_search_url": "https://consultamedicamentos.minsa.gob.pa/",
+  "skipped": false,
+  "reason": null,
+  "results": [
+    {
+      "product": "Rosumeg",
+      "inn": "Rosuvastatina",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Rosuvastatina",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Rosuvastatina",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Rosuvastatina"
+      ],
+      "success": true,
+      "size": 1168,
+      "output_file": "data\\raw\\jina_minsa\\search_Rosumeg_Rosuvastatina.txt",
+      "error": null
+    },
+    {
+      "product": "Atmeg",
+      "inn": "Atorvastatina",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Atorvastatina",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Atorvastatina",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Atorvastatina"
+      ],
+      "success": true,
+      "size": 1168,
+      "output_file": "data\\raw\\jina_minsa\\search_Atmeg_Atorvastatina.txt",
+      "error": null
+    },
+    {
+      "product": "Ciloduo",
+      "inn": "Cilostazol",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Cilostazol",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Cilostazol",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Cilostazol"
+      ],
+      "success": true,
+      "size": 1170,
+      "output_file": "data\\raw\\jina_minsa\\search_Ciloduo_Cilostazol.txt",
+      "error": null
+    },
+    {
+      "product": "Gastiin_CR",
+      "inn": "Mosaprida",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Mosaprida",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Mosaprida",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Mosaprida"
+      ],
+      "success": true,
+      "size": 1164,
+      "output_file": "data\\raw\\jina_minsa\\search_Gastiin_CR_Mosaprida.txt",
+      "error": null
+    },
+    {
+      "product": "Sereterol",
+      "inn": "Salmeterol",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Salmeterol",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Salmeterol",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Salmeterol"
+      ],
+      "success": true,
+      "size": 1165,
+      "output_file": "data\\raw\\jina_minsa\\search_Sereterol_Salmeterol.txt",
+      "error": null
+    },
+    {
+      "product": "Hydrine",
+      "inn": "Hidroxiurea",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Hidroxiurea",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Hidroxiurea",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Hidroxiurea"
+      ],
+      "success": true,
+      "size": 1166,
+      "output_file": "data\\raw\\jina_minsa\\search_Hydrine_Hidroxiurea.txt",
+      "error": null
+    },
+    {
+      "product": "Gadvoa",
+      "inn": "Gadobutrol",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Gadobutrol",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Gadobutrol",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Gadobutrol"
+      ],
+      "success": true,
+      "size": 1165,
+      "output_file": "data\\raw\\jina_minsa\\search_Gadvoa_Gadobutrol.txt",
+      "error": null
+    },
+    {
+      "product": "Omethyl",
+      "inn": "Esteres etilicos del acido omega",
+      "selected_base_url": "https://consultamedicamentos.minsa.gob.pa/",
+      "tried_urls": [
+        "https://consultamedicamentos.minsa.gob.pa/?q=Esteres%20etilicos%20del%20acido%20omega",
+        "https://consultamedicamentos.minsa.gob.pa/?search=Esteres%20etilicos%20del%20acido%20omega",
+        "https://consultamedicamentos.minsa.gob.pa/?nombre=Esteres%20etilicos%20del%20acido%20omega"
+      ],
+      "success": true,
+      "size": 1195,
+      "output_file": "data\\raw\\jina_minsa\\search_Omethyl_Esteres_etilicos_del_acido_omega.txt",
+      "error": null
+    }
+  ]
+}
