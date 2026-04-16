@@ -62,9 +62,9 @@ function buildPrompt(input: Phase2GeneratorInput): string {
 - 기준 수식: ${input.baselineFormula}
 
 [시나리오 수치]
-- 공격(agg): FOB ${agg.fob.fobUsd.toFixed(2)}, CFR ${agg.incoterms.cfrUsd.toFixed(2)}, CIF ${agg.incoterms.cifUsd.toFixed(2)}, DDP ${agg.incoterms.ddpUsd.toFixed(2)}
-- 기준(avg): FOB ${baseline.fob.fobUsd.toFixed(2)}, CFR ${baseline.incoterms.cfrUsd.toFixed(2)}, CIF ${baseline.incoterms.cifUsd.toFixed(2)}, DDP ${baseline.incoterms.ddpUsd.toFixed(2)}
-- 보수(cons): FOB ${cons.fob.fobUsd.toFixed(2)}, CFR ${cons.incoterms.cfrUsd.toFixed(2)}, CIF ${cons.incoterms.cifUsd.toFixed(2)}, DDP ${cons.incoterms.ddpUsd.toFixed(2)}
+- 저가진입(agg): FOB ${agg.fob.fobUsd.toFixed(2)}, FOB천장 ${agg.fob.fobCeilingUsd.toFixed(2)}, 배수 ${agg.fob.strategyMultiplier.toFixed(2)}x, CFR ${agg.incoterms.cfrUsd.toFixed(2)}, CIF ${agg.incoterms.cifUsd.toFixed(2)}, DDP ${agg.incoterms.ddpUsd.toFixed(2)}
+- 기준가(avg): FOB ${baseline.fob.fobUsd.toFixed(2)}, FOB천장 ${baseline.fob.fobCeilingUsd.toFixed(2)}, 배수 ${baseline.fob.strategyMultiplier.toFixed(2)}x, CFR ${baseline.incoterms.cfrUsd.toFixed(2)}, CIF ${baseline.incoterms.cifUsd.toFixed(2)}, DDP ${baseline.incoterms.ddpUsd.toFixed(2)}
+- 프리미엄(cons): FOB ${cons.fob.fobUsd.toFixed(2)}, FOB천장 ${cons.fob.fobCeilingUsd.toFixed(2)}, 배수 ${cons.fob.strategyMultiplier.toFixed(2)}x, CFR ${cons.incoterms.cfrUsd.toFixed(2)}, CIF ${cons.incoterms.cifUsd.toFixed(2)}, DDP ${cons.incoterms.ddpUsd.toFixed(2)}
 
 [출력 제약]
 - block1~5는 도구 스키마 길이 제한을 지킬 것

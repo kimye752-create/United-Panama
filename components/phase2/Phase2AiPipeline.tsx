@@ -8,6 +8,7 @@ import { Phase2FormulaBlock } from "./Phase2FormulaBlock";
 import { Phase2MarketSegment } from "./Phase2MarketSegment";
 import { Phase2ScenarioCards } from "./Phase2ScenarioCards";
 import { Phase2UploadArea } from "./Phase2UploadArea";
+import { Phase2WaterfallBlocks } from "./Phase2WaterfallBlocks";
 import {
   Phase2ReportSelector,
   type Phase2ReportOption,
@@ -114,7 +115,9 @@ export function Phase2AiPipeline() {
           <div>
             <Phase2MarketSegment value={segment} onChange={setSegment} />
             <p className="mt-3 text-[12px] text-[#667a96]">
-              공공 시장: PBS 공급금여 채널 · 주별 병원조달단(HealthShare NSW 등) 기준
+              {segment === "public"
+                ? "공공 시장: PanamaCompra V3 · MINSA/CSS 조달 기준"
+                : "민간 시장: SuperXtra · ACODECO 약국 소비자가 기준"}
             </p>
           </div>
           <button
@@ -132,12 +135,13 @@ export function Phase2AiPipeline() {
         <>
           <Phase2FinalPriceBlock
             priceUsd={result.baseline.fob.fobUsd}
-            caption="기준 시나리오 FOB 산출값"
+            caption="기준가 전략(배수 1.00x) 적용 FOB"
           />
           <Phase2FormulaBlock
             formulaText={result.baseline.fob.formulaText}
-            reasonText="관세 0%, ITBMS 0% 가정으로 공공/민간 유통 마진을 역산했습니다."
+            reasonText="시장 고정 마진으로 FOB 천장을 역산한 뒤, 전략 배수를 곱해 최종 FOB를 계산합니다."
           />
+          <Phase2WaterfallBlocks scenario={result.baseline} />
           <Phase2ScenarioCards scenarios={result.scenarios} />
         </>
       ) : null}

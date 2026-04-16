@@ -26,9 +26,9 @@ const SCENARIOS: Array<{
   title: string;
   subtitle: string;
 }> = [
-  { key: "agg", title: "공격 시나리오", subtitle: "협상 상단 목표가" },
-  { key: "avg", title: "기준 시나리오", subtitle: "일반 시장 목표가" },
-  { key: "cons", title: "보수 시나리오", subtitle: "마지노선 방어가" },
+  { key: "agg", title: "저가진입", subtitle: "시장 점유율 확보를 위한 인하 전략" },
+  { key: "avg", title: "기준가", subtitle: "시장 허용 FOB를 기준으로 한 균형 전략" },
+  { key: "cons", title: "프리미엄", subtitle: "기술 프리미엄 반영 전략" },
 ];
 
 export function generatePriceScenarios(input: PriceScenarioInput): ScenarioRow[] {

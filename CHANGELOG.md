@@ -1,5 +1,27 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 07:50:19 (feat(phase2): 역산/순산 Waterfall 3단 블록 구현)
+
+### Added
+- feat(phase2-ui): `components/phase2/Phase2WaterfallBlocks.tsx` 신규 추가 — `역산 Waterfall`, `전략 조정 배너`, `순산 Waterfall` 3단 구조를 구현하고, 각 단계의 금액/증감/비율 포지셔닝을 시각화.
+
+### Changed
+- feat(phase2-ui): `components/phase2/Phase2AiPipeline.tsx` 결과 영역에 `Phase2WaterfallBlocks`를 연결해 AI 파이프라인 탭에서도 산식 흐름을 즉시 확인 가능하도록 확장.
+- feat(phase2-ui): `components/phase2/Phase2ManualInput.tsx` 결과 영역에 `Phase2WaterfallBlocks`를 연결하고, 설명 문구를 `저가진입/기준가/프리미엄` 기준으로 정렬.
+
+## [Unreleased] - 2026-04-17 03:08:37 (feat(phase2): FOB 전략 배수 기반 산식으로 1차 착수)
+
+### Added
+- feat(logic): `src/logic/phase2/pricing_strategy_presets.ts` 신규 추가 — 파나마 공공/민간 고정 마진, 전략 배수(저가진입/기준가/프리미엄), 시나리오-전략 매핑 상수 정의.
+
+### Changed
+- refactor(logic): `src/logic/phase2/margin_policy_resolver.ts`를 시나리오별 가변 마진 구조에서 시장 고정 마진 구조로 전환하고, 리스크/물류 마진을 명시적으로 분리.
+- refactor(logic): `src/logic/phase2/fob_back_calculator.ts`를 `FOB 천장 역산 → 전략 배수 적용 → 포지셔닝가 순산` 흐름으로 개편하고, `fobCeilingUsd`, `strategyMultiplier`, `positioningPricePab`를 결과에 추가.
+- refactor(logic): `src/logic/phase2/price_scenario_generator.ts` 시나리오 라벨을 `저가진입/기준가/프리미엄`으로 교정.
+- refactor(llm): `src/llm/phase2/phase2_generator.ts` 프롬프트 입력에 `FOB천장`과 `전략 배수`를 포함해 보고서 생성 근거를 강화.
+- style(phase2-ui): `components/phase2/Phase2ScenarioCards.tsx` 시나리오 색상(파랑/노랑/빨강)과 표기 항목(FOB천장, 배수, 포지셔닝가)을 새 산식 기준으로 확장.
+- fix(phase2-ui): `components/phase2/Phase2AiPipeline.tsx` 시장 안내 문구를 파나마 기준으로 교정하고, 산식 설명 문구를 전략 배수 모델에 맞게 정리.
+
 ## [Unreleased] - 2026-04-17 02:47:09 (feat(process1): 제품 선택 목록에 약품 역할 정보 추가)
 
 ### Changed

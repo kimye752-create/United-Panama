@@ -7,6 +7,7 @@ import { Phase2FinalPriceBlock } from "./Phase2FinalPriceBlock";
 import { Phase2FormulaBlock } from "./Phase2FormulaBlock";
 import { Phase2MarketSegment } from "./Phase2MarketSegment";
 import { Phase2ScenarioCards } from "./Phase2ScenarioCards";
+import { Phase2WaterfallBlocks } from "./Phase2WaterfallBlocks";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 import type { ScenarioRow } from "@/src/logic/phase2/price_scenario_generator";
 import type { Phase2MarketSegment as MarketSegment } from "@/src/logic/phase2/margin_policy_resolver";
@@ -138,8 +139,9 @@ export function Phase2ManualInput() {
           />
           <Phase2FormulaBlock
             formulaText={result.baseline.fob.formulaText}
-            reasonText="현재는 기업 실거래 데이터 미수령 상태로 기본 추정 버퍼(공격/기준/보수)를 적용합니다."
+            reasonText="현재는 기업 실거래 데이터 미수령 상태로 기본 전략 버퍼(저가진입/기준가/프리미엄)를 적용합니다."
           />
+          <Phase2WaterfallBlocks scenario={result.baseline} />
           <Card title="2공정 보고서 생성" subtitle="계산 결과를 5블록 보고서로 변환합니다.">
             <button
               type="button"

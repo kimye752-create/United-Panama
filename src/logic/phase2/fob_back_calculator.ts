@@ -5,6 +5,11 @@ import {
   type Phase2Scenario,
   type ResolvedMargins,
 } from "./margin_policy_resolver";
+import {
+  PHASE2_SCENARIO_STRATEGY,
+  STRATEGY_MULTIPLIERS,
+  type PricingStrategy,
+} from "./pricing_strategy_presets";
 
 export interface FobBackCalculationInput extends MarginPolicyInput {
   finalPricePab: number;
@@ -14,9 +19,13 @@ export interface FobBackCalculationInput extends MarginPolicyInput {
 
 export interface FobBackCalculationResult {
   scenario: Phase2Scenario;
+  strategy: PricingStrategy;
+  strategyMultiplier: number;
   segment: Phase2MarketSegment;
   finalPricePab: number;
+  fobCeilingUsd: number;
   fobUsd: number;
+  positioningPricePab: number;
   tariffRate: number;
   itbmsRate: number;
   margins: ResolvedMargins;
@@ -39,24 +48,39 @@ export function calculateFobBack(input: FobBackCalculationInput): FobBackCalcula
   const tariffRate = input.tariffRate ?? 0;
   const itbmsRate = input.itbmsRate ?? 0;
   const margins = resolveMarginPolicy(input);
+  const strategy = PHASE2_SCENARIO_STRATEGY[input.scenario];
+  const strategyMultiplier = STRATEGY_MULTIPLIERS[strategy];
 
   // 파나마는 PAB/USD 1:1 고정 환율 체계로 간주
   const afterRetail = safeDiv(finalPricePab, 1 + margins.retailMargin);
   const afterWholesale = safeDiv(afterRetail, 1 + margins.wholesaleMargin);
-  const afterHospital = safeDiv(afterWholesale, 1 + margins.hospitalMargin);
-  const afterTax = safeDiv(afterHospital, 1 + tariffRate + itbmsRate);
-  const fobUsd = roundUsd(afterTax);
+  const afterLogistics = safeDiv(afterWholesale, 1 + margins.logisticsMargin);
+  const afterRisk = safeDiv(afterLogistics, 1 + margins.riskMargin);
+  const afterTax = safeDiv(afterRisk, 1 + tariffRate + itbmsRate);
+  const fobCeilingUsd = roundUsd(afterTax);
+  const fobUsd = roundUsd(fobCeilingUsd * strategyMultiplier);
+  const positioningPricePab = roundUsd(
+    fobUsd *
+      (1 + margins.riskMargin) *
+      (1 + margins.logisticsMargin) *
+      (1 + margins.wholesaleMargin) *
+      (1 + margins.retailMargin),
+  );
 
   const formulaText =
     input.segment === "public"
-      ? "FOB = 공공낙찰가 / (1+병원내부마진) / (1+관세+ITBMS)"
-      : "FOB = 민간소매가 / (1+약국마진) / (1+도매마진) / (1+관세+ITBMS)";
+      ? "FOB 천장 = 공공낙찰가 / (1+에이전트영업비) / (1+물류) / (1+리스크), 최종 FOB = FOB 천장 × 전략배수"
+      : "FOB 천장 = 민간소매가 / (1+약국마진) / (1+도매마진) / (1+물류) / (1+리스크), 최종 FOB = FOB 천장 × 전략배수";
 
   return {
     scenario: input.scenario,
+    strategy,
+    strategyMultiplier,
     segment: input.segment,
     finalPricePab: roundUsd(finalPricePab),
+    fobCeilingUsd,
     fobUsd,
+    positioningPricePab,
     tariffRate,
     itbmsRate,
     margins,
