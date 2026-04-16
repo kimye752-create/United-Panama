@@ -1,5 +1,14 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 02:14:10 (feat(exchange-rate): 메인 프리뷰 환율 위젯 추가)
+
+### Added
+- feat(ui): `components/panama/ExchangeRateCard.tsx` 추가 — KRW/USD 실시간 표시, USD/KRW 보조 카드, USD/PAB 1.00 고정 카드, PAB 1:1 페깅 안내 문구, 30초 쿨다운 새로고침 버튼 구현.
+- feat(api): `app/api/panama/exchange-rate/route.ts` 추가 — 기존 `exchange_rate_exim.ts` 로직 재사용(`fetchExchangeRateUsdKrw + upsertExchangeRateToDb`)으로 `api_success`/`db_fallback` 소스를 반환.
+
+### Changed
+- style(main-preview): `app/page.tsx`의 메인 프리뷰 첫 카드 컴포넌트를 정적 `TariffExchangeCard`에서 실시간 `ExchangeRateCard`로 교체.
+
 ## [Unreleased] - 2026-04-17 01:56:54 (feat(report1-dashboard): 세션24 1공정 카드형 대시보드 결과 레이어 추가)
 
 ### Added
