@@ -1,7 +1,87 @@
-# 10가지 크롤링 기법 — 적용 현황 매트릭스 (Session 16)
+# 10가지 크롤링 기법 — 적용 현황 매트릭스 (Session 23)
 
 > 출처: `ARCHITECTURE.md` § 10가지 크롤링 기법.
-> 분류: **실구현 5** / **Skeleton 2** / **Phase 2 연기 3** (Session 16 마무리 반영)
+> 분류: **실구현 5** / **Skeleton 2** / **Phase 2 연기 3** (Session 16 마무리 반영, Session 23 중간안 D-1·D-2 추가)
+
+---
+
+## ⭐ 보고서 생성 전체 로직 (필독 — 모든 개발 참여자 숙지 필수)
+
+> 세션 23 신규 박제. Claude·Cursor·Gemini·달강님 모두 작업 착수 전 반드시 이 표를 확인.
+
+```
+[사전 단계] 🟦 GitHub Actions 크롤링 (달강님 수동 workflow_dispatch로 주 1회 트리거)
+
+  ├─ [1] 신선도 stale 항목 DB 조회 (v_stale_items VIEW)  ✅ D-2 신규
+  │       └─ pa_freshness_status = 'stale_likely' 또는 'stale_confirmed'인 행만 선별
+  │           (freshness_registry 기반 시간 규칙 + Haiku 의미 판정 결과)
+  │
+  ├─ [2] stale 항목만 크롤러 선별 실행 (API/정적 크롤링 자동화)
+  │       │
+  │       ├─ Colombia SECOP Socrata API (pa_source = 'datos_gov_co')
+  │       │    └─ 가져오는 정보: 콜롬비아 정부 공공조달 "도매가" (wholesale)
+  │       │        · 데이터: INN · 제조사 · 가격(COP→USD 환산) · 수량 · 조달 기관 · 일자
+  │       │        · 용도: 파나마 직접 데이터 없는 INN의 WHO ERP 대체 참조가
+  │       │        · 출처: datos.gov.co (Socrata Open Data API, 무료)
+  │       │        · 현재 누적: 109건
+  │       │
+  │       ├─ SuperXtra VTEX 정적 크롤링 (pa_source = 'superxtra_vtex')
+  │       │    └─ 가져오는 정보: 파나마 민간 약국 "소매가" (retail_promo)
+  │       │        · 데이터: 브랜드명 · 정가(list_price) · 할인가(discount_price) · 재고 상태
+  │       │        · 용도: 파나마 환자 실제 구매 가격 (처방 후 민간 약국 구매)
+  │       │        · 출처: superxtra.com 제품 상세 페이지 (VTEX 플랫폼)
+  │       │        · 현재 누적: 15건
+  │       │
+  │       └─ ACODECO CABAMED XLSX 다운로드 (pa_source = 'acodeco_cabamed_competitor')
+  │            └─ 가져오는 정보: 파나마 약국 의무공시 "평균가" (retail_average_published)
+  │                · 데이터: 제품명 · 성분 · 평균가 · 판매단위 · 공시월
+  │                · 법적 근거: Resolución 774 (2019) 약국 평균가 의무 공시
+  │                · 용도: 자사 개량신약 가격 책정의 핵심 기준선
+  │                · 출처: acodeco.gob.pa CABAMED 161종 기초의약품 바스켓
+  │                · 현재 누적: 3건
+  │
+  ├─ [3] Supabase UPSERT + pa_freshness_status = 'fresh' 갱신
+  │       └─ 크롤러 성공 시 해당 행의 신선도를 'fresh'로 되돌림
+  │           다음 트리거 때 건너뛸 수 있도록 상태 마킹
+  │
+  └─ PanamaCompra V3 수동 수집 (pa_source = 'panamacompra_v3', 기존 유지)
+         └─ 가져오는 정보: 파나마 정부 공공조달 "낙찰가" (public_procurement)
+             · 데이터: 제품명 · 제조사(fabricante) · 유통사(proveedor) · 낙찰가
+             ·       수량 · 발주기관(entidad_compradora) · 발주일 · 사건번호
+             · 수집 방식: 봇 차단으로 자동화 불가 →
+                (1) 달강님이 PanamaCompra V3 사이트 수동 접속 + 키워드 검색 (예: "Rosuvastatina")
+                (2) 낙찰 공고 PDF 수동 다운로드
+                (3) 별도 Claude 세션에 PDF 업로드 → LLM이 JSON 구조화 추출
+                (4) 달강님이 정형화된 JSON을 Supabase 수동 INSERT
+             · 법적 근거: Ley 419 de 2024 (DGCP 운영)
+             · 현재 누적: 16건 (Rosumeg 5건 + Hydrine 3건 + Ciloduo 3건 + Atmeg 2건 + Sereterol 3건)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[런타임] 🟧 POST /api/panama/analyze (사용자 분석 버튼 클릭 시, 20초 목표)
+
+[1] Supabase DB 조회 (L1 시드 + L2 크롤링 누적 = 80%)
+[2] 환율 EXIM API 런타임 호출 (L3 5%, 실시간)  ✅ D-1 복원
+[3] 신선도 판정 (Haiku Judge, 5%)
+[4] DB 신선도 상태 갱신 (pa_freshness_status 마킹 → 다음 GitHub Actions에서 자동 재크롤링)
+[5] Case 판정 + entryFeasibility (규칙 기반, 10%)
+[6] 프롬프트 조립 (rawDataDigest + 제품 dictionary)
+[7] Haiku API 호출 (보고서 5블록 합성)  🔴 현재 크레딧 문제로 fallback 중
+[8] panama_report_cache 저장 (24h TTL)
+[9] Response JSON → Report1.tsx A4 WYSIWYG 렌더링
+```
+
+### 🔄 신선도 가교 흐름 (세션 23 확정)
+
+```
+[런타임 분석] → Haiku가 "이 데이터 오래됐음" 판정 → pa_freshness_status = 'stale_confirmed' 마킹
+              ↓
+[달강님 주 1회] GitHub Actions 수동 실행 → v_stale_items VIEW가 stale 항목 자동 선별
+              ↓
+해당 항목만 Colombia/SuperXtra/ACODECO 재크롤링 → pa_freshness_status = 'fresh' 복원
+```
+
+---
 
 ## 요약
 
@@ -157,3 +237,7 @@
 - Session 12: 엔진⑦ PDF Phase 2 이월. 시스템 프롬프트 금지어 14종.
 - Session 13: 거시 카드 정밀화, 규제 마일스톤 시드 신규.
 - **Session 16**: 용어 체계 이중 축 정립 (L1/L2/L3 + Phase A/B). PanamaCompra 명세 정정. **버그 4종 수정 + 잘림 fix + scope footer + prevalence 8 INN 신규 적재**. Arrocha·Metro Plus 정찰·후퇴 결정. DNFD 신규 발견 (3 사이트). 사이트 19개 → 23개 매트릭스 확장. 절대원칙 18·19·20 신규 (실제 INSERT 측정 + product_id 엄격 + 판정근거 차등 maxLength).
+- **Session 19 (2026-04-15)**: 신 8제품 전면 재구성 (Rosumeg, Atmeg, Ciloduo, Gastiin CR, Omethyl, Sereterol, Gadvoa, Hydrine). UUID 8개 재사용. product-dictionary.ts 필드 확장 (atc4_code, secondary_atc4, is_combination_drug, hs_code, therapeutic_area, formulation, patent_tech, panama_target).
+- **Session 20 (2026-04-15)**: PanamaCompra V3 수동 PDF 16건 (Rosumeg 5·Hydrine 3·Ciloduo 3·Atmeg 2·Sereterol 3). Colombia Socrata 109건 + SuperXtra 15건 적재. panama 테이블 175행 도달. PanamaCompra V3 자동화 포기 확정.
+- **Session 22 (2026-04-16)**: Gaceta Oficial Ley 419 de 2024 박제. MINSA WLA 고시 박제. Anthropic 크레딧 문제 대두.
+- **Session 23 (2026-04-16, D-8)**: 중간안 D-1 환율 런타임 복원 + D-2 GitHub Actions 조건부 크롤러 도입. 2공정 LLM Generator + UI 완성 (Haiku 단일화). 보고서 생성 전체 로직 박제 (이 문서 최상단). 신선도 가교 구조 확정. v_stale_items VIEW + freshness_refresh_runner.ts + freshness_refresh.yml 신규. Rosumeg Tier 매칭 라벨 정정 SQL. Rx/OTC 엄격 분리 원칙 추가.

@@ -1,9 +1,134 @@
 # UPharma Export AI — 전체 유저 플로우 (End-to-End Flow)
 
-> **세션 16 / 2026-04-13 패치**
+> **세션 23 / 2026-04-16 갱신**
 > KITA 무역AX 1기 · 한국유나이티드제약 5조
 > 사용자(해외마케팅·영업 담당자)가 대시보드 접속부터 PDF 다운로드까지의 전체 여정
-> **세션 16 변경**: 분석 시점 흐름에 L2 크롤링 통합 (1~3분 SLA), 12시간 캐시. 용어 체계 이중 축 (L1/L2/L3 + Phase A/B) 반영.
+> **세션 23 변경**: 중간안 D-1 환율 런타임 복원 + D-2 GitHub Actions 조건부 크롤러 도입. 보고서 생성 전체 로직 박제 (필독). 2공정 UI/API 완성. 신 8제품 반영.
+
+---
+
+## ⭐ 보고서 생성 전체 로직 (필독 — 모든 개발 참여자 숙지 필수)
+
+> 세션 23 신규 박제. Claude·Cursor·Gemini·달강님 모두 작업 착수 전 반드시 이 표를 확인.
+
+```
+[사전 단계] 🟦 GitHub Actions 크롤링 (달강님 수동 workflow_dispatch로 주 1회 트리거)
+
+  ├─ [1] 신선도 stale 항목 DB 조회 (v_stale_items VIEW)  ✅ D-2 신규
+  │       └─ pa_freshness_status = 'stale_likely' 또는 'stale_confirmed'인 행만 선별
+  │           (freshness_registry 기반 시간 규칙 + Haiku 의미 판정 결과)
+  │
+  ├─ [2] stale 항목만 크롤러 선별 실행 (API/정적 크롤링 자동화)
+  │       │
+  │       ├─ Colombia SECOP Socrata API (pa_source = 'datos_gov_co')
+  │       │    └─ 가져오는 정보: 콜롬비아 정부 공공조달 "도매가" (wholesale)
+  │       │        · 데이터: INN · 제조사 · 가격(COP→USD 환산) · 수량 · 조달 기관 · 일자
+  │       │        · 용도: 파나마 직접 데이터 없는 INN의 WHO ERP 대체 참조가
+  │       │        · 출처: datos.gov.co (Socrata Open Data API, 무료)
+  │       │        · 현재 누적: 109건
+  │       │
+  │       ├─ SuperXtra VTEX 정적 크롤링 (pa_source = 'superxtra_vtex')
+  │       │    └─ 가져오는 정보: 파나마 민간 약국 "소매가" (retail_promo)
+  │       │        · 데이터: 브랜드명 · 정가(list_price) · 할인가(discount_price) · 재고 상태
+  │       │        · 용도: 파나마 환자 실제 구매 가격 (처방 후 민간 약국 구매)
+  │       │        · 출처: superxtra.com 제품 상세 페이지 (VTEX 플랫폼)
+  │       │        · 현재 누적: 15건
+  │       │
+  │       └─ ACODECO CABAMED XLSX 다운로드 (pa_source = 'acodeco_cabamed_competitor')
+  │            └─ 가져오는 정보: 파나마 약국 의무공시 "평균가" (retail_average_published)
+  │                · 데이터: 제품명 · 성분 · 평균가 · 판매단위 · 공시월
+  │                · 법적 근거: Resolución 774 (2019) 약국 평균가 의무 공시
+  │                · 용도: 자사 개량신약 가격 책정의 핵심 기준선
+  │                · 출처: acodeco.gob.pa CABAMED 161종 기초의약품 바스켓
+  │                · 현재 누적: 3건
+  │
+  ├─ [3] Supabase UPSERT + pa_freshness_status = 'fresh' 갱신
+  │       └─ 크롤러 성공 시 해당 행의 신선도를 'fresh'로 되돌림
+  │           다음 트리거 때 건너뛸 수 있도록 상태 마킹
+  │
+  └─ PanamaCompra V3 수동 수집 (pa_source = 'panamacompra_v3', 기존 유지)
+         └─ 가져오는 정보: 파나마 정부 공공조달 "낙찰가" (public_procurement)
+             · 데이터: 제품명 · 제조사(fabricante) · 유통사(proveedor) · 낙찰가
+             ·       수량 · 발주기관(entidad_compradora) · 발주일 · 사건번호
+             · 수집 방식: 봇 차단으로 자동화 불가 →
+                (1) 달강님이 PanamaCompra V3 사이트 수동 접속 + 키워드 검색 (예: "Rosuvastatina")
+                (2) 낙찰 공고 PDF 수동 다운로드
+                (3) 별도 Claude 세션에 PDF 업로드 → LLM이 JSON 구조화 추출
+                (4) 달강님이 정형화된 JSON을 Supabase 수동 INSERT
+             · 법적 근거: Ley 419 de 2024 (DGCP 운영)
+             · 현재 누적: 16건 (Rosumeg 5건 + Hydrine 3건 + Ciloduo 3건 + Atmeg 2건 + Sereterol 3건)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[런타임] 🟧 POST /api/panama/analyze (사용자 분석 버튼 클릭 시, 20초 목표)
+
+[1] Supabase DB 조회 (L1 시드 + L2 크롤링 누적 = 80%)
+     └─ panama 테이블 전수 조회 (현재 175행)
+         · L1 시드 ~25행: gemini_prevalence, worldbank, kotra, ita, motie, who_paho
+         · L2 크롤링 ~148행: datos_gov_co 109, superxtra_vtex 15, panamacompra_v3 16, acodeco 3
+         · product_id 또는 MACRO_PRODUCT_ID 매칭 후 priceRows/macroRows 분리
+
+[2] 환율 EXIM API 런타임 호출 (L3 5%, 실시간)  ✅ D-1 복원
+     └─ 한국수출입은행 API로 USD/KRW 환율 실시간 조회
+         · 성공: pa_notes.source = "api_success"
+         · 실패: pa_notes.source = "db_fallback" (안전망)
+         · 용도: 한국 원가를 USD로 환산하여 FOB 산정 기반 확보
+
+[3] 신선도 판정 (Haiku Judge, 5%)
+     └─ Phase 1 시간 규칙 (freshness_registry 20종 등록)
+         └─ Phase 1.5 Haiku LLM 의미 기반 판정 (fresh/stale_likely/stale_confirmed)
+             └─ Phase 2 web_search (stale_confirmed 시만 트리거, 선택적)
+
+[4] DB 신선도 상태 갱신 (pa_freshness_status 마킹)
+     └─ Haiku 판정 결과를 DB에 즉시 반영
+         · 다음 GitHub Actions 실행 시 자동으로 재크롤링 대상에 포함됨
+         · 런타임 → 크롤링 루프를 연결하는 "가교" 역할
+
+[5] Case 판정 + entryFeasibility (규칙 기반, 10%)
+     └─ 8가지 진출 가능성 등급 (A_fast_track ~ D_long_term)
+         · 성분별 distributable 여부 + 시장 발달 정도로 판정
+         · 예: Rosumeg = D_long_term (성분 유통 가능, 조합제 신규 등록 필요)
+
+[6] 프롬프트 조립 (rawDataDigest + 제품 dictionary)
+     └─ Haiku에게 넘길 전체 컨텍스트 구성
+         · 파나마 거시 지표 + 경쟁품 가격 Tier 1~3 + 규제 근거 + 제품 스펙
+
+[7] Haiku API 호출 (보고서 5블록 합성)  🔴 현재 크레딧 문제로 fallback 중 (별건 이슈)
+     └─ 3-tier LLM 체인: Opus → Sonnet → Haiku → rule-based template
+         · block3_reasoning (150자/줄 5줄)
+         · block4_1_channel (300자)
+         · block4_2_pricing (450자)
+         · block4_3_partners (200자)
+         · block4_4_risks (300자)
+         · block4_5_entry_feasibility
+
+[8] panama_report_cache 저장 (24h TTL)
+     └─ 동일 product_id 재분석 시 캐시 히트 → Haiku 재호출 스킵
+
+[9] Response JSON → Report1.tsx A4 WYSIWYG 렌더링
+     └─ 브라우저에서 /products/{product_id} 경로로 최종 렌더
+```
+
+### 🔄 신선도 가교 흐름 (핵심 아키텍처)
+
+```
+[런타임 분석] → Haiku가 "이 데이터 오래됐음" 판정
+              ↓
+        DB에 pa_freshness_status = 'stale_confirmed' 마킹
+              ↓
+[달강님 주 1회] GitHub Actions 수동 실행 (workflow_dispatch)
+              ↓
+        v_stale_items VIEW가 stale 항목 자동 선별
+              ↓
+        해당 항목만 Colombia/SuperXtra/ACODECO 재크롤링
+              ↓
+        DB 갱신 + pa_freshness_status = 'fresh'로 되돌림
+```
+
+**이 구조가 3가지 요구 조건을 모두 만족**:
+- ✅ 크롤링 로직 반드시 포함 (GitHub Actions 크롤러)
+- ✅ 신선도 다한 것만 선별 (v_stale_items VIEW)
+- ✅ URL 핀포인팅 없이 작동 (기존 pa_source 기반 라우팅)
 
 ---
 
@@ -230,6 +355,10 @@
 - **세션 12 (2026-04-12)**: 10초 SLA 폐기, 분석 1~3분 허용. L2 크롤링 분석 시점 통합 결정. 12시간 캐시·강제 새로고침 버튼·단계별 진행 표시 UI 의무화.
 - **세션 13 (2026-04-12)**: 거시 카드 정밀화 (성장률 IQVIA 단일 표기, 인구·보건 파싱 fix). 규제 마일스톤 카드 신규.
 - **세션 16 (2026-04-13)**: 용어 체계 이중 축 정립 (수집 시점 L1/L2/L3 + 데이터 채널 Phase A/B). 분석 시점 흐름 다이어그램 갱신. 8단계 진행 표시 명시.
+- **세션 19 (2026-04-15)**: 신 8제품 전면 재구성 (Rosumeg, Atmeg, Ciloduo, Gastiin CR, Omethyl, Sereterol, Gadvoa, Hydrine). UUID 8개 재사용. Gemini 교차검증 기반 파나마 우선 2개 (Rosumeg + Omethyl).
+- **세션 20 (2026-04-15)**: PanamaCompra V3 수동 PDF 16건 INSERT (Rosumeg 5·Hydrine 3·Ciloduo 3·Atmeg 2·Sereterol 3). Colombia Socrata 109건 + SuperXtra 15건 적재. panama 테이블 175행 도달.
+- **세션 22 (2026-04-16)**: Gaceta Oficial Ley 419 de 2024 박제 + MINSA WLA 고시 박제. Anthropic 크레딧 문제 대두.
+- **세션 23 (2026-04-16, D-8)**: 중간안 D-1 환율 런타임 복원 + D-2 GitHub Actions 조건부 크롤러 도입. 2공정 UI/API 완성. 보고서 생성 전체 로직 박제 (이 문서 최상단). Rosumeg Tier 매칭 라벨 정정 SQL. Rx/OTC 엄격 분리 원칙 추가. 신선도 가교 구조 확정 (런타임 마킹 + 수동 재크롤링).
 
 ---
 

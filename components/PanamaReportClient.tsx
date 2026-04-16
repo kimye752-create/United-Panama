@@ -62,6 +62,8 @@ type Props = {
   showBackLink?: boolean;
   /** 임베드 모드에서 INN 탭 숨김 */
   showInnTabs?: boolean;
+  /** 상위 컴포넌트 단계 표시용 로딩 상태 브리지 */
+  onLoadingChange?: (loading: boolean) => void;
 };
 
 export function PanamaReportClient({
@@ -69,6 +71,7 @@ export function PanamaReportClient({
   currentInn,
   showBackLink = true,
   showInnTabs = true,
+  onLoadingChange,
 }: Props) {
   const [data, setData] = useState<AnalyzePanamaResult | null>(null);
   const [llm, setLlm] = useState<LlmBundle | null>(null);
@@ -216,6 +219,10 @@ export function PanamaReportClient({
       caseGrade: data.judgment.case,
     });
   }, [data, llm, error]);
+
+  useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">

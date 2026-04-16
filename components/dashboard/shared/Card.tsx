@@ -6,6 +6,8 @@ interface CardProps {
   rightSlot?: ReactNode;
   children: ReactNode;
   className?: string;
+  titleClassName?: string;
+  subtitleClassName?: string;
 }
 
 export function Card({
@@ -14,16 +16,18 @@ export function Card({
   rightSlot,
   children,
   className = "",
+  titleClassName = "",
+  subtitleClassName = "",
 }: CardProps) {
   return (
     <article className={`rounded-[20px] bg-card p-5 shadow-sh ${className}`}>
       <div className="mb-3.5 flex items-start justify-between gap-2.5">
         <div>
-          <h3 className="text-[15px] font-extrabold tracking-[-0.03em] text-navy">
+          <h3 className={`text-[15px] font-extrabold tracking-[-0.03em] text-navy ${titleClassName}`}>
             {title}
           </h3>
           {subtitle ? (
-            <p className="mt-1 text-[11.5px] text-muted">{subtitle}</p>
+            <p className={`mt-1 text-[11.5px] text-muted ${subtitleClassName}`}>{subtitle}</p>
           ) : null}
         </div>
         {rightSlot}

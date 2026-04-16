@@ -15,8 +15,6 @@ import {
 import { PHASE2_SYSTEM_CONTEXT } from "./phase2_system_context";
 
 const CACHE_TABLE = "panama_report_cache";
-const OPUS_MODEL = "claude-opus-4-1-20250805";
-const SONNET_MODEL = "claude-sonnet-4-5-20250929";
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 
 export interface Phase2GeneratorInput {
@@ -31,7 +29,7 @@ export interface Phase2GeneratorInput {
 
 export interface Phase2GeneratorResult {
   payload: Phase2ReportPayload;
-  source: "cache" | "opus" | "sonnet" | "haiku" | "fallback";
+  source: "cache" | "haiku" | "fallback";
   modelUsed: string;
 }
 
@@ -158,32 +156,6 @@ export async function generatePhase2Report(
     }
   } catch {
     // 캐시 조회 실패는 보고서 생성 자체를 막지 않음
-  }
-
-  try {
-    const opusPayload = await callModel(OPUS_MODEL, input);
-    try {
-      await saveCache(input, opusPayload, OPUS_MODEL);
-    } catch {
-      // 캐시 저장 실패는 응답 성공 처리
-    }
-    return { payload: opusPayload, source: "opus", modelUsed: OPUS_MODEL };
-  } catch (opusErr: unknown) {
-    const message = opusErr instanceof Error ? opusErr.message : String(opusErr);
-    process.stderr.write(`[phase2_generator] Opus failed: ${message}\n`);
-  }
-
-  try {
-    const sonnetPayload = await callModel(SONNET_MODEL, input);
-    try {
-      await saveCache(input, sonnetPayload, SONNET_MODEL);
-    } catch {
-      // 캐시 저장 실패는 응답 성공 처리
-    }
-    return { payload: sonnetPayload, source: "sonnet", modelUsed: SONNET_MODEL };
-  } catch (sonnetErr: unknown) {
-    const message = sonnetErr instanceof Error ? sonnetErr.message : String(sonnetErr);
-    process.stderr.write(`[phase2_generator] Sonnet failed: ${message}\n`);
   }
 
   try {

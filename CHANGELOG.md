@@ -1,5 +1,35 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 00:33:49 (feat(process1-step-ui): 분석 단계 파동/체크 진행 UI 및 멘트 정렬)
+
+### Changed
+- feat(process1-ui): `components/dashboard/process1/Process1Workbench.tsx`에 분석 단계 상태(`analysisStep`, `isAnalyzing`)를 추가해 버튼 클릭 시 단계 진행 UI를 표시.
+- feat(process1-ui): 단계 라벨을 `크롤링 실행`, `클로드 분석`, `논문 검색`, `PDF 보고서 생성`으로 변경하고, 활성 단계 원형 배지에 파동(`animate-ping`) 효과를 적용.
+- feat(process1-ui): 단계 완료 시 숫자 대신 체크(`✓`) 아이콘이 표시되도록 변경하고, 하단 게이지바가 단계 진행률(0~100%)에 맞춰 확장되도록 반영.
+- feat(process1-sync): `components/PanamaReportClient.tsx`에 `onLoadingChange` 콜백을 추가해 실제 분석 로딩 상태와 단계 UI가 동기화되도록 연결.
+
+## [Unreleased] - 2026-04-17 00:27:01 (fix(layout): Ctrl+휠 확대/축소 시 본문 고정폭 비율 유지)
+
+### Fixed
+- fix(layout): `components/dashboard/DashboardShell.tsx` 본문 영역을 `max-w-[1180px]` 중심 컨테이너로 변경해, 브라우저 확대/축소 시 콘텐츠가 화면 전체를 항상 꽉 채우지 않도록 조정.
+- fix(layout): `Ctrl+휠` 확대/축소를 차단하던 `BrowserZoomGuard`를 제거(`app/layout.tsx` 참조 삭제 + 파일 삭제)하여 확대 시 표가 자연스럽게 커지고 축소 시 작아지도록 복원.
+- note(ui): 본문 레이아웃 폭/정렬만 조정했으며, 1공정 분석 데이터 바인딩(`product_id` 기반)과 카드 기능 로직은 변경하지 않음.
+
+## [Unreleased] - 2026-04-17 00:18:36 (style(process1): 1공정 초기 입력 구간 가독성 복원 + 옅은 파랑 입력 박스 적용)
+
+### Changed
+- style(process1-ui): `components/dashboard/process1/Process1Workbench.tsx`의 상단 2개 카드 타이틀 가독성을 초기 버전 톤에 맞게 강화(굵기/크기/자간 조정).
+- style(process1-ui): 제품 선택 select 및 신약 분석 3개 입력칸 배경을 아주 옅은 파랑(`bg-[#f3f7ff]`)으로 통일하고, 테두리/텍스트 대비를 부드럽게 조정.
+- safety: 드롭다운 value는 기존 `product_id`를 유지하여 백엔드 분석 연동 경로는 변경 없이 보존.
+- refactor(ui-shared): `components/dashboard/shared/Card.tsx`에 `titleClassName`/`subtitleClassName` 옵션을 추가해 특정 카드만 스타일 오버라이드 가능하도록 확장.
+
+## [Unreleased] - 2026-04-17 00:15:08 (fix(ui-zoom): Ctrl/Cmd 줌 입력 차단으로 본문 레이아웃 붕괴 방지)
+
+### Fixed
+- fix(layout): `components/common/BrowserZoomGuard.tsx` 신규 추가. `Ctrl/Cmd + wheel`, `Ctrl/Cmd + (+/-/0)` 브라우저 줌 입력을 차단해 본문 UI가 화면폭 재계산으로 깨지는 현상을 방지.
+- fix(layout): `app/layout.tsx`에 `BrowserZoomGuard`를 전역 삽입해 `/process-1` 포함 전체 앱에서 동일 동작 유지.
+- note(ui): 카드/폰트/간격/색상 등 시각 스타일은 변경하지 않고, 입력 이벤트 처리만 수정.
+
 ## [Session 23 종합] - 2026-04-16 (D-8)
 
 ### 중간안 D-1 + D-2 도입 — 보고서 생성 로직 박제
@@ -26,6 +56,13 @@
 - Rosumeg Tier 재라벨링 SQL 생성 (`세션23_tier_relabel.sql`) — `competitor_public_procurement` → `competitor_single_component` 정정
 
 ---
+
+## [Unreleased] - 2026-04-17 00:11:55 (feat(process1-ui): 1공정 제품 선택 목록 표기 포맷 정렬)
+
+### Changed
+- feat(process1-ui): `components/dashboard/process1/Process1Workbench.tsx` 드롭다운 옵션을 `[분류] 브랜드 · 성분/강도 · 제형 · HS 코드` 포맷으로 표기하도록 변경.
+- feat(process1-ui): 옵션 표시용 `PRODUCT_UI_META_BY_ID`와 HS 코드 축약(`3004.90.1000`→`3004.90`) 헬퍼를 추가해 스크린샷 기준 표기와 동일 톤으로 정렬.
+- safety: select value는 기존과 동일하게 `product_id`를 유지하여 분석 버튼 클릭 시 백엔드 연동 경로(`product_id` 기반 분석 API 호출)가 그대로 동작하도록 보존.
 
 ## [Unreleased] - 2026-04-16 23:39:53 (fix(session23-final): A-1 환율 재시도/원인 로깅 + A-2 freshness 후처리 UPDATE 연결)
 
