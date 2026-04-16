@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Card } from "@/components/dashboard/shared/Card";
 import { Phase2FinalPriceBlock } from "./Phase2FinalPriceBlock";
 import { Phase2FormulaBlock } from "./Phase2FormulaBlock";
 import { Phase2MarketSegment } from "./Phase2MarketSegment";
-import { Phase2ProgressSteps } from "./Phase2ProgressSteps";
 import { Phase2ScenarioCards } from "./Phase2ScenarioCards";
 import { Phase2UploadArea } from "./Phase2UploadArea";
 import {
@@ -62,16 +61,6 @@ export function Phase2AiPipeline() {
     void load();
   }, []);
 
-  const currentStep = useMemo(() => {
-    if (loading) {
-      return 3;
-    }
-    if (result !== null) {
-      return 4;
-    }
-    return 0;
-  }, [loading, result]);
-
   const onRun = async () => {
     setLoading(true);
     try {
@@ -96,37 +85,38 @@ export function Phase2AiPipeline() {
 
   return (
     <div className="space-y-3.5">
-      <Card title="AI 파이프라인" subtitle="보고서 선택 또는 PDF 입력 후 자동 계산">
+      <Card title="STEP 1 · 보고서 선택">
         <div className="space-y-3">
-          <div className="space-y-2">
-            <p className="text-[10px] font-bold tracking-[0.02em] text-muted">STEP 1 · 보고서 선택</p>
-            <Phase2ReportSelector
-              options={reports}
-              value={selectedReportId}
-              onChange={setSelectedReportId}
-            />
-            <p className="text-center text-[10px] text-muted">또는 PDF 직접 업로드</p>
-            <Phase2UploadArea onMockUpload={() => setSelectedReportId("pdf-manual")} />
+          <Phase2ReportSelector
+            options={reports}
+            value={selectedReportId}
+            onChange={setSelectedReportId}
+          />
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <p className="text-[10px] font-bold text-muted">또는 PDF 직접 업로드</p>
+            <div className="h-px flex-1 bg-slate-200" />
           </div>
+          <Phase2UploadArea onMockUpload={() => setSelectedReportId("pdf-manual")} />
+        </div>
+      </Card>
 
-          <div className="flex items-center justify-between gap-3 rounded-[12px] bg-inner p-3 shadow-sh2">
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.02em] text-muted">
-                STEP 2 · 시장 세그먼트 선택 및 실행
-              </p>
-              <p className="mt-1 text-[10px] text-muted">공공/민간 시장 기준으로 FOB를 역산합니다.</p>
-            </div>
+      <Card title="STEP 2 · 시장 선택 및 분석 실행">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
             <Phase2MarketSegment value={segment} onChange={setSegment} />
-            <button
-              type="button"
-              onClick={() => void onRun()}
-              className="rounded-[10px] bg-navy px-4 py-2 text-[12px] font-extrabold text-white shadow-sh2 transition-colors hover:bg-navy2"
-            >
-              ▶ AI 가격 분석 실행
-            </button>
+            <p className="mt-2 text-[11px] text-muted">
+              공공 시장: ALPS 조달청 채널 · 27개 공공기관 통합구매 기준
+            </p>
           </div>
-
-          <Phase2ProgressSteps currentStep={currentStep} />
+          <button
+            type="button"
+            onClick={() => void onRun()}
+            disabled={loading}
+            className="rounded-[10px] bg-navy px-6 py-2.5 text-[13px] font-extrabold text-white shadow-sh2 transition-colors hover:bg-navy2 disabled:cursor-not-allowed disabled:bg-navy/40"
+          >
+            ▶ AI 가격 분석 실행
+          </button>
         </div>
       </Card>
 

@@ -351,11 +351,16 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     try {
       const payload = await callLLM(HAIKU_MODEL, input);
       await saveCache(supabase, input.productId, input.caseGrade, payload, HAIKU_MODEL);
+      process.stderr.write("[report1_generator] Haiku SUCCESS\n");
       return { payload, source: "haiku", modelUsed: HAIKU_MODEL };
     } catch (haikuErr: unknown) {
-      const m =
-        haikuErr instanceof Error ? haikuErr.message : String(haikuErr);
-      process.stderr.write(`[generator] Haiku failed: ${m}\n`);
+      const m = haikuErr instanceof Error ? haikuErr.message : String(haikuErr);
+      const stack = haikuErr instanceof Error ? (haikuErr.stack ?? "") : "";
+      process.stderr.write(`[report1_generator] Haiku FAILED: ${m}\n`);
+      process.stderr.write(`[report1_generator] Stack: ${stack}\n`);
+      process.stderr.write(
+        `[report1_generator] KEY_EXISTS: ${String(!!process.env.ANTHROPIC_API_KEY)}, KEY_LEN: ${String(process.env.ANTHROPIC_API_KEY?.length ?? 0)}\n`,
+      );
     }
   }
 

@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-16 19:27:43 (fix(phase2+report1): 2공정 AI탭 레이아웃 정렬 + 1공정 Haiku 실패 추적 로그 강화)
+
+### Changed
+- style(phase2-ui): `components/phase2/Phase2AiPipeline.tsx`를 목표 화면 구조로 재정렬(상단 탭 카드 이후 `STEP 1` 카드와 `STEP 2` 카드를 분리, 진행 도트 노출 제거, 실행 버튼 우측 정렬).
+- style(phase2-ui): `components/phase2/Phase2Workbench.tsx` 안내 문구를 스크린샷 톤에 맞춰 간결화.
+- fix(report1-llm): `src/llm/report1_generator.ts` Haiku 성공/실패 로그를 `process.stderr.write` 기반으로 강화하고, 실패 시 stack + `ANTHROPIC_API_KEY` 존재 여부/길이 출력.
+- verify(report1): 모델 ID `claude-haiku-4-5-20251001` 사용 확인, `@anthropic-ai/sdk` 버전 `^0.88.0` 확인, `npx tsc --noEmit` 통과.
+
 ## [Unreleased] - 2026-04-16 18:17:22 (fix(phase2-report): block2/5 필수 문구 하드보강 + Haiku 진단 로그 강화)
 
 ### Changed

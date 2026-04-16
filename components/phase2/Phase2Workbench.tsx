@@ -14,7 +14,7 @@ export function Phase2Workbench() {
       <div className="rounded-[20px] bg-card p-5 shadow-sh">
         <Phase2TabSelector activeTab={tab} onChange={setTab} />
         <p className="mt-2 text-[11px] text-muted">
-          보고서를 업로드하면 AI가 가격 정보를 추출 후 FOB 역산 분석을 시작합니다.
+          보고서를 업로드하면 AI가 가격 정보를 자동 추출·분석합니다.
         </p>
       </div>
       {tab === "ai" ? <Phase2AiPipeline /> : <Phase2ManualInput />}
