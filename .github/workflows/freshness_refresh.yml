@@ -1,0 +1,29 @@
+name: Freshness Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "실행 없이 대상/명령만 출력"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run freshness refresh runner
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npx tsx scripts/runners/freshness_refresh_runner.ts --dry-run=${{ inputs.dry_run }}

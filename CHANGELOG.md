@@ -1,5 +1,28 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-16 21:04:52 (feat(freshness): stale VIEW + refresh runner/workflow + 환율 진단 로그 보강)
+
+### Changed
+- fix(realtime): `src/crawlers/realtime/exchange_rate_exim.ts`에 `[exchange_rate_exim]` 진단 로그 추가(START/API_HIT/API_MISS/API_ERROR/DB_FALLBACK/DB_FALLBACK_FAILED)로 db_fallback 진입 원인 추적 강화.
+- feat(sql): `scripts/sql/v_stale_items.sql` 추가. `stale_likely`/`stale_confirmed` 행을 `refresh_runner_key`(`datos_gov_co`/`superxtra_vtex`/`pa_acodeco_cabamed`)로 매핑하는 VIEW 정의.
+- feat(runner): `scripts/runners/freshness_refresh_runner.ts` 추가. `v_stale_items` 조회 후 source별 재수집 태스크를 dry-run/실행 모드로 오케스트레이션.
+- feat(ci): `.github/workflows/freshness_refresh.yml` 추가(`workflow_dispatch`, dry_run 입력, `SUPABASE_SERVICE_ROLE_KEY` 기반 실행).
+- chore(scripts): `package.json`에 `freshness:refresh` 스크립트 추가.
+- verify: 로컬 dry-run(`npx tsx scripts/runners/freshness_refresh_runner.ts --dry-run=true`) 정상, 현재 stale 대상 0건 확인.
+
+## [Unreleased] - 2026-04-16 19:46:21 (chore(policy): Perplexity 제외 LLM 경로 Haiku 단일 정책 문서 정합)
+
+### Changed
+- chore(docs): `ARCHITECTURE.md`의 구 `claude-sonnet-4-5` 표기를 `claude-haiku-4-5-20251001`로 갱신하고, 논문 도출(Perplexity) 예외 정책을 명시.
+- verify(policy): `src/` 기준 모델 문자열 재점검 결과 Anthropic 호출 경로(`report1_generator`, `phase2_generator`, `freshness_checker`)는 모두 Haiku 단일 사용 상태 확인.
+
+## [Unreleased] - 2026-04-16 19:44:08 (chore(phase2-llm): 2공정 모델 체인 Haiku 단일화)
+
+### Changed
+- chore(phase2-llm): `src/llm/phase2/phase2_generator.ts`에서 Opus/Sonnet 호출 경로를 제거하고, 2공정 보고서 생성 경로를 `Haiku 단일 호출 + fallback`으로 단순화.
+- chore(phase2-llm): `Phase2GeneratorResult.source` 타입에서 `opus`/`sonnet`을 제거해 런타임 분기와 타입 정의를 정합화.
+- verify: `npx tsc --noEmit` 통과, phase2_generator linter 오류 0건.
+
 ## [Unreleased] - 2026-04-16 19:29:37 (chore(report1-logging): console.log 제거 및 stderr 통일)
 
 ### Changed

@@ -152,6 +152,9 @@ async function loadLatestRateFromDb(): Promise<ExchangeRateResult> {
 export async function fetchExchangeRateUsdKrw(): Promise<ExchangeRateResult> {
   const today = new Date();
   const errors: string[] = [];
+  process.stderr.write(
+    `[exchange_rate_exim] START key_exists=${String(process.env.EXIM_API_KEY !== undefined && process.env.EXIM_API_KEY.trim() !== "")}\n`,
+  );
 
   for (let i = 0; i < MAX_LOOKBACK_DAYS; i += 1) {
     const targetDate = addDays(today, -i);
@@ -159,6 +162,9 @@ export async function fetchExchangeRateUsdKrw(): Promise<ExchangeRateResult> {
     try {
       const rate = await fetchUsdKrwByDate(targetDate);
       if (rate !== null) {
+        process.stderr.write(
+          `[exchange_rate_exim] API_HIT date=${ymd} source=${i === 0 ? "api_today" : "api_fallback"} rate=${rate.toFixed(2)}\n`,
+        );
         return {
           rate,
           source: i === 0 ? "api_today" : "api_fallback",
@@ -167,19 +173,28 @@ export async function fetchExchangeRateUsdKrw(): Promise<ExchangeRateResult> {
         };
       }
       errors.push(`searchDate=${ymd}: USD 데이터 없음`);
+      process.stderr.write(`[exchange_rate_exim] API_MISS date=${ymd} reason=USD_NOT_FOUND\n`);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       errors.push(`searchDate=${ymd}: ${msg}`);
+      process.stderr.write(`[exchange_rate_exim] API_ERROR date=${ymd} reason=${msg}\n`);
     }
   }
 
   try {
-    return await loadLatestRateFromDb();
+    const fallback = await loadLatestRateFromDb();
+    process.stderr.write(
+      `[exchange_rate_exim] DB_FALLBACK date=${fallback.actualSearchDate} rate=${fallback.rate.toFixed(2)}\n`,
+    );
+    return fallback;
   } catch (fallbackError: unknown) {
     const fallbackMsg =
       fallbackError instanceof Error
         ? fallbackError.message
         : String(fallbackError);
+    process.stderr.write(
+      `[exchange_rate_exim] DB_FALLBACK_FAILED reason=${fallbackMsg}\n`,
+    );
     throw new Error(
       `환율 조회가 5일 모두 실패했고 DB fallback도 실패했습니다. 원인=${errors.join(" | ")} / fallback=${fallbackMsg}`,
     );

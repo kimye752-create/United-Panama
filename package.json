@@ -17,6 +17,7 @@
     "preload:private": "tsx scripts/runners/preload_private.ts",
     "preload:arrocha-v2": "tsx scripts/runners/preload_arrocha_v2.ts",
     "preload:dnfd": "tsx scripts/runners/preload_dnfd.ts",
+    "freshness:refresh": "tsx scripts/runners/freshness_refresh_runner.ts",
     "seed:panama": "tsx scripts/runners/seed_panama.ts",
     "seed:panama:dry": "tsx scripts/runners/seed_panama.ts --dry-run",
     "simulate:prevalence": "tsx scripts/simulate_prevalence_8inn.ts",
