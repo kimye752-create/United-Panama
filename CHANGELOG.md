@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 01:23:22 (fix(process1-typography): 1공정 타이틀 과대 스타일 완화)
+
+### Fixed
+- fix(process1-ui): `components/dashboard/process1/Process1Workbench.tsx`의 상단 카드 타이틀 크기를 과대 설정(`31px`, `24px`)에서 `16px` 기반으로 축소해 4번 시안과 유사한 밀도로 조정.
+- note(ui): 입력칸 색상/단계 게이지/버튼 구조는 유지하고 타이틀 타이포만 완화해 과한 강조를 제거.
+
 ## [Unreleased] - 2026-04-17 01:04:57 (style(phase2): 2공정 AI 탭 표준 시안 기반 폼/색상 정밀 보정)
 
 ### Changed

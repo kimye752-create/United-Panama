@@ -154,7 +154,7 @@ export function Process1Workbench() {
     <div className="space-y-3.5">
       <Card
         title="품목 선택 후 파나마 진출 적합 분석 실행"
-        titleClassName="text-[31px] font-black tracking-[-0.032em] text-[#173f78]"
+        titleClassName="text-[16px] font-extrabold tracking-[-0.028em] text-[#173f78]"
       >
         <p className="mb-2 text-[10px] font-semibold tracking-[0.01em] text-muted">
           등록 제품 분석 실행
@@ -238,7 +238,7 @@ export function Process1Workbench() {
       <Card
         title="신약 분석"
         subtitle="다음 단계에서 연결 예정"
-        titleClassName="text-[24px] font-extrabold tracking-[-0.02em] text-[#173f78]"
+        titleClassName="text-[16px] font-extrabold tracking-[-0.02em] text-[#173f78]"
       >
         <p className="mb-2 text-[10px] font-semibold tracking-[0.01em] text-muted">
           미등록 신약 분석 입력
