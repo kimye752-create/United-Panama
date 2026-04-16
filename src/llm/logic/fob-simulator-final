@@ -1,0 +1,527 @@
+# Cursor 지시서 — 2공정 FOB 역산 시뮬레이터 + AI 보고서 (최종판)
+
+> 세션 24 / 2026-04-17 (D-7)
+> 팀미팅 시연용 — 1공정 보고서 → 2공정 FOB 역산 + 보고서 생성 전체 파이프라인
+> ⚠ 이전 지시서(`cursor_guide_s24_fob_simulator.md`)를 대체함
+
+---
+
+## 🎯 핵심 목표
+
+1공정 보고서 선택 → 경쟁품 가격 자동 추출 → 시뮬레이터(Waterfall 차트) → AI 보고서 생성
+**시뮬레이터만이 아니라 보고서까지 한 번에 완성.**
+
+---
+
+## ⚡ 핵심 로직 (합의 확정판)
+
+### 전략은 "출발가"를 바꾸는 게 아니라 "FOB 도착점"을 조정한다
+
+```
+경쟁품 소매가 $20 (시장 팩트, 고정)
+    ↓
+유통 마진 구조 (시장 구조, 고정)
+  약국 25% + 도매 20% + 물류 6.5% + 리스크 2%
+    ↓
+복리 역산 → FOB 천장 = $12.09 (시장이 허용하는 최대 FOB)
+    ↓
+전략별 FOB 조정:
+  저가진입: FOB $12.09 × 0.85 = $10.28 (자사 $1.81 양보)
+  기준가:   FOB $12.09 × 1.00 = $12.09 (시장 허용 그대로)
+  프리미엄: FOB $12.09 × 1.20 = $14.51 (기술 프리미엄 가산)
+    ↓
+최종 FOB에서 순산(정방향) → 현지 소매 포지셔닝가 도출
+  저가진입 → 소매 $18.19 (경쟁품 $20 대비 9% 저렴)
+  기준가   → 소매 $20.00 (경쟁품과 동일)
+  프리미엄 → 소매 $24.00 (기술 프리미엄 반영)
+```
+
+### 왜 이 구조인가
+
+- 소매가는 시장이 정한 팩트 → 우리가 마음대로 못 바꿈
+- 유통 마진도 시장 구조 → 약국·도매가 가져가는 몫은 고정
+- 전략적 선택은 **"우리가 FOB를 얼마에 내놓을 것인가"**
+- 저가진입 = 자사가 손해 감수하면서 현지 소매가를 낮춰 가격경쟁력 확보
+- 프리미엄 = CombiGel/BILDAS 기술력으로 경쟁품보다 높은 가격 정당화
+
+---
+
+## 📐 2공정 전체 흐름 (확정판)
+
+```
+[STEP 1] 1공정 보고서 선택
+    └─ 드롭다운: panama_report_cache에서 보고서 목록
+    └─ 표시: "Rosumeg · Case D · 2026.4.16 오후 6:17"
+
+[STEP 2] 경쟁품 가격 자동 추출
+    └─ panama 테이블에서 해당 product_id의 가격 행 직접 조회
+    └─ 소매: superxtra_vtex / acodeco 평균가
+    └─ 공공: panamacompra_v3 / datos_gov_co 평균 낙찰가
+
+[STEP 3] 시장 선택 + 가격 전략 선택
+    └─ 시장 토글: [소매(Retail)] / [공공조달(Public)]
+    └─ 전략 버튼: [저가진입] [기준가] [프리미엄] [직접입력]
+
+[STEP 4] FOB 역산 + 전략 조정 + 순산
+    └─ 역산: 소매가 → 유통 마진 제거 → FOB 천장
+    └─ 전략: FOB 천장 × 배수 → 최종 FOB
+    └─ 순산: 최종 FOB → 유통 마진 가산 → 현지 소매 포지셔닝가
+
+[STEP 5] Waterfall 차트 (역산 + 순산 양방향)
+
+[STEP 6] Incoterms 순산 (FOB→CFR→CIF→DDP)
+
+[STEP 7] AI 보고서 생성 (9블록)
+```
+
+---
+
+## 🧮 역산 수식
+
+### 기본 공식 (유통 마진 고정, 복리 역산)
+
+```typescript
+// 역산: 소매가 → FOB 천장
+const fobCeiling = retailPrice
+  / (1 + pharmacyMargin)
+  / (1 + wholesaleMargin)
+  / (1 + logistics)
+  / (1 + risk);
+
+// 전략 조정: FOB 천장 → 최종 FOB
+const finalFob = fobCeiling * strategyMultiplier;
+
+// 순산: 최종 FOB → 현지 소매 포지셔닝가
+const positioningPrice = finalFob
+  * (1 + risk)
+  * (1 + logistics)
+  * (1 + wholesaleMargin)
+  * (1 + pharmacyMargin);
+```
+
+### 유통 마진 (파나마 시장 고정값)
+
+| 요소 | 소매 시장 | 공공조달 | 비고 |
+|------|---------|--------|------|
+| 관세 | 0% | 0% | 한-중미 FTA (불변) |
+| ITBMS (부가세) | 0% | 0% | 의약품 면세 (불변) |
+| 약국 소매 마진 | 25% | 0% (B2G 직납) | ACODECO 기준 |
+| 도매상 마진 | 20% | — | 시장 평균 |
+| 에이전트 영업비 | — | 15% | 공공조달 전용 |
+| 물류/통관비 | 6.5% | 6.5% | 부산→콜론/발보아 |
+| 리스크 상각 | 2% | 10% | CSS 대금 지연 등 |
+
+### 전략별 FOB 배수
+
+| 전략 | 배수 | 의미 |
+|------|------|------|
+| 저가진입 (Penetration) | ×0.85 | 자사 15% 양보 → 현지 저가 포지셔닝 |
+| 기준가 (Reference) | ×1.00 | 시장 허용 FOB 그대로 |
+| 프리미엄 (Premium) | ×1.20 | CombiGel/BILDAS 기술 프리미엄 |
+| 직접입력 (Custom) | 사용자 지정 | 슬라이더로 자유 조정 |
+
+### 산출 예시 (소매 시장, 경쟁품 소매가 $20)
+
+| 전략 | FOB 천장 | 배수 | 최종 FOB | 자사 손익 | 현지 소매 포지셔닝가 | vs 경쟁품 |
+|------|---------|------|---------|---------|------------------|---------|
+| 저가진입 | $12.09 | ×0.85 | **$10.28** | -$1.81 | **$17.01** | -15% |
+| 기준가 | $12.09 | ×1.00 | **$12.09** | ±$0 | **$20.00** | 동일 |
+| 프리미엄 | $12.09 | ×1.20 | **$14.51** | +$2.42 | **$24.00** | +20% |
+
+---
+
+## 🎨 Waterfall 차트 (역산 + 순산 양방향)
+
+```
+[역산 방향 ←]                    [순산 방향 →]
+
+소매가   약국   도매   물류  리스크  FOB천장  전략   최종FOB  리스크  물류   도매   약국   소매포지셔닝
+$20.00  -$4.00 -$2.67 -$0.87 -$0.24 $12.09  ×0.85  $10.28  +$0.21 +$0.68 +$2.19 +$3.12 $16.48
+████████                                                                              ████████
+████████ ▼                                             ▼     ▲                    ▲  ████████
+██████   ▼                                                   ▲                 ▲     ████████
+█████    ▼                        ████  ←전략→  ████         ▲              ▲        ████████
+████     ▼                        ████          ████         ▲           ▲           ████████
+```
+
+### 간소화 버전 (실구현 권장)
+
+좌우 양방향은 복잡하니, **2단 구성**으로:
+
+```
+[상단] 역산 Waterfall (소매가 → FOB 천장)
+  $20.00 → -약국$4.00 → -도매$2.67 → -물류$0.87 → -리스크$0.24 → FOB천장 $12.09
+
+[중앙] 전략 조정 배너
+  FOB 천장 $12.09 × [저가진입 0.85] = 최종 FOB $10.28
+  자사 부담: -$1.81 | FOB 배수: 0.51
+
+[하단] 순산 Waterfall (최종 FOB → 현지 소매 포지셔닝가)
+  $10.28 → +리스크$0.21 → +물류$0.68 → +도매$2.19 → +약국$3.12 → 소매 $16.48
+  경쟁품 대비: -17.6% 저렴
+```
+
+### 차트 막대 색상
+
+| 막대 | 역산 (공제) | 순산 (가산) |
+|------|-----------|-----------|
+| 약국 마진 | `#EF4444` 빨강 | `#10B981` 초록 |
+| 도매 마진 | `#F59E0B` 주황 | `#34D399` 연초록 |
+| 물류/통관 | `#8B5CF6` 보라 | `#A78BFA` 연보라 |
+| 리스크 | `#6B7280` 회색 | `#9CA3AF` 연회색 |
+| 시작/끝 | `#3B82F6` 파랑 | `#3B82F6` 파랑 |
+| FOB | `#10B981` 초록 굵게 | — |
+| 전략 조정 | `#1E3A5F` 남색 배너 | — |
+
+---
+
+## 🎛️ 컨트롤 패널
+
+```
+┌────────────────────────────────────────────────────┐
+│  시장 선택                                           │
+│  [소매 시장 ●] [공공조달 ○]                            │
+│                                                      │
+│  경쟁품 기준가 (1공정 자동 추출)                        │
+│  [ $20.00 ]  ← 수정 가능                             │
+│                                                      │
+│  가격 전략                                            │
+│  [저가진입] [기준가 ●] [프리미엄] [직접입력]              │
+│                                                      │
+│  💡 파나마: 관세 0% + ITBMS 0% → 세금 공제 없음         │
+│                                                      │
+│  ─── 유통 마진 (시장 구조, 기본 고정) ───               │
+│  약국 소매 마진  ████████████████░░░░  25%   [🔒]      │
+│  도매상 마진    ████████████░░░░░░░░  20%   [🔒]      │
+│  물류/통관비    ██████░░░░░░░░░░░░░░  6.5%  [🔒]      │
+│  리스크 상각    ████░░░░░░░░░░░░░░░░  2%    [🔒]      │
+│                                                      │
+│  🔒 = 시장 고정값 (직접입력 모드에서만 잠금 해제)         │
+│                                                      │
+│  ─── 전략 조정 (FOB 배수) ───                         │
+│  FOB 배수      ████████████████░░░░  1.00x            │
+│  (저가진입=0.85 / 기준가=1.00 / 프리미엄=1.20)          │
+│                                                      │
+│  ─── 결과 ───                                        │
+│  FOB 천장:     $12.09                                 │
+│  최종 FOB:     $12.09                                 │
+│  현지 포지셔닝: $20.00 (경쟁품 대비 ±0%)                │
+│                                                      │
+│  [직접입력] 선택 시 🔒 잠금 해제 → 슬라이더 조작 가능     │
+│  슬라이더 수동 조작 시 전략이 [직접입력]으로 자동 전환     │
+└────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📝 AI 보고서 (9블록)
+
+시뮬레이터 아래에 AI 보고서 생성 버튼. 클릭 시 Haiku 호출 (fallback 대비).
+
+### 보고서 블록 구조
+
+| # | 블록 | 내용 | 데이터 소스 |
+|---|------|------|-----------|
+| 1 | 제품 프로필 | 브랜드명, INN, 제형, 함량, 특허 기술, ATC 코드 | `product-dictionary.ts` |
+| 2 | 유통 허가 상태 | MINSA 등록 여부, WLA 패스트트랙, 등록 기간·비용 ($500, 45일) | `entryFeasibility` |
+| 3 | 관세·세금 환경 | FTA 관세 0%, ITBMS 0%, USD/PAB 1:1 페그, 약국 33%·도매 23~25% | `PANAMA_FIXED` + 하드코드 |
+| 4 | 물류 분석 | 부산항→콜론/발보아항, 해상 운임 $4,000~6,000 (20ft), 냉장/일반 구분, 내륙 $1,300~1,750 | 딥리서치 데이터 |
+| 5 | 경쟁사 분석 | Tier 1/2/3 경쟁품 가격대, PanamaCompra V3 실적, 제조사·유통사 | 1공정 보고서 + DB |
+| 6 | FOB 역산 결과 | 3전략별 FOB + 현지 소매 포지셔닝가 + FOB 배수 + 자사 손익 | 시뮬레이터 계산 |
+| 7 | Incoterms 순산 | FOB→CFR→CIF→DDP 단계별 가격 | `incoterms_forward_calculator.ts` |
+| 8 | 유나이티드 포지셔닝 권고 | Tier 2 가격대 + 기술 프리미엄 근거 + WLA 시간 이점 | `system_context_panama.ts` |
+| 9 | 전략 권고 | 3전략 중 해당 제품 권장 전략 + 근거 + 위험 요소 | LLM 판단 |
+
+### 보고서 블록별 생성 규칙
+
+**블록 1 (제품 프로필)**: product-dictionary에서 직접 인용. LLM 불필요.
+
+```
+Rosumeg Combigel — Rosuvastatin 5mg + Omega-3-acid ethyl esters 90 1g
+Soft Capsule 30캡 | HS 3004.90 | ATC C10AA07 + C10AX06
+특허: CombiGel® (Patent No. 1752700, 1950907)
+복합제 (is_combination_drug: true)
+```
+
+**블록 2 (유통 허가)**: entryFeasibility 데이터 인용.
+
+```
+등급: D_long_term | 경로: wla_korea_fast_with_market_education
+개별 성분 유통 가능 (Rosuvastatin R-94983, Omega-3 distributable)
+조합제 신규 등록 필요 → WLA 패스트트랙 45일 / $500
+```
+
+**블록 3 (관세·세금)**: 하드코드.
+
+```
+한-중미 FTA 관세: 0% (2021.03 발효)
+ITBMS (의약품): 0% (면세)
+USD/PAB: 1:1 페그 (1904~) → 환율 변환 불필요
+약국 소매 마진: 33% (ACODECO 기준)
+도매 마진: 23~25%
+```
+
+**블록 4 (물류)**: 딥리서치 데이터 + 시뮬레이터 파라미터.
+
+```
+루트: 부산항 → 파나마 발보아항/콜론항 (태평양/대서양 양항)
+해상 운임: 20ft 냉장 $4,000~6,000 / 일반 $2,500~4,000
+통관 수수료: CIF $10,000 초과 시 $80 + 초과분 0.27%
+내륙 운송: 냉장 컨테이너 $1,300~1,750
+전체 물류 비중: 소매가 대비 5~8%
+```
+
+**블록 5 (경쟁사)**: 1공정 보고서에서 자동 추출.
+
+```
+[Rosumeg 경쟁사 - PanamaCompra V3 실적]
+Tier 1 (동일 조합제): 0건 → First-mover 기회
+Tier 2 (Rosuvastatin 단일): 5건, 평균 $0.08/정
+  - Hetero Labs(인도) → SEVEN PHARMA 유통 3건(60%)
+  - Laboratorios Normon(스페인) → C.G. de Haseth 1건
+  - MEDIPAN(파나마 로컬) 1건
+Tier 3 (ATC C10AA): 30건 (파나마 5 + Colombia 25)
+```
+
+**블록 6 (FOB 역산 결과)**: 시뮬레이터 계산값 그대로.
+
+```
+┌──────────┬──────────┬──────────┬──────────┬──────────┐
+│ 전략      │ FOB 천장  │ 배수     │ 최종 FOB  │ 소매 포지셔닝│
+│ 저가진입   │ $12.09   │ ×0.85   │ $10.28   │ $17.01 (-15%)│
+│ 기준가    │ $12.09   │ ×1.00   │ $12.09   │ $20.00 (±0%) │
+│ 프리미엄   │ $12.09   │ ×1.20   │ $14.51   │ $24.00 (+20%)│
+└──────────┴──────────┴──────────┴──────────┴──────────┘
+```
+
+**블록 7 (Incoterms)**: 기존 `incoterms_forward_calculator.ts` 활용.
+
+```
+FOB $12.09 (부산항)
+  + 운임 $0.79 → CFR $12.88
+  + 보험 $0.13 → CIF $13.01
+  + 관세 $0 + 통관 $0.04 → DDP $13.05
+```
+
+**블록 8 (유나이티드 포지셔닝)**: `system_context_panama.ts` 4번 참조.
+
+```
+포지셔닝: Tier 3(로컬 $0.04~0.10) < 한국유나이티드 < Tier 1(오리지널 $0.15~0.30)
+무기: 고품질 + WLA 패스트트랙 + CombiGel 특허
+Tier 2 권역 제네릭(Genfar, Stein)과 동급 가격대에서 기술 차별화
+```
+
+**블록 9 (전략 권고)**: LLM 생성 (Haiku) 또는 규칙 기반 fallback.
+
+```
+[Rosumeg 권고: 프리미엄 전략]
+근거: Tier 1 동일 조합제 0건(First-mover), CombiGel 특허 진입장벽
+위험: 현지 소매가 $24 → 경쟁품 대비 +20%로 처방 저항 가능성
+완화: WLA 45일 속성 등록 후 MINSA 직접 제안 루트로 처방 근거 구축
+```
+
+---
+
+## 📦 pricing_strategy_presets.ts (최종판)
+
+```typescript
+/** 파나마 전용 가격 전략 프리셋 — 유통 마진 고정, FOB 배수로 전략 분기 */
+
+export type PricingStrategy = "penetration" | "reference" | "premium" | "custom";
+export type MarketChannel = "retail" | "public";
+
+/** 유통 마진 구조 (시장이 정한 팩트, 전략과 무관) */
+export interface MarginStructure {
+  pharmacyMargin: number;   // 소매: 약국마진 / 공공: 0
+  wholesaleMargin: number;  // 소매: 도매마진 / 공공: 에이전트 영업비
+  logistics: number;        // 물류/통관비
+  risk: number;             // 리스크 상각
+}
+
+/** 파나마 유통 마진 고정값 */
+export const PANAMA_RETAIL_MARGINS: MarginStructure = {
+  pharmacyMargin: 0.25,    // 약국 25%
+  wholesaleMargin: 0.20,   // 도매 20%
+  logistics: 0.065,        // 물류 6.5%
+  risk: 0.02,              // 리스크 2%
+};
+
+export const PANAMA_PUBLIC_MARGINS: MarginStructure = {
+  pharmacyMargin: 0.00,    // B2G 직납, 약국 없음
+  wholesaleMargin: 0.15,   // 에이전트 영업비 15%
+  logistics: 0.065,        // 물류 6.5%
+  risk: 0.10,              // CSS 대금 지연 리스크 10%
+};
+
+/** 전략별 FOB 배수 (FOB 천장에 곱하는 값) */
+export const STRATEGY_MULTIPLIERS: Record<Exclude<PricingStrategy, "custom">, number> = {
+  penetration: 0.85,       // 자사 15% 양보
+  reference: 1.00,         // 시장 허용 그대로
+  premium: 1.20,           // 기술 프리미엄 20%
+};
+
+/** 파나마 고정 특수성 */
+export const PANAMA_FIXED = {
+  tariff: 0,               // 한-중미 FTA 관세 0%
+  itbms: 0,                // 의약품 ITBMS 0%
+  currencyPeg: 1,          // PAB = USD 1:1 (1904~)
+} as const;
+
+/** FOB 천장 역산 (유통 마진 제거) */
+export function calculateFobCeiling(
+  marketPrice: number,
+  margins: MarginStructure,
+): number {
+  return marketPrice
+    / (1 + margins.pharmacyMargin)
+    / (1 + margins.wholesaleMargin)
+    / (1 + margins.logistics)
+    / (1 + margins.risk);
+}
+
+/** 최종 FOB (천장 × 전략 배수) */
+export function calculateFinalFob(
+  fobCeiling: number,
+  multiplier: number,
+): number {
+  return fobCeiling * multiplier;
+}
+
+/** 현지 소매 포지셔닝가 순산 (최종 FOB → 소매가) */
+export function calculatePositioningPrice(
+  finalFob: number,
+  margins: MarginStructure,
+): number {
+  return finalFob
+    * (1 + margins.risk)
+    * (1 + margins.logistics)
+    * (1 + margins.wholesaleMargin)
+    * (1 + margins.pharmacyMargin);
+}
+
+/** Waterfall 역산 단계 (차트용) */
+export function calculateReverseWaterfall(
+  marketPrice: number,
+  margins: MarginStructure,
+) {
+  const afterPharmacy = marketPrice / (1 + margins.pharmacyMargin);
+  const afterWholesale = afterPharmacy / (1 + margins.wholesaleMargin);
+  const afterLogistics = afterWholesale / (1 + margins.logistics);
+  const fobCeiling = afterLogistics / (1 + margins.risk);
+
+  return [
+    { label: "경쟁품 소매가", value: marketPrice, delta: 0, color: "#3B82F6" },
+    { label: "약국 마진 공제", value: afterPharmacy, delta: -(marketPrice - afterPharmacy), percent: margins.pharmacyMargin * 100, color: "#EF4444" },
+    { label: "도매 마진 공제", value: afterWholesale, delta: -(afterPharmacy - afterWholesale), percent: margins.wholesaleMargin * 100, color: "#F59E0B" },
+    { label: "물류/통관 공제", value: afterLogistics, delta: -(afterWholesale - afterLogistics), percent: margins.logistics * 100, color: "#8B5CF6" },
+    { label: "리스크 공제", value: fobCeiling, delta: -(afterLogistics - fobCeiling), percent: margins.risk * 100, color: "#6B7280" },
+    { label: "FOB 천장", value: fobCeiling, delta: 0, color: "#10B981" },
+  ];
+}
+
+/** Waterfall 순산 단계 (차트용) */
+export function calculateForwardWaterfall(
+  finalFob: number,
+  margins: MarginStructure,
+) {
+  const afterRisk = finalFob * (1 + margins.risk);
+  const afterLogistics = afterRisk * (1 + margins.logistics);
+  const afterWholesale = afterLogistics * (1 + margins.wholesaleMargin);
+  const retailPositioning = afterWholesale * (1 + margins.pharmacyMargin);
+
+  return [
+    { label: "최종 FOB", value: finalFob, delta: 0, color: "#10B981" },
+    { label: "리스크 가산", value: afterRisk, delta: afterRisk - finalFob, percent: margins.risk * 100, color: "#9CA3AF" },
+    { label: "물류/통관 가산", value: afterLogistics, delta: afterLogistics - afterRisk, percent: margins.logistics * 100, color: "#A78BFA" },
+    { label: "도매 마진 가산", value: afterWholesale, delta: afterWholesale - afterLogistics, percent: margins.wholesaleMargin * 100, color: "#34D399" },
+    { label: "약국 마진 가산", value: retailPositioning, delta: retailPositioning - afterWholesale, percent: margins.pharmacyMargin * 100, color: "#10B981" },
+    { label: "소매 포지셔닝가", value: retailPositioning, delta: 0, color: "#3B82F6" },
+  ];
+}
+```
+
+---
+
+## 📁 파일 구조
+
+### 신규 생성 (10개)
+
+```
+src/logic/
+  pricing_strategy_presets.ts       ← 위 코드 (핵심 상수 + 계산 함수)
+
+components/phase2/
+  FobSimulator.tsx                  ← 시뮬레이터 통합 래퍼
+  WaterfallChart.tsx                ← Recharts Waterfall (역산 + 순산 2단)
+  StrategySelector.tsx              ← 4버튼 (저가진입/기준가/프리미엄/직접입력)
+  MarginSliders.tsx                 ← 슬라이더 (직접입력 시 잠금해제)
+  FobResultHeader.tsx               ← 상단 요약 (FOB천장/최종FOB/포지셔닝가)
+  Phase2ReportBlocks.tsx            ← AI 보고서 9블록 렌더링
+
+app/api/panama/phase2/
+  extract-prices/route.ts           ← 1공정 보고서에서 가격 추출
+  generate-report/route.ts          ← 2공정 AI 보고서 생성 (기존 수정)
+```
+
+### 수정 (3개)
+
+```
+src/logic/fob_back_calculator.ts         ← 전략 배수 파라미터 추가
+src/logic/price_scenario_generator.ts    ← 리네이밍 + 순산 로직 추가
+app/process-2/page.tsx                    ← 시뮬레이터 + 보고서 삽입
+```
+
+---
+
+## ⚡ 구현 순서 (시간 순)
+
+### Phase 1: 핵심 로직 (20분)
+1. `pricing_strategy_presets.ts` 생성 (위 코드 그대로)
+2. `fob_back_calculator.ts` 수정 — 전략 배수 + 순산 함수 추가
+3. `npx tsc --noEmit` 통과 확인
+
+### Phase 2: UI 컴포넌트 (1시간)
+4. `StrategySelector.tsx` — 4버튼 + 시장 토글
+5. `MarginSliders.tsx` — 잠금/해제 슬라이더
+6. `FobResultHeader.tsx` — FOB 천장 / 최종 FOB / 포지셔닝가
+7. `WaterfallChart.tsx` — Recharts BarChart (역산 + 순산 2단)
+8. `FobSimulator.tsx` — 위 4개 조합
+
+### Phase 3: 보고서 (40분)
+9. `Phase2ReportBlocks.tsx` — 9블록 렌더링
+10. `generate-report/route.ts` — 9블록 데이터 조립 + Haiku 호출
+11. 보고서 아래 시뮬레이터 배치
+
+### Phase 4: 페이지 통합 (20분)
+12. `process-2/page.tsx` — 보고서 선택 → 시뮬레이터 → 보고서 순서 배치
+13. 반응형 (모바일 1-column)
+14. Vercel 배포
+
+---
+
+## 🚫 절대 금지
+
+1. 유통 마진을 전략 버튼으로 변경하지 않는다 — 유통 마진은 시장 고정값
+2. 전략은 **FOB 배수만** 바꾼다 (직접입력 제외)
+3. 관세/ITBMS 공제 로직 추가 금지 — 파나마 0% 고정
+4. `report1_generator.ts` 수정 금지 — 1공정 불변
+5. any 타입 금지
+6. 기존 phase2_generator.ts와 충돌 금지
+
+---
+
+## 📋 CHANGELOG 템플릿
+
+```markdown
+## [Unreleased] - 2026-04-17 HH:MM:SS (feat(phase2-final): FOB 시뮬레이터 + AI 보고서 9블록)
+
+### Added
+- feat(logic): pricing_strategy_presets.ts — 유통 마진 고정 + FOB 배수 전략 + 역산/순산 계산
+- feat(ui): FobSimulator, WaterfallChart, StrategySelector, MarginSliders, FobResultHeader 5종
+- feat(ui): Phase2ReportBlocks — AI 보고서 9블록 렌더링
+- feat(api): extract-prices — 1공정 보고서에서 경쟁품 가격 자동 추출
+
+### Changed
+- refactor(logic): fob_back_calculator — 전략 배수 + 순산 로직 추가
+- refactor(logic): price_scenario_generator — 저가진입/기준가/프리미엄 리네이밍
+```

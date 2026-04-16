@@ -8,6 +8,7 @@ import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 type ProductUiMeta = {
   categoryLabel: "항암제" | "개량신약" | "일반제";
+  roleLabel: string;
   displayInn: string;
   displayFormulation: string;
 };
@@ -15,41 +16,49 @@ type ProductUiMeta = {
 const PRODUCT_UI_META_BY_ID: Record<string, ProductUiMeta> = {
   "bdfc9883-6040-438a-8e7a-df01f1230682": {
     categoryLabel: "항암제",
+    roleLabel: "항암제",
     displayInn: "hydroxyurea 500mg",
     displayFormulation: "Cap",
   },
   "fcae4399-aa80-4318-ad55-89d6401c10a9": {
     categoryLabel: "개량신약",
+    roleLabel: "혈전+지질 복합제",
     displayInn: "cilostazol+rosuvastatin",
     displayFormulation: "Tab",
   },
   "24738c3b-3a5b-40a9-9e8e-889ec075b453": {
     categoryLabel: "개량신약",
+    roleLabel: "소화제",
     displayInn: "mosapride citrate 15mg",
     displayFormulation: "Tab",
   },
   "2504d79b-c2ce-4660-9ea7-5576c8bb755f": {
     categoryLabel: "개량신약",
+    roleLabel: "고지혈증 복합제",
     displayInn: "rosuvastatin+omega-3",
     displayFormulation: "Cap",
   },
   "859e60f9-8544-43b3-a6a0-f6c7529847eb": {
     categoryLabel: "개량신약",
+    roleLabel: "고지혈증 복합제",
     displayInn: "atorvastatin+omega-3",
     displayFormulation: "Cap",
   },
   "014fd4d2-dc66-4fc1-8d4f-59695183387f": {
     categoryLabel: "일반제",
+    roleLabel: "천식 흡입기 DPI",
     displayInn: "fluticasone+salmeterol",
     displayFormulation: "Inhaler",
   },
   "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": {
     categoryLabel: "개량신약",
+    roleLabel: "중성지방 낮춤 오메가3",
     displayInn: "omega-3 ethyl esters 2g",
     displayFormulation: "Pouch",
   },
   "895f49ae-6ce3-44a3-93bd-bb77e027ba59": {
     categoryLabel: "일반제",
+    roleLabel: "MRI 조영제",
     displayInn: "gadobutrol 604.72mg",
     displayFormulation: "PFS",
   },
@@ -66,10 +75,11 @@ function compressHsCode(hsCode: string): string {
 function buildProductOptionLabel(productId: string, brandName: string, hsCode: string): string {
   const uiMeta = PRODUCT_UI_META_BY_ID[productId];
   const categoryLabel = uiMeta?.categoryLabel ?? "일반제";
+  const roleLabel = uiMeta?.roleLabel ?? "일반 의약품";
   const displayInn = uiMeta?.displayInn ?? brandName.toLowerCase();
   const displayFormulation = uiMeta?.displayFormulation ?? "Cap";
   const compactHsCode = compressHsCode(hsCode);
-  return `[${categoryLabel}] ${brandName} · ${displayInn} · ${displayFormulation} · HS ${compactHsCode}`;
+  return `[${categoryLabel}] ${brandName} · ${roleLabel} · ${displayInn} · ${displayFormulation} · HS ${compactHsCode}`;
 }
 
 const PROCESS1_INPUT_CLASS =

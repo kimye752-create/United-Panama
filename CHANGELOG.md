@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 02:47:09 (feat(process1): 제품 선택 목록에 약품 역할 정보 추가)
+
+### Changed
+- feat(process1-ui): `components/dashboard/process1/Process1Workbench.tsx`의 드롭다운 라벨을 `분류 → 브랜드 → 역할 → 성분/강도 → 제형 → HS` 순서로 재정렬.
+- feat(process1-ui): 8개 제품에 대해 역할 매핑을 추가(`항암제`, `혈전+지질 복합제`, `소화제`, `고지혈증 복합제`, `천식 흡입기 DPI`, `중성지방 낮춤 오메가3`, `MRI 조영제`)해 목록에서 즉시 확인 가능하도록 개선.
+- note(ui): 백엔드 연동 키(`product_id`)와 선택 로직은 유지하고 표시 문자열만 확장.
+
+## [Unreleased] - 2026-04-17 02:30:40 (style(layout): 메인 폭 중간값 확장 + 공정 탭 세로 중앙 정렬)
+
+### Changed
+- style(layout): `components/dashboard/DashboardShell.tsx` 본문 컨테이너 최대폭을 `1340px`에서 `1410px`로 조정해, 현재 버전의 좁은 느낌과 확장 버전 사이 중간 밀도로 카드 분포를 보정.
+- style(navigation): `components/dashboard/TabNavigation.tsx` 탭 바를 `h-[52px]` + `border-y` 구조로 재정렬하고 탭 텍스트를 `h-full items-center leading-none`로 맞춰 상·하 구분선의 정중앙 높이에 오도록 조정.
+- style(navigation): 활성 밑줄 위치를 `-bottom`에서 `bottom-0`으로 맞춰 텍스트가 아래로 쏠려 보이던 시각 오차를 완화.
+
 ## [Unreleased] - 2026-04-17 02:20:16 (style(layout): 메인 본문 분포 중간값 폭으로 조정)
 
 ### Changed
