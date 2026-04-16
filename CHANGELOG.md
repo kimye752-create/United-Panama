@@ -1,5 +1,12 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 00:37:48 (style(topbar): 회사명/대시보드 2줄 위계로 헤더 가독성 개선)
+
+### Changed
+- style(topbar): `components/dashboard/Topbar.tsx` 상단 타이틀을 한 줄 문장에서 2줄 구조로 변경.
+- style(topbar): 상단 `한국유나이티드제약(주)`는 작은 보조 텍스트로, 하단 `해외 영업·마케팅 대시보드`는 기존보다 강조된 본문 타이틀로 배치해 시선 집중도를 개선.
+- note(ui): 로고/국기/국가 표시/기능 로직은 변경 없이 텍스트 위계와 타이포만 조정.
+
 ## [Unreleased] - 2026-04-17 00:33:49 (feat(process1-step-ui): 분석 단계 파동/체크 진행 UI 및 멘트 정렬)
 
 ### Changed
