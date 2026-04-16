@@ -8,8 +8,8 @@ export default function HomePage() {
     <DashboardShell>
       <div className="mb-3.5 grid grid-cols-1 items-stretch gap-3.5 md:grid-cols-3">
         <TariffExchangeCard />
-        <ProgressChecklistCard />
         <MarketNewsCard />
+        <ProgressChecklistCard />
       </div>
     </DashboardShell>
   );

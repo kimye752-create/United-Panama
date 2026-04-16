@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 (feat(report1): nombre_comercial 보고서 노출 + Gemini 추론 1차출처 분리 플래그 + WLA 출처 추출)
+
+### Changed
+- ops: `extract_wla_from_dnfd.ts` / `panamacompra_v3_additional_search.ts` 재실행. WLA 키워드 0건, `_wla_evidence.json` 갱신.
+- ops: B-3 `evidence_notes` 플래그 SQL 재적용, `panama_report_cache` 전체 삭제, 성분·제품 단위 SELECT로 `requires_primary_source` / `report_displayable` 검증.
+
+## [Unreleased] - 2026-04-16 (feat(dashboard): 메인 뉴스·체크리스트 위치 교체 + Perplexity 파나마 뉴스)
+
+### Changed
+- feat(ui): `app/page.tsx`에서 `MarketNewsCard`를 `ProgressChecklistCard` 앞열(중앙 컬럼)로 이동해 뉴스·Todolist 위치 교체.
+- feat(api): `app/api/panama/dashboard-news/route.ts` GET 추가. `src/logic/fetch_panama_dashboard_news.ts`에서 Perplexity `sonar`로 파나마 의약·MINSA·DNFD·조달 관련 헤드라인 JSON 파싱.
+- feat(ui): `components/dashboard/main/MarketNewsCard.tsx`를 클라이언트 컴포넌트로 전환, 로드·새로고침·경고 표시.
+- chore(env): `.env.example`에 `PERPLEXITY_API_KEY` 안내 추가.
+
 ## [Unreleased] - 2026-04-16 15:45:00 (feat(report1): nombre_comercial 보고서 노출 + Gemini 추론 1차출처 분리 플래그 + WLA 출처 추출)
 
 ### Changed
