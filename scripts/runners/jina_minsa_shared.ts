@@ -79,6 +79,9 @@ export async function fetchViaJina(targetUrl: string): Promise<string> {
   }
 }
 
+/** 세션 22 지시서 명칭 — `fetchViaJina`와 동일 */
+export { fetchViaJina as readWithJina };
+
 export async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
 }

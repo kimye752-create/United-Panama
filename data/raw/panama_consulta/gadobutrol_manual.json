@@ -1,0 +1,12 @@
+{
+  "inn": "gadobutrol",
+  "portal_url": "https://consultamedicamentos.minsa.gob.pa/",
+  "checked_at": null,
+  "confirmed_absence": false,
+  "results": [],
+  "evidence_notes": {
+    "primary_source_strength": null,
+    "source": "dnfd_consultamedicamentos_manual",
+    "comment": "수동 조회 후 채움. 0건 확정 시 confirmed_absence=true 및 primary_source_strength=high(사실만)."
+  }
+}

@@ -1,5 +1,58 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 (db(regulatory): 세션 22 WLA 확증실패 격하 + Ley419/Decreto27 공식 INSERT)
+
+### Changed
+- feat(db): `panama_ingredient_eligibility` UPDATE 4건 (Hydroxyurea·Gadobutrol·Mosapride·Omega-3-acid ethyl esters), 4채널 교차검증 메타 기준으로 `evidence_notes.session=22` 박제.
+- feat(db): `panama` 테이블 `regulatory_milestone` 2행 격하.
+  - `f0d4b694-b6f1-4d9e-b9be-8249189379d7`(`dnfd_procedure_meta`): `pa_notes` JSONB 내 `session_22_verification` 키 추가, `confidence=0.30`
+  - `9424d349-3b0d-41e0-a463-03620cdfe254`(`minsa_official`): `pa_notes` 접두어 추가, `confidence=0.30`, `pa_freshness_status='gemini_only_not_displayable'`
+- feat(db): `panama` 테이블 `gaceta_oficial_direct` 2행 신규 INSERT.
+  - Ley 419 de 2024 (Gaceta 29962-A)
+  - Decreto 27 de 2024 (Gaceta 30028-C, 836조)
+- ops(db): `panama_report_cache` 전체 삭제로 격하/신규 규제 정보 반영 강제.
+- verify(db): `evidence_notes->>'session'='22'` 4행, `regulatory_milestone` 5행(기존 3행 + 신규 2행) 확인.
+
+## [Unreleased] - 2026-04-16 15:52:04 (style(ui): 우측 상단 국가 라벨에 파나마 국기 아이콘 고정 렌더링)
+
+### Changed
+- style(ui): `components/dashboard/Topbar.tsx` 국가 배지의 이모지 국기 텍스트를 SVG 아이콘 이미지(`public/images/flags/panama_round.svg`)로 교체해 OS/폰트 의존 없이 항상 동일하게 보이도록 수정.
+- assets(ui): `public/images/flags/panama_round.svg` 추가(원형 크롭 형태 파나마 국기).
+
+## [Unreleased] - 2026-04-16 15:00:27 (ops(session22): T6·T7 재실행 + Ley419 로컬 경로 폴백 지원)
+
+### Changed
+- feat(ops): `scripts/runners/fetch_ley_419_2024.ts`에 `LEY419_PDF_PATH` 우선 로딩 로직 추가. 없을 때만 `LEY419_PDF_URL` 다운로드를 시도하도록 분기하고, 실패 사유를 `data/raw/minsa_laws/ley_419_2024_error.txt`에 기록.
+- feat(ops): `scripts/runners/crawl_kotra_panama_wla.ts` URL 목록을 세션22 재지시안 기준으로 교체(`pRptNo=14109`, `dataIdx=226530`)하고, DB 조회 결과(`https://dream.kotra.or.kr/`, `https://www.kotra.or.kr/bigdata/visualization/country/PA`)를 추가.
+- run(ops): T7 옵션 A 실행(`LEY419_PDF_URL=https://www.gacetaoficial.gob.pa/pdfTemp/29966-A.pdf`) 결과 비 PDF 응답으로 실패.
+- run(ops): T7 옵션 B 실행(`LEY419_PDF_PATH=data/raw/minsa_laws/ley_419_2024.pdf`) 결과 로컬 파일 미존재(ENOENT)로 실패.
+- run(ops): T6 재실행 완료, `data/raw/kotra_panama/wla_evidence.json` 갱신(4 URL 처리, 일부 URL은 리다이렉션/500 안내 페이지 수집).
+
+## [Unreleased] - 2026-04-17 (feat(ops): 세션22 1차 출처 확증 파이프라인 — 가이드·Jina·VTEX·Ley419)
+
+### Changed
+- docs(runners): `guide_dnfd_manual_check_gadobutrol.md` / `mosapride.md` / `omega3.md` — consultamedicamentos 수동 조회 절차·JSON 스키마(0건=high 사실 박제).
+- data(raw): `data/raw/panama_consulta/*_manual.json`·template 정렬(omega3 `inn`= `omega_3_acid_ethyl_esters`).
+- feat(ops): `crawl_bayer_panama.ts` — `readWithJina`(`jina_minsa_shared`)로 Bayer·radiologyinfo 텍스트 수집 → `data/raw/bayer_panama/gadobutrol_evidence.json`.
+- feat(ops): `crawl_kotra_panama_wla.ts` — KOTRA URL 2건, `korea_wla_designation_mentions` → `data/raw/kotra_panama/wla_evidence.json`(일부 URL Jina 422 시 error 필드).
+- feat(ops): `fetch_ley_419_2024.ts` — `PDFParse`로 본문·`ley_419_2024_keyword_hits.json`(기본 Gaceta URL 비 PDF 시 `ley_419_2024_error.txt` + 중단).
+- feat(ops): `pa_superxtra_round2.ts` — VTEX 검색만, 최대 50 SKU → `data/raw/panama_superxtra/round2_gemini_verified.json`.
+- chore(runners): `jina_minsa_shared.ts`에 `readWithJina` 별칭 export(`fetchViaJina` 동일).
+- verify: T7 기본 PDF URL HTML 응답(비 PDF). T6 URL 1건 Jina 422. T4·T5 실행 완료.
+
+## [Unreleased] - 2026-04-17 (feat(ops): Gemini 단독 근거 1차 출처 재검증 스크립트 + 채널 fetch)
+
+### Changed
+- feat(ops): `scripts/runners/verify_gemini_claims.ts` 추가. KOTRA·Gaceta·PanamaCompra·MINSA·MFDS·KPBMA 등 다중 채널 Jina fetch → 키워드 매칭 → `data/raw/verify_gemini/_verification_results.json` 저장.
+- feat(ops): 매칭 시 `evidence_notes.gemini_claim_verification` 병합, 성분·지정 제품은 `match_total>0`일 때만 `primary_source_strength=high`·`report_displayable=true` 승격; `wla_korea_fast` 전 제품에는 WLA 클레임 매칭 시 `wla_verification_hint`만 추가.
+- run(ops): 재검증 SQL 대상 4건(Gadobutrol, Mosapride, Gadvoa Inj., Gastiin CR). Gadobutrol/Mosapride 채널 키워드 0건 → 승격 없음. WLA 클레임 다수 매칭(일부 UI 푸터 등 노이즈 가능) → 수동 문맥 확인 권장.
+
+## [Unreleased] - 2026-04-17 (chore(repo): 중첩 `United_Panama` 폴더 정리)
+
+### Changed
+- ops: 루트 하위에 잘못 생성된 `United_Panama/` 중첩 폴더 삭제(중복 복제본 제거).
+- chore(git): `.gitignore`에 `United_Panama/` 추가로 동일 실수 재발 방지.
+
 ## [Unreleased] - 2026-04-17 (feat(report1): nombre_comercial 보고서 노출 + Gemini 추론 1차출처 분리 플래그 + WLA 출처 추출)
 
 ### Changed

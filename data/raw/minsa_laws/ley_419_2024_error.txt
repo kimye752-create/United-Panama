@@ -1,0 +1,2 @@
+로컬 PDF 읽기 실패: ENOENT: no such file or directory, open 'C:\dev\United_Panama\data\raw\minsa_laws\ley_419_2024.pdf'
+path=C:\dev\United_Panama\data\raw\minsa_laws\ley_419_2024.pdf

@@ -1,0 +1,11 @@
+{
+  "inn": "omega_3_acid_ethyl_esters",
+  "checked_at": null,
+  "confirmed_absence": false,
+  "results": [],
+  "evidence_notes": {
+    "primary_source_strength": null,
+    "source": "dnfd_consultamedicamentos_manual",
+    "comment": "가이드에 따라 수동 조회 후 채움. Rx vs OTC 구분 필수."
+  }
+}

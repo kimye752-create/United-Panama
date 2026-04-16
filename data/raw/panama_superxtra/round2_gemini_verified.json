@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-04-16T05:39:56.262Z",
+  "max_skus": 50,
+  "collected": 2,
+  "primary_source_strength_hint": "high",
+  "note": "VTEX 검색 API = 소매 카탈로그 1차 출처. DB INSERT 없음.",
+  "search_log": [
+    {
+      "theme": "mosapride",
+      "keyword": "mosaprida",
+      "rowCount": 0
+    },
+    {
+      "theme": "mosapride",
+      "keyword": "gastrointestinal procinetico",
+      "rowCount": 0
+    },
+    {
+      "theme": "omega3_rx",
+      "keyword": "omacor",
+      "rowCount": 2
+    },
+    {
+      "theme": "omega3_rx",
+      "keyword": "lovaza",
+      "rowCount": 0
+    },
+    {
+      "theme": "omega3_rx",
+      "keyword": "omega-3 receta",
+      "rowCount": 0
+    },
+    {
+      "theme": "gadobutrol",
+      "keyword": "gadobutrol",
+      "rowCount": 0
+    },
+    {
+      "theme": "gadobutrol",
+      "keyword": "gadovist",
+      "rowCount": 0
+    }
+  ],
+  "products": [
+    {
+      "productId": "25209",
+      "matched_theme": "omega3_rx",
+      "matched_keyword": "omacor",
+      "summary": {
+        "productId": "25209",
+        "productName": "Omacor Ferrer X Un",
+        "brand": "Ferrer",
+        "linkText": "omacor-ferrer-x-un-1033042014338"
+      }
+    },
+    {
+      "productId": "19608",
+      "matched_theme": "omega3_rx",
+      "matched_keyword": "omacor",
+      "summary": {
+        "productId": "19608",
+        "productName": "Omacor Frasco 28 Capsulas Blandas",
+        "brand": "Xtra",
+        "linkText": "omacor-frasco-28-capsulas-blandas-8433042014339"
+      }
+    }
+  ]
+}

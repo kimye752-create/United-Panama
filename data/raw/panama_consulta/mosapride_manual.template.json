@@ -1,0 +1,12 @@
+{
+  "inn": "mosapride",
+  "portal_url": "https://consultamedicamentos.minsa.gob.pa/",
+  "checked_at": null,
+  "confirmed_absence": false,
+  "results": [],
+  "evidence_notes": {
+    "primary_source_strength": null,
+    "source": "dnfd_consultamedicamentos_manual",
+    "requires_interpretation": false
+  }
+}

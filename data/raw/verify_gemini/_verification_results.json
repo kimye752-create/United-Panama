@@ -1,0 +1,183 @@
+{
+  "generated_at": "2026-04-16T05:28:32.963Z",
+  "results": [
+    {
+      "claim": "Gadobutrol 파나마 등록 (Gadovist)",
+      "channel": "https://dream.kotra.or.kr/kotranews/cms/news/actionKotraBoardList.do?pageNo=1&pageSize=10&SITE_NO=3&MENU_ID=200&CONTENTS_NO=1&bbsGbn=251&bbsSn=251&searchCondition=all&searchKeyword=%ED%8C%8C%EB%82%98%EB%A7%88+%EC%A1%B0%EC%98%81%EC%A0%9C",
+      "success": true,
+      "charCount": 23455,
+      "matches": 0,
+      "evidence": []
+    },
+    {
+      "claim": "Gadobutrol 파나마 등록 (Gadovist)",
+      "channel": "https://r.jina.ai/https://www.gacetaoficial.gob.pa/",
+      "success": true,
+      "charCount": 4148,
+      "matches": 0,
+      "evidence": []
+    },
+    {
+      "claim": "Gadobutrol 파나마 등록 (Gadovist)",
+      "channel": "https://r.jina.ai/https://www.panamacompra.gob.pa/",
+      "success": true,
+      "charCount": 11396,
+      "matches": 0,
+      "evidence": []
+    },
+    {
+      "claim": "Mosapride 시장 상태 (비주류)",
+      "channel": "https://r.jina.ai/https://www.gacetaoficial.gob.pa/",
+      "success": true,
+      "charCount": 4148,
+      "matches": 0,
+      "evidence": []
+    },
+    {
+      "claim": "Mosapride 시장 상태 (비주류)",
+      "channel": "https://r.jina.ai/https://www.minsa.gob.pa/",
+      "success": true,
+      "charCount": 25556,
+      "matches": 0,
+      "evidence": []
+    },
+    {
+      "claim": "WLA 한국 트랙 + Ley 419 de 2024 (규제 근거)",
+      "channel": "https://r.jina.ai/https://dream.kotra.or.kr/kotranews/cms/news/actionKotraBoardList.do?pageNo=1&pageSize=5&SITE_NO=3&MENU_ID=200&CONTENTS_NO=1&bbsGbn=251&bbsSn=251&searchCondition=all&searchKeyword=%ED%8C%8C%EB%82%98%EB%A7%88+%EC%A0%9C%EC%95%BD",
+      "success": true,
+      "charCount": 23215,
+      "matches": 5,
+      "evidence": [
+        {
+          "keyword": "Korea",
+          "context": "[로그인](https://dream.kotra.or.kr/kotranews/cms/news/actionKotraBoardList.do?pageNo=1&pageSize=5&SITE_NO=3&MENU_ID=200&CONTENTS_NO=1&bbsGbn=251&bbsSn=251&searchCondition=all&searchKeyword=%ED%8C%8C%EB%82%98%EB%A7%88+%EC%A0%9C%EC%95%BD#; \"로그인\")[회원가입](https://www.kotra.or.kr/kp/cmm/mber/sbscrb/selectSbscrbUsrTy.do \"회원가입\")\n\n[![Image 2: KOTRA 지원안내](https://dream.kotra.or.kr/type/common/img/common/logo_t_06_s.png)](https://www.kotra.or.kr/kp/kotra/cmm/sso/loginBySSO.do?div=kp \"새 창 열림\")[![Image 3: 바이코리아",
+          "line": 16
+        },
+        {
+          "keyword": "Korea",
+          "context": "[![Image 8: 옴부즈만](https://dream.kotra.or.kr/type/news/img/layout/logo_t_04.png)](https://dream.kotra.or.kr/ob/kotraSsoUrl.do \"새 창 열림\")[**외투기업고충처리**](https://dream.kotra.or.kr/ob/kotraSsoUrl.do)\n\n[![Image 9: Inverst KOREA](https://dream.kotra.or.kr/type/news/img/layout/logo_t_05.png)](https://dream.kotra.or.kr/iv/kotraSsoUrl.do \"새 창 열림\")[**투자유치정보제공**](https://dream.kotra.or.kr/iv/kotraSsoUrl.do)\n\n[![Image 10: 글로벌 전시포털](https://dream.kotra.or.kr/type/news/img/layout/logo_t_06.png)](https://dream.k",
+          "line": 28
+        },
+        {
+          "keyword": "Korea",
+          "context": "[![Image 12: 경제외교 활용포털](https://dream.kotra.or.kr/type/news/img/layout/logo_t_08.png)](https://dream.kotra.or.kr/gw/kotraSsoUrl.do \"새 창 열림\")[**경제외교 활용포털**](https://dream.kotra.or.kr/gw/kotraSsoUrl.do)\n\n[![Image 13: Contract KOREA](https://dream.kotra.or.kr/type/news/img/layout/logo_t_09.png)](https://www.kotra.or.kr/gtc_kor/index.do \"새 창 열림\")[**해외전문인력유치센터**](https://www.kotra.or.kr/gtc_kor/index.do)\n\n[![Image 14: Kodits](https://dream.kotra.or.kr/type/news/img/layout/logo_t_10.png)](https://drea",
+          "line": 36
+        },
+        {
+          "keyword": "Korea",
+          "context": "    *   [직접투자절차](https://dream.kotra.or.kr/kotranews/cms/com/index.do?MENU_ID=360 \"직접투자절차 현재창  이동\")\n        *   [해외투자준비](https://dream.kotra.or.kr/kotranews/cms/com/index.do?MENU_ID=570)\n        *   [청산·국내복귀](https://www.investkorea.org/ik-kr/cntnts/i-237/web.do \"새창열림\")\n        *   [FAQ](https://dream.kotra.or.kr/kotranews/cms/com/index.do?MENU_ID=600)\n",
+          "line": 130
+        },
+        {
+          "keyword": "Korea",
+          "context": "    *   [직접투자절차](https://dream.kotra.or.kr/kotranews/cms/com/index.do?MENU_ID=360 \"직접투자절차 현재창  이동\")\n        *   [해외투자준비](https://dream.kotra.or.kr/kotranews/cms/com/index.do?MENU_ID=570)\n        *   [청산·국내복귀](https://www.investkorea.org/ik-kr/cntnts/i-237/web.do \"새창열림\")\n        *   [FAQ](https://dream.kotra.or.kr/kotranews/cms/com/index.do?MENU_ID=600)\n",
+          "line": 255
+        }
+      ]
+    },
+    {
+      "claim": "WLA 한국 트랙 + Ley 419 de 2024 (규제 근거)",
+      "channel": "https://r.jina.ai/https://www.gacetaoficial.gob.pa/",
+      "success": true,
+      "charCount": 4148,
+      "matches": 2,
+      "evidence": [
+        {
+          "keyword": "Panamá",
+          "context": "\n*   [Constitución](https://www.constitucion.gob.pa/)\n*   [LEGISPAN (Legislación de la Rep. de Panamá)](https://legispan.asamblea.gob.pa/norms)\n*   [Presidencia de la República de Panamá](https://www.presidencia.gob.pa/)\n",
+          "line": 93
+        },
+        {
+          "keyword": "Panamá",
+          "context": "*   [Constitución](https://www.constitucion.gob.pa/)\n*   [LEGISPAN (Legislación de la Rep. de Panamá)](https://legispan.asamblea.gob.pa/norms)\n*   [Presidencia de la República de Panamá](https://www.presidencia.gob.pa/)\n\n##### Total de Gacetas Virtuales",
+          "line": 94
+        }
+      ]
+    },
+    {
+      "claim": "WLA 한국 트랙 + Ley 419 de 2024 (규제 근거)",
+      "channel": "https://r.jina.ai/https://www.mfds.go.kr/brd/m_99/list.do",
+      "success": true,
+      "charCount": 37495,
+      "matches": 12,
+      "evidence": [
+        {
+          "keyword": "Korea",
+          "context": "[국민이 주인인 나라, 함께 행복한 대한민국](https://evaluation.go.kr/web/page.do?menu_id=179 \"새창 열림\")\n\n[블로그](http://blog.naver.com/kfdazzang \"새창 열림\")[페이스북](https://www.facebook.com/mfds \"새창 열림\")[트위터](https://twitter.com/themfds \"새창 열림\")[인스타그램](https://www.instagram.com/mfdskorea/ \"새창 열림\")[유투브](https://www.youtube.com/user/theKFDA?sub_confirmation=1 \"새창 열림\")[카카오채널](http://pf.kakao.com/_xcrxgxdu \"새창 열림\")\n\n*   [홈으로](https://www.mfds.go.kr/index.do)",
+          "line": 47
+        },
+        {
+          "keyword": "Korea",
+          "context": "닫기\n\n[식품 전자민원창구](https://www.foodsafetykorea.go.kr/minwonMainNew.do \"새창 열림\")[수입식품 전자민원창구](http://impfood.mfds.go.kr/ \"새창 열림\")[의약품/화장품 전자민원창구](https://nedrug.mfds.go.kr/index \"새창 열림\")[의료기기 안심책방](https://emedi.mfds.go.kr/ \"새창 열림\")\n\n종합상담센터**1577-1255(유료)**",
+          "line": 105
+        },
+        {
+          "keyword": "Korea",
+          "context": "[정부포상후보자공모 공개검증](https://www.mfds.go.kr/brd/m_487/list.do)\n\n[식품 전자민원창구](https://www.foodsafetykorea.go.kr/minwonMainNew.do \"새창 열림\")[수입식품 전자민원창구](http://impfood.mfds.go.kr/ \"새창 열림\")[의약품/화장품 전자민원창구](https://nedrug.mfds.go.kr/index \"새창 열림\")[의료기기 안심책방](https://emedi.mfds.go.kr/ \"새창 열림\")\n\n종합상담센터**1577-1255(유료)**",
+          "line": 188
+        },
+        {
+          "keyword": "Korea",
+          "context": "[관련 누리집 모음](https://www.mfds.go.kr/pgm/m_635/bannerList.do)\n\n[식품 전자민원창구](https://www.foodsafetykorea.go.kr/minwonMainNew.do \"새창 열림\")[수입식품 전자민원창구](http://impfood.mfds.go.kr/ \"새창 열림\")[의약품/화장품 전자민원창구](https://nedrug.mfds.go.kr/index \"새창 열림\")[의료기기 안심책방](https://emedi.mfds.go.kr/ \"새창 열림\")\n\n종합상담센터**1577-1255(유료)**",
+          "line": 219
+        },
+        {
+          "keyword": "Korea",
+          "context": "닫기\n\n[식품 전자민원창구](https://www.foodsafetykorea.go.kr/minwonMainNew.do \"새창 열림\")[수입식품 전자민원창구](http://impfood.mfds.go.kr/ \"새창 열림\")[의약품/화장품 전자민원창구](https://nedrug.mfds.go.kr/index \"새창 열림\")[의료기기 안심책방](https://emedi.mfds.go.kr/ \"새창 열림\")\n\n종합상담센터**1577-1255(유료)**",
+          "line": 260
+        }
+      ]
+    },
+    {
+      "claim": "WLA 한국 트랙 + Ley 419 de 2024 (규제 근거)",
+      "channel": "https://r.jina.ai/https://www.kpbma.or.kr/",
+      "success": true,
+      "charCount": 24851,
+      "matches": 15,
+      "evidence": [
+        {
+          "keyword": "한국",
+          "context": "Title: 한국제약바이오협회\n\nURL Source: https://www.kpbma.or.kr/",
+          "line": 1
+        },
+        {
+          "keyword": "한국",
+          "context": "\nMarkdown Content:\n# 한국제약바이오협회\n\n 전체메뉴 ",
+          "line": 6
+        },
+        {
+          "keyword": "한국",
+          "context": "        *   [DATABOOK](https://www.kpbma.or.kr/library/publications/list?b_category=2)\n        *   [의약품 생산실적표](https://www.kpbma.or.kr/library/publications/list?b_category=7)\n        *   [한국 제약산업 길라잡이](https://www.kpbma.or.kr/library/publications/list?b_category=3)\n        *   [제약연보](https://www.kpbma.or.kr/library/publications/list?b_category=4)\n        *   [영문 디렉토리](https://www.kpbma.or.kr/library/publications/list?b_category=5)",
+          "line": 110
+        },
+        {
+          "keyword": "한국",
+          "context": "통합검색 \n\n[한국제약바이오협회](https://www.kpbma.or.kr/)\n\n*   [협회소개](https://www.kpbma.or.kr/intro/greeting)",
+          "line": 151
+        },
+        {
+          "keyword": "한국",
+          "context": "# 개인정보 수집·이용 동의\n\n개인정보 수집·이용 동의 한국제약바이오협회는 뉴스레터 발송을 위해 최소한의 개인정보를 수집하고 이용합니다.\n수집·이용 목적수집·이용 항목보유 이용기간\n한국제약바이오협회 뉴스레터 발송 신청자명, 이메일, 회사명 서비스 종료 시 또는",
+          "line": 281
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "claim": "Gadobutrol 파나마 등록 (Gadovist)",
+      "totalMatches": 0,
+      "hadPrimaryHit": false
+    },
+    {
+      "claim": "Mosapride 시장 상태 (비주류)",
+      "totalMatches": 0,
+      "hadPrimaryHit": false
+    },
+    {
+      "claim": "WLA 한국 트랙 + Ley 419 de 2024 (규제 근거)",
+      "totalMatches": 34,
+      "hadPrimaryHit": true
+    }
+  ]
+}
