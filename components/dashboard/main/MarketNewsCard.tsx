@@ -83,7 +83,7 @@ export function MarketNewsCard() {
           type="button"
           onClick={() => void load()}
           disabled={loading}
-          className="inline-flex h-[34px] items-center rounded-[10px] border border-navy/15 bg-white px-3 text-[12px] font-extrabold text-navy hover:bg-navy/5 disabled:opacity-50"
+          className="inline-flex h-[34px] min-w-[92px] items-center justify-center whitespace-nowrap rounded-[10px] border border-navy/15 bg-white px-3 text-[12px] font-extrabold text-navy hover:bg-navy/5 disabled:opacity-50"
         >
           ↺ 새로고침
         </button>

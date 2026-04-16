@@ -14,7 +14,7 @@ export function Phase2MarketSegment({ value, onChange }: Phase2MarketSegmentProp
   ];
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-[12px] bg-inner p-1 shadow-sh3">
+    <div className="inline-flex items-center gap-2 rounded-[12px] bg-transparent p-0">
       {options.map((opt) => {
         const active = value === opt.key;
         return (
@@ -22,10 +22,10 @@ export function Phase2MarketSegment({ value, onChange }: Phase2MarketSegmentProp
             key={opt.key}
             type="button"
             onClick={() => onChange(opt.key)}
-            className={`rounded-[10px] px-4 py-2 text-[12px] font-extrabold transition-colors ${
+            className={`h-[38px] rounded-[10px] px-5 text-[13px] font-extrabold transition-colors ${
               active
                 ? "bg-navy text-white shadow-sh2"
-                : "bg-navy/10 text-muted hover:bg-navy/15 hover:text-navy"
+                : "border border-[#dde5f2] bg-white text-[#394f6d] hover:bg-[#eef3fb] hover:text-navy"
             }`}
           >
             {opt.label}

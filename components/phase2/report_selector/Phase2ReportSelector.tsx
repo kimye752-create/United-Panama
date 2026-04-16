@@ -18,9 +18,9 @@ export function Phase2ReportSelector({ options, value, onChange }: Phase2ReportS
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-[42px] w-full rounded-[12px] bg-white px-3 text-[12px] font-semibold text-[#253753] shadow-sh2 outline-none focus:ring-2 focus:ring-navy/20"
+      className="h-[46px] w-full rounded-[12px] border border-[#dbe4f2] bg-[#eaf0f8] px-3 text-[13px] font-semibold text-[#273e5f] shadow-sh3 outline-none focus:border-[#c8d4e8] focus:ring-2 focus:ring-navy/15"
     >
-      <option value="">저장된 1공정 보고서를 선택하세요</option>
+      <option value="">보고서를 선택하세요</option>
       {options.map((opt) => (
         <option key={opt.id} value={opt.id}>
           {opt.productId} · Case {opt.caseGrade} · {new Date(opt.generatedAt).toLocaleString("ko-KR")}

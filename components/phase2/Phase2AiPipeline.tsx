@@ -84,36 +84,44 @@ export function Phase2AiPipeline() {
   };
 
   return (
-    <div className="space-y-3.5">
-      <Card title="STEP 1 · 보고서 선택">
-        <div className="space-y-3">
+    <div className="space-y-4">
+      <Card
+        title="보고서 선택"
+        titleClassName="text-[26px] font-black tracking-[-0.03em] text-[#173f78]"
+        className="border border-[#e6ebf2] bg-[#f8fafd] shadow-sh2"
+      >
+        <div className="space-y-4">
           <Phase2ReportSelector
             options={reports}
             value={selectedReportId}
             onChange={setSelectedReportId}
           />
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-slate-200" />
-            <p className="text-[10px] font-bold text-muted">또는 PDF 직접 업로드</p>
-            <div className="h-px flex-1 bg-slate-200" />
+            <div className="h-px flex-1 bg-[#e3e8f1]" />
+            <p className="text-[12px] font-bold text-[#7b8699]">또는 PDF 직접 업로드</p>
+            <div className="h-px flex-1 bg-[#e3e8f1]" />
           </div>
           <Phase2UploadArea onMockUpload={() => setSelectedReportId("pdf-manual")} />
         </div>
       </Card>
 
-      <Card title="STEP 2 · 시장 선택 및 분석 실행">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <Card
+        title="시장 선택 및 분석 실행"
+        titleClassName="text-[26px] font-black tracking-[-0.03em] text-[#173f78]"
+        className="border border-[#e6ebf2] bg-[#f8fafd] shadow-sh2"
+      >
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <Phase2MarketSegment value={segment} onChange={setSegment} />
-            <p className="mt-2 text-[11px] text-muted">
-              공공 시장: ALPS 조달청 채널 · 27개 공공기관 통합구매 기준
+            <p className="mt-3 text-[12px] text-[#667a96]">
+              공공 시장: PBS 공급금여 채널 · 주별 병원조달단(HealthShare NSW 등) 기준
             </p>
           </div>
           <button
             type="button"
             onClick={() => void onRun()}
             disabled={loading}
-            className="rounded-[10px] bg-navy px-6 py-2.5 text-[13px] font-extrabold text-white shadow-sh2 transition-colors hover:bg-navy2 disabled:cursor-not-allowed disabled:bg-navy/40"
+            className="inline-flex h-[42px] items-center rounded-[12px] bg-navy px-7 text-[13px] font-extrabold text-white shadow-sh2 transition-colors hover:bg-navy2 disabled:cursor-not-allowed disabled:bg-navy/40"
           >
             ▶ AI 가격 분석 실행
           </button>

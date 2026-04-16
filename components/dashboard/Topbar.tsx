@@ -22,7 +22,7 @@ export function Topbar() {
         </div>
       </div>
       <div className="flex items-center gap-2.5">
-        <div className="inline-flex h-[42px] items-center gap-2 rounded-full bg-white px-3.5 pl-2.5 text-[13px] font-extrabold text-navy shadow-sh2">
+        <div className="inline-flex h-[42px] items-center gap-2 rounded-full border border-[#d9e2ef] bg-white px-3.5 pl-2.5 text-[13px] font-extrabold text-navy shadow-sh2">
           <Image
             src="/images/flags/panama_round.svg"
             alt="파나마 국기"

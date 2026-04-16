@@ -1,5 +1,26 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 01:04:57 (style(phase2): 2공정 AI 탭 표준 시안 기반 폼/색상 정밀 보정)
+
+### Changed
+- style(phase2): `components/phase2/Phase2Workbench.tsx` 상단 탭 컨테이너를 기준 시안 톤에 맞춰 연한 블루-그레이 카드(`border + bg`)와 문구 색상으로 조정.
+- style(phase2): `components/phase2/Phase2AiPipeline.tsx`의 두 카드 타이틀/간격/버튼/설명문 색상을 시안에 맞춰 재정렬하고, `보고서 선택`, `시장 선택 및 분석 실행` 헤더를 굵고 큰 스타일로 통일.
+- style(phase2): 구분선(`또는 PDF 직접 업로드`)의 선 색·텍스트 색·간격을 보정해 시각적 분리감을 강화.
+- style(phase2): 시장 선택 안내 문구를 `공공 시장: PBS 공급금여 채널 · 주별 병원조달단(HealthShare NSW 등) 기준`으로 교정.
+- style(phase2): `Phase2ReportSelector`, `Phase2UploadArea`, `Phase2MarketSegment`의 선택 박스/업로드 박스/토글 버튼을 시안과 유사한 톤(연한 배경 + 미세 보더 + 네이비 액션 버튼)으로 보정.
+
+## [Unreleased] - 2026-04-17 00:45:02 (style(main-news): 새로고침 버튼 한 줄 고정)
+
+### Changed
+- style(main-news): `components/dashboard/main/MarketNewsCard.tsx`의 `↺ 새로고침` 버튼에 `whitespace-nowrap`와 최소폭(`min-w-[92px]`)을 적용해 텍스트 줄바꿈 없이 한 줄로 표시되도록 조정.
+- note(ui): 버튼 색상/두께/높이는 유지하고 텍스트 래핑만 제어해 기존 톤을 유지.
+
+## [Unreleased] - 2026-04-17 00:42:06 (style(topbar): 국가 표시 박스 경계선 미세 강조)
+
+### Changed
+- style(topbar): `components/dashboard/Topbar.tsx` 우측 국가 배지(`Panama`)에 옅은 테두리(`border-[#d9e2ef]`)를 추가해 박스 구분선을 조금 더 뚜렷하게 조정.
+- note(ui): 그림자/크기/폰트는 유지하고 테두리만 보강해 과도하게 튀지 않도록 반영.
+
 ## [Unreleased] - 2026-04-17 00:37:48 (style(topbar): 회사명/대시보드 2줄 위계로 헤더 가독성 개선)
 
 ### Changed

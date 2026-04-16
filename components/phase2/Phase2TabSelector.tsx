@@ -14,7 +14,7 @@ export function Phase2TabSelector({ activeTab, onChange }: Phase2TabSelectorProp
   ];
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-[12px] bg-inner p-1 shadow-sh3">
+    <div className="inline-flex items-center gap-2 rounded-[12px] bg-transparent p-0">
       {tabs.map((tab) => {
         const active = tab.key === activeTab;
         return (
@@ -22,10 +22,10 @@ export function Phase2TabSelector({ activeTab, onChange }: Phase2TabSelectorProp
             key={tab.key}
             type="button"
             onClick={() => onChange(tab.key)}
-            className={`rounded-[10px] px-5 py-2 text-[12px] font-extrabold transition-colors ${
+            className={`rounded-[10px] px-5 py-2.5 text-[14px] font-extrabold transition-colors ${
               active
                 ? "bg-navy text-white shadow-sh2"
-                : "bg-navy/10 text-muted hover:bg-navy/15 hover:text-navy"
+                : "bg-[#eef2f8] text-[#415771] hover:bg-[#e5ebf5] hover:text-navy"
             }`}
           >
             {tab.label}
