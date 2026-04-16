@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 02:20:16 (style(layout): 메인 본문 분포 중간값 폭으로 조정)
+
+### Changed
+- style(layout): `components/dashboard/DashboardShell.tsx` 본문 컨테이너 최대폭을 `1180px`에서 `1340px`로 조정해, 과도하게 중앙에 모이던 3열 카드 분포를 완화.
+- note(ui): 글자 크기/폰트는 유지하고 본문 카드 가로 분포만 중간값 톤으로 보정.
+
+## [Unreleased] - 2026-04-17 02:17:41 (chore(process1): 1단계 스테퍼 문구 명확화)
+
+### Changed
+- chore(process1-ui): `components/dashboard/process1/Process1Workbench.tsx` 분석 단계 첫 라벨을 `크롤링 실행`에서 `DB조회 및 크롤링`으로 변경해 실제 실행 의미를 명확히 표기.
+
 ## [Unreleased] - 2026-04-17 02:14:10 (feat(exchange-rate): 메인 프리뷰 환율 위젯 추가)
 
 ### Added

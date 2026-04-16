@@ -76,7 +76,7 @@ const PROCESS1_INPUT_CLASS =
   "h-[38px] rounded-[8px] border border-[#dbe4f3] bg-[#f3f7ff] px-3 text-[11.5px] font-medium text-[#263a57] placeholder:text-[#8e9bb1] outline-none focus:border-navy2 focus:ring-2 focus:ring-navy/15";
 
 const ANALYSIS_STEP_LABELS = [
-  "크롤링 실행",
+  "DB조회 및 크롤링",
   "클로드 분석",
   "논문 검색",
   "PDF 보고서 생성",
