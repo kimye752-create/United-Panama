@@ -1,0 +1,399 @@
+# Cursor 지시서 — 파나마 1공정 화면 리디자인
+
+> 세션 24 / 2026-04-17 (D-7)
+> 호주 담당(성현님) 완성본 디자인을 파나마 1공정에 이식
+> 참고 스크린샷: 호주 Hydrine 1공정 분석 결과 화면 9장 (첨부됨)
+
+---
+
+## 🎯 핵심 목표
+
+현재 파나마 1공정은 분석 버튼 클릭 → A4 보고서(Report1.tsx)만 표시.
+**변경 후**: 분석 버튼 클릭 → **대시보드형 카드 UI가 먼저 표시** → 하단에 기존 A4 보고서 + PDF 뷰어 표시.
+즉, **2가지 버전의 보고서**가 한 페이지에 순서대로 나옴.
+
+---
+
+## 📐 전체 레이아웃 구조 (위→아래 순서)
+
+```
+[1] 상단 영역 (기존 유지)
+    ├─ 제품 드롭다운 (8개 제품)
+    ├─ ▶ 진출 적합 분석 버튼
+    ├─ 진행 스테퍼 (크롤링 실행 → 클로드 분석 → 논문 검색 → PDF 보고서 생성)
+    └─ 신약 분석 입력 폼 (약품명 · 성분명 · 제형)
+
+[2] 크롤링 결과 카드 ← 🆕 신규
+    ├─ 제품명 · INN · 제형 · HS Code 헤더
+    ├─ 데이터 소스 4-column 카드 (PanamaCompra / ACODECO / SuperXtra / Colombia SECOP)
+    └─ [가능/불가] 뱃지 + 신뢰도 %
+
+[3] 판정 배너 (짙은 남색) ← 🆕 신규
+    ├─ 제품명 · INN · 제형 · HS Code · Case 등급 · confidence %
+    └─ 신뢰도 항목별 체크마크 (✓/X)
+
+[4] 수출 적합성 분석 결과 ← 🆕 신규 (기존 block3 → 카드형 전환)
+    ├─ 핵심 판정: [🟢/🟡/🔴] 등급 뱃지
+    └─ 두괄식 판정 근거 5블록 (1. 시장/의료 ~ 5. 유통)
+
+[5] 시장 진출 전략 4-column ← 🆕 신규 (기존 block4 → 카드형 전환)
+    ├─ 진입 채널 전략 (block4_1)
+    ├─ 가격 포지셔닝 (block4_2)
+    ├─ 파트너 발굴 (block4_3)
+    └─ 리스크·조건 (block4_4)
+
+[6] Perplexity 추천 논문 ← 🆕 신규 (파나마에도 Perplexity 캐시 데이터 있음)
+    ├─ 카테고리별 논문 카드 (거시·규제·가격 분석)
+    └─ ✅ 하이브리드 검색 요약
+
+[7] 재분석 버튼 (기존 유지)
+
+[8] PDF 보고서 섹션 ← 🆕 리디자인
+    ├─ [↓ PDF 보고서 다운로드] 버튼
+    ├─ 파일명 표시
+    └─ 임베디드 PDF 뷰어 (iframe 또는 react-pdf)
+
+[9] 기존 A4 WYSIWYG 보고서 (Report1.tsx) — 유지 또는 PDF 뷰어로 대체
+```
+
+---
+
+## 📊 각 섹션별 데이터 소스 매핑
+
+### [2] 크롤링 결과 카드
+
+호주는 4개 소스(TGA ARTG / PBS API v3 / Chemist Warehouse / NSW Health)를 카드로 표시.
+**파나마 대응 4개 소스**:
+
+| 카드 # | 파나마 소스명 | 표시 제목 | 데이터 매핑 | DB 컬럼 |
+|--------|-------------|---------|-----------|---------|
+| ① | PanamaCompra V3 | PanamaCompra V3 | 낙찰가 · 건수 · 최저~최고 | `pa_source = 'panamacompra_v3'` |
+| ② | ACODECO CABAMED | ACODECO 공시가 | 민간 평균가 · 건수 | `pa_source IN ('acodeco', 'acodeco_cabamed_competitor')` |
+| ③ | SuperXtra | SuperXtra 소매가 | 정가 · 할인가 · 재고 | `pa_source = 'superxtra_vtex'` |
+| ④ | Colombia SECOP | Colombia ERP 참조 | 도매가 · 건수 · WHO ERP | `pa_source = 'datos_gov_co'` |
+
+**데이터 가져오는 방법**: 기존 `app/api/panama/analyze/route.ts`의 `getPriceRowsByProduct(productId)` 결과에서 `pa_source`별 필터링.
+
+**각 카드 표시 형식**:
+```
+① PanamaCompra V3
+   $0.08 (평균)
+   5건 낙찰
+   범위: $0.04~$0.10
+
+② ACODECO 공시가
+   해당없음 (Rosumeg 매칭 0건)
+   또는
+   $X.XX (평균)
+   N건 등재
+
+③ SuperXtra 소매가
+   $XX.XX
+   재고: 있음/없음
+
+④ Colombia ERP
+   $X.XX (도매 평균)
+   25건 참조
+   WHO ERP 가이드라인 근거
+```
+
+**데이터 없을 때**: "해당없음" + 1줄 설명 (호주 NSW Health 카드 참조)
+
+### [3] 판정 배너
+
+**데이터 소스**: `analyze/route.ts` 응답의 `caseGrade`, `confidence`, 그리고 각 항목별 존재 여부
+
+| 항목 | ✓ 조건 | X 조건 |
+|------|-------|-------|
+| 공공조달 | panamacompra_v3 + atc4_competitor ≥ 1건 | 0건 |
+| 민간가격 | acodeco 또는 superxtra ≥ 1건 | 0건 |
+| EML | emlWho = true | false |
+| ERP참조 | datos_gov_co ≥ 1건 | 0건 |
+| 유통파트너 | distributorNames.length ≥ 1 | 0 |
+| 규제 | MINSA WLA 고시 존재 | 미확인 |
+| prevalence | prevalenceMetric !== '' | 빈 문자열 |
+
+**배너 텍스트 포맷**:
+```
+Rosumeg Combigel · Rosuvastatin+Omega-3 · Soft Capsule 30캡 · HS 3004.90 · Case D · confidence 65%
+신뢰도 65% = 공공조달 ✓ · 민간가격 X · EML X · ERP참조 ✓ · 유통파트너 ✓ · 규제 ✓ · prevalence ✓ (7개 중 4개)
+```
+
+### [4] 수출 적합성 분석 결과
+
+**데이터 소스**: `Report1Payload.block3_reasoning[0..4]` (기존 5줄 그대로)
+
+| 줄 # | 카테고리 | 기존 데이터 키 |
+|------|---------|------------|
+| 1 | 시장/의료 | `block3_reasoning[0]` |
+| 2 | 규제 | `block3_reasoning[1]` |
+| 3 | 무역 | `block3_reasoning[2]` |
+| 4 | 조달 | `block3_reasoning[3]` |
+| 5 | 유통 | `block3_reasoning[4]` |
+
+**핵심 판정 뱃지**:
+- `caseGrade === 'A'` → 🟢 "가능"
+- `caseGrade === 'B'` → 🟡 "조건부"
+- `caseGrade === 'C'` → 🔴 "재검토"
+
+**`entryFeasibility.grade`에 따른 세분화**:
+- A_immediate / A_fast_track → 🟢
+- B_short_term → 🟡
+- C_mid_term / D_long_term → 🟡
+- F_blocked → 🔴
+
+### [5] 시장 진출 전략 4-column
+
+**데이터 소스**: `Report1Payload.block4_*` (기존 그대로)
+
+| 카드 | 제목 | 기존 데이터 키 |
+|------|------|------------|
+| 좌1 | 진입 채널 전략 | `block4_1_channel` |
+| 좌2 | 가격 포지셔닝 | `block4_2_pricing` |
+| 우1 | 파트너 발굴 | `block4_3_partners` |
+| 우2 | 리스크·조건 | `block4_4_risks` |
+
+**표시 방식**: 각 block4 문자열을 그대로 카드 본문으로 렌더. `※` 줄은 별도 스타일(기울임 또는 색 분리).
+
+### [6] Perplexity 추천 논문
+
+**데이터 소스**: `panama_perplexity_cache` 테이블 (세션 20 기준 13건 존재)
+
+```sql
+SELECT category, title, authors, journal, year, url, summary_ko
+FROM panama_perplexity_cache
+WHERE product_id = :productId OR product_id = :macroProductId
+ORDER BY category, year DESC;
+```
+
+**카테고리 배지 색상**:
+- `거시·시장 분석` → 연파랑
+- `규제 분석` → 연보라
+- `가격·조달 분석` → 연초록
+
+**논문 없을 때**: "Perplexity 추천 논문: 해당 INN 관련 조사 결과 없음" 1줄 표시
+
+### [8] PDF 보고서 섹션
+
+**현재 상태**: PDF 생성 5회 실패 (세션 12 이후 이월)
+
+**대안 구현 (호주 방식 참고)**:
+- Google Drive 연동이 아닌 **브라우저 내장 PDF 뷰어 iframe** 사용
+- `<iframe src="/api/panama/pdf?productId=xxx" />` 형태
+- 기존 `app/api/panama/pdf/route.ts`가 이미 존재 (세션 20 코드)
+- 만약 PDF 생성이 안 되면 → **HTML-to-PDF 서버 사이드 렌더링** (Puppeteer 또는 @react-pdf/renderer 재시도)
+
+**최소 구현 (PDF 미완성 시 대체안)**:
+- PDF 뷰어 영역에 기존 Report1.tsx A4 WYSIWYG를 `<iframe>` 또는 `<div>` 임베드
+- 외형만 호주처럼 PDF 뷰어 느낌 (파일명 + 페이지 넘버 + 다운로드 버튼)
+
+---
+
+## 🎨 디자인 토큰 (호주 완성본 기준 추출)
+
+### 색상
+
+| 용도 | 색상 | 호주 참조 |
+|------|------|---------|
+| 배경 | `#F8F9FA` (연회색) | 전체 페이지 배경 |
+| 카드 배경 | `#FFFFFF` | 각 섹션 카드 |
+| 카드 테두리 | `#E5E7EB` (1px solid) | 크롤링 결과, 판정 근거 |
+| 판정 배너 | `#1E3A5F` (짙은 남색) | Case A/B/C 배너 배경 |
+| 배너 텍스트 | `#FFFFFF` | |
+| 가능 뱃지 | `#10B981` (초록) | 핵심 판정 |
+| 조건부 뱃지 | `#F59E0B` (노랑) | |
+| 불가 뱃지 | `#EF4444` (빨강) | |
+| 진행 스테퍼 활성 | `#10B981` (초록 체크) | 완료 단계 |
+| 진행 스테퍼 현재 | `#3B82F6` (파랑 점) | 현재 진행 중 |
+| 진행 스테퍼 대기 | `#9CA3AF` (회색) | 미진행 |
+| 논문 카테고리 배지 | 연파랑 / 연보라 / 연초록 | |
+| 버튼 메인 | `#1E3A5F` (짙은 남색) | ▶ 진출 적합 분석 |
+
+### 타이포그래피
+
+| 용도 | 크기 | 굵기 |
+|------|------|------|
+| 페이지 제목 | 20px | bold |
+| 섹션 제목 (● 수출 적합성) | 16px | bold |
+| 카드 제목 (TGA ARTG 등) | 13px | semibold |
+| 카드 값 (A$31.92 등) | 18px | bold |
+| 카드 설명 | 12px | normal |
+| 판정 배너 메인 | 15px | bold |
+| 판정 배너 서브 | 13px | normal |
+| 본문 텍스트 | 14px | normal |
+| 논문 제목 | 14px | semibold |
+| 논문 요약 | 13px | normal |
+
+### 레이아웃
+
+| 요소 | 값 |
+|------|---|
+| 최대 너비 | 1280px (mx-auto) |
+| 카드 패딩 | 24px |
+| 카드 라운드 | 8px |
+| 카드 그림자 | `shadow-sm` |
+| 섹션 간 간격 | 24px |
+| 4-column 그리드 | `grid grid-cols-4 gap-4` (모바일: `grid-cols-1`) |
+| 크롤링 결과 4-column | `grid grid-cols-4 gap-3` |
+
+---
+
+## 🗂️ 파일 구조
+
+### 신규 생성 (7개)
+
+```
+components/panama/
+  ├─ CrawlingResultCard.tsx       ← [2] 크롤링 결과 4-column
+  ├─ JudgmentBanner.tsx           ← [3] 판정 배너
+  ├─ FeasibilityResult.tsx        ← [4] 수출 적합성 + 두괄식 근거
+  ├─ MarketStrategyGrid.tsx       ← [5] 시장 진출 전략 4-column
+  ├─ PerplexityPapers.tsx         ← [6] Perplexity 논문
+  ├─ PdfReportViewer.tsx          ← [8] PDF 임베디드 뷰어
+  └─ AnalysisResultDashboard.tsx  ← [2]~[8] 통합 래퍼
+```
+
+### 수정 (2개)
+
+```
+app/products/[productId]/page.tsx  ← AnalysisResultDashboard 삽입 (Report1.tsx 위에)
+app/api/panama/analyze/route.ts    ← 응답에 소스별 raw 건수·가격 추가 (카드용)
+```
+
+---
+
+## 🔗 analyze API 응답 확장
+
+기존 응답 필드에 아래 추가 (카드 UI가 소비할 데이터):
+
+```typescript
+interface AnalyzeResponseExtended {
+  // 기존 필드 전부 유지
+  payload: Report1Payload;
+  source: "cache" | "haiku" | "fallback";
+  modelUsed: string;
+
+  // 🆕 크롤링 결과 카드용
+  sourceBreakdown: {
+    panamacompra_v3: {
+      count: number;
+      avgPrice: number | null;
+      minPrice: number | null;
+      maxPrice: number | null;
+      topProveedor: string | null;
+    };
+    acodeco: {
+      count: number;
+      avgPrice: number | null;
+    };
+    superxtra: {
+      count: number;
+      price: number | null;
+      hasStock: boolean | null;
+    };
+    colombia_secop: {
+      count: number;
+      avgPrice: number | null;
+      erpBasis: string; // "WHO 2015 ERP"
+    };
+  };
+
+  // 🆕 판정 배너용
+  confidenceBreakdown: {
+    publicProcurement: boolean;  // panamacompra ≥ 1건
+    privatePrice: boolean;       // acodeco 또는 superxtra ≥ 1건
+    eml: boolean;                // emlWho
+    erpReference: boolean;       // datos_gov_co ≥ 1건
+    distributors: boolean;       // distributorNames.length ≥ 1
+    regulation: boolean;         // MINSA WLA 고시
+    prevalence: boolean;         // prevalenceMetric !== ''
+    total: number;               // ✓ 개수
+    max: number;                 // 총 항목 (7)
+    percent: number;             // total/max * 100
+  };
+
+  // 🆕 Perplexity 논문용
+  perplexityPapers: Array<{
+    category: string;
+    title: string;
+    authors: string | null;
+    journal: string | null;
+    year: number | null;
+    url: string;
+    summaryKo: string;
+    source: "pubmed" | "perplexity";
+  }>;
+}
+```
+
+---
+
+## ⚡ 구현 순서 (Cursor 작업 순서)
+
+### Phase 1: 데이터 레이어 (30분)
+1. `analyze/route.ts`에 `sourceBreakdown` + `confidenceBreakdown` 계산 로직 추가
+2. `panama_perplexity_cache` 조회 추가 → `perplexityPapers` 응답 포함
+3. 기존 응답 구조 깨지지 않게 확장 (하위 호환)
+
+### Phase 2: 컴포넌트 신규 생성 (2시간)
+4. `CrawlingResultCard.tsx` — 4-column 그리드, 소스별 카드
+5. `JudgmentBanner.tsx` — 짙은 남색 배너, 체크마크
+6. `FeasibilityResult.tsx` — 핵심 판정 뱃지 + 5블록 근거
+7. `MarketStrategyGrid.tsx` — 4-column 전략 카드
+8. `PerplexityPapers.tsx` — 논문 리스트 (카테고리 배지)
+9. `PdfReportViewer.tsx` — iframe PDF 뷰어 (또는 A4 임베드)
+10. `AnalysisResultDashboard.tsx` — 위 6개 조합
+
+### Phase 3: 페이지 통합 (30분)
+11. `app/products/[productId]/page.tsx` 수정 — Dashboard → Report1 순서 배치
+12. 반응형 확인 (모바일: 4-column → 1-column)
+
+### Phase 4: PDF 뷰어 (1시간)
+13. 기존 `/api/panama/pdf` 경로 동작 확인
+14. PDF 생성 가능 → iframe 삽입
+15. PDF 생성 불가 → Report1.tsx를 PDF 뷰어 프레임 안에 임베드 (시각적 대체)
+16. 다운로드 버튼 + 파일명 표시
+
+---
+
+## 🚫 절대 금지
+
+1. 기존 `Report1.tsx` 삭제 금지 — 하단에 유지 또는 PDF 뷰어 내 임베드
+2. `report1_generator.ts` / `report1_schema.ts` 로직 변경 금지 — 데이터는 기존 그대로, 표시만 추가
+3. `analyze/route.ts` 기존 응답 필드 변경 금지 — 새 필드 추가만
+4. any 타입 금지
+5. .ts(로직) / .tsx(UI) 분리 원칙 유지
+
+---
+
+## 🔍 호주 vs 파나마 대응표 (커서 참고용)
+
+| 호주 요소 | 호주 데이터 | 파나마 대응 | 파나마 데이터 |
+|----------|-----------|-----------|-------------|
+| TGA ARTG 등재 | ARTG:313760 | PanamaCompra V3 | 낙찰가 5건 |
+| PBS API v3 가격 | A$31.92, DPMQ A$48.11 | ACODECO 공시가 | 민간 평균가 |
+| Chemist Warehouse | A$25.00 | SuperXtra 소매가 | 민간 실가격 |
+| NSW Health Procurement | 해당없음 | Colombia SECOP | WHO ERP 참조 |
+| TGA 스폰서 | Medsurge Pharma | MINSA WLA | 위생선진국 지정 |
+| PBS innovator | Y/N | WHO EML | Y/N |
+| Case A/B/C | Case A · 71% | Case A/B/C/D | Case D · 65% |
+| 두괄식 5줄 | block3 | 두괄식 5줄 | block3 동일 |
+| 시장진출전략 4칸 | block4 | 시장진출전략 4칸 | block4 동일 |
+| Perplexity 논문 | PubMed + Perplexity | Perplexity 논문 | panama_perplexity_cache |
+| PDF 다운로드 | au_report_*.pdf | PDF 다운로드 | pa_report_*.pdf |
+
+---
+
+## 📋 CHANGELOG 템플릿
+
+```markdown
+## [Unreleased] - 2026-04-17 HH:MM:SS (feat(report1-dashboard): 1공정 대시보드형 카드 UI 신규)
+
+### Added
+- feat(ui): CrawlingResultCard, JudgmentBanner, FeasibilityResult, MarketStrategyGrid, PerplexityPapers, PdfReportViewer, AnalysisResultDashboard 7종 컴포넌트 신규
+- feat(api): analyze 응답에 sourceBreakdown + confidenceBreakdown + perplexityPapers 확장
+- feat(ui): PDF 임베디드 뷰어 (다운로드 버튼 + 파일명 + iframe)
+
+### Changed
+- style(products): 분석 결과 페이지를 대시보드 → A4 보고서 순서로 재배치
+```

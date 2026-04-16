@@ -28,6 +28,44 @@ type PriceRowLite = {
   pa_price_local?: number | string | null;
   pa_notes?: string | null;
   pa_product_name_local?: string | null;
+  pa_stock_status?: string | null;
+};
+
+type SourceBreakdown = {
+  panamacompra_v3: {
+    count: number;
+    avgPrice: number | null;
+    minPrice: number | null;
+    maxPrice: number | null;
+    topProveedor: string | null;
+  };
+  acodeco: {
+    count: number;
+    avgPrice: number | null;
+  };
+  superxtra: {
+    count: number;
+    price: number | null;
+    hasStock: boolean | null;
+  };
+  colombia_secop: {
+    count: number;
+    avgPrice: number | null;
+    erpBasis: string;
+  };
+};
+
+type ConfidenceBreakdown = {
+  publicProcurement: boolean;
+  privatePrice: boolean;
+  eml: boolean;
+  erpReference: boolean;
+  distributors: boolean;
+  regulation: boolean;
+  prevalence: boolean;
+  total: number;
+  max: number;
+  percent: number;
 };
 
 type PanamaCompraV3Top = {
@@ -67,6 +105,118 @@ function parseNotesObject(notes: string | null | undefined): Record<string, unkn
   } catch {
     return {};
   }
+}
+
+function calculatePriceSummary(rows: readonly PriceRowLite[]): {
+  avgPrice: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+} {
+  const values = rows
+    .map((row) => toFiniteNumber(row.pa_price_local))
+    .filter((value): value is number => value !== null);
+  if (values.length === 0) {
+    return { avgPrice: null, minPrice: null, maxPrice: null };
+  }
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return {
+    avgPrice: Math.round((total / values.length) * 100) / 100,
+    minPrice: Math.min(...values),
+    maxPrice: Math.max(...values),
+  };
+}
+
+function buildSourceBreakdown(
+  productId: string,
+  rows: readonly PriceRowLite[],
+  v3Top: PanamaCompraV3Top | null,
+): SourceBreakdown {
+  const productRows = rows.filter((row) => row.product_id === productId);
+  const panamacompraRows = productRows.filter(
+    (row) => row.pa_source === "panamacompra_v3",
+  );
+  const acodecoRows = productRows.filter((row) => {
+    const source = row.pa_source ?? "";
+    return source === "acodeco" || source === "acodeco_cabamed_competitor";
+  });
+  const superxtraRows = productRows.filter(
+    (row) => row.pa_source === "superxtra_vtex",
+  );
+  const colombiaRows = productRows.filter((row) => row.pa_source === "datos_gov_co");
+  const panamacompraSummary = calculatePriceSummary(panamacompraRows);
+  const acodecoSummary = calculatePriceSummary(acodecoRows);
+  const colombiaSummary = calculatePriceSummary(colombiaRows);
+  const superxtraPrice = toFiniteNumber(superxtraRows[0]?.pa_price_local ?? null);
+  const superxtraStock = superxtraRows[0]?.pa_stock_status;
+
+  return {
+    panamacompra_v3: {
+      count: panamacompraRows.length,
+      avgPrice: panamacompraSummary.avgPrice,
+      minPrice: panamacompraSummary.minPrice,
+      maxPrice: panamacompraSummary.maxPrice,
+      topProveedor: v3Top?.proveedor ?? null,
+    },
+    acodeco: {
+      count: acodecoRows.length,
+      avgPrice: acodecoSummary.avgPrice,
+    },
+    superxtra: {
+      count: superxtraRows.length,
+      price: superxtraPrice,
+      hasStock:
+        superxtraStock === undefined || superxtraStock === null
+          ? null
+          : superxtraStock.toLowerCase().includes("in"),
+    },
+    colombia_secop: {
+      count: colombiaRows.length,
+      avgPrice: colombiaSummary.avgPrice,
+      erpBasis: "WHO 2015 ERP",
+    },
+  };
+}
+
+function buildConfidenceBreakdown(
+  result: Awaited<ReturnType<typeof analyzePanamaProduct>>,
+  prevalenceMetric: string,
+  sourceBreakdown: SourceBreakdown,
+): ConfidenceBreakdown {
+  const publicProcurement = sourceBreakdown.panamacompra_v3.count > 0;
+  const privatePrice =
+    sourceBreakdown.acodeco.count > 0 || sourceBreakdown.superxtra.count > 0;
+  const eml = result.emlWho;
+  const erpReference = sourceBreakdown.colombia_secop.count > 0;
+  const distributors = result.matchedDistributors.length > 0;
+  const regulation = result.sourceAggregation.some((row) => {
+    const source = row.pa_source.toLowerCase();
+    return source.includes("minsa") || source.includes("dnfd") || source.includes("wla");
+  });
+  const prevalence = prevalenceMetric.trim() !== "";
+  const checks = [
+    publicProcurement,
+    privatePrice,
+    eml,
+    erpReference,
+    distributors,
+    regulation,
+    prevalence,
+  ];
+  const total = checks.filter(Boolean).length;
+  const max = checks.length;
+
+  return {
+    publicProcurement,
+    privatePrice,
+    eml,
+    erpReference,
+    distributors,
+    regulation,
+    prevalence,
+    total,
+    max,
+    percent: Math.round((total / max) * 100),
+  };
 }
 
 function extractPanamaCompraV3Top(
@@ -227,6 +377,16 @@ export async function POST(req: Request): Promise<Response> {
       productId,
       result.priceRows as PriceRowLite[],
     );
+    const sourceBreakdown = buildSourceBreakdown(
+      productId,
+      result.priceRows as PriceRowLite[],
+      panamacompraV3Top,
+    );
+    const confidenceBreakdown = buildConfidenceBreakdown(
+      result,
+      prevalenceMetric,
+      sourceBreakdown,
+    );
     const entryFeasibility = await evaluatePanamaEntryFeasibility(
       productId,
       result.priceRows as PanamaRow[],
@@ -304,6 +464,8 @@ export async function POST(req: Request): Promise<Response> {
       },
       entryFeasibility,
       entryFeasibilityText,
+      sourceBreakdown,
+      confidenceBreakdown,
       perplexity: {
         source: perplexityInsight?.source ?? "cache_miss",
         papers: perplexityInsight?.papers ?? [],

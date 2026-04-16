@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 01:56:54 (feat(report1-dashboard): 세션24 1공정 카드형 대시보드 결과 레이어 추가)
+
+### Added
+- feat(ui): `components/panama/`에 `CrawlingResultCard`, `JudgmentBanner`, `FeasibilityResult`, `MarketStrategyGrid`, `PerplexityPapers`, `PdfReportViewer`, `AnalysisResultDashboard`, `types` 신규 추가.
+- feat(ui): `PanamaReportClient`에서 기존 A4 `Report1` 렌더 앞에 카드형 대시보드 섹션을 먼저 노출하고, 하단에 기존 보고서를 유지하는 2단 레이어 구조로 확장.
+- feat(pdf): `PdfReportViewer`에서 `/api/panama/pdf` POST 응답을 blob URL로 렌더해 임베디드 PDF 뷰어 + 다운로드 버튼 + 파일명 표시를 제공.
+
+### Changed
+- feat(api): `app/api/panama/analyze/route.ts` 응답에 `sourceBreakdown`, `confidenceBreakdown` 필드를 추가해 대시보드 카드가 직접 소비할 수 있도록 확장(기존 필드 하위호환 유지).
+- feat(client): `PanamaReportClient`에 `sourceBreakdown/confidenceBreakdown` 파서를 추가하고, LLM payload + 퍼플렉시티 캐시 데이터와 함께 통합 대시보드 번들로 조합하도록 변경.
+
 ## [Unreleased] - 2026-04-17 01:23:22 (fix(process1-typography): 1공정 타이틀 과대 스타일 완화)
 
 ### Fixed

@@ -1,0 +1,167 @@
+# Cursor 지시서 — 메인 프리뷰 환율 위젯 추가
+
+> 세션 24 / 2026-04-17
+> 호주 메인 프리뷰의 환율 카드를 파나마에 이식
+> 참고 스크린샷: 호주 환율 위젯 (KRW/USD + USD/KRW + USD/SGD)
+
+---
+
+## 🎯 목표
+
+메인 프리뷰 페이지에 실시간 환율 카드를 표시한다.
+한국수출입은행 EXIM API로 KRW/USD 환율을 가져오고,
+파나마 PAB 특수성(1:1 페깅)을 명시한다.
+
+---
+
+## 📐 환율 카드 레이아웃
+
+```
+┌──────────────────────────────────────────┐
+│  KRW / USD                               │
+│  1,473.74 원                    (큰 숫자)  │
+│                                          │
+│  ┌──────────────┐  ┌──────────────┐      │
+│  │ USD / KRW    │  │ USD / PAB    │      │
+│  │ 1,473.74     │  │ 1.00 (고정)  │      │
+│  └──────────────┘  └──────────────┘      │
+│                                          │
+│  💡 파나마 발보아(PAB)는 1904년부터        │
+│     USD와 1:1 고정 환율(Pegged).           │
+│     실거래에서 USD를 직접 사용하므로        │
+│     환율 변환이 불필요합니다.               │
+│                                          │
+│  [↻ 환율 새로고침]                         │
+└──────────────────────────────────────────┘
+```
+
+---
+
+## 🔗 데이터 소스: 한국수출입은행 EXIM API
+
+### 기존 코드 위치
+
+`src/crawlers/realtime/exchange_rate_exim.ts`에 이미 EXIM API 호출 로직이 완성돼 있다.
+세션 23에서 재시도 3회 + 지수 백오프 + 10초 타임아웃까지 보강 완료.
+
+### API 상세
+
+- 엔드포인트: `https://www.koreaexim.go.kr/site/program/financial/exchangeJSON`
+- 파라미터: `authkey={EXIM_API_KEY}&searchdate={YYYYMMDD}&data=AP01`
+- 환경변수: `EXIM_API_KEY` (Vercel에 등록 완료, 로컬 .env.local에도 있음)
+- 응답에서 USD 행: `cur_unit === 'USD'` → `deal_bas_r` = 매매기준율 (KRW/USD)
+
+### ⚠ Vercel 제약 사항
+
+- 세션 23에서 **Vercel 서버리스(iad1, 미국) → EXIM 서버 fetch failed** 확인됨
+- 로컬에서는 정상 (`api_success`)
+- Vercel에서는 `db_fallback` 경로 사용 중
+- 따라서 환율 카드에서도 동일한 fallback 처리 필요:
+  - API 성공 시: 실시간 값 표시 + "실시간" 표시
+  - API 실패 시: DB에 저장된 최근 환율 표시 + "최근 저장값 (YYYY-MM-DD)" 표시
+
+### 새 API 라우트 생성
+
+```typescript
+// app/api/panama/exchange-rate/route.ts (신규)
+// exchange_rate_exim.ts의 fetchExchangeRate() 함수를 호출하여
+// { krwUsd: number, source: "api_success" | "db_fallback", asOf: string } 반환
+```
+
+---
+
+## 📊 표시 데이터 매핑
+
+| 표시 항목 | 값 | 출처 |
+|----------|---|------|
+| KRW / USD (메인) | `deal_bas_r` | EXIM API 실시간 |
+| USD / KRW (서브1) | `deal_bas_r` (동일, 표기 방향만 전환) | EXIM API |
+| USD / PAB (서브2) | **항상 1.00** | 하드코드 (1904~ 페깅) |
+| 안내 문구 | 고정 텍스트 | 하드코드 |
+| 새로고침 시간 | `asOf` | API 응답 |
+
+### 호주와 차이
+
+| 호주 | 파나마 |
+|------|-------|
+| USD/SGD → 실시간 API | USD/PAB → **하드코드 1.00** |
+| 환율 변동 존재 | PAB 환율 변동 없음 (1:1 페그) |
+
+---
+
+## 🎨 디자인
+
+호주 스크린샷과 동일하게:
+
+- 메인 숫자: `text-2xl font-bold text-[#1E3A5F]`
+- "원" 단위: `text-lg text-gray-500`
+- 서브 카드 2개: `bg-gray-50 rounded-lg p-4` 가로 나란히
+- 서브 카드 라벨: `text-sm text-gray-500`
+- 서브 카드 값: `text-lg font-semibold`
+- PAB 카드의 "(고정)": `text-sm text-gray-400 ml-1`
+- 안내 문구: `text-xs text-gray-400` + 💡 아이콘
+- 새로고침 버튼: `border rounded-lg px-4 py-2 text-sm text-[#1E3A5F]`
+- API 실패 시: 값 옆에 `text-xs text-orange-400` "(최근 저장값)"
+
+---
+
+## 📁 파일 구조
+
+### 신규 생성
+
+```
+components/panama/ExchangeRateCard.tsx    ← 환율 카드 UI 컴포넌트
+app/api/panama/exchange-rate/route.ts     ← EXIM API 프록시 엔드포인트
+```
+
+### 수정
+
+```
+app/page.tsx (또는 메인 프리뷰 페이지)     ← ExchangeRateCard 삽입
+```
+
+---
+
+## ⚡ ExchangeRateCard 컴포넌트 스펙
+
+```typescript
+// components/panama/ExchangeRateCard.tsx
+
+interface ExchangeRateData {
+  krwPerUsd: number;        // KRW/USD 매매기준율 (예: 1473.74)
+  source: "api_success" | "db_fallback";
+  asOf: string;             // ISO date (예: "2026-04-17")
+}
+
+// 1. 마운트 시 /api/panama/exchange-rate GET 호출
+// 2. 성공 → 값 표시 + "실시간" 뱃지
+// 3. 실패 → "환율 정보를 불러올 수 없습니다" 표시
+// 4. "환율 새로고침" 버튼 → 재호출
+// 5. USD/PAB는 항상 1.00 하드코드 — API 호출 안 함
+// 6. PAB 안내 문구 하드코드:
+//    "파나마 발보아(PAB)는 1904년부터 USD와 1:1 고정 환율(Pegged)."
+//    "실거래에서 USD를 직접 사용하므로 환율 변환이 불필요합니다."
+```
+
+---
+
+## 🚫 주의사항
+
+1. USD/PAB 환율을 EXIM API로 조회하지 않는다 — 항상 1.00 하드코드
+2. `system_context_panama.ts` 1번 규칙 준수: "환율 변환 로직 절대 적용 금지"
+3. EXIM API 키는 `process.env.EXIM_API_KEY` — 이미 Vercel 등록 완료
+4. 기존 `exchange_rate_exim.ts` 로직을 재사용하되, 해당 파일 자체를 수정하지 않는다
+5. 새로고침 버튼 누를 때마다 EXIM API 호출 → 과도한 호출 방지를 위해 30초 쿨다운 적용
+
+---
+
+## 📋 CHANGELOG 템플릿
+
+```markdown
+## [Unreleased] - 2026-04-17 HH:MM:SS (feat(exchange-rate): 메인 프리뷰 환율 위젯 추가)
+
+### Added
+- feat(ui): ExchangeRateCard 컴포넌트 — KRW/USD 실시간 + USD/PAB 1.00 고정 표시
+- feat(api): /api/panama/exchange-rate 엔드포인트 — EXIM API 프록시 + db_fallback
+- feat(ui): PAB 1:1 페깅 안내 문구 (1904~, 환율 변환 불필요)
+```

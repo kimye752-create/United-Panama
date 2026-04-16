@@ -14,6 +14,8 @@ import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
 import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 import type { ProductMaster } from "@/src/utils/product-dictionary";
 
+import { AnalysisResultDashboard } from "./panama/AnalysisResultDashboard";
+import type { ConfidenceBreakdown, DashboardBundle, SourceBreakdown } from "./panama/types";
 import INNTabs from "./INNTabs";
 import { Report1, type LlmBundle } from "./Report1";
 
@@ -54,6 +56,104 @@ type DigestState = {
   perplexitySource: string;
 };
 
+const EMPTY_SOURCE_BREAKDOWN: SourceBreakdown = {
+  panamacompra_v3: {
+    count: 0,
+    avgPrice: null,
+    minPrice: null,
+    maxPrice: null,
+    topProveedor: null,
+  },
+  acodeco: {
+    count: 0,
+    avgPrice: null,
+  },
+  superxtra: {
+    count: 0,
+    price: null,
+    hasStock: null,
+  },
+  colombia_secop: {
+    count: 0,
+    avgPrice: null,
+    erpBasis: "WHO 2015 ERP",
+  },
+};
+
+const EMPTY_CONFIDENCE_BREAKDOWN: ConfidenceBreakdown = {
+  publicProcurement: false,
+  privatePrice: false,
+  eml: false,
+  erpReference: false,
+  distributors: false,
+  regulation: false,
+  prevalence: false,
+  total: 0,
+  max: 7,
+  percent: 0,
+};
+
+function parseSourceBreakdown(raw: unknown): SourceBreakdown {
+  if (!isRecord(raw)) {
+    return EMPTY_SOURCE_BREAKDOWN;
+  }
+  const pickNumberOrNull = (value: unknown): number | null =>
+    typeof value === "number" && Number.isFinite(value) ? value : null;
+  const panamaRaw = isRecord(raw.panamacompra_v3) ? raw.panamacompra_v3 : {};
+  const acodecoRaw = isRecord(raw.acodeco) ? raw.acodeco : {};
+  const superxtraRaw = isRecord(raw.superxtra) ? raw.superxtra : {};
+  const colombiaRaw = isRecord(raw.colombia_secop) ? raw.colombia_secop : {};
+
+  return {
+    panamacompra_v3: {
+      count: typeof panamaRaw.count === "number" ? panamaRaw.count : 0,
+      avgPrice: pickNumberOrNull(panamaRaw.avgPrice),
+      minPrice: pickNumberOrNull(panamaRaw.minPrice),
+      maxPrice: pickNumberOrNull(panamaRaw.maxPrice),
+      topProveedor:
+        typeof panamaRaw.topProveedor === "string" ? panamaRaw.topProveedor : null,
+    },
+    acodeco: {
+      count: typeof acodecoRaw.count === "number" ? acodecoRaw.count : 0,
+      avgPrice: pickNumberOrNull(acodecoRaw.avgPrice),
+    },
+    superxtra: {
+      count: typeof superxtraRaw.count === "number" ? superxtraRaw.count : 0,
+      price: pickNumberOrNull(superxtraRaw.price),
+      hasStock: typeof superxtraRaw.hasStock === "boolean" ? superxtraRaw.hasStock : null,
+    },
+    colombia_secop: {
+      count: typeof colombiaRaw.count === "number" ? colombiaRaw.count : 0,
+      avgPrice: pickNumberOrNull(colombiaRaw.avgPrice),
+      erpBasis:
+        typeof colombiaRaw.erpBasis === "string" && colombiaRaw.erpBasis.trim() !== ""
+          ? colombiaRaw.erpBasis
+          : "WHO 2015 ERP",
+    },
+  };
+}
+
+function parseConfidenceBreakdown(raw: unknown): ConfidenceBreakdown {
+  if (!isRecord(raw)) {
+    return EMPTY_CONFIDENCE_BREAKDOWN;
+  }
+  const pickBool = (value: unknown): boolean => value === true;
+  const pickNumber = (value: unknown, fallback: number): number =>
+    typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  return {
+    publicProcurement: pickBool(raw.publicProcurement),
+    privatePrice: pickBool(raw.privatePrice),
+    eml: pickBool(raw.eml),
+    erpReference: pickBool(raw.erpReference),
+    distributors: pickBool(raw.distributors),
+    regulation: pickBool(raw.regulation),
+    prevalence: pickBool(raw.prevalence),
+    total: pickNumber(raw.total, 0),
+    max: pickNumber(raw.max, 7),
+    percent: pickNumber(raw.percent, 0),
+  };
+}
+
 type Props = {
   product: ProductMaster;
   /** URL `?inn=` — INN 탭 활성 표시 */
@@ -76,6 +176,7 @@ export function PanamaReportClient({
   const [data, setData] = useState<AnalyzePanamaResult | null>(null);
   const [llm, setLlm] = useState<LlmBundle | null>(null);
   const [digest, setDigest] = useState<DigestState | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardBundle | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,6 +186,7 @@ export function PanamaReportClient({
     setData(null);
     setLlm(null);
     setDigest(null);
+    setDashboard(null);
     try {
       const res = await fetch("/api/panama/analyze", {
         method: "POST",
@@ -196,6 +298,18 @@ export function PanamaReportClient({
         perplexityPapers,
         perplexitySource,
       });
+      setDashboard({
+        product: analyze.product,
+        caseGrade: analyze.judgment.case,
+        confidence: analyze.judgment.confidence,
+        verdict: analyze.judgment.verdict,
+        llmPayload: lb.payload,
+        sourceBreakdown: parseSourceBreakdown(raw.sourceBreakdown),
+        confidenceBreakdown: parseConfidenceBreakdown(raw.confidenceBreakdown),
+        perplexityPapers,
+        perplexitySource,
+        collectedAt: new Date().toISOString().slice(0, 10),
+      });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "네트워크 오류";
       setError(msg);
@@ -263,15 +377,24 @@ export function PanamaReportClient({
 
           {showInnTabs ? <INNTabs currentInn={currentInn} /> : null}
 
-          {data !== null && llm !== null && digest !== null && error === null ? (
-            <Report1
-              data={data}
-              llm={llm}
-              rawDataDigest={digest.rawDataDigest}
-              prevalenceMetric={digest.prevalenceMetric}
-              perplexityPapers={digest.perplexityPapers}
-              perplexitySource={digest.perplexitySource}
-            />
+          {data !== null && llm !== null && digest !== null && dashboard !== null && error === null ? (
+            <div className="space-y-6">
+              <AnalysisResultDashboard
+                dashboard={dashboard}
+                onReanalyze={() => {
+                  void run();
+                }}
+                loading={loading}
+              />
+              <Report1
+                data={data}
+                llm={llm}
+                rawDataDigest={digest.rawDataDigest}
+                prevalenceMetric={digest.prevalenceMetric}
+                perplexityPapers={digest.perplexityPapers}
+                perplexitySource={digest.perplexitySource}
+              />
+            </div>
           ) : null}
         </>
       )}
