@@ -1,5 +1,36 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-16 18:17:22 (fix(phase2-report): block2/5 필수 문구 하드보강 + Haiku 진단 로그 강화)
+
+### Changed
+- fix(phase2-llm): `phase2_system_context.ts`에 block2 강제 문구(FTA 0%·ITBMS 0%·약국 33%·도매 23~25%)와 block5 강제 문구(3단계 마진 전략 현재 단계·2단계 진입 중) 규칙을 명시적으로 추가.
+- fix(phase2-fallback): `phase2_fallback_template.ts` block2/5를 하드코드 강화해 Haiku 실패 시에도 결함 3건이 재발하지 않도록 수정.
+- fix(phase2-fallback): block2·block5 최소 길이 기준을 80자로 상향(스키마 maxLength는 기존 300 유지).
+- fix(phase2-generator): `phase2_generator.ts`에 Haiku 경로(`claude-haiku-4-5-20251001`) 추가 및 Opus/Sonnet/Haiku 실패 사유를 `process.stderr.write`로 출력하도록 강화.
+- verify(db): phase2 캐시 삭제 후 Rosumeg 민간 24.50 시나리오 재생성, 최신 row에서 `block2`/`block5` 필수 문구 포함 확인.
+
+## [Unreleased] - 2026-04-16 16:38:46 (feat(phase2): 보고서 생성 LLM 4종 + generate-report API + 5블록 렌더)
+
+### Changed
+- feat(phase2-llm): `src/llm/phase2/` 4종 추가
+  - `phase2_schema.ts`: 5블록 Tool Use 스키마/런타임 파서(maxLength 150/300/450/200/300)
+  - `phase2_system_context.ts`: Logic A/B 강제, FTA 0%·ITBMS 0%, Rosumeg·Omethyl 우선 규칙
+  - `phase2_fallback_template.ts`: 계산 결과만으로 5블록 완성되는 독립 폴백 템플릿
+  - `phase2_generator.ts`: Opus → Sonnet → fallback 3단 체인 + 12h 캐시 저장
+- feat(phase2-api): `app/api/panama/phase2/generate-report/route.ts` 신규 추가. 계산 결과 입력을 받아 2공정 자연어 5블록 보고서 생성.
+- feat(phase2-ui): `components/phase2/Phase2ManualInput.tsx`에 제품 선택(Rosumeg/Omethyl) + `2공정 보고서 생성` 버튼 + 생성된 5블록 렌더 섹션 추가.
+- note(cache): `panama_report_cache` 스키마 변경 없이 `report_payload.market_segment='phase2_report'` 메타로 2공정 캐시를 분리했고, 1공정 캐시 충돌 방지를 위해 `product_id+market` 기반 합성 UUID 키를 사용.
+- verify: `npx tsc --noEmit` 통과, linter 오류 0건, `npx tsx` 스모크에서 `source=fallback` 및 5블록 생성 확인.
+
+## [Unreleased] - 2026-04-16 16:26:58 (feat(phase2): 2공정 FOB 역산 코어 + UI 뼈대 이식 1차)
+
+### Changed
+- feat(phase2-ui): `app/process-2/page.tsx`를 준비중 화면에서 `Phase2Workbench` 기반 실제 2공정 화면으로 교체하고, 별도 진입점 `app/phase2/page.tsx` 추가.
+- feat(phase2-ui): `components/phase2/*` 신규 추가 (`Phase2TabSelector`, `Phase2AiPipeline`, `Phase2ManualInput`, `Phase2MarketSegment`, `Phase2ProgressSteps`, `Phase2ScenarioCards`, `Phase2FormulaBlock`, `Phase2FinalPriceBlock`, `Phase2UploadArea`, `report_selector/Phase2ReportSelector`, `Phase2Workbench`).
+- feat(phase2-logic): `src/logic/phase2/*` 신규 추가 (`margin_policy_resolver`, `fob_back_calculator`, `price_scenario_generator`, `incoterms_forward_calculator`)로 공공/민간 분기 + 공격/기준/보수 3시나리오 계산 뼈대 구현.
+- feat(phase2-api): `app/api/panama/phase2/calculate/route.ts` 신규 추가(FOB 역산 실행), `report/route.ts` 신규 추가(기존 `panama_report_cache` 목록 조회), `extract-from-pdf/route.ts` 신규 추가(텍스트 기반 가격 후보 추출 스텁).
+- verify: `npx tsc --noEmit` 통과, 신규 파일 범위 linter 오류 0건.
+
 ## [Unreleased] - 2026-04-17 (db(regulatory): 세션 22 WLA 확증실패 격하 + Ley419/Decreto27 공식 INSERT)
 
 ### Changed
