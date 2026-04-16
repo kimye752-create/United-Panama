@@ -284,9 +284,9 @@ async function callLLM(model: string, input: GeneratorInput): Promise<Report1Pay
   }
   const client = new Anthropic({ apiKey });
   const userPrompt = buildUserPrompt(input);
-  console.log(`[report1_generator] USER_PROMPT_BEGIN model=${model}`);
-  console.log(userPrompt);
-  console.log("[report1_generator] USER_PROMPT_END");
+  process.stderr.write(`[report1_generator] USER_PROMPT_BEGIN model=${model}\n`);
+  process.stderr.write(`${userPrompt}\n`);
+  process.stderr.write("[report1_generator] USER_PROMPT_END\n");
 
   const response: Message = await new Promise<Message>((resolve, reject) => {
     const t = setTimeout(() => {
@@ -382,9 +382,8 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     entryFeasibilityText: input.entryFeasibilityText,
   };
   if (process.env.DEBUG_REPORT1_V3 === "1") {
-    console.log(
-      "[DEBUG] fallbackInput.panamacompraV3Top:",
-      JSON.stringify(fallbackInput.panamacompraV3Top),
+    process.stderr.write(
+      `[report1_generator][DEBUG] fallbackInput.panamacompraV3Top: ${JSON.stringify(fallbackInput.panamacompraV3Top)}\n`,
     );
   }
   const payload = buildFallbackReport(fallbackInput);

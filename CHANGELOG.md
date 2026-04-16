@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-16 19:29:37 (chore(report1-logging): console.log 제거 및 stderr 통일)
+
+### Changed
+- chore(report1-logging): `src/llm/report1_generator.ts`의 USER_PROMPT/DEBUG 로그를 `console.log`에서 `process.stderr.write`로 전환해 서버 로그 정책 일관성 유지.
+
 ## [Unreleased] - 2026-04-16 19:27:43 (fix(phase2+report1): 2공정 AI탭 레이아웃 정렬 + 1공정 Haiku 실패 추적 로그 강화)
 
 ### Changed
