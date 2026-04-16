@@ -1,12 +1,49 @@
 # Vibe Coding Log
 
+## [Session 23 종합] - 2026-04-16 (D-8)
+
+### 중간안 D-1 + D-2 도입 — 보고서 생성 로직 박제
+
+**핵심 결정**: 현재 코드에 존재하지만 실행되지 않던 크롤러들을 실제 작동 상태로 복원·연결하는 "중간안" 진행. 달강님 요구 3조건(크롤링 로직 포함 + 신선도 다한 항목만 + URL 핀포인팅 없이)을 만족하는 구조 확정.
+
+### 보고서 생성 전체 로직 박제 (ARCHITECTURE.md / USER_FLOW.md / TECHNIQUES_STATUS.md 최상단)
+
+- 사전 단계: GitHub Actions 수동 workflow_dispatch로 주 1회 트리거 → v_stale_items VIEW 경유 → Colombia SECOP / SuperXtra VTEX / ACODECO CABAMED 3종 조건부 재크롤링 → UPSERT + pa_freshness_status = 'fresh' 복원
+- PanamaCompra V3는 봇 차단 → 달강님 수동 PDF + 별도 Claude 세션 LLM 정형화 + 수동 INSERT 경로 유지
+- 런타임: Supabase 조회 80% + 환율 EXIM API 5% + Haiku Judge 신선도 5% → pa_freshness_status 마킹으로 다음 GitHub Actions 실행 시 자동 재크롤링 대상에 포함됨 (런타임 → 크롤링 루프 가교)
+
+### 산출물
+
+- `docs/ARCHITECTURE.md` 최상단에 "⭐ 보고서 생성 전체 로직" 섹션 신규 삽입
+- `docs/USER_FLOW.md` 최상단에 동일 섹션 삽입 + 세션 히스토리에 19·20·22·23 추가
+- `docs/TECHNIQUES_STATUS.md` 최상단에 동일 섹션 삽입 + 변경 이력에 19·20·22·23 추가
+- 절대 원칙 20·21·22번 신규 (로컬 vs Vercel 분리, Rx/OTC 엄격 분리, 신선도 가교 구조)
+
+### 병행 작업 (별건)
+
+- 1공정 Haiku 실호출 실패 장기 디버깅 (세션 20~23 연속 미해결) → Anthropic 크레딧 소진 가설 유력, 달강님 팀원 계정 권한 문제로 이월
+- 2공정 UI/API 완성 (Phase2 LLM Generator + 5블록 스키마 + 3-tier 체인)
+- Rosumeg Tier 재라벨링 SQL 생성 (`세션23_tier_relabel.sql`) — `competitor_public_procurement` → `competitor_single_component` 정정
+
+---
+
+## [Unreleased] - 2026-04-16 23:39:53 (fix(session23-final): A-1 환율 재시도/원인 로깅 + A-2 freshness 후처리 UPDATE 연결)
+
+### Fixed
+- fix(d1-exim): `src/crawlers/realtime/exchange_rate_exim.ts`에 3회 재시도 + 지수 백오프 + 10초 timeout + 빈 응답/파싱 실패/USD 누락 분기 로그를 추가해 간헐 성공 가능성을 보강.
+- fix(d1-exim): `fetch failed` 계열 진단 강화를 위해 에러 메시지에 `err.cause` 세부 내용을 함께 기록하도록 `stringifyUnknown` 헬퍼 추가.
+- fix(d1-exim): API 성공 시 source를 `api_success`로 통일하고, `API SUCCESS`/`RESOLVED` 로그를 남겨 런타임 판독성을 강화.
+- fix(d2-refresh): `scripts/runners/freshness_refresh_runner.ts`에 task 성공 후 `panama` 테이블 freshness 후처리 UPDATE 로직 추가(`pa_freshness_status='fresh'`, `pa_freshness_checked_at`, `pa_item_collected_at`).
+- fix(d2-refresh): dry-run 모드에서는 기존대로 UPDATE를 건너뛰고, 실행 모드에서만 source별 UPDATE를 수행하도록 분기 유지.
+
 ## [Unreleased] - 2026-04-16 21:04:52 (feat(freshness): stale VIEW + refresh runner/workflow + 환율 진단 로그 보강)
 
 ### Changed
 - fix(realtime): `src/crawlers/realtime/exchange_rate_exim.ts`에 `[exchange_rate_exim]` 진단 로그 추가(START/API_HIT/API_MISS/API_ERROR/DB_FALLBACK/DB_FALLBACK_FAILED)로 db_fallback 진입 원인 추적 강화.
 - feat(sql): `scripts/sql/v_stale_items.sql` 추가. `stale_likely`/`stale_confirmed` 행을 `refresh_runner_key`(`datos_gov_co`/`superxtra_vtex`/`pa_acodeco_cabamed`)로 매핑하는 VIEW 정의.
 - feat(runner): `scripts/runners/freshness_refresh_runner.ts` 추가. `v_stale_items` 조회 후 source별 재수집 태스크를 dry-run/실행 모드로 오케스트레이션.
-- feat(ci): `.github/workflows/freshness_refresh.yml` 추가(`workflow_dispatch`, dry_run 입력, `SUPABASE_SERVICE_ROLE_KEY` 기반 실행).
+- feat(ci): `.github/workflows/freshness_refresh.yml` 추가(`workflow_dispatch`, dry_run 입력, `SUPABASE_KEY` 기반 실행).
+- fix(ci): GitHub Secrets 정책에 맞춰 기존 서비스 롤 키 참조를 `SUPABASE_KEY`로 치환.
 - chore(scripts): `package.json`에 `freshness:refresh` 스크립트 추가.
 - verify: 로컬 dry-run(`npx tsx scripts/runners/freshness_refresh_runner.ts --dry-run=true`) 정상, 현재 stale 대상 0건 확인.
 

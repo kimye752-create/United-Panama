@@ -4,6 +4,7 @@
 /// <reference types="node" />
 
 import { normalize } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 
@@ -18,6 +19,8 @@ import { MACRO_PRODUCT_ID } from "../../utils/product-dictionary";
 const EXIM_ENDPOINT =
   "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON";
 const MAX_LOOKBACK_DAYS = 5;
+const EXIM_MAX_RETRIES = 3;
+const EXIM_TIMEOUT_MS = 10_000;
 const PA_SOURCE = "exchange_rate_exim" as const;
 
 loadEnv({ path: ".env.local" });
@@ -25,7 +28,7 @@ loadEnv();
 
 export interface ExchangeRateResult {
   rate: number;
-  source: "api_today" | "api_fallback" | "db_fallback";
+  source: "api_success" | "db_fallback";
   searchDate: string;
   actualSearchDate: string;
 }
@@ -67,6 +70,23 @@ function resolveEximApiKey(): string {
   return key.trim();
 }
 
+function stringifyUnknown(error: unknown): string {
+  if (error instanceof Error) {
+    const cause = (error as Error & { cause?: unknown }).cause;
+    if (cause !== undefined) {
+      const causeText =
+        cause instanceof Error
+          ? cause.message
+          : typeof cause === "string"
+            ? cause
+            : JSON.stringify(cause);
+      return `${error.message} | cause=${causeText}`;
+    }
+    return error.message;
+  }
+  return String(error);
+}
+
 async function fetchUsdKrwByDate(searchDate: Date): Promise<number | null> {
   const apiKey = resolveEximApiKey();
   const yyyymmdd = toYyyymmdd(searchDate);
@@ -75,39 +95,91 @@ async function fetchUsdKrwByDate(searchDate: Date): Promise<number | null> {
   url.searchParams.set("searchdate", yyyymmdd);
   url.searchParams.set("data", "AP01");
 
-  try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "Mozilla/5.0 (compatible; UnitedPanama/1.0)",
-      },
-    });
-    if (!response.ok) {
-      throw new Error(
-        `HTTP ${String(response.status)} ${response.statusText}`,
+  for (let attempt = 1; attempt <= EXIM_MAX_RETRIES; attempt += 1) {
+    try {
+      process.stderr.write(
+        `[exchange_rate_exim] ATTEMPT ${String(attempt)}/${String(EXIM_MAX_RETRIES)} searchdate=${yyyymmdd}\n`,
       );
-    }
-    const raw: unknown = await response.json();
-    if (!Array.isArray(raw)) {
-      throw new Error(
-        "환율 API 응답이 배열 형식이 아닙니다. API 키와 호출 파라미터를 확인하세요.",
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; UnitedPanama/1.0)",
+        },
+        signal: AbortSignal.timeout(EXIM_TIMEOUT_MS),
+      });
+      if (!response.ok) {
+        process.stderr.write(
+          `[exchange_rate_exim] HTTP_${String(response.status)} searchdate=${yyyymmdd} attempt=${String(attempt)}\n`,
+        );
+        if (attempt < EXIM_MAX_RETRIES) {
+          await delay(2 ** attempt * 1000);
+          continue;
+        }
+        return null;
+      }
+
+      const text = await response.text();
+      if (text.trim() === "" || text.trim() === "[]") {
+        process.stderr.write(
+          `[exchange_rate_exim] EMPTY_RESPONSE searchdate=${yyyymmdd}\n`,
+        );
+        return null;
+      }
+
+      let raw: unknown;
+      try {
+        raw = JSON.parse(text);
+      } catch (parseError: unknown) {
+        process.stderr.write(
+          `[exchange_rate_exim] PARSE_FAILED searchdate=${yyyymmdd} attempt=${String(attempt)} reason=${stringifyUnknown(parseError)}\n`,
+        );
+        if (attempt < EXIM_MAX_RETRIES) {
+          await delay(2 ** attempt * 1000);
+          continue;
+        }
+        return null;
+      }
+
+      if (!Array.isArray(raw)) {
+        process.stderr.write(
+          `[exchange_rate_exim] INVALID_PAYLOAD searchdate=${yyyymmdd} type=${typeof raw}\n`,
+        );
+        return null;
+      }
+
+      const usd = (raw as EximRateItem[]).find(
+        (item) => item.cur_unit?.trim().toUpperCase() === "USD",
       );
+      const deal = usd?.deal_bas_r;
+      if (deal === undefined) {
+        process.stderr.write(
+          `[exchange_rate_exim] USD_NOT_FOUND searchdate=${yyyymmdd} count=${String(raw.length)}\n`,
+        );
+        return null;
+      }
+      const rate = parseRate(deal);
+      if (rate === null) {
+        process.stderr.write(
+          `[exchange_rate_exim] INVALID_RATE searchdate=${yyyymmdd} value=${deal}\n`,
+        );
+        return null;
+      }
+      process.stderr.write(
+        `[exchange_rate_exim] API SUCCESS rate=${rate.toFixed(2)} searchdate=${yyyymmdd} attempt=${String(attempt)}\n`,
+      );
+      return rate;
+    } catch (error: unknown) {
+      const message = stringifyUnknown(error);
+      process.stderr.write(
+        `[exchange_rate_exim] ATTEMPT_FAILED searchdate=${yyyymmdd} attempt=${String(attempt)} reason=${message}\n`,
+      );
+      if (attempt < EXIM_MAX_RETRIES) {
+        await delay(2 ** attempt * 1000);
+      }
     }
-    const usd = (raw as EximRateItem[]).find(
-      (item) => item.cur_unit?.trim().toUpperCase() === "USD",
-    );
-    const deal = usd?.deal_bas_r;
-    if (deal === undefined) {
-      return null;
-    }
-    return parseRate(deal);
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(
-      `환율 API 호출 실패(searchdate=${yyyymmdd}): ${message}. API 키, 네트워크, 영업일 여부를 확인하세요.`,
-    );
   }
+  return null;
 }
 
 async function loadLatestRateFromDb(): Promise<ExchangeRateResult> {
@@ -162,20 +234,18 @@ export async function fetchExchangeRateUsdKrw(): Promise<ExchangeRateResult> {
     try {
       const rate = await fetchUsdKrwByDate(targetDate);
       if (rate !== null) {
-        process.stderr.write(
-          `[exchange_rate_exim] API_HIT date=${ymd} source=${i === 0 ? "api_today" : "api_fallback"} rate=${rate.toFixed(2)}\n`,
-        );
+        process.stderr.write(`[exchange_rate_exim] RESOLVED date=${ymd} daysBack=${String(i)}\n`);
         return {
           rate,
-          source: i === 0 ? "api_today" : "api_fallback",
+          source: "api_success",
           searchDate: toYmd(today),
           actualSearchDate: ymd,
         };
       }
       errors.push(`searchDate=${ymd}: USD 데이터 없음`);
-      process.stderr.write(`[exchange_rate_exim] API_MISS date=${ymd} reason=USD_NOT_FOUND\n`);
+      process.stderr.write(`[exchange_rate_exim] API_MISS date=${ymd} reason=NO_RATE\n`);
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const msg = stringifyUnknown(error);
       errors.push(`searchDate=${ymd}: ${msg}`);
       process.stderr.write(`[exchange_rate_exim] API_ERROR date=${ymd} reason=${msg}\n`);
     }

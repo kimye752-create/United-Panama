@@ -25,5 +25,5 @@ jobs:
       - name: Run freshness refresh runner
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: npx tsx scripts/runners/freshness_refresh_runner.ts --dry-run=${{ inputs.dry_run }}

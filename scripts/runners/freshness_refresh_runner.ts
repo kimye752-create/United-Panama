@@ -77,6 +77,20 @@ function selectTaskKeys(rows: readonly StaleItemRow[]): RunnerKey[] {
   return [...keys];
 }
 
+function collectIdsByRunnerKey(rows: readonly StaleItemRow[]): Record<RunnerKey, string[]> {
+  const grouped: Record<RunnerKey, string[]> = {
+    datos_gov_co: [],
+    superxtra_vtex: [],
+    pa_acodeco_cabamed: [],
+  };
+  for (const row of rows) {
+    if (row.refresh_runner_key !== null) {
+      grouped[row.refresh_runner_key].push(row.id);
+    }
+  }
+  return grouped;
+}
+
 async function runTask(task: RefreshTask): Promise<{ key: RunnerKey; exitCode: number; tail: string[] }> {
   return await new Promise((resolve) => {
     const output: string[] = [];
@@ -105,8 +119,11 @@ async function runTask(task: RefreshTask): Promise<{ key: RunnerKey; exitCode: n
 
 async function main(): Promise<void> {
   const dryRun = readDryRunArg();
+  const now = new Date().toISOString();
+  const client = getSupabaseClient();
   const staleRows = await loadStaleItems();
   const taskKeys = selectTaskKeys(staleRows);
+  const idsByRunnerKey = collectIdsByRunnerKey(staleRows);
   const tasks = taskKeys.map((key) => TASKS[key]);
 
   if (dryRun) {
@@ -131,9 +148,57 @@ async function main(): Promise<void> {
   }
 
   const results: Array<{ key: RunnerKey; exitCode: number; tail: string[] }> = [];
+  let totalUpdated = 0;
   for (const task of tasks) {
-    const result = await runTask(task);
-    results.push(result);
+    const ids = idsByRunnerKey[task.key];
+    try {
+      const result = await runTask(task);
+      if (result.exitCode !== 0) {
+        process.stderr.write(
+          `[freshness_refresh] TASK_FAILED key=${task.key} exit=${String(result.exitCode)}\n`,
+        );
+        results.push(result);
+        continue;
+      }
+      if (ids.length === 0) {
+        results.push(result);
+        continue;
+      }
+      const { error } = await client
+        .from("panama")
+        .update({
+          pa_freshness_status: "fresh",
+          pa_freshness_checked_at: now,
+          pa_item_collected_at: now,
+        })
+        .in("id", ids);
+      if (error !== null) {
+        process.stderr.write(
+          `[freshness_refresh] UPDATE_FAILED key=${task.key} reason=${error.message}\n`,
+        );
+        results.push({
+          ...result,
+          exitCode: 1,
+          tail: [...result.tail, `UPDATE_FAILED: ${error.message}`],
+        });
+        continue;
+      }
+      totalUpdated += ids.length;
+      process.stderr.write(
+        `[freshness_refresh] UPDATED key=${task.key} count=${String(ids.length)}\n`,
+      );
+      results.push(result);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      process.stderr.write(
+        `[freshness_refresh] SOURCE_SKIP key=${task.key} reason=${message}\n`,
+      );
+      results.push({
+        key: task.key,
+        exitCode: 1,
+        tail: [`SOURCE_SKIP: ${message}`],
+      });
+    }
   }
 
   const failed = results.filter((r) => r.exitCode !== 0);
@@ -144,6 +209,7 @@ async function main(): Promise<void> {
         mode: "run",
         staleCount: staleRows.length,
         taskCount: tasks.length,
+        totalUpdated,
         results,
       },
       null,
