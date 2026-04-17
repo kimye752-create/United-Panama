@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 10:13:42 (style(process1): 제품 선택 문구 가독성 개선)
+
+### Changed
+- style(process1-ui): `components/dashboard/process1/Process1Workbench.tsx`의 선택 라벨 포맷을 `| 역할: | 성분: | 제형: | HS:` 구간 라벨 구조로 재정렬해 긴 문자열에서도 정보 경계를 즉시 인지할 수 있도록 개선.
+- style(process1-ui): 동일 선택창에 `tracking-[-0.018em]`를 적용해 자간을 미세 축소하고, 모든 문자를 유지하면서 한 줄 가독성을 보정.
+
 ## [Unreleased] - 2026-04-17 09:30:14 (fix(report1-ui): PDF 보고서 중복 렌더 제거)
 
 ### Fixed

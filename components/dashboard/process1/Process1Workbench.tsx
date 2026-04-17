@@ -79,7 +79,7 @@ function buildProductOptionLabel(productId: string, brandName: string, hsCode: s
   const displayInn = uiMeta?.displayInn ?? brandName.toLowerCase();
   const displayFormulation = uiMeta?.displayFormulation ?? "Cap";
   const compactHsCode = compressHsCode(hsCode);
-  return `[${categoryLabel}] ${brandName} · ${roleLabel} · ${displayInn} · ${displayFormulation} · HS ${compactHsCode}`;
+  return `[${categoryLabel}] ${brandName} | 역할:${roleLabel} | 성분:${displayInn} | 제형:${displayFormulation} | HS:${compactHsCode}`;
 }
 
 const PROCESS1_INPUT_CLASS =
@@ -174,7 +174,7 @@ export function Process1Workbench() {
           <select
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className={`flex-1 font-semibold ${PROCESS1_INPUT_CLASS}`}
+            className={`flex-1 font-semibold tracking-[-0.018em] ${PROCESS1_INPUT_CLASS}`}
           >
             {sortedProducts.map((p) => (
               <option key={p.product_id} value={p.product_id}>
