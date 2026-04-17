@@ -1,5 +1,21 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 21:18:59 (refactor(ui): 메인 프리뷰 중심 2탭 구조 전환)
+
+### Added
+- feat(main-preview): `components/main-preview/MacroCards.tsx` 추가 — GDP/인구/의약품 시장 규모/실질 성장률 4카드를 상단 고정 레이아웃으로 렌더.
+- feat(main-preview): `components/main-preview/PanamaMap.tsx` 추가 — Leaflet 기반 OpenStreetMap(파나마 시티 마커/팝업) 지도 섹션 구현.
+- feat(main-preview): `components/main-preview/MarketTrends.tsx` 추가 — `/api/panama/dashboard-news` 연동 시장 동향 리스트 + 새로고침 버튼 구현.
+- feat(main-preview): `components/main-preview/Phase1Section.tsx`, `Phase2Section.tsx`, `Phase3Section.tsx` 추가 — 01/02/03 공정 축약 섹션(접기/펼치기 포함) 구현.
+- feat(main-preview): `components/main-preview/MainPreviewSections.tsx` 추가 — 1/2공정 완료 상태를 연결하고 3공정 잠금 해제 조건(AND)을 관리.
+
+### Changed
+- refactor(navigation): `components/dashboard/TabNavigation.tsx`를 5탭에서 2탭(`메인 프리뷰`, `보고서`)으로 축소.
+- refactor(main-page): `app/page.tsx`를 매크로 카드 + 지도/시장동향 + 01/02/03 공정 축약 섹션 구조로 전면 재구성.
+- refactor(report-tab): `components/dashboard/reports/GeneratedReportsList.tsx`에 `모두 지우기`, 개별 삭제, 조건부/가능 뱃지, 카드형 목록 레이아웃을 적용해 보고서 탭 가독성을 개선.
+- refactor(route): `app/process-1/page.tsx`, `app/process-2/page.tsx`, `app/process-3/page.tsx`를 메인 프리뷰(`/`) 리다이렉트로 전환해 독립 공정 탭 접근을 비활성화.
+- chore(deps): `leaflet`, `react-leaflet@4.2.1`, `@types/leaflet`을 추가해 지도 렌더링 기반을 확보.
+
 ## [Unreleased] - 2026-04-17 10:13:42 (style(process1): 제품 선택 문구 가독성 개선)
 
 ### Changed

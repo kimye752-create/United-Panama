@@ -1,0 +1,202 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+import { upsertStoredReport } from "@/src/lib/dashboard/reports_store";
+import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
+
+interface Phase1SectionProps {
+  onCompleted: () => void;
+}
+
+const PRODUCT_LABEL_BY_ID: Record<string, string> = {
+  "bdfc9883-6040-438a-8e7a-df01f1230682": "[항암제] Hydrine",
+  "fcae4399-aa80-4318-ad55-89d6401c10a9": "[개량신약] Ciloduo",
+  "24738c3b-3a5b-40a9-9e8e-889ec075b453": "[개량신약] Gastiin CR",
+  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": "[개량신약] Rosumeg Combigel",
+  "859e60f9-8544-43b3-a6a0-f6c7529847eb": "[개량신약] Atmeg Combigel",
+  "014fd4d2-dc66-4fc1-8d4f-59695183387f": "[일반제] Sereterol Activair",
+  "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": "[개량신약] Omethyl Cutielet",
+  "895f49ae-6ce3-44a3-93bd-bb77e027ba59": "[일반제] Gadvoa Inj.",
+};
+
+const STEP_LABELS = ["DB조회 및 크롤링", "클로드 분석", "논문 검색", "PDF 생성"] as const;
+
+export function Phase1Section({ onCompleted }: Phase1SectionProps) {
+  const [expanded, setExpanded] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
+  const [productId, setProductId] = useState(TARGET_PRODUCTS[0]?.product_id ?? "");
+  const [tradeName, setTradeName] = useState("");
+  const [inn, setInn] = useState("");
+  const [dosage, setDosage] = useState("");
+
+  const selectedProduct = useMemo(
+    () => TARGET_PRODUCTS.find((product) => product.product_id === productId) ?? null,
+    [productId],
+  );
+
+  const runAnalyze = async () => {
+    if (selectedProduct === null) {
+      return;
+    }
+    setLoading(true);
+    setStep(1);
+    const progressTimer = window.setInterval(() => {
+      setStep((prev) => (prev < 4 ? prev + 1 : prev));
+    }, 900);
+    try {
+      const response = await fetch("/api/panama/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: selectedProduct.product_id }),
+      });
+      const payload = (await response.json()) as unknown;
+      if (!response.ok || payload === null || typeof payload !== "object") {
+        throw new Error("분석 API 응답 오류");
+      }
+      const result = payload as Record<string, unknown>;
+      const judgment = result.judgment;
+      const caseGrade =
+        judgment !== null &&
+        typeof judgment === "object" &&
+        typeof (judgment as { case?: unknown }).case === "string"
+          ? (judgment as { case: "A" | "B" | "C" }).case
+          : "B";
+      upsertStoredReport({
+        productId: selectedProduct.product_id,
+        brand: selectedProduct.kr_brand_name,
+        inn: selectedProduct.who_inn_en,
+        caseGrade,
+      });
+      setStep(4);
+      onCompleted();
+    } catch (error: unknown) {
+      window.alert(
+        `1공정 분석 실패: ${
+          error instanceof Error ? error.message : "알 수 없는 오류"
+        }\n해결 방법: 네트워크 연결과 서버 상태를 확인한 뒤 다시 시도해 주세요.`,
+      );
+    } finally {
+      window.clearInterval(progressTimer);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
+      <button
+        type="button"
+        onClick={() => setExpanded((prev) => !prev)}
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-3">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[11px] font-black text-white">
+            01
+          </span>
+          <div>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">1공정 · 시장조사</h3>
+            <p className="text-[11px] text-[#7a8ba1]">제품 분석 · Claude AI · PDF 보고서 자동 생성</p>
+          </div>
+        </div>
+        <span className="text-[14px] text-[#516882]">{expanded ? "▲" : "▼"}</span>
+      </button>
+      {expanded ? (
+        <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
+          <div>
+            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">품목 선택</p>
+            <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+              <select
+                value={productId}
+                onChange={(event) => setProductId(event.target.value)}
+                className="h-[40px] rounded-[10px] border border-[#dce4f0] bg-[#edf2f9] px-3 text-[12px] font-semibold tracking-[-0.015em] text-[#273f60] outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
+              >
+                {TARGET_PRODUCTS.map((product) => (
+                  <option key={product.product_id} value={product.product_id}>
+                    {`${PRODUCT_LABEL_BY_ID[product.product_id] ?? `[일반제] ${product.kr_brand_name}`} · ${
+                      product.who_inn_en
+                    }`}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  void runAnalyze();
+                }}
+                disabled={loading}
+                className="h-[40px] rounded-[10px] bg-[#1E4E8C] px-5 text-[12px] font-extrabold text-white hover:bg-[#1a4378] disabled:opacity-60"
+              >
+                ▶ 분석 실행
+              </button>
+            </div>
+          </div>
+          <div>
+            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">신약 직접 분석</p>
+            <div className="grid gap-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+              <input
+                value={tradeName}
+                onChange={(event) => setTradeName(event.target.value)}
+                placeholder="약품명 (예: Nexavar)"
+                className="h-[40px] rounded-[10px] border border-[#dce4f0] bg-[#f7f9fc] px-3 text-[12px] text-[#2b4568] outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
+              />
+              <input
+                value={inn}
+                onChange={(event) => setInn(event.target.value)}
+                placeholder="성분명 (예: sorafenib)"
+                className="h-[40px] rounded-[10px] border border-[#dce4f0] bg-[#f7f9fc] px-3 text-[12px] text-[#2b4568] outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
+              />
+              <input
+                value={dosage}
+                onChange={(event) => setDosage(event.target.value)}
+                placeholder="제형 (예: 200mg tablet)"
+                className="h-[40px] rounded-[10px] border border-[#dce4f0] bg-[#f7f9fc] px-3 text-[12px] text-[#2b4568] outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  window.alert("신약 분석은 다음 단계에서 백엔드 연동 예정입니다.");
+                }}
+                className="h-[40px] rounded-[10px] bg-[#1E4E8C] px-5 text-[12px] font-extrabold text-white hover:bg-[#1a4378]"
+              >
+                ▶ 신약 분석
+              </button>
+            </div>
+          </div>
+          <div className="pt-1">
+            <div className="grid grid-cols-4 gap-2">
+              {STEP_LABELS.map((label, index) => {
+                const current = index + 1;
+                const done = step > current;
+                const active = step === current && loading;
+                return (
+                  <div key={label} className="text-center">
+                    <div
+                      className={`mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                        done
+                          ? "bg-[#dff2ea] text-[#2a9a71]"
+                          : active
+                            ? "bg-[#dbe6f8] text-[#1f3e64]"
+                            : "bg-[#eef2f8] text-[#8ea0b7]"
+                      }`}
+                    >
+                      {done ? "✓" : current}
+                    </div>
+                    <p className="text-[10px] text-[#6c809a]">{label}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-2 h-[2px] w-full rounded-full bg-[#dfe7f2]">
+              <div
+                className="h-full rounded-full bg-[#69b89d] transition-all duration-300"
+                style={{ width: `${((step <= 0 ? 0 : step) / 4) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+

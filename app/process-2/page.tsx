@@ -1,10 +1,5 @@
-import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { Phase2Workbench } from "@/components/phase2/Phase2Workbench";
+import { redirect } from "next/navigation";
 
 export default function Process2Page() {
-  return (
-    <DashboardShell>
-      <Phase2Workbench />
-    </DashboardShell>
-  );
+  redirect("/");
 }
