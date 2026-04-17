@@ -42,6 +42,9 @@ export function PanamaMap() {
         L.marker([PANAMA_CENTER.lat, PANAMA_CENTER.lng], { icon: markerIcon })
           .addTo(map)
           .bindPopup("Panama City (Panama)");
+        window.setTimeout(() => {
+          map.invalidateSize();
+        }, 0);
         initializedRef.current = true;
         cleanup = () => {
           map.remove();
@@ -59,10 +62,10 @@ export function PanamaMap() {
   }, []);
 
   return (
-    <section className="rounded-[16px] border border-[#e3e9f2] bg-white p-3 shadow-sh2">
+    <section className="flex h-full min-h-[420px] flex-col rounded-[16px] border border-[#e3e9f2] bg-white p-3 shadow-sh2">
       <h3 className="mb-2 text-[14px] font-extrabold text-[#1f3e64]">신규조달 위치</h3>
-      <div className="overflow-hidden rounded-[12px] border border-[#dde5f0]">
-        <div ref={mapRef} style={{ height: "330px", width: "100%" }} />
+      <div className="flex-1 overflow-hidden rounded-[12px] border border-[#dde5f0]">
+        <div ref={mapRef} className="h-full min-h-[360px] w-full" />
       </div>
     </section>
   );

@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 22:14:18 (fix(map-layout): 지도 카드 하단 빈 영역 제거)
+
+### Fixed
+- fix(main-preview-map): `components/main-preview/PanamaMap.tsx`를 `flex + h-full` 구조로 전환하고 지도 영역을 `flex-1`로 확장해, 2열 카드 높이 차로 발생하던 하단 공백을 제거.
+- fix(main-preview-map): 지도 초기 렌더 직후 `invalidateSize()`를 호출해 컨테이너 크기 반영 지연으로 인한 빈 캔버스/잘림 현상을 완화.
+
 ## [Unreleased] - 2026-04-17 22:07:15 (style(phase3): 바이어 발굴 비활성 테이블 시안 정렬)
 
 ### Changed
