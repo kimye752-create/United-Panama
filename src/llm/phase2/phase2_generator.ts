@@ -17,6 +17,40 @@ import { PHASE2_SYSTEM_CONTEXT } from "./phase2_system_context";
 const CACHE_TABLE = "panama_report_cache";
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 
+function stringifyUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
+function formatHaikuErrorDetails(error: unknown): string {
+  const chunks: string[] = [];
+  if (error instanceof Error) {
+    chunks.push(`message=${error.message}`);
+  }
+  if (typeof error === "object" && error !== null && !Array.isArray(error)) {
+    const row = error as Record<string, unknown>;
+    if (typeof row.status === "number") {
+      chunks.push(`status=${String(row.status)}`);
+    }
+    if (typeof row.type === "string") {
+      chunks.push(`type=${row.type}`);
+    }
+    if (typeof row.name === "string") {
+      chunks.push(`name=${row.name}`);
+    }
+    if (row.error !== undefined) {
+      try {
+        chunks.push(`error=${JSON.stringify(row.error).slice(0, 600)}`);
+      } catch {
+        chunks.push("error=[unserializable]");
+      }
+    }
+  }
+  return chunks.join(" | ");
+}
+
 export interface Phase2GeneratorInput {
   sourceProductId: string;
   productName: string;
@@ -159,6 +193,7 @@ export async function generatePhase2Report(
   }
 
   try {
+    process.stderr.write(`[phase2_generator] Haiku ATTEMPT model=${HAIKU_MODEL}\n`);
     const haikuPayload = await callModel(HAIKU_MODEL, input);
     try {
       await saveCache(input, haikuPayload, HAIKU_MODEL);
@@ -167,8 +202,13 @@ export async function generatePhase2Report(
     }
     return { payload: haikuPayload, source: "haiku", modelUsed: HAIKU_MODEL };
   } catch (haikuErr: unknown) {
-    const m = haikuErr instanceof Error ? haikuErr.message : String(haikuErr);
+    const m = stringifyUnknownError(haikuErr);
+    const details = formatHaikuErrorDetails(haikuErr);
     process.stderr.write(`[phase2_generator] Haiku failed: ${m}\n`);
+    process.stderr.write(`[phase2_generator] Haiku failed details: ${details}\n`);
+    process.stderr.write(
+      `[phase2_generator] KEY_EXISTS: ${String(!!process.env.ANTHROPIC_API_KEY)}, KEY_LEN: ${String(process.env.ANTHROPIC_API_KEY?.length ?? 0)}\n`,
+    );
   }
 
   const fallbackPayload = buildPhase2FallbackReport({

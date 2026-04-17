@@ -1,5 +1,29 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 23:18:05 (fix(haiku)+feat(news): Haiku 진단 강화 + 뉴스 캐시 수집 전환)
+
+### Fixed
+- fix(macro-card): `src/logic/panama_landing.ts` 의약품 시장 규모 대표값 표기를 `$0.50B`에서 `$496.00M`으로 변경해 단위 체감을 개선.
+- fix(llm): `src/llm/report1_generator.ts`, `src/llm/phase2/phase2_generator.ts`에 Haiku 실패 상세 로깅(status/type/error payload)을 추가해 fallback 원인 추적을 강화.
+- fix(ops): `scripts/runners/test_haiku_direct.ts` 직접 호출 스모크 테스트를 추가하고 `package.json`에 `test:haiku-direct` 스크립트를 등록해 `anthropic-version=2023-06-01` 헤더 경로를 즉시 검증 가능하게 구성.
+
+### Added
+- feat(news): `src/logic/fetch_panama_dashboard_news.ts`를 Haiku(`claude-haiku-4-5-20251001`) + `web_search_20250305` 기반 뉴스 수집으로 전환.
+- feat(news): `panama_news_cache` 24시간 캐시 읽기/저장 로직을 추가해 불필요한 재호출을 줄이고 안정적으로 6개 뉴스를 반환하도록 개선.
+- feat(news): `scripts/sql/panama_news_cache.sql` 신규 추가(테이블 + created_at 인덱스).
+- feat(ui): `components/main-preview/MarketTrends.tsx` 뉴스 항목을 URL 앵커로 렌더링해 원문 클릭 이동을 지원.
+
+## [Unreleased] - 2026-04-17 22:53:52 (fix(main-preview): 지도 깨짐 보정 + 내부 비율 경고 노출 제거)
+
+### Fixed
+- fix(map): `components/main-preview/PanamaMap.tsx`에 `ResizeObserver` 기반 `map.invalidateSize()` 재계산을 추가해 카드 높이/레이아웃 변동 시 Leaflet 하단 타일이 비거나 깨져 보이던 현상을 완화.
+- fix(map): 초기 렌더 직후뿐 아니라 지연 시점(180ms)에도 추가 재계산을 수행해 첫 로드 시 간헐적 타일 영역 미정렬을 보정.
+
+### Changed
+- refactor(news-ui): `components/main-preview/MarketTrends.tsx`에서 warning 배너 노출을 제거해 내부 수집 정책 메시지(예: 4:2 비율 관련 문구)가 사용자 화면에 표시되지 않도록 정리.
+- refactor(news-logic): `src/logic/fetch_panama_dashboard_news.ts`의 보강 문구 패딩(`추가 뉴스 수집 중입니다...`)을 제거하고, 부족 건수는 Perplexity 추가 질의로 채우는 방식으로 전환.
+- refactor(news-logic): 4:2 내부 비율 미충족 시 warning 문자열을 응답에 노출하지 않도록 조정해 운영 내부 설정이 UI로 새지 않게 개선.
+
 ## [Unreleased] - 2026-04-17 22:32:04 (style(main-preview): 중단 카드 높이/문구/뉴스 비율 정렬)
 
 ### Changed

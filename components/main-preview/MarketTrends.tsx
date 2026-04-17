@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 interface TrendItem {
   headline: string;
   meta_line: string;
+  url?: string;
+  category?: "파나마 현지" | "한국 발행" | "글로벌";
 }
 
 interface TrendPayload {
@@ -30,6 +32,14 @@ function parsePayload(raw: unknown): TrendPayload {
     items.push({
       headline: row.headline,
       meta_line: typeof row.meta_line === "string" ? row.meta_line : "",
+      url:
+        typeof row.url === "string" && /^https?:\/\//i.test(row.url)
+          ? row.url
+          : undefined,
+      category:
+        row.category === "파나마 현지" || row.category === "한국 발행" || row.category === "글로벌"
+          ? row.category
+          : undefined,
     });
   }
   return {
@@ -41,7 +51,6 @@ function parsePayload(raw: unknown): TrendPayload {
 export function MarketTrends() {
   const [items, setItems] = useState<TrendItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [warning, setWarning] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -53,7 +62,6 @@ export function MarketTrends() {
       const json = (await response.json()) as unknown;
       const payload = parsePayload(json);
       setItems(payload.items.slice(0, 6));
-      setWarning(payload.warning ?? null);
     } finally {
       setLoading(false);
     }
@@ -78,24 +86,41 @@ export function MarketTrends() {
           ↻ 새로고침
         </button>
       </div>
-      {warning !== null ? (
-        <p className="mb-2 rounded-[10px] bg-amber-50 px-2 py-1.5 text-[10px] text-amber-800">{warning}</p>
-      ) : null}
       <div className="space-y-1.5">
         {items.length === 0 && !loading ? (
           <p className="rounded-[10px] bg-[#f7f9fc] px-3 py-3 text-[12px] text-[#6e7f95]">
             시장 동향 데이터가 준비 중입니다.
           </p>
         ) : (
-          items.map((item, index) => (
-            <article
-              key={`${item.headline}-${String(index)}`}
-              className="rounded-[10px] bg-[#f5f7fb] px-3 py-2"
-            >
-              <p className="text-[11.5px] font-bold leading-snug text-[#1f3e64]">{item.headline}</p>
-              <p className="mt-0.5 text-[10px] text-[#7d8da2]">{item.meta_line}</p>
-            </article>
-          ))
+          items.map((item, index) => {
+            const rowContent = (
+              <>
+                <p className="text-[11.5px] font-bold leading-snug text-[#1f3e64]">{item.headline}</p>
+                <p className="mt-0.5 text-[10px] text-[#7d8da2]">{item.meta_line}</p>
+              </>
+            );
+            if (item.url !== undefined) {
+              return (
+                <a
+                  key={`${item.headline}-${String(index)}`}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-[10px] bg-[#f5f7fb] px-3 py-2 hover:bg-[#eef3fb]"
+                >
+                  {rowContent}
+                </a>
+              );
+            }
+            return (
+              <article
+                key={`${item.headline}-${String(index)}`}
+                className="rounded-[10px] bg-[#f5f7fb] px-3 py-2"
+              >
+                {rowContent}
+              </article>
+            );
+          })
         )}
       </div>
     </section>

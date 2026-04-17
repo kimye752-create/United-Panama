@@ -23,7 +23,8 @@
     "simulate:prevalence": "tsx scripts/simulate_prevalence_8inn.ts",
     "seed:prevalence": "tsx scripts/runners/reseed_prevalence.ts",
     "crawl:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts",
-    "test:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts"
+    "test:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts",
+    "test:haiku-direct": "tsx scripts/runners/test_haiku_direct.ts"
   },
   "keywords": [],
   "author": "",

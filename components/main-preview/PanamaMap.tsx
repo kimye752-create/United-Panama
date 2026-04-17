@@ -42,11 +42,20 @@ export function PanamaMap() {
         L.marker([PANAMA_CENTER.lat, PANAMA_CENTER.lng], { icon: markerIcon })
           .addTo(map)
           .bindPopup("Panama City (Panama)");
+        // 지도 컨테이너 크기 변경 시 타일 레이어를 다시 맞춰 하단 깨짐을 방지합니다.
+        const resizeObserver = new ResizeObserver(() => {
+          map.invalidateSize();
+        });
+        resizeObserver.observe(mapRef.current);
         window.setTimeout(() => {
           map.invalidateSize();
         }, 0);
+        window.setTimeout(() => {
+          map.invalidateSize();
+        }, 180);
         initializedRef.current = true;
         cleanup = () => {
+          resizeObserver.disconnect();
           map.remove();
           initializedRef.current = false;
         };

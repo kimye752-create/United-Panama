@@ -33,8 +33,8 @@ function formatUsd(value: number): string {
   return `$${Math.round(value).toLocaleString("en-US")}`;
 }
 
-function formatUsdBillions(value: number): string {
-  return `$${(value / 1_000_000_000).toFixed(2)}B`;
+function formatUsdMillions(value: number): string {
+  return `$${(value / 1_000_000).toFixed(2)}M`;
 }
 
 function formatPopulation(value: number): string {
@@ -173,7 +173,7 @@ function buildFallbackCard(label: string): PanamaLandingMetricCard {
 function buildStatistaMarketCard(): PanamaLandingMetricCard {
   return {
     label: "의약품 시장 규모",
-    value: formatUsdBillions(STATISTA_PHARMA_MARKET_USD_2024),
+    value: formatUsdMillions(STATISTA_PHARMA_MARKET_USD_2024),
     footer: "2024 · Statista",
     yoy: "US$ 496.00m",
     hasData: true,
