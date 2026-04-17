@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 21:32:45 (fix(build): Leaflet SSR window 참조 오류 수정)
+
+### Fixed
+- fix(main-preview-map): `components/main-preview/PanamaMap.tsx`에서 Leaflet 상단 정적 import를 제거하고 `useEffect` 내부 동적 import로 전환해, 서버 프리렌더 시 `window is not defined` 오류를 해소.
+- fix(build): `/` 페이지 prerender 실패 원인을 제거해 `npm run build`가 정상 완료되도록 복구.
+
 ## [Unreleased] - 2026-04-17 21:18:59 (refactor(ui): 메인 프리뷰 중심 2탭 구조 전환)
 
 ### Added
