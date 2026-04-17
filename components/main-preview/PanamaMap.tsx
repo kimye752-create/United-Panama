@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 
 const PANAMA_CENTER = { lat: 8.9824, lng: -79.5199 };
+const PANAMA_DEFAULT_ZOOM = 10;
 
 export function PanamaMap() {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -32,7 +33,7 @@ export function PanamaMap() {
         });
         const map = L.map(mapRef.current, {
           center: [PANAMA_CENTER.lat, PANAMA_CENTER.lng],
-          zoom: 12,
+          zoom: PANAMA_DEFAULT_ZOOM,
           scrollWheelZoom: false,
         });
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -40,7 +41,7 @@ export function PanamaMap() {
         }).addTo(map);
         L.marker([PANAMA_CENTER.lat, PANAMA_CENTER.lng], { icon: markerIcon })
           .addTo(map)
-          .bindPopup("Panama City");
+          .bindPopup("Panama City (Panama)");
         initializedRef.current = true;
         cleanup = () => {
           map.remove();

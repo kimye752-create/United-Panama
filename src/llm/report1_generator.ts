@@ -248,6 +248,7 @@ ${input.entryFeasibilityText}
 - PAHO Strategic Fund 등재: ${input.emlPaho ? "Y" : "N"}
 - 표적 질환 prevalence: ${input.prevalenceMetric.trim() !== "" ? input.prevalenceMetric : "없음(해당 product_id DB 행 없음, 인용 생략)"}
 - PAHO 권역 참조 단가(별도 시드): ${pahoLine}
+- 파나마 의약품 시장 규모(대표값): US$ 496.00m (2024 Statista, 표기 시 $0.50B 병기 권장)
 - 발굴 유통 파트너(회사명 중복 없음): ${input.distributorNames.join(", ")}
 - PanamaCompra 최근 낙찰 건수: ${String(input.panamacompraCount)}
 

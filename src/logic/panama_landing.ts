@@ -19,6 +19,8 @@ interface PanamaMacroRow {
   pa_notes: string | null;
 }
 
+const STATISTA_PHARMA_MARKET_USD_2024 = 496_000_000;
+
 export interface PanamaLandingMetricCard {
   label: string;
   value: string;
@@ -29,6 +31,10 @@ export interface PanamaLandingMetricCard {
 
 function formatUsd(value: number): string {
   return `$${Math.round(value).toLocaleString("en-US")}`;
+}
+
+function formatUsdBillions(value: number): string {
+  return `$${(value / 1_000_000_000).toFixed(2)}B`;
 }
 
 function formatPopulation(value: number): string {
@@ -164,6 +170,16 @@ function buildFallbackCard(label: string): PanamaLandingMetricCard {
   };
 }
 
+function buildStatistaMarketCard(): PanamaLandingMetricCard {
+  return {
+    label: "의약품 시장 규모",
+    value: formatUsdBillions(STATISTA_PHARMA_MARKET_USD_2024),
+    footer: "2024 · Statista",
+    yoy: "US$ 496.00m",
+    hasData: true,
+  };
+}
+
 export async function getPanamaLandingMetricCards(): Promise<
   readonly PanamaLandingMetricCard[]
 > {
@@ -240,16 +256,7 @@ export async function getPanamaLandingMetricCards(): Promise<
       marketRow === null
         ? null
         : parseMarketSizeUsd(extractNotesText(marketRow.pa_notes));
-    const marketCard =
-      marketRes.error === null && marketRow !== null && marketValue !== null
-        ? {
-            label: "의약품 시장 규모",
-            value: formatUsd(marketValue),
-            footer: `${readYear(marketRow)} · ${sourceLabel(marketRow.pa_source)}`,
-            yoy: readYoYFromNotes(marketRow.pa_notes),
-            hasData: true,
-          }
-        : buildFallbackCard("의약품 시장 규모");
+    const marketCard = buildStatistaMarketCard();
 
     const growthRows = (growthRes.data ?? []) as PanamaMacroRow[];
     const growthPicked = pickGrowthRow(growthRows);
@@ -263,13 +270,17 @@ export async function getPanamaLandingMetricCards(): Promise<
           }
         : buildFallbackCard("실질 성장률");
 
+    if (marketRes.error === null && marketRow !== null && marketValue !== null) {
+      // 기존 DB 값은 참고 로그만 유지하고, UI 표시는 Statista 대표 수치로 고정합니다.
+      void readYoYFromNotes(marketRow.pa_notes);
+    }
     return [gdpCard, populationCard, marketCard, cagrCard] as const;
   } catch {
     // 외부 DB 연결 실패 시에도 레이아웃이 깨지지 않도록 기본 카드로 반환합니다.
     return [
       buildFallbackCard("1인당 GDP"),
       buildFallbackCard("인구"),
-      buildFallbackCard("의약품 시장 규모"),
+      buildStatistaMarketCard(),
       buildFallbackCard("실질 성장률"),
     ] as const;
   }

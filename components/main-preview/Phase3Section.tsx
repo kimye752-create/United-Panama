@@ -52,7 +52,7 @@ export function Phase3Section({ isActive }: Phase3SectionProps) {
   );
 
   return (
-    <section className="relative rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
+    <section className="rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
@@ -64,7 +64,9 @@ export function Phase3Section({ isActive }: Phase3SectionProps) {
           </span>
           <div>
             <h3 className="text-[16px] font-extrabold text-[#1f3e64]">3공정 · 바이어 발굴</h3>
-            <p className="text-[11px] text-[#7a8ba1]">Top 10 바이어 리스트 · 1·2공정 완료 후 활성화</p>
+            <p className="text-[11px] text-[#7a8ba1]">
+              Top 10 바이어 리스트 · 시장조사·수출가격전략 완료 후 활성화
+            </p>
           </div>
         </div>
         <span className="text-[14px] text-[#516882]">{expanded ? "▲" : "▼"}</span>
@@ -73,11 +75,11 @@ export function Phase3Section({ isActive }: Phase3SectionProps) {
       {expanded ? (
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
           <p className="text-[12px] text-[#6c809a]">
-            1공정 + 2공정 기반으로 만든 후보를 점수화합니다. 현재 데이터 준비 상태를 먼저 확인해 주세요.
+            시장조사 · 수출가격전략 완료 후 바이어 분석이 활성화됩니다. 현재 데이터 준비 중입니다.
           </p>
           <div className="overflow-hidden rounded-[12px] border border-[#dce4ef]">
             <table className="w-full border-collapse text-[12px]">
-              <thead className="bg-[#f3f6fb] text-[#5f758f]">
+              <thead className="bg-[#f4f7fb] text-[#5f758f]">
                 <tr>
                   <th className="px-2 py-2 text-left">#</th>
                   <th className="px-2 py-2 text-left">바이어명</th>
@@ -87,28 +89,30 @@ export function Phase3Section({ isActive }: Phase3SectionProps) {
                 </tr>
               </thead>
               <tbody>
-                {(isActive ? TOP_BUYERS : [{ id: "empty", name: "바이어 데이터 준비 중", country: "-", score: 0, channel: "-", note: "" }]).map(
-                  (buyer, index) => (
+                {isActive ? (
+                  TOP_BUYERS.map((buyer, index) => (
                     <tr key={buyer.id} className="border-t border-[#edf1f6] bg-white">
-                      <td className="px-2 py-2">{isActive ? index + 1 : ""}</td>
+                      <td className="px-2 py-2">{index + 1}</td>
                       <td className="px-2 py-2">
-                        {isActive ? (
-                          <button
-                            type="button"
-                            onClick={() => setSelectedBuyerId(buyer.id)}
-                            className="font-semibold text-[#1f3e64] underline-offset-2 hover:underline"
-                          >
-                            {buyer.name}
-                          </button>
-                        ) : (
-                          <span className="text-[#8a99ad]">{buyer.name}</span>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBuyerId(buyer.id)}
+                          className="font-semibold text-[#1f3e64] underline-offset-2 hover:underline"
+                        >
+                          {buyer.name}
+                        </button>
                       </td>
                       <td className="px-2 py-2">{buyer.country}</td>
-                      <td className="px-2 py-2">{isActive ? buyer.score : "-"}</td>
+                      <td className="px-2 py-2">{buyer.score}</td>
                       <td className="px-2 py-2">{buyer.channel}</td>
                     </tr>
-                  ),
+                  ))
+                ) : (
+                  <tr className="border-t border-[#edf1f6] bg-[#fbfcfe]">
+                    <td colSpan={5} className="px-2 py-5 text-center text-[12px] text-[#8a99ad]">
+                      바이어 데이터 준비 중
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -122,20 +126,10 @@ export function Phase3Section({ isActive }: Phase3SectionProps) {
           <button
             type="button"
             disabled={!isActive}
-            className="h-[36px] rounded-[10px] border border-[#d2dbe8] bg-[#f4f7fb] px-4 text-[12px] font-bold text-[#6c809a] disabled:opacity-70"
+            className="inline-flex h-[36px] items-center rounded-[10px] border border-[#d9e1ed] bg-[#f5f8fc] px-4 text-[12px] font-bold text-[#9aa9bc] disabled:cursor-not-allowed"
           >
             ✎ 바이어 보고서 다운로드
           </button>
-        </div>
-      ) : null}
-
-      {!isActive ? (
-        <div className="pointer-events-none absolute inset-0 rounded-[16px] bg-[#eef2f8]/70">
-          <div className="flex h-full items-center justify-center px-4 text-center">
-            <p className="rounded-[10px] bg-white/85 px-4 py-2 text-[12px] font-semibold text-[#7b8ea5]">
-              1공정 · 2공정 완료 후 바이어 분석이 활성화됩니다.
-            </p>
-          </div>
         </div>
       ) : null}
     </section>

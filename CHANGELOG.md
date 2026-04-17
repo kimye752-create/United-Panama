@@ -1,5 +1,19 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 22:07:15 (style(phase3): 바이어 발굴 비활성 테이블 시안 정렬)
+
+### Changed
+- style(phase3-ui): `components/main-preview/Phase3Section.tsx`의 3공정 헤더 서브문구를 시안 문구(`시장조사·수출가격전략 완료 후 활성화`)로 교정.
+- style(phase3-ui): 비활성 상태에서 오버레이를 제거하고, 테이블 내부 중앙 메시지(`바이어 데이터 준비 중`)로 단순화해 시안과 동일한 차분한 비활성 표현으로 조정.
+- style(phase3-ui): 안내문/테이블 헤더/다운로드 버튼 색상 톤을 연회색 중심으로 보정해 현재 시안 밀도에 맞춤.
+
+## [Unreleased] - 2026-04-17 22:02:07 (fix(main-preview): 파나마 지도 배율/시장규모 대표값 반영)
+
+### Changed
+- fix(map): `components/main-preview/PanamaMap.tsx` 기본 줌을 `10`으로 조정하고 마커 팝업 문구를 `Panama City (Panama)`로 보정해, 요청한 파나마 중심 초기 화면 배율로 통일.
+- fix(macro): `src/logic/panama_landing.ts` 의약품 시장 규모 카드를 Statista 2024 대표값(`US$ 496.00m`) 기반으로 고정하고 카드 표기를 `$0.50B`(영문 단위)로 변경.
+- fix(report1): `src/llm/report1_fallback_template.ts`와 `src/llm/report1_generator.ts`에 시장규모 대표 수치를 명시해 보고서 본문 생성 시 동일 기준을 우선 인용하도록 보강.
+
 ## [Unreleased] - 2026-04-17 21:40:24 (style(layout): 메인 본문 가로폭 축소)
 
 ### Changed

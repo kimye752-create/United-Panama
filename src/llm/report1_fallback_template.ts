@@ -107,7 +107,7 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
 
   /** 거시(인구·보건·CSS)는 1회만; prevalence는 표시용 문자열( Aceclofenac 시 scope 괄호 제거 ) */
   const baseMarket =
-    "시장·의료: 인구 451만, 1인당 보건지출 $1,557.81(World Bank/WHO GHED 2023), CSS 가입률 70%";
+    "시장·의료: 인구 451만, 의약품 시장규모 $0.50B(US$496.00m, Statista 2024), 1인당 보건지출 $1,557.81(World Bank/WHO GHED 2023), CSS 가입률 70%";
   const reasoning1 =
     displayForLine1.trim() !== ""
       ? `${baseMarket}; 표적 역학 ${displayForLine1.trim()}`
