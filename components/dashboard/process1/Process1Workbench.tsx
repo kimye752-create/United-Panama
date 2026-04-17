@@ -35,13 +35,13 @@ const PRODUCT_UI_META_BY_ID: Record<string, ProductUiMeta> = {
   "2504d79b-c2ce-4660-9ea7-5576c8bb755f": {
     categoryLabel: "개량신약",
     roleLabel: "고지혈증 복합제",
-    displayInn: "rosuvastatin+omega-3",
+    displayInn: "rosuvastatin 5mg + omega-3-acid ethyl esters 90 1g",
     displayFormulation: "Cap",
   },
   "859e60f9-8544-43b3-a6a0-f6c7529847eb": {
     categoryLabel: "개량신약",
     roleLabel: "고지혈증 복합제",
-    displayInn: "atorvastatin+omega-3",
+    displayInn: "atorvastatin 10mg + omega-3-acid ethyl esters 90 1g",
     displayFormulation: "Cap",
   },
   "014fd4d2-dc66-4fc1-8d4f-59695183387f": {
@@ -130,6 +130,7 @@ export function Process1Workbench() {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const reportAnchorRef = useRef<HTMLElement | null>(null);
+  const progressAnchorRef = useRef<HTMLDivElement | null>(null);
   const activeProduct =
     activeProductId === null
       ? null
@@ -194,9 +195,9 @@ export function Process1Workbench() {
               setActiveProductId(product.product_id);
               setAnalysisNonce((prev) => prev + 1);
               setTimeout(() => {
-                reportAnchorRef.current?.scrollIntoView({
+                progressAnchorRef.current?.scrollIntoView({
                   behavior: "smooth",
-                  block: "start",
+                  block: "center",
                 });
               }, 120);
             }}
@@ -204,7 +205,7 @@ export function Process1Workbench() {
             ▶ 진출 적합 분석
           </button>
         </div>
-        <div className="mt-4 grid grid-cols-4 gap-2">
+        <div ref={progressAnchorRef} className="mt-4 grid grid-cols-4 gap-2">
           {ANALYSIS_STEP_LABELS.map((label, idx) => {
             const stepNo = idx + 1;
             const isDone = stepNo < analysisStep;

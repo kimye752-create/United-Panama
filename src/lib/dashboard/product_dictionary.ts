@@ -2,13 +2,13 @@ export const PRODUCTS = [
   {
     uuid: "2504d79b-c2ce-4660-9ea7-5576c8bb755f",
     brand: "Rosumeg Combigel",
-    inn: "Rosuvastatin + Omega-3",
+    inn: "Rosuvastatin 5mg + Omega-3-acid ethyl esters 90 1g",
     priority: true,
   },
   {
     uuid: "859e60f9-8544-43b3-a6a0-f6c7529847eb",
     brand: "Atmeg Combigel",
-    inn: "Atorvastatin + Omega-3",
+    inn: "Atorvastatin 10mg + Omega-3-acid ethyl esters 90 1g",
     priority: false,
   },
   {

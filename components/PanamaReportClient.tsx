@@ -17,7 +17,7 @@ import type { ProductMaster } from "@/src/utils/product-dictionary";
 import { AnalysisResultDashboard } from "./panama/AnalysisResultDashboard";
 import type { ConfidenceBreakdown, DashboardBundle, SourceBreakdown } from "./panama/types";
 import INNTabs from "./INNTabs";
-import { Report1, type LlmBundle } from "./Report1";
+import type { LlmBundle } from "./Report1";
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return x !== null && typeof x === "object" && !Array.isArray(x);
@@ -48,13 +48,6 @@ function parseLlmBundle(raw: unknown): LlmBundle | null {
   }
   return { payload: parsed, source: normalized, modelUsed: raw.modelUsed };
 }
-
-type DigestState = {
-  rawDataDigest: string;
-  prevalenceMetric: string;
-  perplexityPapers: PerplexityPaper[];
-  perplexitySource: string;
-};
 
 const EMPTY_SOURCE_BREAKDOWN: SourceBreakdown = {
   panamacompra_v3: {
@@ -175,7 +168,6 @@ export function PanamaReportClient({
 }: Props) {
   const [data, setData] = useState<AnalyzePanamaResult | null>(null);
   const [llm, setLlm] = useState<LlmBundle | null>(null);
-  const [digest, setDigest] = useState<DigestState | null>(null);
   const [dashboard, setDashboard] = useState<DashboardBundle | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,7 +177,6 @@ export function PanamaReportClient({
     setError(null);
     setData(null);
     setLlm(null);
-    setDigest(null);
     setDashboard(null);
     try {
       const res = await fetch("/api/panama/analyze", {
@@ -292,12 +283,6 @@ export function PanamaReportClient({
 
       setData(analyze);
       setLlm(lb);
-      setDigest({
-        rawDataDigest: dr,
-        prevalenceMetric: pm,
-        perplexityPapers,
-        perplexitySource,
-      });
       setDashboard({
         product: analyze.product,
         caseGrade: analyze.judgment.case,
@@ -377,7 +362,7 @@ export function PanamaReportClient({
 
           {showInnTabs ? <INNTabs currentInn={currentInn} /> : null}
 
-          {data !== null && llm !== null && digest !== null && dashboard !== null && error === null ? (
+          {data !== null && llm !== null && dashboard !== null && error === null ? (
             <div className="space-y-6">
               <AnalysisResultDashboard
                 dashboard={dashboard}
@@ -385,14 +370,6 @@ export function PanamaReportClient({
                   void run();
                 }}
                 loading={loading}
-              />
-              <Report1
-                data={data}
-                llm={llm}
-                rawDataDigest={digest.rawDataDigest}
-                prevalenceMetric={digest.prevalenceMetric}
-                perplexityPapers={digest.perplexityPapers}
-                perplexitySource={digest.perplexitySource}
               />
             </div>
           ) : null}

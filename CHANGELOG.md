@@ -1,5 +1,25 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 09:30:14 (fix(report1-ui): PDF 보고서 중복 렌더 제거)
+
+### Fixed
+- fix(report1-ui): `components/PanamaReportClient.tsx`에서 하단 A4 HTML `Report1` 직접 렌더를 제거해, 동일 보고서가 임베디드 PDF 박스와 하단에 2번 보이던 문제를 해소.
+- fix(report1-ui): 결과 화면은 `AnalysisResultDashboard`(상단 분석 카드/배너 내용 유지) + `PdfReportViewer`(임베디드 PDF 1개) 구조로 정리.
+- refactor(report1-ui): 중복 렌더 제거에 맞춰 `PanamaReportClient`의 `digest` 상태 의존 조건을 단순화.
+
+## [Unreleased] - 2026-04-17 09:18:53 (fix(process1): 분석 시작 시 단계 게이지바 가시성 보정)
+
+### Fixed
+- fix(process1-ui): `components/dashboard/process1/Process1Workbench.tsx`에서 분석 버튼 클릭 시 자동 스크롤 기준을 결과 섹션(`reportAnchorRef`)에서 단계 진행 영역(`progressAnchorRef`)으로 변경해, 로딩 중에도 단계 게이지바가 화면에 유지되도록 수정.
+- fix(process1-ui): 스크롤 정렬 기준을 `start`에서 `center`로 조정해 단계 라벨/게이지바가 중앙에 안정적으로 보이도록 개선.
+
+## [Unreleased] - 2026-04-17 09:16:22 (fix(process1): Rosumeg 성분명 정밀 표기 보정)
+
+### Changed
+- fix(process1-ui): `components/dashboard/process1/Process1Workbench.tsx` 드롭다운 목록에서 `Rosumeg Combigel` 성분 표기를 `rosuvastatin 5mg + omega-3-acid ethyl esters 90 1g`로 교정.
+- fix(process1-ui): 동일 계열인 `Atmeg Combigel`도 `atorvastatin 10mg + omega-3-acid ethyl esters 90 1g`로 함께 교정해 목록 표기 일관성을 유지.
+- fix(dictionary): `src/lib/dashboard/product_dictionary.ts`의 `Rosumeg/Atmeg` INN 표기를 동일 기준으로 동기화해 1차 공정 목록 카드와 구형 선택 카드 간 표기 불일치 방지.
+
 ## [Unreleased] - 2026-04-17 07:50:19 (feat(phase2): 역산/순산 Waterfall 3단 블록 구현)
 
 ### Added
