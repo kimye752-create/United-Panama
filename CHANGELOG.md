@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 21:40:24 (style(layout): 메인 본문 가로폭 축소)
+
+### Changed
+- style(layout): `components/dashboard/DashboardShell.tsx`의 메인 컨테이너 최대폭을 `1410px`에서 `1240px`로 축소해, 본문이 좌우로 과도하게 퍼지지 않고 1번 레퍼런스처럼 집중도 높은 레이아웃으로 보정.
+
 ## [Unreleased] - 2026-04-17 21:32:45 (fix(build): Leaflet SSR window 참조 오류 수정)
 
 ### Fixed
