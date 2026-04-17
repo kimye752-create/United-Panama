@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-17 22:32:04 (style(main-preview): 중단 카드 높이/문구/뉴스 비율 정렬)
+
+### Changed
+- style(main-preview): `components/main-preview/PanamaMap.tsx`의 카드 최소 높이를 `420px → 372px`, 지도 최소 높이를 `360px → 312px`로 줄여 중단 2열 카드 총 높이를 소폭 압축하고, 하단 `1공정 · 시장조사` 섹션이 화면에서 더 빨리 보이도록 조정.
+- style(main-preview): 지도 제목을 `신규조달 위치`에서 `파나마 주요 거점 위치`로 교체해 실제 표시 데이터(파나마 시티 중심)와 의미를 일치.
+- style(main-preview): `components/main-preview/MarketTrends.tsx` 제목을 `파나마 의약품 시장 주요 동향`으로 변경하고 카드 패딩/글자 크기를 미세 축소해 리스트 밀도를 개선.
+- style(main-preview): `components/main-preview/MacroCards.tsx` 상단 4개 카드의 라벨/값/푸터 폰트를 한 단계 축소해 레퍼런스의 더 컴팩트한 타이포 톤에 맞춤.
+
+### Added
+- feat(news): `src/logic/fetch_panama_dashboard_news.ts`를 단일 혼합 질의 방식에서 `한국-파나마 관점 4건 + 파나마 현지 2건` 분리 수집 방식으로 개편하고, Perplexity 응답을 6건 고정 배열로 합성하도록 개선.
+- feat(news): 뉴스 메타 라인에 `한국-파나마`/`파나마 현지` 접두를 부여해 사용자가 항목 출처 맥락을 즉시 구분할 수 있도록 보강.
+
 ## [Unreleased] - 2026-04-17 22:14:18 (fix(map-layout): 지도 카드 하단 빈 영역 제거)
 
 ### Fixed

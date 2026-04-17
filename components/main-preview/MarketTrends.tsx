@@ -64,9 +64,9 @@ export function MarketTrends() {
   }, [load]);
 
   return (
-    <section className="rounded-[16px] border border-[#e3e9f2] bg-white p-3 shadow-sh2">
+    <section className="rounded-[16px] border border-[#e3e9f2] bg-white p-2.5 shadow-sh2">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-extrabold text-[#1f3e64]">신규조달 의약품 시장 주요 동향</h3>
+        <h3 className="text-[14px] font-extrabold text-[#1f3e64]">파나마 의약품 시장 주요 동향</h3>
         <button
           type="button"
           onClick={() => {
@@ -81,7 +81,7 @@ export function MarketTrends() {
       {warning !== null ? (
         <p className="mb-2 rounded-[10px] bg-amber-50 px-2 py-1.5 text-[10px] text-amber-800">{warning}</p>
       ) : null}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {items.length === 0 && !loading ? (
           <p className="rounded-[10px] bg-[#f7f9fc] px-3 py-3 text-[12px] text-[#6e7f95]">
             시장 동향 데이터가 준비 중입니다.
@@ -90,10 +90,10 @@ export function MarketTrends() {
           items.map((item, index) => (
             <article
               key={`${item.headline}-${String(index)}`}
-              className="rounded-[10px] bg-[#f5f7fb] px-3 py-2.5"
+              className="rounded-[10px] bg-[#f5f7fb] px-3 py-2"
             >
-              <p className="text-[12px] font-bold leading-snug text-[#1f3e64]">{item.headline}</p>
-              <p className="mt-1 text-[10.5px] text-[#7d8da2]">{item.meta_line}</p>
+              <p className="text-[11.5px] font-bold leading-snug text-[#1f3e64]">{item.headline}</p>
+              <p className="mt-0.5 text-[10px] text-[#7d8da2]">{item.meta_line}</p>
             </article>
           ))
         )}
