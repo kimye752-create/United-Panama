@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (docs: 파트너 도시어 템플릿)
+
+### Added
+- docs: `docs/partner_dossier_template.md` — DNB/Pharmchoices 기업별 서술형 평가(매출 Tier, 제조소, 수입, 약국체인, 8제품 매칭) 복사용 템플릿.
+
 ## [Unreleased] - 2026-04-19 02:00:00 (refactor(phase1): 품목 드롭다운 라벨 최종 포맷)
 
 ### Changed
