@@ -7,6 +7,8 @@ import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 interface Phase1SectionProps {
   onCompleted: () => void;
+  /** 1공정 보고서가 세션에 저장된 직후(Phase2 드롭다운 갱신용) */
+  onReportGenerated?: () => void;
 }
 
 const PRODUCT_LABEL_BY_ID: Record<string, string> = {
@@ -67,7 +69,7 @@ function buildPhase1ToastMessage(productName: string, grade: EntryFeasibilityGra
   return `✅ ${productName} 분석 완료 — 판정: ${gradeLabel}. 상세 결과는 보고서 탭에서 확인하세요.`;
 }
 
-export function Phase1Section({ onCompleted }: Phase1SectionProps) {
+export function Phase1Section({ onCompleted, onReportGenerated }: Phase1SectionProps) {
   const [expanded, setExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<number>(() => {
@@ -226,6 +228,7 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
         pdfFilename: pdfFilenameForStore,
         reportVersion,
       });
+      onReportGenerated?.();
       if (
         typeof pdfBase64 === "string" &&
         pdfBase64.trim() !== "" &&

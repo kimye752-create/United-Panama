@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
+import { getStoredReports } from "@/src/lib/dashboard/reports_store";
+
 import { Phase1Section } from "./Phase1Section";
 import { Phase2Section } from "./Phase2Section";
 import { Phase3Section } from "./Phase3Section";
@@ -10,6 +13,8 @@ const PHASE1_DONE_KEY = "pa_phase1_done_v1";
 const PHASE2_DONE_KEY = "pa_phase2_done_v1";
 
 export function MainPreviewSections() {
+  const [reports, setReports] = useState<StoredReportItem[]>([]);
+
   const [phase1Done, setPhase1Done] = useState<boolean>(() => {
     if (typeof window === "undefined") {
       return false;
@@ -37,14 +42,22 @@ export function MainPreviewSections() {
     window.sessionStorage.setItem(PHASE2_DONE_KEY, String(phase2Done));
   }, [phase2Done]);
 
+  useEffect(() => {
+    setReports(getStoredReports());
+  }, []);
+
   return (
     <section className="space-y-3.5">
       <Phase1Section
         onCompleted={() => {
           setPhase1Done(true);
         }}
+        onReportGenerated={() => {
+          setReports(getStoredReports());
+        }}
       />
       <Phase2Section
+        reports={reports}
         onCompleted={() => {
           setPhase2Done(true);
         }}

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
-import { getStoredReports } from "@/src/lib/dashboard/reports_store";
 import type { CompetitorPricesPayload } from "@/src/logic/phase2/competitor_prices";
 import {
   Phase2ResultTabs,
@@ -12,6 +11,7 @@ import {
 
 interface Phase2SectionProps {
   onCompleted: () => void;
+  reports: StoredReportItem[];
 }
 
 interface AnalyzeApiResponse {
@@ -46,9 +46,8 @@ function formatPriceCell(value: number | null): string {
   return `$${value.toFixed(4)}`;
 }
 
-export function Phase2Section({ onCompleted }: Phase2SectionProps) {
+export function Phase2Section({ onCompleted, reports }: Phase2SectionProps) {
   const [expanded, setExpanded] = useState(true);
-  const [reports, setReports] = useState(() => getStoredReports());
   const [reportId, setReportId] = useState("");
   const [loading, setLoading] = useState(false);
   const [analysisStarted, setAnalysisStarted] = useState(false);
@@ -66,10 +65,6 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
       }
     };
   }, [pdfBlobUrl]);
-
-  useEffect(() => {
-    setReports(getStoredReports());
-  }, []);
 
   const selectedReport = useMemo(
     () => reports.find((report) => report.id === reportId) ?? null,
