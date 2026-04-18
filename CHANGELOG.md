@@ -1,5 +1,21 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 (feat(phase3): 파트너 발굴 UI A단계)
+
+### Added
+- `src/lib/phase3/types.ts` — `src/logic/phase3` PSI 타입·상수 재노출, `Phase3WorkflowStepIndex`·`Phase3ModalTabId`.
+- `src/lib/phase3/psi-calculator.ts` — 동적 PSI 정렬·Top 20 `rankPartnersForDisplay` 등.
+- `src/lib/phase3/partner-data-loader.ts` — `/api/panama/phase3/analyze` 호출로 제품별 파트너 로드(Supabase 경로는 상단 TODO).
+- `src/lib/phase3/country-flag.ts` — 회사명·유형 휴리스틱 플래그 이모지.
+- `src/components/phase3/*` — 3공정 실행·1~4 스테퍼, 5대 지표 체크+300ms 디바운스, Top5/6~10/11~20 3단, Framer Motion `layoutId`(partner.id)·단일 `LayoutGroup`, 4탭 모달, 최소 1체크·기본값 복원·에러 배너.
+
+### Changed
+- `components/main-preview/Phase3Section.tsx` — `Phase3Container` 재export로 경로 호환 유지.
+- `src/components/phase3/Phase3Container.tsx` — 파트너 원본은 `PartnerWithPSI[]`로 보관, 랭킹 시에만 `dynamic_psi` 부여; 카드↔리스트 morphing용 상위 `LayoutGroup id="phase3-partner-morph"`.
+
+### Notes
+- `.next` 삭제 후 `npm run build` 성공 확인(2026-04-18).
+
 ## [Unreleased] - 2026-04-19 (data(phase3): 세션 28 3차 배치 16~20사 최종 append)
 
 ### Added

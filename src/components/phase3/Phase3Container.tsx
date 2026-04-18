@@ -1,0 +1,216 @@
+"use client";
+
+import { LayoutGroup } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
+import { fetchPartnersForProduct } from "@/src/lib/phase3/partner-data-loader";
+import { rankPartnersForDisplay } from "@/src/lib/phase3/psi-calculator";
+import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
+import type { PartnerWithPSI } from "@/src/lib/phase3/types";
+import type { Phase3WorkflowStepIndex, PSICheckedState, PSICriterionKey } from "@/src/lib/phase3/types";
+
+import { Phase3DetailModal } from "./Phase3DetailModal";
+import { Phase3ErrorBanner } from "./Phase3ErrorBanner";
+import { Phase3GoldGrid } from "./Phase3GoldGrid";
+import { Phase3RankList } from "./Phase3RankList";
+import { Phase3ReportToolbar } from "./Phase3ReportToolbar";
+import { Phase3StandardGrid } from "./Phase3StandardGrid";
+import { Phase3WeightPanel } from "./Phase3WeightPanel";
+import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
+
+interface Phase3ContainerProps {
+  isActive: boolean;
+  reports: StoredReportItem[];
+}
+
+const DEFAULT_CHECKED: PSICheckedState = {
+  revenue: true,
+  pipeline: true,
+  manufacture: true,
+  import: true,
+  pharmacy: true,
+};
+
+const DEBOUNCE_MS = 300;
+
+/** 3공정 파트너 발굴 UI A단계 — 스테퍼·가중치·계층 카드·모달 */
+export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
+  const [expanded, setExpanded] = useState(true);
+  const [reportId, setReportId] = useState("");
+  const [partners, setPartners] = useState<PartnerWithPSI[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fetchMessage, setFetchMessage] = useState<string | null>(null);
+  const [checked, setChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
+  const [debouncedChecked, setDebouncedChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
+  const [modalPartner, setModalPartner] = useState<PartnerWithDynamicPsi | null>(null);
+
+  const selectedReport = useMemo(
+    () => reports.find((r) => r.id === reportId) ?? null,
+    [reports, reportId],
+  );
+  const productId = selectedReport?.productId ?? null;
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setDebouncedChecked(checked);
+    }, DEBOUNCE_MS);
+    return () => {
+      window.clearTimeout(id);
+    };
+  }, [checked]);
+
+  const ranked = useMemo(() => {
+    return rankPartnersForDisplay(partners, debouncedChecked, 20);
+  }, [partners, debouncedChecked]);
+
+  const gold = useMemo(() => ranked.slice(0, 5), [ranked]);
+  const standard = useMemo(() => ranked.slice(5, 10), [ranked]);
+  const rest = useMemo(() => ranked.slice(10, 20), [ranked]);
+
+  const modalRankHint = useMemo(() => {
+    if (modalPartner === null) {
+      return null;
+    }
+    const idx = ranked.findIndex((p) => p.id === modalPartner.id);
+    return idx >= 0 ? idx + 1 : null;
+  }, [modalPartner, ranked]);
+
+  const workflowStep: Phase3WorkflowStepIndex = useMemo(() => {
+    if (reportId === "") {
+      return 0;
+    }
+    if (loading) {
+      return 2;
+    }
+    if (partners.length > 0) {
+      return 3;
+    }
+    return 1;
+  }, [reportId, loading, partners.length]);
+
+  const runAnalysis = useCallback(async (): Promise<void> => {
+    if (!isActive) {
+      window.alert("3공정은 1·2공정 완료 후 활성화됩니다.");
+      return;
+    }
+    if (productId === null) {
+      setError("먼저 1공정 보고서를 선택해 주세요.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setFetchMessage(null);
+
+    try {
+      const { partners: list, error: fetchErr } = await fetchPartnersForProduct(productId);
+      if (fetchErr !== null) {
+        throw new Error(fetchErr);
+      }
+      setPartners(list);
+      const n = list.length;
+      setFetchMessage(
+        n === 0
+          ? "PSI 사전 계산 데이터가 없습니다. Supabase 테이블·스크립트 적용 후 다시 시도해 주세요."
+          : `파트너 ${String(n)}건을 불러왔습니다. 체크박스 가중치 변경은 ${String(DEBOUNCE_MS)}ms 후 반영됩니다.`,
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "알 수 없는 오류";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [isActive, productId]);
+
+  function toggleCriterion(key: PSICriterionKey): void {
+    setChecked((prev) => {
+      const next: PSICheckedState = { ...prev, [key]: !prev[key] };
+      const activeCount = (Object.keys(next) as PSICriterionKey[]).filter((k) => next[k]).length;
+      if (activeCount === 0) {
+        window.alert("평가 기준은 최소 1개 이상 선택해야 합니다.");
+        return prev;
+      }
+      return next;
+    });
+  }
+
+  function resetDefaults(): void {
+    setChecked({ ...DEFAULT_CHECKED });
+  }
+
+  return (
+    <section className="rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
+      <button
+        type="button"
+        onClick={() => {
+          setExpanded((prev) => !prev);
+        }}
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-3">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[11px] font-black text-white">
+            03
+          </span>
+          <div>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">3공정 · 파트너 매칭 (PSI)</h3>
+            <p className="text-[11px] text-[#7a8ba1]">동적 PSI · 가중치 재분배 · Top 20 계층 · 상세 모달</p>
+          </div>
+        </div>
+        <span className="text-[14px] text-[#516882]">{expanded ? "▲" : "▼"}</span>
+      </button>
+
+      {expanded ? (
+        <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
+          <Phase3WorkflowStepper currentStep={workflowStep} />
+
+          <div>
+            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 · 실행</p>
+            <Phase3ReportToolbar
+              reports={reports}
+              reportId={reportId}
+              onReportChange={setReportId}
+              loading={loading}
+              isActive={isActive}
+              productId={productId}
+              onRun={() => {
+                void runAnalysis();
+              }}
+            />
+          </div>
+
+          {error !== null ? <Phase3ErrorBanner message={error} /> : null}
+
+          {fetchMessage !== null ? (
+            <div className="rounded-[10px] border border-[#dbe3ef] bg-[#f4f7fc] p-3 text-[11px] text-[#3e5574]">
+              {fetchMessage}
+            </div>
+          ) : null}
+
+          <Phase3WeightPanel checked={checked} onToggle={toggleCriterion} onResetDefaults={resetDefaults} />
+
+          {ranked.length > 0 ? (
+            <LayoutGroup id="phase3-partner-morph">
+              <div className="space-y-4">
+                <Phase3GoldGrid partners={gold} onOpen={setModalPartner} />
+                <Phase3StandardGrid partners={standard} startRank={6} onOpen={setModalPartner} />
+                <Phase3RankList partners={rest} startRank={11} onOpen={setModalPartner} />
+              </div>
+            </LayoutGroup>
+          ) : null}
+        </div>
+      ) : null}
+
+      <Phase3DetailModal
+        open={modalPartner !== null}
+        partner={modalPartner}
+        checked={debouncedChecked}
+        rankHint={modalRankHint}
+        onClose={() => {
+          setModalPartner(null);
+        }}
+      />
+    </section>
+  );
+}
