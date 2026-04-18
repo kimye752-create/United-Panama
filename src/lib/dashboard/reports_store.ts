@@ -19,8 +19,39 @@ export function loadStoredReports(): StoredReportItem[] {
     if (raw === null) {
       return [];
     }
-    const parsed = JSON.parse(raw) as StoredReportItem[];
-    return parsed.slice(0, MAX_REPORTS);
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    const out: StoredReportItem[] = [];
+    for (const row of parsed) {
+      if (typeof row !== "object" || row === null || Array.isArray(row)) {
+        continue;
+      }
+      const item = row as Record<string, unknown>;
+      if (
+        typeof item.id !== "string" ||
+        typeof item.productId !== "string" ||
+        typeof item.brand !== "string" ||
+        typeof item.inn !== "string" ||
+        typeof item.caseGrade !== "string" ||
+        typeof item.generatedAt !== "string"
+      ) {
+        continue;
+      }
+      if (item.caseGrade !== "A" && item.caseGrade !== "B" && item.caseGrade !== "C") {
+        continue;
+      }
+      out.push({
+        id: item.id,
+        productId: item.productId,
+        brand: item.brand,
+        inn: item.inn,
+        caseGrade: item.caseGrade,
+        generatedAt: item.generatedAt,
+      });
+    }
+    return out.slice(0, MAX_REPORTS);
   } catch {
     return [];
   }

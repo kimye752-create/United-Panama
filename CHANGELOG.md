@@ -1,5 +1,23 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 15:17:39 (fix(main-preview): 1공정 완료 상태를 레퍼런스 UI와 일치화)
+
+### Fixed
+- fix(phase1-ui): `components/main-preview/Phase1Section.tsx` 완료 토스트를 연녹색 톤으로 조정하고 문구를 `상세 결과는 보고서 탭` 안내 형식으로 맞춰, 분석 완료 피드백이 레퍼런스 화면과 동일한 인지 흐름으로 보이도록 보정.
+- fix(phase1-ui): 분석 단계 라벨을 `DB 조회 / Claude 분석 / 논문 검색 / PDF 생성`으로 정리해 레퍼런스 표기와 용어를 통일.
+
+### Added
+- feat(phase1-ui): 1공정 카드 하단에 `PDF 보고서` 블록과 `PDF 보고서 다운로드` 버튼을 추가하고, 분석 완료 후에만 활성화되도록 상태 연동.
+- feat(phase1-ui): 1공정에서 `/api/panama/pdf` 최소 요청(`productId`) 기반 다운로드를 직접 수행하도록 연결해 보고서 탭 이동 없이도 즉시 PDF 저장 가능하게 개선.
+- note(ui): 변경되는 시각 요소는 완료 알림 박스 색상/문구, 하단 PDF 버튼 영역 추가이며 기존 입력 폼 레이아웃·폰트 크기·간격 구조는 유지.
+- fix(phase1-ui): `2026-04-18 15:23:40` 기준으로 분석 성공 시 `readyProductId`를 즉시 세팅하도록 보강해, 완료 직후 PDF 버튼이 정상 활성화되도록 수정.
+
+## [Unreleased] - 2026-04-18 15:11:30 (style(macro): GDP 카드 요약 표기 한 줄화)
+
+### Changed
+- style(main-preview-macro): `src/logic/panama_landing.ts`의 GDP 카드를 `국가GDP/1인당GDP` 제목으로 조정하고, 값 표기를 `US$ 87.6 Billion / $ 19,445` 한 줄 요약으로 변경.
+- note(ui): 출처는 기존과 동일하게 카드 하단 소형 텍스트(`출처: IMF (2024)`)로 유지.
+
 ## [Unreleased] - 2026-04-18 15:00:08 (fix(reports-tab): PDF 다운로드 복구 + 하단 A4 미리보기 확장)
 
 ### Fixed

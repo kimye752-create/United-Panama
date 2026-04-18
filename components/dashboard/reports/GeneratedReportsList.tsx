@@ -8,6 +8,7 @@ import {
   saveStoredReports,
   type StoredReportItem,
 } from "@/src/lib/dashboard/reports_store";
+import { findProductById } from "@/src/utils/product-dictionary";
 
 function caseBadgeClass(caseGrade: StoredReportItem["caseGrade"]): string {
   if (caseGrade === "A") {
@@ -44,6 +45,67 @@ export function GeneratedReportsList() {
       window.removeEventListener("storage", sync);
       window.removeEventListener("focus", sync);
     };
+  }, []);
+
+  useEffect(() => {
+    const bootstrapFromDbCache = async () => {
+      const local = loadStoredReports();
+      if (local.length > 0) {
+        return;
+      }
+      try {
+        const response = await fetch("/api/panama/phase2/report");
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json()) as unknown;
+        if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+          return;
+        }
+        const reportsRaw = (payload as { reports?: unknown }).reports;
+        if (!Array.isArray(reportsRaw) || reportsRaw.length === 0) {
+          return;
+        }
+        const recovered: StoredReportItem[] = [];
+        for (const row of reportsRaw) {
+          if (typeof row !== "object" || row === null || Array.isArray(row)) {
+            continue;
+          }
+          const r = row as Record<string, unknown>;
+          if (
+            typeof r.id !== "string" ||
+            typeof r.product_id !== "string" ||
+            typeof r.case_grade !== "string" ||
+            typeof r.generated_at !== "string"
+          ) {
+            continue;
+          }
+          const product = findProductById(r.product_id);
+          if (product === undefined) {
+            continue;
+          }
+          const caseGrade =
+            r.case_grade === "A" || r.case_grade === "B" || r.case_grade === "C"
+              ? r.case_grade
+              : "B";
+          recovered.push({
+            id: r.id,
+            productId: r.product_id,
+            brand: product.kr_brand_name,
+            inn: product.who_inn_en,
+            caseGrade,
+            generatedAt: r.generated_at,
+          });
+        }
+        if (recovered.length > 0) {
+          saveStoredReports(recovered);
+          setItems(recovered);
+        }
+      } catch {
+        return;
+      }
+    };
+    void bootstrapFromDbCache();
   }, []);
 
   useEffect(() => {

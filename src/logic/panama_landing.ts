@@ -174,14 +174,9 @@ function buildFallbackCard(label: string): PanamaLandingMetricCard {
 
 function buildImfGdpCard(): PanamaLandingMetricCard {
   return {
-    label: "국가 GDP / 1인당 GDP",
-    value: "IMF 기준",
-    detailLines: [
-      "국가 총 GDP: US$ 87.6 Billion (2024, IMF)",
-      "1인당 GDP: US$ 19,445 (2024, IMF)",
-    ],
+    label: "국가GDP/1인당GDP",
+    value: "US$ 87.6 Billion / $ 19,445",
     footer: "출처: IMF (2024)",
-    sourceNote: "출처: IMF (2024)",
     hasData: true,
   };
 }
