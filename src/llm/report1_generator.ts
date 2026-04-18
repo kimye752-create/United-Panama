@@ -4,6 +4,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { Message } from "@anthropic-ai/sdk/resources/messages/messages.js";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ZodIssue } from "zod";
 
 import { buildFallbackReport, type FallbackInput } from "./report1_fallback_template";
 import type { EntryFeasibility } from "./logic/panama_entry_feasibility";
@@ -12,15 +13,17 @@ import { getSupabaseClient } from "../utils/db_connector";
 import { findProductById } from "../utils/product-dictionary";
 import {
   parseReport1Payload,
+  REPORT1_PAYLOAD_SCHEMA,
   REPORT1_SYSTEM_PROMPT,
   REPORT1_TOOL,
   type Report1Payload,
 } from "./report1_schema";
 
 /** 신선도 판정(`freshness_checker`)과 동일 Haiku 스냅샷 ID */
-const HAIKU_MODEL = "claude-haiku-4-5-20251001" as const;
-const LLM_TIMEOUT_MS = 15000;
-const MAX_TOKENS = 4000;
+const HAIKU_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001";
+const LLM_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS ?? 58000);
+const LLM_RETRY_TIMEOUT_MS = 30000;
+const MAX_TOKENS = 4096;
 const CACHE_TABLE = "panama_report_cache";
 
 /** 절대원칙 5: 실행당 LLM 호출 상한 (기본 3) */
@@ -68,6 +71,69 @@ function formatHaikuErrorDetails(error: unknown): string {
     }
   }
   return chunks.join(" | ");
+}
+
+function normalizeTimeoutMs(value: number, fallback: number): number {
+  if (!Number.isFinite(value) || value <= 0) {
+    return fallback;
+  }
+  return Math.trunc(value);
+}
+
+function canRetryHaiku(error: unknown): boolean {
+  const raw = stringifyUnknownError(error).toLowerCase();
+  return (
+    raw.includes("timeout") ||
+    raw.includes("network") ||
+    raw.includes("fetch failed") ||
+    raw.includes("econnreset") ||
+    raw.includes("etimedout") ||
+    raw.includes("econnrefused") ||
+    raw.includes("429") ||
+    raw.includes("schema mismatch") ||
+    raw.includes("parse")
+  );
+}
+
+function getValueByIssuePath(source: unknown, path: PropertyKey[]): unknown {
+  let current: unknown = source;
+  for (const key of path) {
+    if (typeof key === "symbol") {
+      return undefined;
+    }
+    if (typeof key === "number") {
+      if (!Array.isArray(current) || key < 0 || key >= current.length) {
+        return undefined;
+      }
+      current = current[key];
+      continue;
+    }
+    if (typeof current !== "object" || current === null || Array.isArray(current)) {
+      return undefined;
+    }
+    const row = current as Record<string, unknown>;
+    current = row[key];
+  }
+  return current;
+}
+
+function buildZodIssueLogs(source: unknown, issues: ZodIssue[]): string {
+  const summary = issues.map((issue) => {
+    const receivedValue = getValueByIssuePath(source, issue.path);
+    let receivedLength: number | null = null;
+    if (typeof receivedValue === "string") {
+      receivedLength = receivedValue.length;
+    } else if (Array.isArray(receivedValue)) {
+      receivedLength = receivedValue.length;
+    }
+    return {
+      path: issue.path.map((node) => String(node)).join("."),
+      code: issue.code,
+      message: issue.message,
+      received_length: receivedLength,
+    };
+  });
+  return JSON.stringify(summary, null, 2);
 }
 
 export interface GeneratorInput {
@@ -298,10 +364,16 @@ ${v3PromptRules}
 [섹션 3 형식 강제]
 ${INSIGHT_FORMAT_RULES}
 
-[블록3 줄별 길이 — 도구 스키마와 동일]
-- 1번 시장·의료: 30~200자 (prevalence·출처 풀 인용 가능)
-- 2~4번: 각 30~100자
-- 5번 유통: 30~250자 (4개 파트너 전체명 + AHP·PSI 문구)
+[블록3 길이 가이드 — 도구 스키마와 동일]
+- block3_reasoning: 5~8개 bullet
+- 각 bullet은 반드시 150~250자 범위
+- 250자 초과 시 도구 호출이 거부되므로 절대 초과하지 말 것
+
+[블록4 길이 가이드 — 도구 스키마와 동일]
+- block4_1_channel, block4_2_pricing, block4_3_partners, block4_4_risks, block4_5_entry_feasibility
+- 각 섹션은 반드시 150~250자 범위, 절대 250자 초과 금지
+- 7개 필드 모두 생성해야 하며 block4_3~block4_5 누락 시 무효 처리됨
+- 핵심 근거만 압축해 간결하게 작성
 ${aceclofenacFootnoteRule}
 
 [Supabase raw 데이터 발췌]
@@ -310,7 +382,11 @@ ${input.rawDataDigest}
 위 데이터를 근거로 generate_report1 도구를 호출하여 보고서 본문을 생성하시오. 모든 필드는 필수이며, 도구의 description에 명시된 양식·금지·강제 룰을 100% 준수하시오.`;
 }
 
-async function callLLM(model: string, input: GeneratorInput): Promise<Report1Payload> {
+async function callLLM(
+  model: string,
+  input: GeneratorInput,
+  timeoutMs: number,
+): Promise<Report1Payload> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (apiKey === undefined || apiKey.trim() === "") {
     throw new Error(
@@ -326,7 +402,7 @@ async function callLLM(model: string, input: GeneratorInput): Promise<Report1Pay
   const response: Message = await new Promise<Message>((resolve, reject) => {
     const t = setTimeout(() => {
       reject(new Error(`LLM timeout (${model})`));
-    }, LLM_TIMEOUT_MS);
+    }, timeoutMs);
     client.messages
       .create({
         model,
@@ -351,11 +427,32 @@ async function callLLM(model: string, input: GeneratorInput): Promise<Report1Pay
   if (toolUseBlock === undefined || toolUseBlock.type !== "tool_use") {
     throw new Error(`${model} 응답에 tool_use 블록이 없습니다.`);
   }
-  const parsed = parseReport1Payload(toolUseBlock.input);
-  if (parsed === null) {
-    throw new Error(`${model} 도구 출력이 스키마와 맞지 않습니다.`);
+  try {
+    const parsed = parseReport1Payload(toolUseBlock.input);
+    if (parsed === null) {
+      throw new Error("parseReport1Payload returned null");
+    }
+    return parsed;
+  } catch (parseErr: unknown) {
+    const parseMessage =
+      parseErr instanceof Error ? parseErr.message : String(parseErr);
+    const rawOutput = JSON.stringify(toolUseBlock.input ?? {}, null, 2);
+    const truncated =
+      rawOutput.length > 3000
+        ? `${rawOutput.slice(0, 3000)}...[truncated]`
+        : rawOutput;
+    const validation = REPORT1_PAYLOAD_SCHEMA.safeParse(toolUseBlock.input);
+    process.stderr.write("[report1_generator] Tool output parse FAILED\n");
+    if (!validation.success) {
+      const issuesLog = buildZodIssueLogs(toolUseBlock.input, validation.error.issues);
+      process.stderr.write(`[report1_generator] Zod issues: ${issuesLog}\n`);
+    }
+    process.stderr.write(`[report1_generator] Parse error: ${parseMessage}\n`);
+    process.stderr.write(
+      `[report1_generator] Raw tool output:\n${truncated}\n`,
+    );
+    throw new Error(`Schema mismatch: ${parseMessage}`);
   }
-  return parsed;
 }
 
 export async function generateReport1(input: GeneratorInput): Promise<GeneratorResult> {
@@ -383,11 +480,16 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
 
   if (llmCallsThisRun < maxCalls) {
     llmCallsThisRun += 1;
+    const primaryTimeoutMs = normalizeTimeoutMs(LLM_TIMEOUT_MS, 58000);
+    const retryTimeoutMs = normalizeTimeoutMs(LLM_RETRY_TIMEOUT_MS, 30000);
     try {
       process.stderr.write(`[report1_generator] Haiku ATTEMPT model=${HAIKU_MODEL}\n`);
-      const payload = await callLLM(HAIKU_MODEL, input);
+      const startedAt = Date.now();
+      const payload = await callLLM(HAIKU_MODEL, input, primaryTimeoutMs);
       await saveCache(supabase, input.productId, input.caseGrade, payload, HAIKU_MODEL);
-      process.stderr.write("[report1_generator] Haiku SUCCESS\n");
+      process.stderr.write(
+        `[report1_generator] Haiku SUCCESS in ${String(Date.now() - startedAt)}ms\n`,
+      );
       return { payload, source: "haiku", modelUsed: HAIKU_MODEL };
     } catch (haikuErr: unknown) {
       const m = stringifyUnknownError(haikuErr);
@@ -399,6 +501,37 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
       process.stderr.write(
         `[report1_generator] KEY_EXISTS: ${String(!!process.env.ANTHROPIC_API_KEY)}, KEY_LEN: ${String(process.env.ANTHROPIC_API_KEY?.length ?? 0)}\n`,
       );
+      if (canRetryHaiku(haikuErr)) {
+        process.stderr.write("[report1_generator] Haiku FAILED: retryable → RETRY\n");
+        try {
+          const retryStartedAt = Date.now();
+          const retryPayload = await callLLM(HAIKU_MODEL, input, retryTimeoutMs);
+          await saveCache(
+            supabase,
+            input.productId,
+            input.caseGrade,
+            retryPayload,
+            HAIKU_MODEL,
+          );
+          process.stderr.write(
+            `[report1_generator] Haiku RETRY SUCCESS in ${String(Date.now() - retryStartedAt)}ms\n`,
+          );
+          return { payload: retryPayload, source: "haiku", modelUsed: HAIKU_MODEL };
+        } catch (retryErr: unknown) {
+          const retryMessage = stringifyUnknownError(retryErr);
+          const retryDetails = formatHaikuErrorDetails(retryErr);
+          process.stderr.write(
+            `[report1_generator] Haiku RETRY FAILED: ${retryMessage} → fallback\n`,
+          );
+          process.stderr.write(
+            `[report1_generator] Haiku RETRY FAILED DETAILS: ${retryDetails}\n`,
+          );
+        }
+      } else {
+        process.stderr.write(
+          "[report1_generator] Haiku FAILED: non-retryable error → fallback\n",
+        );
+      }
     }
   }
 

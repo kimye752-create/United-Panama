@@ -36,6 +36,7 @@ import {
 import { createSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
+export const maxDuration = 120; // Vercel Function timeout 120초 (Haiku 58초 + PDF 렌더링 여유)
 
 interface PdfRequestBody {
   productId: string;

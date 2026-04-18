@@ -34,7 +34,7 @@ export interface Report1PdfProps {
 export function Report1Document(props: Report1PdfProps) {
   return (
     <Document>
-      <Page size="A4" style={pdfStyles.page} wrap={false}>
+      <Page size="A4" style={pdfStyles.page}>
         <Text style={pdfStyles.titleBar}>
           UPharma Export AI | 파나마 1공정 시장 분석 보고서
         </Text>
@@ -120,7 +120,7 @@ export function Report1Document(props: Report1PdfProps) {
         </View>
       </Page>
 
-      <Page size="A4" style={pdfStyles.page} wrap={false}>
+      <Page size="A4" style={pdfStyles.page}>
         <Text style={pdfStyles.titleBar}>④ 근거·출처 및 논문 참고</Text>
         <Text style={pdfStyles.subTitle}>
           출처 집계·근거 메타·Perplexity 추천 논문

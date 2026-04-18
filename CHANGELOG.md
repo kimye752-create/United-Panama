@@ -1,5 +1,40 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 16:47:45 (fix(report1-length): 모든 필드 250자 상한 재조정)
+
+### Changed
+- fix(report1-schema): `src/llm/report1_schema.ts`에서 `block3_reasoning`을 항목당 `30~250자`로 축소하고 `block3_latam_scope_footnote`를 `max 250`으로 조정.
+- fix(report1-schema): `block4_1~5` 제약을 공통 `60~250자`로 통일해 긴 앞 필드로 인한 뒤 필드 누락 위험을 낮춤.
+- fix(report1-tool): `REPORT1_TOOL.input_schema`의 `maxLength`를 전 필드 250자로 일치시키고 설명 문구를 간결 출력 정책으로 갱신.
+- fix(report1-prompt): `REPORT1_SYSTEM_PROMPT`에 `7개 필드 전부 생성`과 `250자 초과 시 거부` 규칙을 명시하고 block3/block4 길이 가이드를 `150~250자`로 재정의.
+- fix(report1-generator): `src/llm/report1_generator.ts`의 `MAX_TOKENS`를 `4000 -> 4096`으로 상향하고 사용자 프롬프트 길이 가이드를 250자 정책으로 동기화.
+- fix(report1-fallback): `src/llm/report1_fallback_template.ts`의 block4 보정 길이를 모두 `60~250`으로 통일해 fallback 경로도 동일 제약을 보장.
+
+## [Unreleased] - 2026-04-18 16:30:28 (fix(report1-schema): 멀티페이지 대응 길이 제약 완화 및 파싱 진단 강화)
+
+### Changed
+- fix(report1-schema): `src/llm/report1_schema.ts`에서 `block3_reasoning`을 `5~8개`, 각 항목 `30~600자`로 완화하고 `block3_latam_scope_footnote` 상한을 `500자`로 상향.
+- fix(report1-schema): `block4_1~5`를 공통 `100~2000자` 제약으로 완화해 상세 전략 본문(멀티문단) 생성을 허용.
+- refactor(report1-parse): `parseReport1Payload`를 `REPORT1_PAYLOAD_SCHEMA` 기반 검증으로 통합해 Tool 스키마와 런타임 파서의 길이 규칙을 일치.
+- fix(report1-prompt): `src/llm/report1_generator.ts` 사용자 프롬프트 길이 가이드를 `block3 5~8개/200~500자 권장`, `block4 400~1500자 권장`으로 갱신.
+- fix(report1-debug): 파싱 실패 시 `Zod issues`(필드 경로·코드·메시지·수신 길이)를 구조화해 `stderr`에 기록하도록 보강하고 raw output 로그는 유지.
+- fix(pdf-layout): `lib/pdf/Report1Document.tsx`의 `Page wrap={false}`를 제거해 긴 본문이 자연스럽게 페이지 분할되도록 조정.
+
+## [Unreleased] - 2026-04-18 16:15:36 (chore(debug): Haiku Tool output 파싱 실패 로그 강화)
+
+### Changed
+- fix(report1-llm-debug): `src/llm/report1_generator.ts`에서 `parseReport1Payload` 실패 시 `Tool output parse FAILED`, 파싱 에러 메시지, Tool raw output(최대 3000자)를 `stderr`로 출력하도록 보강.
+- fix(report1-llm-debug): 파싱 실패 예외 메시지를 `Schema mismatch: ...` 형식으로 통일해 실패 분류를 명확화.
+- fix(report1-llm-retry): `canRetryHaiku`에 `schema mismatch`, `parse` 키워드를 추가해 구조 불일치도 1회 재시도 대상으로 포함.
+
+## [Unreleased] - 2026-04-18 15:56:53 (fix(llm-timeout): Haiku 58초 + 재시도 + Vercel 실행시간 상향)
+
+### Changed
+- fix(report1-llm): `src/llm/report1_generator.ts`의 모델 선택을 환경변수 우선(`ANTHROPIC_MODEL`)으로 일원화하고, 기본 타임아웃을 `LLM_TIMEOUT_MS`(기본 58초)로 상향.
+- fix(report1-llm): 1차 Haiku 실패 시(타임아웃/네트워크 계열) 30초 1회 재시도 후 fallback으로 내려가는 보호 로직을 추가하고, `ATTEMPT/FAILED/RETRY SUCCESS/RETRY FAILED` 단계 로그를 보강.
+- fix(api-runtime): `app/api/panama/pdf/route.ts`에 `export const maxDuration = 120`을 추가해 Vercel 함수 실행시간 여유를 명시.
+- chore(env): `.env.local`에 `LLM_TIMEOUT_MS=58000`을 추가해 로컬 실행 시 동일 타임아웃 정책을 적용.
+
 ## [Unreleased] - 2026-04-18 15:53:20 (chore(debug): Haiku 직접 호출 점검 스크립트 추가)
 
 ### Added

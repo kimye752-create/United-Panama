@@ -191,10 +191,10 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
   return {
     block3_reasoning: reasoning,
     block3_latam_scope_footnote: latamFootnote,
-    block4_1_channel: fitBlock4(channelRaw, 60, 500),
-    block4_2_pricing: fitBlock4(pricingRaw, 60, 500),
-    block4_3_partners: fitBlock4(partnersRaw, 60, 500),
-    block4_4_risks: fitBlock4(risksRaw, 60, 400),
-    block4_5_entry_feasibility: fitBlock4(entryFeasibilityRaw, 60, 400),
+    block4_1_channel: fitBlock4(channelRaw, 60, 250),
+    block4_2_pricing: fitBlock4(pricingRaw, 60, 250),
+    block4_3_partners: fitBlock4(partnersRaw, 60, 250),
+    block4_4_risks: fitBlock4(risksRaw, 60, 250),
+    block4_5_entry_feasibility: fitBlock4(entryFeasibilityRaw, 60, 250),
   };
 }
