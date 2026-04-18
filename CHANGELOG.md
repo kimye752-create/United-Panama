@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 20:45:30 (fix(phase1): 4단계 진행 간격을 API 소요 시간에 맞춤)
+
+### Fixed
+- fix(phase1-ui): `components/main-preview/Phase1Section.tsx`에서 진행 표시용 `setInterval`을 900ms에서 15000ms로 변경해 약 60~70초 분석을 단계당 약 15초로 시각적으로 분할.
+
 ## [Unreleased] - 2026-04-18 20:45:06 (fix(pdf): V3 PDF 폰트를 NotoSansKR로 통일)
 
 ### Fixed

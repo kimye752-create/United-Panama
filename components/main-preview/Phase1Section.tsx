@@ -181,9 +181,10 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
       return null;
     });
     setStep(1);
+    // 약 60~70초 분석을 4단계로 나누어 단계당 약 15초씩 표시 (실제 API보다 빨리 끝나면 setStep(5)로 즉시 완료)
     const progressTimer = window.setInterval(() => {
       setStep((prev) => (prev < 4 ? prev + 1 : prev));
-    }, 900);
+    }, 15000);
     try {
       const response = await fetch("/api/panama/analyze", {
         method: "POST",
