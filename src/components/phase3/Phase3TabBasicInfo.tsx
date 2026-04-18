@@ -1,4 +1,5 @@
 import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
+import { getPartnerWebsiteHref } from "@/src/lib/phase3/website-url";
 
 interface Phase3TabBasicInfoProps {
   partner: PartnerWithDynamicPsi;
@@ -6,6 +7,8 @@ interface Phase3TabBasicInfoProps {
 
 /** 모달 탭 1 — 기본정보 */
 export function Phase3TabBasicInfo({ partner }: Phase3TabBasicInfoProps) {
+  const websiteHref = getPartnerWebsiteHref(partner.website);
+
   return (
     <div className="space-y-2 text-[12px] text-[#2b4568]">
       <div>
@@ -42,16 +45,23 @@ export function Phase3TabBasicInfo({ partner }: Phase3TabBasicInfoProps) {
           <p>{partner.email}</p>
         </div>
       ) : null}
-      {partner.website !== null && partner.website !== "" ? (
-        <div>
-          <span className="text-[10px] text-[#8b97aa]">웹사이트</span>
-          <p>
-            <a href={partner.website} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1E4E8C] underline">
-              {partner.website}
+      <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-[#edf1f6] py-2">
+        <div className="text-[10px] font-semibold text-[#667b95]">웹사이트</div>
+        <div className="min-w-0">
+          {websiteHref !== null ? (
+            <a
+              href={websiteHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="break-all text-[12px] font-semibold text-[#1E4E8C] hover:text-[#163a6b] hover:underline"
+            >
+              {websiteHref} ↗
             </a>
-          </p>
+          ) : (
+            <span className="text-[12px] text-[#8b97aa]">정보 없음</span>
+          )}
         </div>
-      ) : null}
+      </div>
       {partner.business_description !== null && partner.business_description !== "" ? (
         <div>
           <span className="text-[10px] text-[#8b97aa]">사업 개요</span>

@@ -1,12 +1,14 @@
 # Vibe Coding Log
 
-## [Unreleased] - 2026-04-19 (fix(phase3): 실행 버튼 활성화 조건 완화 + 명칭 변경)
+## [Unreleased] - 2026-04-19 [Phase3 URL 반영]
 
-### Changed
-- `src/components/phase3/Phase3ReportToolbar.tsx` — 실행 버튼 `disabled`에서 1·2공정 완료 여부 제거(유효 `reportId`·`productId`·로딩만). 라벨·`aria-label`을 「파트너 매칭」으로 통일.
-- `src/components/phase3/Phase3Container.tsx` — `runAnalysis`의 1·2공정 잠금(`isActive`) 제거. `phase1Complete`·`phase2Complete`는 미완료 시 권장 안내문만 표시.
-- `components/main-preview/MainPreviewSections.tsx` — `Phase3Section`에 `phase1Complete`·`phase2Complete` 개별 전달.
-- `components/main-preview/Phase3PartnerDiscovery.tsx` — 안내 문구를 파트너 매칭 기준으로 정렬.
+### Added
+- 20사 웹사이트 URL을 카드·리스트·기본정보 모달에 클릭 가능 링크로 표시(공식 17사 + Panadata 프로필 3사는 DB `website` 값에 따름).
+
+### Technical
+- `src/lib/phase3/website-url.ts` — `getPartnerWebsiteHref`로 null/공백 방어.
+- `Phase3PartnerCardShell` / `Phase3PartnerListRow` — 카드·행을 `motion.div`+버튼/링크 분리로 링크 클릭과 모달 오픈 충돌 방지, 외부 링크 `target="_blank"` `rel="noopener noreferrer"`.
+- `Phase3TabBasicInfo` — 웹사이트 행 상시 표시, 없으면 「정보 없음」.
 
 ## [Unreleased] - 2026-04-18 (fix(phase1): 품목 라벨 함량·개량신약 태그 — 카탈로그 v2 대조)
 
