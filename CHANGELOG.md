@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 19:44:19 (feat(phase1): 탭 전환 시 step/ready 상태 sessionStorage 유지)
+
+### Changed
+- feat(phase1-state): `components/main-preview/Phase1Section.tsx`에서 `step`, `readyProductId`, `pdfFilename` 초기값을 sessionStorage 기반으로 복원.
+- feat(phase1-pdf-restore): 마운트 시 `pdfBase64`를 Blob URL로 재생성해 탭 전환 후에도 즉시 PDF 미리보기/다운로드가 가능하도록 개선.
+- feat(phase1-storage-sync): 분석 시작/성공/실패 흐름에서 `PDF_BASE64_KEY`, `PDF_FILENAME_KEY`를 동기화해 오래된 PDF 포인터가 남지 않도록 정리.
+- feat(main-preview-state): `components/main-preview/MainPreviewSections.tsx`의 `phase1Done`, `phase2Done`을 sessionStorage에 저장해 섹션 활성 상태를 탭 내 이동에서 유지.
+
 ## [Unreleased] - 2026-04-18 19:39:31 (feat(reports): 보고서 탭에서 1공정 PDF Base64 재사용)
 
 ### Changed

@@ -21,6 +21,10 @@ const PRODUCT_LABEL_BY_ID: Record<string, string> = {
 };
 
 const STEP_LABELS = ["DB 조회", "Claude 분석", "논문 검색", "PDF 생성"] as const;
+const STEP_STORAGE_KEY = "pa_phase1_step_v1";
+const READY_PRODUCT_KEY = "pa_phase1_ready_product_v1";
+const PDF_BASE64_KEY = "pa_phase1_pdf_base64_v1";
+const PDF_FILENAME_KEY = "pa_phase1_pdf_filename_v1";
 
 type EntryFeasibilityGrade =
   | "A_immediate"
@@ -66,11 +70,34 @@ function buildPhase1ToastMessage(productName: string, grade: EntryFeasibilityGra
 export function Phase1Section({ onCompleted }: Phase1SectionProps) {
   const [expanded, setExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<number>(() => {
+    if (typeof window === "undefined") {
+      return 0;
+    }
+    const stored = window.sessionStorage.getItem(STEP_STORAGE_KEY);
+    if (stored === null) {
+      return 0;
+    }
+    const parsed = Number.parseInt(stored, 10);
+    if (!Number.isFinite(parsed)) {
+      return 0;
+    }
+    return parsed;
+  });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [readyProductId, setReadyProductId] = useState<string | null>(null);
+  const [readyProductId, setReadyProductId] = useState<string | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    return window.sessionStorage.getItem(READY_PRODUCT_KEY);
+  });
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [pdfFilename, setPdfFilename] = useState<string | null>(null);
+  const [pdfFilename, setPdfFilename] = useState<string | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    return window.sessionStorage.getItem(PDF_FILENAME_KEY);
+  });
   const [productId, setProductId] = useState(TARGET_PRODUCTS[0]?.product_id ?? "");
   const [tradeName, setTradeName] = useState("");
   const [inn, setInn] = useState("");
@@ -89,6 +116,52 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
     };
   }, [pdfBlobUrl]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    window.sessionStorage.setItem(STEP_STORAGE_KEY, String(step));
+  }, [step]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (readyProductId === null) {
+      window.sessionStorage.removeItem(READY_PRODUCT_KEY);
+      return;
+    }
+    window.sessionStorage.setItem(READY_PRODUCT_KEY, readyProductId);
+  }, [readyProductId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const storedBase64 = window.sessionStorage.getItem(PDF_BASE64_KEY);
+    const storedFilename = window.sessionStorage.getItem(PDF_FILENAME_KEY);
+    if (storedBase64 === null || storedFilename === null) {
+      return;
+    }
+    try {
+      const bytes = Uint8Array.from(window.atob(storedBase64), (char) =>
+        char.charCodeAt(0),
+      );
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const nextBlobUrl = URL.createObjectURL(blob);
+      setPdfBlobUrl((prev) => {
+        if (prev !== null) {
+          URL.revokeObjectURL(prev);
+        }
+        return nextBlobUrl;
+      });
+      setPdfFilename(storedFilename);
+    } catch {
+      window.sessionStorage.removeItem(PDF_BASE64_KEY);
+      window.sessionStorage.removeItem(PDF_FILENAME_KEY);
+    }
+  }, []);
+
   const runAnalyze = async () => {
     if (selectedProduct === null) {
       return;
@@ -97,6 +170,10 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
     setToastMessage(null);
     setReadyProductId(null);
     setPdfFilename(null);
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(PDF_BASE64_KEY);
+      window.sessionStorage.removeItem(PDF_FILENAME_KEY);
+    }
     setPdfBlobUrl((prev) => {
       if (prev !== null) {
         URL.revokeObjectURL(prev);
@@ -167,6 +244,8 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
             return nextBlobUrl;
           });
           setPdfFilename(nextPdfFilename);
+          window.sessionStorage.setItem(PDF_BASE64_KEY, pdfBase64);
+          window.sessionStorage.setItem(PDF_FILENAME_KEY, nextPdfFilename);
         } catch (error: unknown) {
           setPdfBlobUrl((prev) => {
             if (prev !== null) {
@@ -175,6 +254,10 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
             return null;
           });
           setPdfFilename(null);
+          if (typeof window !== "undefined") {
+            window.sessionStorage.removeItem(PDF_BASE64_KEY);
+            window.sessionStorage.removeItem(PDF_FILENAME_KEY);
+          }
           window.alert(
             `PDF 변환 실패 원인: ${
               error instanceof Error ? error.message : "알 수 없는 오류"
@@ -189,6 +272,10 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
           return null;
         });
         setPdfFilename(null);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.removeItem(PDF_BASE64_KEY);
+          window.sessionStorage.removeItem(PDF_FILENAME_KEY);
+        }
       }
       setReadyProductId(selectedProduct.product_id);
       setStep(5);
