@@ -15,6 +15,7 @@ import {
   generateReport1,
   type GeneratorInput,
 } from "@/src/llm/report1_generator";
+import { parseReport1Payload } from "@/src/llm/report1_schema";
 import type { MarketPriceStats } from "@/src/logic/market_stats";
 import { analyzePanamaProduct } from "@/src/logic/panama_analysis";
 import {
@@ -32,6 +33,7 @@ import {
   feasibilityToReportText,
   type EntryFeasibility,
 } from "@/src/llm/logic/panama_entry_feasibility";
+import { createSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 
@@ -71,6 +73,13 @@ interface PdfRequestBody {
 
 interface MinimalPdfRequestBody {
   productId: string;
+}
+
+interface CachedReportRow {
+  case_grade: "A" | "B" | "C" | string;
+  report_payload: unknown;
+  generated_at: string;
+  expires_at: string;
 }
 
 function parsePerplexityPapers(raw: unknown): PerplexityPaper[] | null {
@@ -302,6 +311,85 @@ function defaultDosageForm(inn: string): string {
   return byInn[inn] ?? "제형 조회 중";
 }
 
+function resolveCaseVerdict(caseGrade: "A" | "B" | "C"): string {
+  if (caseGrade === "A") {
+    return "즉시 진입 가능";
+  }
+  if (caseGrade === "B") {
+    return "조건부 진입 가능";
+  }
+  return "추가 검토 필요";
+}
+
+function resolveConfidence(caseGrade: "A" | "B" | "C"): number {
+  if (caseGrade === "A") {
+    return 0.9;
+  }
+  if (caseGrade === "B") {
+    return 0.78;
+  }
+  return 0.64;
+}
+
+function parseCaseGrade(raw: unknown): "A" | "B" | "C" | null {
+  if (raw === "A" || raw === "B" || raw === "C") {
+    return raw;
+  }
+  return null;
+}
+
+async function tryBuildPdfPropsFromCache(productId: string): Promise<Report1PdfProps | null> {
+  const product = findProductById(productId);
+  if (product === undefined) {
+    return null;
+  }
+  const sb = createSupabaseServer();
+  const { data, error } = await sb
+    .from("panama_report_cache")
+    .select("case_grade, report_payload, generated_at, expires_at")
+    .eq("product_id", productId)
+    .maybeSingle();
+  if (error !== null || data === null) {
+    return null;
+  }
+  const row = data as CachedReportRow;
+  if (new Date(row.expires_at) < new Date()) {
+    return null;
+  }
+  const llmPayload = parseReport1Payload(row.report_payload);
+  if (llmPayload === null) {
+    return null;
+  }
+  const caseGrade = parseCaseGrade(row.case_grade) ?? "B";
+  const collectedAt = (() => {
+    const iso = row.generated_at;
+    if (typeof iso !== "string" || iso.trim() === "") {
+      return new Date().toISOString().slice(0, 10);
+    }
+    return iso.slice(0, 10);
+  })();
+  return {
+    brandName: product.kr_brand_name,
+    innEn: product.who_inn_en,
+    dosageForm: defaultDosageForm(product.who_inn_en),
+    hsCode: defaultHsCode(),
+    caseGrade,
+    caseVerdict: resolveCaseVerdict(caseGrade),
+    confidence: resolveConfidence(caseGrade),
+    llmPayload,
+    sourceRows: [
+      {
+        source: "panama_report_cache",
+        count: 1,
+        avgConfidence: resolveConfidence(caseGrade),
+      },
+    ],
+    perplexityPapers: [],
+    perplexitySource: "cache_only",
+    collectedAt,
+  };
+}
+
 type PriceRowLite = {
   product_id?: string | null;
   pa_source?: string | null;
@@ -507,6 +595,33 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (body === null && minimalBody === null) {
     return NextResponse.json({ error: "요청 본문 스키마 불일치" }, { status: 400 });
   }
+  if (body === null && minimalBody !== null) {
+    try {
+      const cachedProps = await tryBuildPdfPropsFromCache(minimalBody.productId);
+      if (cachedProps !== null) {
+        const cachedBuffer = await renderToBuffer(
+          React.createElement(
+            Report1Document,
+            cachedProps,
+          ) as React.ReactElement<DocumentProps>,
+        );
+        const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+        const filename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(cachedProps.innEn)}.pdf`;
+        return new NextResponse(new Uint8Array(cachedBuffer), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `attachment; filename="${filename}"`,
+            "X-LLM-Source": "cache",
+            "X-PDF-Path": "fast-cache",
+          },
+        });
+      }
+    } catch {
+      // 캐시 경로 실패 시 기존 전체 분석 경로로 자동 폴백합니다.
+    }
+  }
+
   const resolvedBody =
     body !== null
       ? body

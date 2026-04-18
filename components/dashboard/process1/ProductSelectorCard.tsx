@@ -7,9 +7,9 @@ import { Card } from "../shared/Card";
 import { PRODUCTS } from "@/src/lib/dashboard/product_dictionary";
 
 export function ProductSelectorCard() {
-  const [selectedUuid, setSelectedUuid] = useState<string>(PRODUCTS[0].uuid);
+  const [selectedUuid, setSelectedUuid] = useState<string>(PRODUCTS[0]?.uuid ?? "");
   const selected = useMemo(
-    () => PRODUCTS.find((p) => p.uuid === selectedUuid) ?? PRODUCTS[0],
+    () => PRODUCTS.find((p) => p.uuid === selectedUuid),
     [selectedUuid],
   );
 
@@ -27,12 +27,18 @@ export function ProductSelectorCard() {
             </option>
           ))}
         </select>
-        <Link
-          href={`/panama/report/${selected.brand.toLowerCase().replaceAll(" ", "-")}?inn=${encodeURIComponent(selected.inn)}`}
-          className="inline-flex h-11 items-center justify-center rounded-[10px] bg-navy px-6 text-[14px] font-bold text-white transition-colors hover:bg-navy2"
-        >
-          ▶ 진출 적합 분석
-        </Link>
+        {selected !== undefined ? (
+          <Link
+            href={`/panama/report/${selected.brand.toLowerCase().replaceAll(" ", "-")}?inn=${encodeURIComponent(selected.inn)}`}
+            className="inline-flex h-11 items-center justify-center rounded-[10px] bg-navy px-6 text-[14px] font-bold text-white transition-colors hover:bg-navy2"
+          >
+            ▶ 진출 적합 분석
+          </Link>
+        ) : (
+          <span className="inline-flex h-11 items-center justify-center rounded-[10px] bg-slate-300 px-6 text-[14px] font-bold text-slate-700">
+            제품 매핑 오류
+          </span>
+        )}
       </div>
       <div className="mt-4 grid grid-cols-4 gap-2">
         {["DB 조회", "Claude 분석", "논문 검색", "PDF 생성"].map((label, idx) => (

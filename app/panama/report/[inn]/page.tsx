@@ -11,7 +11,7 @@ export default function PanamaReportLegacyRedirect({ params }: Props) {
   const slug = params.inn ?? "";
   const product = findProductByInnSlug(decodeURIComponent(slug));
   if (product === undefined) {
-    redirect("/panama/report?inn=Hydroxyurea");
+    redirect("/panama/report?inn=UNKNOWN");
   }
   redirect(`/panama/report?inn=${encodeURIComponent(product.who_inn_en)}`);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Card } from "../shared/Card";
 import {
@@ -33,6 +33,8 @@ export function GeneratedReportsList() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const pdfCacheRef = useRef<Map<string, { blob: Blob; filename: string }>>(new Map());
+  const previewRequestSeqRef = useRef(0);
 
   useEffect(() => {
     const sync = () => {
@@ -123,7 +125,9 @@ export function GeneratedReportsList() {
   }, [items]);
 
   useEffect(() => {
+    const cacheRef = pdfCacheRef;
     return () => {
+      cacheRef.current.clear();
       setPreviewUrl((oldUrl) => {
         if (oldUrl !== null) {
           URL.revokeObjectURL(oldUrl);
@@ -138,11 +142,15 @@ export function GeneratedReportsList() {
     [items, selectedReportId],
   );
 
-  const fetchPdfBlob = async (productId: string): Promise<{ blob: Blob; filename: string }> => {
+  const fetchPdfBlob = async (
+    productId: string,
+    signal?: AbortSignal,
+  ): Promise<{ blob: Blob; filename: string }> => {
     const response = await fetch("/api/panama/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId }),
+      signal,
     });
     if (!response.ok) {
       throw new Error(`PDF 생성 실패: HTTP ${String(response.status)}`);
@@ -159,11 +167,31 @@ export function GeneratedReportsList() {
     return { blob, filename };
   };
 
-  const loadPreview = async (item: StoredReportItem): Promise<void> => {
+  const getCachedOrFetchPdf = async (
+    item: StoredReportItem,
+    signal?: AbortSignal,
+  ): Promise<{ blob: Blob; filename: string }> => {
+    const cached = pdfCacheRef.current.get(item.id);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const next = await fetchPdfBlob(item.productId, signal);
+    pdfCacheRef.current.set(item.id, next);
+    return next;
+  };
+
+  const loadPreview = async (
+    item: StoredReportItem,
+    signal: AbortSignal,
+    requestSeq: number,
+  ): Promise<void> => {
     setPreviewLoading(true);
     setPreviewError(null);
     try {
-      const { blob, filename } = await fetchPdfBlob(item.productId);
+      const { blob, filename } = await getCachedOrFetchPdf(item, signal);
+      if (signal.aborted || previewRequestSeqRef.current !== requestSeq) {
+        return;
+      }
       const objectUrl = URL.createObjectURL(blob);
       setPreviewFilename(filename);
       setPreviewUrl((oldUrl) => {
@@ -173,6 +201,18 @@ export function GeneratedReportsList() {
         return objectUrl;
       });
     } catch (error: unknown) {
+      if (previewRequestSeqRef.current !== requestSeq) {
+        return;
+      }
+      if (signal.aborted) {
+        if (signal.reason === "preview_timeout") {
+          setPreviewError(
+            "PDF 생성이 45초를 초과했습니다. 원인: 서버 생성 지연\n해결 방법: 잠시 후 다시 시도하거나 1공정 분석을 재실행해 캐시를 갱신해 주세요.",
+          );
+          setPreviewLoading(false);
+        }
+        return;
+      }
       const message = error instanceof Error ? error.message : String(error);
       setPreviewError(message);
       setPreviewUrl((oldUrl) => {
@@ -182,7 +222,9 @@ export function GeneratedReportsList() {
         return null;
       });
     } finally {
-      setPreviewLoading(false);
+      if (previewRequestSeqRef.current === requestSeq && !signal.aborted) {
+        setPreviewLoading(false);
+      }
     }
   };
 
@@ -190,12 +232,25 @@ export function GeneratedReportsList() {
     if (selectedReport === null) {
       return;
     }
-    void loadPreview(selectedReport);
+    const requestSeq = previewRequestSeqRef.current + 1;
+    previewRequestSeqRef.current = requestSeq;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort("preview_timeout");
+    }, 45000);
+    void loadPreview(selectedReport, controller.signal, requestSeq).finally(() => {
+      window.clearTimeout(timeoutId);
+    });
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort("selection_changed");
+    };
     // selectedReport 변경 시에만 새 PDF를 불러온다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedReport?.id]);
 
   const clearAll = () => {
+    pdfCacheRef.current.clear();
     setItems([]);
     saveStoredReports([]);
     setSelectedReportId(null);
@@ -204,6 +259,7 @@ export function GeneratedReportsList() {
   };
 
   const removeOne = (id: string) => {
+    pdfCacheRef.current.delete(id);
     const next = items.filter((item) => item.id !== id);
     setItems(next);
     saveStoredReports(next);
@@ -218,7 +274,7 @@ export function GeneratedReportsList() {
   const downloadPdf = async (item: StoredReportItem): Promise<void> => {
     setDownloadingId(item.id);
     try {
-      const { blob, filename } = await fetchPdfBlob(item.productId);
+      const { blob, filename } = await getCachedOrFetchPdf(item);
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = objectUrl;

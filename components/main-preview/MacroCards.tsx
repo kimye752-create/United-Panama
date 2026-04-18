@@ -4,10 +4,27 @@ interface MacroCardsProps {
   cards: readonly PanamaLandingMetricCard[];
 }
 
+function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCard {
+  const hasGdpKeyword = card.label.includes("GDP");
+  if (!hasGdpKeyword) {
+    return card;
+  }
+  return {
+    ...card,
+    label: "국가GDP/1인당GDP",
+    value: "US$ 87.6 Billion / $ 19,445",
+    footer: "출처: IMF (2024)",
+    detailLines: undefined,
+    sourceNote: undefined,
+  };
+}
+
 export function MacroCards({ cards }: MacroCardsProps) {
+  const normalizedCards = cards.map((card) => normalizeGdpCard(card));
+
   return (
     <section className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-      {cards.map((card) => (
+      {normalizedCards.map((card) => (
         <article
           key={card.label}
           className="rounded-[14px] border border-[#e4eaf2] bg-white px-4 py-3 shadow-sh2"

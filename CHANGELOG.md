@@ -1,5 +1,45 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 15:53:20 (chore(debug): Haiku 직접 호출 점검 스크립트 추가)
+
+### Added
+- chore(debug): `scripts/debug/test_haiku.ts` 신규 추가. Anthropic SDK로 Haiku 모델에 `hello` 단건 호출을 수행하고 성공/실패(JSON)만 출력해, 보고서 생성 경로 외부에서 API 키·모델·네트워크 상태를 분리 진단할 수 있도록 구성.
+
+## [Unreleased] - 2026-04-18 15:41:14 (fix(product-dictionary): 이중 사전 제거 및 Hydroxyurea 자동 폴백 차단)
+
+### Fixed
+- fix(dict): 사용되지 않던 구버전 사전 파일 `src/config/product-dictionary.ts`를 삭제해, UUID 체계가 다른 레거시 사전 참조로 인한 매핑 혼선 가능성을 제거.
+- fix(report-route): `app/panama/report/PanamaReportRoute.tsx`에서 `DEFAULT_INN=Hydroxyurea` 폴백을 제거하고, `inn` 누락/미매핑 시 명시적 오류 메시지를 노출하도록 변경.
+- fix(report-route): `app/panama/report/[inn]/page.tsx` 레거시 슬러그 미매핑 시 `Hydroxyurea`로 강제 리다이렉트하지 않고 `?inn=UNKNOWN`으로 이동시켜 잘못된 제품 자동 대체를 차단.
+- fix(process1-selector): `components/dashboard/process1/ProductSelectorCard.tsx`의 `PRODUCTS[0]` 폴백 선택 로직을 제거하고, 매핑 실패 시 `제품 매핑 오류` 상태를 노출하도록 보강.
+
+### Changed
+- note(ui): 변경되는 시각 요소는 매핑 실패 시 링크 버튼 대신 `제품 매핑 오류` 배지가 보이는 점이며, 카드 레이아웃·폰트·간격은 유지.
+
+## [Unreleased] - 2026-04-18 15:36:46 (fix(reports-preview): 보고서 전환 race condition 및 무한 로딩 방지)
+
+### Fixed
+- fix(reports-ui): `components/dashboard/reports/GeneratedReportsList.tsx`에서 `보고서 보기` 연속 클릭 시 이전 요청 응답이 늦게 도착하며 파일명/미리보기가 다른 품목으로 덮어쓰이는 race condition을 요청 시퀀스 가드로 차단.
+- fix(reports-ui): 보고서 전환 시 이전 `fetch('/api/panama/pdf')`를 즉시 abort하도록 변경해, 선택 변경 이후 오래 걸린 이전 응답이 현재 선택 상태를 오염시키지 않도록 보정.
+- fix(reports-ui): A4 미리보기 요청 45초 타임아웃을 추가해 `PDF 생성 중...` 무한 대기를 방지하고, 시간 초과 시 원인(서버 생성 지연)과 해결 방법(재시도/1공정 재실행)을 함께 노출.
+
+## [Unreleased] - 2026-04-18 15:31:33 (fix(reports-pdf): 1공정 캐시 기반 즉시 열람/다운로드 경로 추가)
+
+### Fixed
+- fix(api-pdf): `app/api/panama/pdf/route.ts`에서 `productId` 최소 요청(보고서 탭 기본 경로) 시 `panama_report_cache`를 우선 조회해 PDF를 즉시 렌더하는 fast-cache 경로를 추가하고, 캐시 미스일 때만 기존 전체 분석 경로로 폴백되도록 분기.
+- fix(api-pdf): 기존에는 최소 요청도 `analyzePanamaProduct` 재실행으로 이어져 1분+ 지연이 발생했으나, 이제 1공정에서 이미 생성된 LLM 캐시를 재사용해 보고서 탭 `보고서 보기` 초기 대기 시간을 크게 단축.
+- fix(reports-ui): `components/dashboard/reports/GeneratedReportsList.tsx`에 항목별 PDF Blob 메모리 캐시를 추가해, 같은 보고서에서 `보기 → 다운로드` 전환 시 중복 API 호출 없이 즉시 재사용되도록 개선.
+- fix(reports-ui): cleanup 훅에서 `ref.current` 직접 참조로 발생하던 안정성 경고를 제거하기 위해 ref 참조를 지역 변수로 고정.
+
+### Changed
+- note(ui): 시각적 레이아웃/폰트/간격은 유지하고, 사용자 체감 변경점은 `A4 미리보기` 및 `↓ PDF` 버튼의 응답 속도 단축에 한정.
+
+## [Unreleased] - 2026-04-18 15:26:32 (fix(macro-ui): GDP 카드 표기를 한 줄 포맷으로 강제 정규화)
+
+### Fixed
+- fix(main-preview-macro): `components/main-preview/MacroCards.tsx`에 GDP 카드 정규화(`normalizeGdpCard`)를 추가해, 카드 데이터가 예전 `detailLines` 형태로 들어와도 화면에서는 항상 `국가GDP/1인당GDP` + `US$ 87.6 Billion / $ 19,445` 한 줄 형식으로 표시되도록 보정.
+- note(ui): 변경되는 시각 요소는 GDP 카드의 제목/본문 표기 방식(2줄 상세 → 1줄 요약)이며, 카드 간격·폰트 계층·그리드 배치는 유지.
+
 ## [Unreleased] - 2026-04-18 15:17:39 (fix(main-preview): 1공정 완료 상태를 레퍼런스 UI와 일치화)
 
 ### Fixed
