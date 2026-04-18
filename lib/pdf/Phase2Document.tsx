@@ -143,13 +143,13 @@ function CompetitorTable({
 }
 
 export function Phase2Document(props: Phase2PdfProps): React.ReactElement {
-  const marketLabel = props.marketType === "public" ? "공공 시장" : "민간 시장";
+  const marketLabel = props.marketType === "public" ? "공공조달 시장" : "민간소매 시장";
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>UPharma 파나마 2공정 · 수출가격 전략 보고서</Text>
+          <Text style={styles.title}>UPharma 파나마 2공정 · 가격 책정 전략 보고서</Text>
           <Text style={styles.subTitle}>
             {marketLabel} · {props.collectedAt} · Case {props.caseGrade}
           </Text>

@@ -80,7 +80,7 @@ function toMarketResult(segment: Phase2MarketSegment, scenarios: readonly Scenar
       average: byScenario.get("avg") ?? scenarioToCard(scenarios[0] as ScenarioRow),
       conservative: byScenario.get("cons") ?? scenarioToCard(scenarios[0] as ScenarioRow),
     },
-    logic: segment === "public" ? "Logic A (공공조달)" : "Logic B (민간소매)",
+    logic: segment === "public" ? "공공조달 FOB 역산 공식" : "민간소매 FOB 역산 공식",
     formula:
       segment === "public"
         ? "FOB = 낙찰가 × (1 - 마진 - 관세 - VAT)"

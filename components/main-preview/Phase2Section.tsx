@@ -250,7 +250,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
           </div>
           <div className="grid gap-2 md:grid-cols-[1fr_auto] md:items-center">
             <p className="text-[10.5px] font-semibold text-[#667b95]">
-              단일 실행으로 공공(Logic A)·민간(Logic B) 시장을 동시에 분석합니다.
+              해당 제품군의 공공조달·민간소매 시장 현황을 분석합니다.
             </p>
             <button
               type="button"

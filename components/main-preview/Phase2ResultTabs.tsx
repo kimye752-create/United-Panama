@@ -73,7 +73,7 @@ export function Phase2ResultTabs({ result }: Phase2ResultTabsProps) {
               : "text-[#6f8299]"
           }`}
         >
-          공공 시장 (Logic A)
+          공공조달 시장
         </button>
         <button
           type="button"
@@ -84,7 +84,7 @@ export function Phase2ResultTabs({ result }: Phase2ResultTabsProps) {
               : "text-[#6f8299]"
           }`}
         >
-          민간 시장 (Logic B)
+          민간소매 시장
         </button>
       </div>
       <div className="grid gap-2 md:grid-cols-3">

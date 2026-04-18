@@ -31,9 +31,8 @@ export function buildPhase2FallbackReport(input: Phase2FallbackInput): Phase2Rep
   const baseline = input.scenarios.find((s) => s.scenario === "avg") ?? input.scenarios[0];
   const agg = input.scenarios.find((s) => s.scenario === "agg") ?? baseline;
   const cons = input.scenarios.find((s) => s.scenario === "cons") ?? baseline;
-  const logicName = input.market === "public" ? "Logic A(공공)" : "Logic B(민간)";
-  const marketLabel = input.market === "public" ? "공공 시장" : "민간 시장";
-  const logicShort = input.market === "public" ? "A" : "B";
+  const logicName = input.market === "public" ? "공공조달 FOB 역산" : "민간소매 FOB 역산";
+  const marketLabel = input.market === "public" ? "공공조달 시장" : "민간소매 시장";
   const baseFob = baseline.fob.fobUsd.toFixed(2);
   const consFob = cons.fob.fobUsd.toFixed(2);
   const aggFob = agg.fob.fobUsd.toFixed(2);
@@ -45,7 +44,7 @@ export function buildPhase2FallbackReport(input: Phase2FallbackInput): Phase2Rep
       150,
     ),
     block2_fob_calculation: fit(
-      `FOB 계산은 Logic ${logicShort}(${input.market === "public" ? "공공" : "민간"})를 적용했습니다. 수식: FOB = ${input.market === "public" ? "공공낙찰가" : "민간소매가"} / (1+약국마진) / (1+도매마진) / (1+관세+ITBMS). 박제 마진: 약국 33%(기준), 도매 23~25%(기준). 한-중미 FTA 관세 0% (2021.3 발효) + 의약품 ITBMS 0% 적용하여 세율 항은 실질 0. 기준 시나리오 FOB는 ${baseFob} USD입니다.`,
+      `FOB 계산은 ${logicName} 방식을 적용했습니다. 수식: FOB = ${input.market === "public" ? "공공낙찰가" : "민간소매가"} / (1+약국마진) / (1+도매마진) / (1+관세+ITBMS). 박제 마진: 약국 33%(기준), 도매 23~25%(기준). 한-중미 FTA 관세 0% (2021.3 발효) + 의약품 ITBMS 0% 적용하여 세율 항은 실질 0. 기준 시나리오 FOB는 ${baseFob} USD입니다.`,
       80,
       300,
     ),
