@@ -65,7 +65,7 @@ export function MainPreviewSections() {
           setPhase2Done(true);
         }}
       />
-      <Phase3Section isActive={phase1Done && phase2Done} />
+      <Phase3Section isActive={phase1Done && phase2Done} reports={reports} />
     </section>
   );
 }

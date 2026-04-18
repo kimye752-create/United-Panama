@@ -1,5 +1,18 @@
 # Vibe Coding Log
 
+## [Session 27 - Phase 3 기초 공사 + 경쟁/기회 플래그]
+
+### Added
+- 신규: `scripts/ddl/panama_partner_psi_precomputed.sql` — 테이블 DDL (`conflict_level` / `conflict_insight` 포함), Supabase에서 수동 실행 예정.
+- 신규: `src/logic/phase3/types.ts`, `tier_quantizer.ts`, `psi_calculator.ts`, `default_psi_compute.ts`, `conflict_detector.ts` — PSI 가중치·동적 재정렬·경쟁/기회 이원 플래그(3단계 트리).
+- 신규: `scripts/runners/compute_partner_psi.ts` — 사전 계산 스크립트 뼈대(CSV 파싱 TODO).
+- 신규: `app/api/panama/phase3/analyze/route.ts` — `product_id`별 Top 20 PSI 행 + `panama_partner_candidates` 조인, `maxDuration=15`.
+- 변경: `components/main-preview/Phase3Section.tsx` — 세션 `reports` 기반 1공정 보고서 선택, 체크박스 동적 PSI Top10, 경쟁/기회 블록; `MainPreviewSections`에 `reports` 전달.
+
+### Notes
+- 핵심: 경쟁사를 `upgrade_opportunity`로 태깅하는 로직(`conflict_detector`).
+- 미완: 수기 매칭 CSV 파싱·실제 INSERT, LLM 평판(세션 28), Phase3 PDF(세션 28).
+
 ## [Unreleased] - 2026-04-19 (docs: 파트너 도시어 템플릿)
 
 ### Added
