@@ -222,8 +222,8 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
             02
           </span>
           <div>
-            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">2공정 · 수출가격 전략</h3>
-            <p className="text-[11px] text-[#7a8ba1]">AI 가격 분석 · 3가지 시나리오 · PDF 보고서</p>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">2공정 · 가격 책정 전략</h3>
+            <p className="text-[11px] text-[#7a8ba1]">AI 가격 분석 · 3가지 시나리오 · 가격 책정 전략 PDF</p>
           </div>
         </div>
         <span className="text-[14px] text-[#516882]">{expanded ? "▲" : "▼"}</span>
@@ -399,7 +399,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
                 onClick={handleDownload}
                 className="inline-flex h-[36px] items-center rounded-[10px] border border-[#d9e1ed] bg-[#f5f8fc] px-4 text-[12px] font-bold text-[#1f3e64]"
               >
-                📄 수출전략보고서 다운로드
+                📄 가격 책정 전략 보고서 다운로드
               </button>
             ) : null}
           </div>

@@ -285,7 +285,7 @@ export async function POST(req: Request): Promise<Response> {
       const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       if (pdfBuffer.length <= 4_500_000) {
         pdfBase64 = Buffer.from(pdfBuffer).toString("base64");
-        pdfFilename = `UPharma_Panama_Phase2_${today}_${safeFilenameSegment(product.who_inn_en)}.pdf`;
+        pdfFilename = `UPharma_Panama_PriceStrategy_${today}_${safeFilenameSegment(product.who_inn_en)}.pdf`;
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
