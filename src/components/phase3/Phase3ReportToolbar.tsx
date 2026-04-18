@@ -53,7 +53,7 @@ export function Phase3ReportToolbar({
         onClick={() => {
           onRun();
         }}
-        disabled={!isActive || loading || productId === null}
+        disabled={!isActive || loading || reportId === "" || productId === null}
         className="h-[40px] rounded-[10px] bg-[#1E4E8C] px-5 text-[12px] font-extrabold text-white hover:bg-[#1a4378] disabled:opacity-60"
       >
         {loading ? "불러오는 중…" : "▶ 3공정 실행"}

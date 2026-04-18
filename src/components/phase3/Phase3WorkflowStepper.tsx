@@ -4,15 +4,17 @@ interface Phase3WorkflowStepperProps {
   currentStep: Phase3WorkflowStepIndex;
 }
 
-const STEPS = ["보고서 선택", "가중치 설정", "분석 실행", "결과 확인"] as const;
+const STEPS = ["1차 수집", "2차 심층", "프로필 생성", "점수화"] as const;
 
-/** 2공정 Phase2ProgressSteps 패턴 — 4단계 시각화 */
+/** 내부 파이프라인 4단계만 표시 (보고서·가중치는 스테퍼에 포함하지 않음) */
 export function Phase3WorkflowStepper({ currentStep }: Phase3WorkflowStepperProps) {
+  const pipelineComplete = currentStep === 4;
+
   return (
     <div className="grid grid-cols-4 gap-2">
       {STEPS.map((label, index) => {
-        const isDone = currentStep > index;
-        const isCurrent = currentStep === index;
+        const isDone = pipelineComplete || currentStep > index;
+        const isCurrent = !pipelineComplete && currentStep === index;
         return (
           <div key={label} className="flex flex-col items-center gap-1">
             <div

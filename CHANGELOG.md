@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 (fix(phase3): 스테퍼 조건·파이프라인 라벨·productId 정규화)
+
+### Changed
+- `src/components/phase3/Phase3Container.tsx` — 스테퍼는 `isExecuting`일 때만 표시(진입 시 숨김). 내부 파이프라인 단계 0~4·타이머 순차 진행. 보고서 변경 시 실행·결과 상태 초기화. `productId`는 `trim()` 후 빈 문자열이면 비활성.
+- `src/components/phase3/Phase3WorkflowStepper.tsx` — 라벨을 1차 수집 / 2차 심층 / 프로필 생성 / 점수화로 복원, 단계 4=전체 완료 스타일.
+- `src/components/phase3/Phase3ReportToolbar.tsx` — 보고서 미선택(`reportId === ""`) 시 실행 버튼 비활성.
+- `src/lib/phase3/types.ts` — `Phase3WorkflowStepIndex`에 파이프라인 완료 `4` 추가.
+
 ## [Unreleased] - 2026-04-18 (feat(phase3): 파트너 발굴 UI A단계)
 
 ### Added

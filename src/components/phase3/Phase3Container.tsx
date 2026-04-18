@@ -1,7 +1,7 @@
 "use client";
 
 import { LayoutGroup } from "framer-motion";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
 import { fetchPartnersForProduct } from "@/src/lib/phase3/partner-data-loader";
@@ -45,12 +45,51 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
   const [checked, setChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
   const [debouncedChecked, setDebouncedChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
   const [modalPartner, setModalPartner] = useState<PartnerWithDynamicPsi | null>(null);
+  /** 실행 버튼 클릭 후 ~분석 완료까지 true — 스테퍼는 이 구간에서만 표시 */
+  const [isExecuting, setIsExecuting] = useState(false);
+  /** 내부 파이프라인 단계(0~3), 4=4단계 모두 완료 */
+  const [pipelineStep, setPipelineStep] = useState<Phase3WorkflowStepIndex>(0);
+  const progressTimersRef = useRef<number[]>([]);
 
   const selectedReport = useMemo(
     () => reports.find((r) => r.id === reportId) ?? null,
     [reports, reportId],
   );
-  const productId = selectedReport?.productId ?? null;
+  /** 세션 저장 항목의 productId (빈 문자열은 미선택과 동일 처리) */
+  const productId = useMemo(() => {
+    if (selectedReport === null) {
+      return null;
+    }
+    const raw = selectedReport.productId.trim();
+    return raw.length > 0 ? raw : null;
+  }, [selectedReport]);
+
+  function clearProgressTimers(): void {
+    for (const id of progressTimersRef.current) {
+      window.clearTimeout(id);
+    }
+    progressTimersRef.current = [];
+  }
+
+  useEffect(() => {
+    return () => {
+      for (const id of progressTimersRef.current) {
+        window.clearTimeout(id);
+      }
+      progressTimersRef.current = [];
+    };
+  }, []);
+
+  const handleReportChange = useCallback((id: string): void => {
+    setReportId(id);
+    setPartners([]);
+    setFetchMessage(null);
+    setError(null);
+    setModalPartner(null);
+    setIsExecuting(false);
+    setPipelineStep(0);
+    clearProgressTimers();
+  }, []);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -77,28 +116,30 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
     return idx >= 0 ? idx + 1 : null;
   }, [modalPartner, ranked]);
 
-  const workflowStep: Phase3WorkflowStepIndex = useMemo(() => {
-    if (reportId === "") {
-      return 0;
-    }
-    if (loading) {
-      return 2;
-    }
-    if (partners.length > 0) {
-      return 3;
-    }
-    return 1;
-  }, [reportId, loading, partners.length]);
-
   const runAnalysis = useCallback(async (): Promise<void> => {
     if (!isActive) {
       window.alert("3공정은 1·2공정 완료 후 활성화됩니다.");
       return;
     }
-    if (productId === null) {
+    if (productId === null || reportId === "") {
       setError("먼저 1공정 보고서를 선택해 주세요.");
       return;
     }
+
+    setIsExecuting(true);
+    setPipelineStep(0);
+    clearProgressTimers();
+    progressTimersRef.current = [
+      window.setTimeout(() => {
+        setPipelineStep(1);
+      }, 120),
+      window.setTimeout(() => {
+        setPipelineStep(2);
+      }, 320),
+      window.setTimeout(() => {
+        setPipelineStep(3);
+      }, 620),
+    ];
 
     setLoading(true);
     setError(null);
@@ -110,6 +151,7 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
         throw new Error(fetchErr);
       }
       setPartners(list);
+      setPipelineStep(4);
       const n = list.length;
       setFetchMessage(
         n === 0
@@ -119,10 +161,13 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "알 수 없는 오류";
       setError(message);
+      setIsExecuting(false);
+      setPipelineStep(0);
     } finally {
+      clearProgressTimers();
       setLoading(false);
     }
-  }, [isActive, productId]);
+  }, [isActive, productId, reportId]);
 
   function toggleCriterion(key: PSICriterionKey): void {
     setChecked((prev) => {
@@ -163,14 +208,12 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
 
       {expanded ? (
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
-          <Phase3WorkflowStepper currentStep={workflowStep} />
-
           <div>
             <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 · 실행</p>
             <Phase3ReportToolbar
               reports={reports}
               reportId={reportId}
-              onReportChange={setReportId}
+              onReportChange={handleReportChange}
               loading={loading}
               isActive={isActive}
               productId={productId}
@@ -180,6 +223,10 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
             />
           </div>
 
+          <Phase3WeightPanel checked={checked} onToggle={toggleCriterion} onResetDefaults={resetDefaults} />
+
+          {isExecuting ? <Phase3WorkflowStepper currentStep={pipelineStep} /> : null}
+
           {error !== null ? <Phase3ErrorBanner message={error} /> : null}
 
           {fetchMessage !== null ? (
@@ -187,8 +234,6 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
               {fetchMessage}
             </div>
           ) : null}
-
-          <Phase3WeightPanel checked={checked} onToggle={toggleCriterion} onResetDefaults={resetDefaults} />
 
           {ranked.length > 0 ? (
             <LayoutGroup id="phase3-partner-morph">
