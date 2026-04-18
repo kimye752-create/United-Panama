@@ -4,6 +4,16 @@
 
 > 세션 27에서 선정한 강력 후보군. 세션 28에서 매칭 진행 시 각 기업 매칭 완료 표시 추가.
 
+---
+**2026-04-19 세션 28 완료 박제**
+- 20사 1차 파트너 매칭 조사 전체 종료 (세션 27 5사 + 세션 28 15사)
+- Top 5 최종 추천: SEVEN PHARMA > Menafar > APOTEX > GSK PANAMÁ > Haseth
+- PSI 로직 설계 철학 6개 MNC 케이스로 완벽 증명: 글로벌 Top 5 MNC 5개(Roche·Bayer·Novartis·Sanofi·Pfizer) + Top 3 MSD = 총 6개 MNC가 Top 5 바깥 분포
+- Gadvoa direct_competition 2개 확정: BAYER + Guerbet → 조영제 파트너는 별도 루트 필요
+- upgrade_opportunity 총 11건 5개 파트너: Menafar(4) > Bagó·Tecnoquímicas·Unipharm 각 2 > PISA 1
+- 발표 핵심 차별점: 단순 탈락이 아닌 "업그레이드 제안 기회" 스토리텔링
+---
+
 ## 7. 6~20번째 기업 후보 풀
 
 MINSA 공식 라이선스 리스트 기준 강력 후보들:
@@ -22,8 +32,8 @@ MINSA 공식 라이선스 리스트 기준 강력 후보들:
 ### 7-2. LATAM 지역 강자 (Tier 2~3)
 - [x] **PISA FARMACÉUTICA DE PANAMÁ, S.A.** — 멕시코 PISA 그룹 파나마 법인 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 47.7)
 - [x] **CORPORACIÓN SEQUISA, S.A.** — 의약품 전문 유통 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 36.6)
-- [ ] **LABORATORIOS TECNOQUIMICAS, S.A.** — 콜롬비아 Tecnoquímicas LATAM
-- [ ] **UNIPHARM (PANAMÁ), S.A.** — 과테말라 유니팜 중미 법인
+- [x] **LABORATORIOS TECNOQUIMICAS, S.A.** — 콜롬비아 Tecnoquímicas LATAM — ✅ 세션 28 3차 배치 매칭 완료 (PSI 62.6)
+- [x] **UNIPHARM (PANAMÁ), S.A.** — 과테말라 유니팜 중미 법인 — ✅ 세션 28 3차 배치 매칭 완료 (PSI 71.0)
 - [ ] **ALTIAN PHARMA GRUPPE DE CENTRO AMÉRICA, S.A.**
 
 ### 7-3. 파나마 로컬 중견 (Tier 3~4)
@@ -33,11 +43,11 @@ MINSA 공식 라이선스 리스트 기준 강력 후보들:
 - [ ] **MEDIMEX, S.A.** — 의약품 전문 유통
 - [ ] **U.S. PHARMACY SYSTEMS, INC.** — 공공조달 실적 추적 기대
 - [ ] **H. TZANETATOS, INC.** — 파나마 전통 유통사
-- [ ] **Agencias Motta, S. A.** — Motta 그룹 (파나마 재벌)
+- [x] **Agencias Motta, S. A.** — Motta 그룹 (파나마 재벌) — ✅ 세션 28 3차 배치 매칭 완료 (PSI 46.4)
 
 ### 7-4. 특수 카테고리
-- [ ] **GUERBET PANAMA, S. A.** — 프랑스 조영제 전문 (Gadvoa 직접 경쟁)
-- [ ] **BAXTER DE PANAMÁ, S. A.** — 수액·수술 전문
+- [x] **GUERBET IMAGING PANAMÁ, S.A.** — 프랑스 조영제 전문 (Gadvoa 직접 경쟁) — ✅ 세션 28 3차 배치 매칭 완료 (PSI 35.8)
+- [x] **BAXTER DE PANAMÁ, S. A.** — 수액·수술 전문 — ✅ 세션 28 3차 배치 매칭 완료 (PSI 47.0)
 - [ ] **INTERNACIONAL BIO FARMACÉUTICA, S.A. (INTERFARMA)** — 바이오 전문
 - [ ] **CALOX PANAMEÑA, S.A.** — 로컬 제조사 (Medipan 유사)
 - [ ] **QUALIPHARM PANAMÁ, S.A.**

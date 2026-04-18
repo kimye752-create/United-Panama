@@ -603,4 +603,257 @@
 
 ---
 
-세션 28 추가 예정: 16번 ~ 20번 매칭 결과 순차 append
+### 3-16. GUERBET IMAGING PANAMÁ, S.A. — PSI 35.8
+
+**그룹**: Guerbet S.A. (프랑스 Villepinte 파리 근교, 1926년 André Guerbet 설립. 창립자 Marcel Guerbet이 1901년 최초의 요오드화 유기 조영제 발견. 조영제 전문 98년 역사)
+
+**매출 Tier**: 3 (60점) — 2024 그룹 매출 €841.1M (+7.1% YoY, ~$900M), 2024 Diagnostic Imaging 부문 €748.1M (MRI·X-ray 통합), 2,905명 직원, 매출의 9%를 R&D 투자 (4개 R&D 센터: 프랑스·미국·이스라엘), 9개 전문 제조 시설 (프랑스 Marans·Lanester·Aulnay-sous-Bois·Saint-Priest, 아일랜드 Dublin, 브라질 Rio de Janeiro, 미국 Raleigh·Cincinnati). Euronext Paris 상장 (segment B mid-cap, GBT)
+
+**주소**: Boulevard Ernesto Perez Balladares, José Dominador Bazán, Fuerte Davis, Lote 1, 2 y 3, Manzana 5, Zona Libre de Colón — Farmazona 내부
+
+**전화**: +507 431-4392
+
+**MINSA 라이선스**: 3-089 A/DNFD (Colón Agencia, 2019-10-17 최초 승인)
+
+**영업 범위**: "Importación, Reexportación, Almacenamiento, Distribución y Venta al por Mayor de Medios de Contraste" — 조영제 전용 라이선스. 15사 중 유일하게 영업 범위가 특정 약효군(조영제)으로 제한
+
+**Guerbet 핵심 포트폴리오**:
+- Diagnostic Imaging (€748.1M, 89%) ⭐
+  - MRI Franchise ⭐: Dotarem® (Gadoteric acid, Macrocyclic GBCA) — 글로벌 MRI 조영제 선두 브랜드
+  - Elucirem™ (Gadopiclenol, 2022 FDA 승인) — 저용량 차세대 Macrocyclic GBCA, Guerbet 핵심 성장 동력
+  - X-ray: Xenetix® (iobitridol), Optiray® (ioversol) — CT·Cath Lab용 비이온성 요오드 조영제
+- Interventional Imaging (€93M, 11%): Lipiodol® (간암 TACE 표준)
+- Imaging Solutions: OptiVantage®, OptiStar® Elite, Illumena® Neo — 조영제 자동주입기
+- AI/Digital: DUOnco™ 브랜드 (2024 런칭)
+
+**파이프라인 매칭 핵심**:
+- Rosumeg·Atmeg·Ciloduo·Gastiin·Omethyl·Sereterol·Hydrine: ✅ none — 조영제 전문사로 일반 의약품 일절 취급 안 함. MINSA 라이선스 자체가 "Medios de Contraste"로 한정되어 법적으로도 취급 불가
+- Gadvoa: 🔴 direct_competition ⭐⭐⭐ — 15사 중 가장 직접적인 경쟁 관계. Gadvoa(Gadobutrol 1.0M Macrocyclic) vs Dotarem(Gadoteric acid Macrocyclic) + Elucirem(Gadopiclenol Macrocyclic) = 모두 Macrocyclic GBCA 계열, MRI 조영제 동일 임상 용도. 파나마 병원·영상의학과 채널 완전 경쟁. 파트너 불가
+
+**Tier 구성**:
+- 매출 3 (60)
+- 파이프라인 평균: (Gadvoa 1점 + 나머지 7개 5점) / 8 = 4.5 → percentile 환산 10점
+- 제조소 X (0)
+- 수입경험 풍부 (100) — 중미·카리브 허브 기능, 남미 4개 직접 법인 별도 운영
+- 약국체인 X (0)
+
+**PSI 계산**: 60×0.35 + 10×0.28 + 0×0.20 + 100×0.12 + 0×0.05 = 35.8
+
+**선제 방어**:
+- Q: "조영제 전문 글로벌 Top 3인데 PSI 35.8?" → PSI 로직 설계 철학의 결정적 증명 케이스. 매출 규모가 Top 5여도 제품 라인업이 맞지 않으면 PSI는 낮아짐. 전문 조영제 파트너십은 Guerbet 아닌 다른 루트로 모색 필요
+- Q: "조영제 전문이라서 Gadvoa 유통에 최적이지 않나?" → 정반대. 조영제 전문이라서 Gadvoa 유통 절대 불가. 자사 Dotarem/Elucirem의 경쟁 제품을 자기 채널로 팔 이유가 없음
+
+**전략적 시사점**: Guerbet는 "파트너 후보"가 아니라 "경쟁사 프로필"로 보고서에 포함. Gadvoa 파나마 진출 전략에서 경쟁 환경 분석 섹션 필수 등장. 15사 중 Gadvoa 관련 direct_competition은 BAYER(PSI 58.2) + Guerbet(PSI 35.8) 2개
+
+**출처**:
+- MINSA 공식 라이선스 PDF (3-089 A/DNFD): https://www.minsa.gob.pa/sites/default/files/general/lista_de_agencias.pdf
+- Guerbet 2024 Full Year Revenue: https://www.guerbet.com/news/2024-full-year-results
+- Guerbet 공식 Contact: https://interventional.guerbet.com/contact-us-interventional
+- Guerbet Organization (9개 제조 시설): https://www.guerbet.com/en-gb/patients/about-us/organisation
+- Panadata: https://www.panadata.net/organizaciones/279930
+
+---
+
+### 3-17. BAXTER DE PANAMÁ, S.A. — PSI 47.0
+
+**그룹**: Baxter International Inc. (미국 Illinois Deerfield, 1931년 설립. NYSE: BAX. 2023년 시작된 3단계 전략 전환 완료: BioPharma Solutions 분사 → 수직 조직 구조 개편 → 2025년 1월 Kidney Care 사업부(Vantive)를 Carlyle에 $3.4bn 매각. 현재 3개 사업부로 재편)
+
+**매출 Tier**: 2 (80점) — 2024 매출 $10.6bn (continuing operations, Kidney Care 제외). 글로벌 medtech Top 15. Pharmaceuticals 부문은 2024 Q4 double-digit 성장, 2026년까지 20개 신규 제품 런칭 파이프라인
+
+**주소(파나마 법인)**: Av. Samuel Lewis y Calle 54, Edificio Plaza Obarrio 1er Piso, Local 105, Panamá
+
+**MINSA 라이선스**: BAXTER DE PANAMÁ, S.A. — L/DNFD 라이선스 보유 추정. Panamá Ciudad 기반. 영업 범위: "Importación, Almacenamiento, Distribución y Venta al por Mayor de Medicamentos"
+
+**Baxter 3개 사업부 포트폴리오**:
+1. Medical Products & Therapies: IV Solutions (수액·전해질 글로벌 1위), Infusion Systems (SIGMA Spectrum·Novum IQ), Advanced Surgery (FLOSEAL·TISSEEL·COSEAL 지혈제)
+2. Pharmaceuticals (핵심 성장 동력) ⭐: Specialty Injectables (Transderm Scop·BREVIBLOC·Brevital·Nexterone·응급 주사제), Drug Compounding (Hospira 통합)
+3. Healthcare Systems & Technologies: Patient Support Systems, Welch Allyn 활력징후 모니터, CCS 병원 IT
+
+**파이프라인 매칭 핵심**:
+- Rosumeg·Atmeg·Ciloduo·Gastiin·Omethyl·Sereterol·Gadvoa: ✅ none — specialty injectables 중심, 경구 제제·흡입 DPI·MRI 조영제 미취급
+- Hydrine: 🟢 adjacent_category — Baxter Pharmaceuticals는 oncology supportive care + cytotoxic drug compounding 영역에서 종양·혈액내과 처방 네트워크 간접 접점 확보
+
+**Tier 구성**:
+- 매출 2 (80) — $10.6bn continuing operations
+- 파이프라인 평균: (Hydrine 3점 + 나머지 7개 5점) / 8 = 4.75 → percentile 25점
+- 제조소 X (0) — 파나마 국내 Laboratorio 없음. 글로벌 제조 시설 미국·멕시코·콜롬비아·아일랜드 등
+- 수입경험 풍부 (100) — 콜롬비아 Laboratorios Baxter S.A.(Cali)→파나마 수입 기록, LATAM 지역 허브
+- 약국체인 X (0)
+
+**PSI 계산**: 80×0.35 + 25×0.28 + 0×0.20 + 100×0.12 + 0×0.05 = 47.0
+
+**선제 방어**:
+- Q: "Baxter 글로벌 medtech Top 15인데 PSI 47.0?" → 매출 기반 강력하나 제품 라인업이 specialty injectables·IV solutions·수술용 지혈제·중환자 모니터링에 집중되어 우리 8개 제품(경구 IMD 복합제·흡입 DPI·MRI 조영제·경구 항암제)과 카테고리 겹침 거의 없음
+- Q: "2025년 Vantive 매각 후 전략 재편 리스크?" → 오히려 pharmaceuticals·hospital care 중심으로 집중하는 단계. 제품 매칭이 더 큰 리스크
+
+**전략적 시사점**: "medtech 강자지만 우리 제품 카테고리와 구조적 불일치" 케이스. Vantive 매각으로 kidney care 영역 빠짐. Hydrine을 통한 종양 네트워크 접점만 제한적 가능성. PSI 47.0으로 PISA(47.7)와 거의 동일 수준
+
+**출처**:
+- MINSA 공식 라이선스 PDF: https://dnfd.minsa.gob.pa/sites/default/files/2025-09/Licencias%202022.pdf
+- Baxter 2024 Q4 Full-Year Results: https://investor.baxter.com/investors/events-and-news/news/press-release-details/2025/Baxter-Reports-Fourth-Quarter-and-Full-Year-2024-Results/default.aspx
+- Baxter Vantive 매각 (SEC 8-K): https://www.sec.gov/Archives/edgar/data/0000010456/000162828024046501/bax-20240930xex991.htm
+- Panjiva Baxter de Panama 주소: https://es.panjiva.com/Baxter-De-Panama-S-A/23978895
+- ImportGenius 콜롬비아→파나마: https://www.importgenius.com/panama/importers/baxter-de-panama-s-a
+
+---
+
+### 3-18. AGENCIAS MOTTA, S.A. (AMSA) — PSI 46.4
+
+**그룹**: Agencias Motta (1967년 Roberto Motta Jr. 설립, 2007년 Roberto Motta III 가족경영 승계. 300명+ 직원. 자매사 Envasadora Comercial 1970년 설립 — 자체 모발·화장품·위생제품 제조공장). 더 큰 Motta 가문 그룹(Stanley Motta 주도의 Inversiones Bahía family office)의 일부지만 Motta Internacional(duty-free Attenza)과는 별도 독립 경영체. Motta 가문은 Copa Holdings(NYSE: CPA)·Banco General·ASSA·TVN Media 등 파나마 최대 비즈니스 그룹
+
+**매출 Tier**: 3 (60점) — Agencias Motta 단독 매출 공시 미공개. 300명+ 직원, 50+ 년 역사, 파나마 소비재 유통 Top 5 수준 추정. Motta 가문 그룹 전체(16개국·2,000+ 직원)와 별도 평가
+
+**주소**: Agencias Motta S.A. 본사 — Panamá Ciudad
+
+**웹사이트**: www.agenciasmotta.com
+
+**MINSA 라이선스**: AGENCIAS MOTTA, S.A. — Agencia 라이선스 보유 (2022년 MINSA PDF 확인)
+
+**영업 범위 (실제 주력)**: Nutracéuticos · Consumo Masivo · Consumo Selectivo · Fragancias · Escritura Fina · Escolar · Cosméticos · Antibacteriales · Cuidado Facial · Cuidado Corporal · Cuidado Capilar — Rx 전문의약품이 아닌 소비재·건강기능식품·미용용품 중심
+
+**취급 브랜드**: L'Oréal (공식 인증 유통사), Parker·Waterman (필기구), Nutracéuticos 국제 브랜드 다수, 자체 Envasadora Comercial 제조 라인
+
+**파이프라인 매칭 핵심**:
+- Rosumeg·Atmeg·Ciloduo·Sereterol·Gadvoa·Hydrine: ✅ none — Rx 전문의약품 취급 없음, 심혈관·호흡기·영상진단·항암 처방 네트워크 부재
+- Gastiin CR: 🟢 adjacent_category — Nutracéuticos 소화기 OTC 라인. CR 서방형 Rx와 카테고리 분리
+- Omethyl Cutielet: 🟢 adjacent_category — 소비재 오메가-3는 Motta 핵심 영역이나, Omethyl은 Rx 오메가-3 처방약이라 OTC 오메가-3와 엄격 분리. 처방 네트워크 부적합
+
+**Tier 구성**:
+- 매출 3 (60) — 파나마 소비재 Top 5이나 Rx 영역 매출 취약
+- 파이프라인 평균: (Gastiin·Omethyl 3점 × 2 + 나머지 6개 5점) / 8 = 4.5 → percentile 25점
+- 제조소 O (50) ⭐ — 자매사 Envasadora Comercial 1970년부터 capilar·cosmético 제조 공장. 파나마 국내 제조 시설. 단 Rx 의약품 제조 시설 아닌 소비재 제조 시설 (Laboratorio Farmacéutico L/DNFD 미확인). 부분 가점 50점
+- 수입경험 보통 (70) — L'Oréal·Parker 등 국제 브랜드 파나마 유통 이력. 전문의약품 수입 경험 제한적
+- 약국체인 X (0) — 도매 유통사, 자체 약국 체인 없음. B2B 모델로 Super 99·Arrocha·Riba Smith 납품
+
+**PSI 계산**: 60×0.35 + 25×0.28 + 50×0.20 + 70×0.12 + 0×0.05 = 46.4
+
+**선제 방어**:
+- Q: "Motta 가문 그룹은 파나마 최대 비즈니스 그룹인데 PSI 46.4?" → Motta 가문 전체(Copa Airlines·Banco General)와 Agencias Motta S.A. 단독 규모 엄격 분리. AMSA는 독립 소비재 유통사. 그룹 위상 높으나 Rx 영역 매출 낮고 처방 네트워크 접근성 제한적
+- Q: "Envasadora Comercial 국내 제조 시설 보유하는데 Laboratorio 라이선스 없나?" → cosmético·capilar 제조 공장이지 의약품 제조 공장(L/DNFD) 아님. 50점 부여가 합리적
+- Q: "Motta가 OTC 오메가-3 시장 잡고 있다면 Omethyl 유통 파트너로 적합하지 않나?" → 정반대. Rx 오메가-3와 OTC 오메가-3는 가격대·처방 경로·보험 적용 모두 분리. 심혈관 전문의 처방 네트워크 필요한 Omethyl에 부적합
+
+**전략적 시사점**: "파나마 최대 비즈니스 그룹 소속이지만 의약품 영역과는 다른 전문성" 케이스. Hetero·Menafar·Apotex 같은 의약품 전문 파트너와 경쟁 불가. 보고서에서는 "파나마 비즈니스 네트워크 맥락"에서 언급 가능하나 실질 파트너 후보로는 부적합
+
+**출처**:
+- MINSA 공식 라이선스 PDF: https://www.minsa.gob.pa/sites/default/files/general/lista_de_agencias.pdf
+- Agencias Motta 공식: https://www.agenciasmotta.com/en
+- Agencias Motta LinkedIn: https://www.linkedin.com/company/agenciasmottasa
+- Panadata: https://www.panadata.net/en/organizaciones/906711
+- Motta Internacional (자매 그룹): https://www.motta-int.com/about-us/
+- Stanley Motta 프로필: https://www.nature.org/en-us/about-us/where-we-work/latin-america/latin-america-conservation-council/members/stanely-mota/
+
+---
+
+### 3-19. LABORATORIOS TECNOQUÍMICAS, S.A. — PSI 62.6
+
+**그룹**: Tecnoquímicas S.A. (콜롬비아 Cali, 1934년 설립, 91년 역사, 콜롬비아 최대 제약사, 가족기업). 2013년 국제금융공사(IFC) 지분 재매입으로 콜롬비아 상업 제약시장 1위 달성. 2018년 Bayer로부터 Bonima S.A. de C.V. 인수로 MK 브랜드 중미·카리브·남미(베네수엘라 제외) 독점권 확보
+
+**매출 Tier**: 2 (80점) — 2017 매출 1.47조 COP (~$500M), 6,200명+ 직원, 콜롬비아 8개 + 중미 1개 제조소, 직접 운영 8개국(에콰도르·엘살바도르·과테말라·온두라스·니카라과·파나마·도미니카·콜롬비아), 수출 17개국
+
+**주소(파나마 법인)**: LABORATORIOS TECNOQUÍMICAS, S.A. — 파나마 시
+
+**웹사이트**: www.tqconfiable.com (콜롬비아 본사)
+
+**MINSA 라이선스**: LABORATORIOS TECNOQUÍMICAS, S.A. — Agencia 라이선스 보유 (2022·2023·2024 MINSA PDF 확인). 영업 범위: "Importación, Almacenamiento, Distribución y Venta al por Mayor de Medicamentos, Productos Cosméticos"
+
+**Tecnoquímicas 핵심 포트폴리오**:
+- Rx·OTC 마스터 브랜드: MK ⭐⭐ (2018년 Bayer 인수, 심혈관·대사·소화기·호흡기·항생제 전 영역. MK Atorvastatina, MK Rosuvastatina, MK Clopidogrel, MK Omeprazol, MK Losartan, MK Metformina 등 수백 품목)
+- Cardiolat ⭐: 라틴아메리카 최초 가상 심혈관 네트워크. 콜롬비아·엘살바도르·과테말라·온두라스 운영. 심장전문의 대상 온라인 컨퍼런스·케이스 토론 → 심혈관 처방 네트워크 직접 접근 경로
+- OTC·소비재: Noraver (감기 OTC 1위), Hidraplus (경구수액 콜롬비아 1위), Sal de Frutas Lúa, Bonfiest, Altex, Yodora, Crema N°4
+- 위생: Winny (콜롬비아 시장 50%+ 점유)
+- 2015년 Villa Rica 14,000m² 무균 제제 전용 제약 단지 (주사제·ophthalmic 용액)
+
+**파이프라인 매칭 핵심**:
+- Rosumeg Combigel: 🟡 upgrade_opportunity ⭐ — MK Rosuvastatina(단일제) 보유. Case A. Cardiolat 심혈관 네트워크 + MK 브랜드 신뢰도 + 콜롬비아·중미 심혈관 전문의 처방 네트워크 기반 Rosumeg 포트폴리오 확장 매력적
+- Atmeg Combigel: 🟡 upgrade_opportunity ⭐ — MK Atorvastatina(단일제) 보유. Atmeg(Atorvastatin+Omega-3 복합제) upgrade 기회
+- Ciloduo: 🟢 adjacent_category — MK Clopidogrel·Aspirina 항혈전제 라인업. 심혈관·PAD 처방 네트워크
+- Gastiin CR: 🟢 adjacent_category — MK Omeprazol·Sal de Frutas Lúa·Bonfiest 소화기 강자
+- Omethyl: 🟢 adjacent_category — Cardiolat 통해 심혈관 전문의 접근. Rx 오메가-3 직접 취급 확인 안 됨
+- Sereterol: ✅ none — 호흡기 흡입 DPI 라인업 확인 안 됨
+- Gadvoa: ✅ none — MRI 조영제 미취급
+- Hydrine: 🟢 adjacent_category — Villa Rica sterile 플랜트는 주사제 중심. Hydroxyurea 캡슐 항암제 직접 취급 확인 안 됨
+
+**Tier 구성**:
+- 매출 2 (80) — 콜롬비아 최대 제약사, 6,200명+, 17개국 수출
+- 파이프라인 평균: (Rosumeg·Atmeg 2점 × 2 + Ciloduo·Gastiin·Omethyl·Hydrine 3점 × 4 + Sereterol·Gadvoa 5점 × 2) / 8 = 3.25 → percentile 45점
+- 제조소 O (50) — 파나마 국내 Laboratorio 미확인. 콜롬비아 8개 + 엘살바도르 1개 + Villa Rica 무균 단지 본국 인프라 + 2018년 Bayer Bonima 인수 고려 부분 가점
+- 수입경험 풍부 (100) — 17개국 수출, 8개국 직접 법인, MK 브랜드 중미·남미 통합 유통. 2009년 Teramed(엘살바도르) 인수로 중미 직접 운영 17년+ 경험
+- 약국체인 X (0)
+
+**PSI 계산**: 80×0.35 + 45×0.28 + 50×0.20 + 100×0.12 + 0×0.05 = 62.6
+
+**선제 방어**:
+- Q: "콜롬비아 지역 제약사인데 Menafar·Apotex보다 낮은 이유?" → Menafar(이탈리아 본사 £4.4bn + 파나마 27년)·Apotex(캐나다 제네릭 Top 5)는 글로벌 MNC 급. Tecnoquímicas는 지역 제약사로 글로벌 R&D 역량 아님. 단 LATAM 지역 특화 전략 시 가장 빠른 침투 속도 기대
+- Q: "MK Rosuvastatina 단일제 보유하는데 Rosumeg upgrade 제안이 받아들여질까?" → Cardiolat 네트워크가 결정적 차별점. 심혈관 전문의 신뢰 관계 + 신제품 교육 채널 보유. 단 MK의 "저가 제네릭" 이미지와 프리미엄 복합제 포지셔닝 충돌 리스크 있음
+
+**전략적 시사점**: "LATAM 지역 특화 심혈관·OTC 강자 + MK 브랜드 플랫폼" 케이스. Cardiolat 심혈관 네트워크 + MK Rosuvastatina·Atorvastatina 기반 upgrade 기회 2건 → Rosumeg·Atmeg 우선 진출 품목 관점에서 매력적 중간급 파트너. Medipan(PSI 62.0)과 같은 급으로 경쟁
+
+**출처**:
+- MINSA 공식 라이선스 PDF: https://www.minsa.gob.pa/sites/default/files/general/lista_de_agencias.pdf
+- Tecnoquímicas 공식 역사: https://www.tqconfiable.com/asi-cambiamos-al-mundo/quienes-somos/historia/
+- La República 분석: https://www.larepublica.co/empresas/tecnoquimicas-el-gigante-farmaceutico-detras-de-mk-hidraplus-y-bonfiest-2128866
+- El Tiempo (Bayer Bonima 인수): https://www.eltiempo.com/economia/empresas/fusion-y-adquisicion-de-mk-por-parte-de-tecnoquimicas-238994
+- Wikipedia Tecnoquímicas: https://es.wikipedia.org/wiki/Tecnoqu%C3%ADmicas
+
+---
+
+### 3-20. UNIPHARM (PANAMÁ), S.A. — PSI 71.0
+
+**그룹**: Grupo Unipharm (과테말라 Ciudad de Guatemala 본사). 지주사 Luminova Pharma Group. 중미 최대 제약사 중 하나, 중미 Top 8 + 처방약(Prescripción) 부문 중미 Top 4. 1,200+ 품목의 인체용·수의용 의약품 개발·생산·판매. 유럽 기술 + 라틴아메리카 시장 요구사항 결합 포지셔닝
+
+**매출 Tier**: 2 (80점) — 정확한 매출 공시 제한적이나 중미 Top 8 + 처방약 Top 4. 9개국 직접 법인: 과테말라·엘살바도르·온두라스·니카라과·코스타리카·파나마·도미니카·콜롬비아·에콰도르. Unisalud 환자 지원 프로그램 중미 전역
+
+**주소(파나마 법인)**: UNIPHARM (PANAMÁ), S.A. — Oficinas Corporativas, P.H. Capital Plaza Business, Piso 13, Oficina No. 1301, Costa del Este, Corregimiento de Juan Díaz, Provincia de Panamá
+
+**웹사이트**: site.grupounipharm.com / www.porunmundosano.com (Consumer Care) / www.unisalud.com (환자 지원)
+
+**MINSA 라이선스**: UNIPHARM (PANAMÁ), S.A. — Agencia 라이선스 보유 (2022·2023·2024 MINSA PDF 확인). 영업 범위: "Importación, Almacenamiento, Distribución y Venta al por Mayor de Medicamentos"
+
+**Unipharm 핵심 포트폴리오 (이원)**:
+1. Prescripción (Rx 전문의약품) — 중미 Top 4 ⭐
+   - 심혈관: Atorvastatina, Rosuvastatina, Amlodipino, Losartán, Enalapril, Bisoprolol
+   - 항응고·항혈소판: Clopidogrel, Aspirina, Warfarina
+   - 항생제: Cefadroxilo, Amoxicilina/Clavulánico, Ciprofloxacino, Levofloxacino
+   - 신경·정신과, 소화기, 내분비, 호흡기 전라인
+2. Consumer Care (OTC) "Por un Mundo Sano" 브랜드
+3. 제조·물류: Planta Villa Nueva (Km. 18 Carretera al Pacífico, Guatemala), Planta Milpas Altas (San Lucas Sacatepequez, Guatemala), Ciudad Merliot 엘살바도르 공장, 파나마 Unipharm 공식 주장 "중미 최대 제약 생산·물류 허브"
+4. Unisalud 차별점: 중미 5개국 환자 로열티 프로그램, 약국 네트워크(Farmacias Afiliadas) 연계
+
+**파이프라인 매칭 핵심**:
+- Rosumeg Combigel: 🟡 upgrade_opportunity ⭐ — Unipharm Rosuvastatina(단일제) 보유. Case A. 중미 처방약 Top 4 심혈관 처방 네트워크 + Unisalud 약국 네트워크 + 파나마 물류 센터 기반 빠른 유통 가능
+- Atmeg Combigel: 🟡 upgrade_opportunity ⭐ — Unipharm Atorvastatina(단일제) 보유. Atmeg(Atorvastatin+Omega-3) upgrade 기회
+- Ciloduo: 🟢 adjacent_category — Clopidogrel·Aspirina 항혈전제 라인업, 심혈관·PAD 처방 네트워크
+- Gastiin CR: 🟢 adjacent_category — Omeprazol·PPI 전라인 보유, 소화기 처방 네트워크 강함
+- Omethyl: 🟢 adjacent_category — 심혈관 전문의 처방 네트워크 접근 가능
+- Sereterol: 🟢 adjacent_category — Salbutamol·Budesonide 흡입기 취급 가능성
+- Gadvoa: ✅ none — MRI 조영제 미취급
+- Hydrine: 🟢 adjacent_category — Luminova Oncology 라인 일부 가능성
+
+**Tier 구성**:
+- 매출 2 (80) — 중미 Top 8, 처방약 Top 4, 9개국 직접 법인
+- 파이프라인 평균: (Rosumeg·Atmeg 2점 × 2 + Ciloduo·Gastiin·Omethyl·Sereterol·Hydrine 3점 × 5 + Gadvoa 5점) / 8 = 3.0 → percentile 50점
+- 제조소 O (75) ⭐ — Unipharm 공식 주장 "파나마 센터 중미 최대 제약 생산·물류 허브". 세션 27 로직 엄격 적용 시 파나마 Laboratorio(L/DNFD) 별도 검증 필요하나 과테말라 2개 + 엘살바도르 플랜트 본국 제조 인프라 + 파나마 물류 센터 규모 고려 75점
+- 수입경험 풍부 (100) — 9개국 운영, Luminova Pharma Group 지주사, 파나마 Capital Plaza Costa del Este 13층 정식 운영
+- 약국체인 O (40) ⭐ — Unisalud 멤버십 프로그램 + 제휴 약국 네트워크 중미 5개국. 자체 소유 아닌 파트너 네트워크이나 환자 로열티 구조화 채널. Haseth(100, 자체 El Javillo) 수준 아니나 도매 전담(0) 대비 부분 가점
+
+**PSI 계산**: 80×0.35 + 50×0.28 + 75×0.20 + 100×0.12 + 40×0.05 = 71.0
+
+**선제 방어**:
+- Q: "중미 Top 8인데 Menafar·Apotex 수준 아닌 이유?" → Menafar(Menarini 이탈리아 £4.4bn)·Apotex(캐나다 글로벌 제네릭 Top 5)는 글로벌 MNC. Unipharm은 중미 지역 중형. 단 파나마 물류 센터 주장 + Unisalud 네트워크 + 9개국 직접 운영으로 파나마·중미 통합 진출 관점에서는 매력적 파트너
+- Q: "파나마 센터 중미 최대 제조·물류 허브 주장 신뢰성?" → Unipharm 공식 주장. 세션 27 로직 엄격 적용 시 파나마 Laboratorio(L/DNFD) 라이선스 별도 검증 필요. MINSA Agencia 라이선스만 확인. 파트너 미팅 단계에서 검증 필수
+- Q: "Unisalud 약국 네트워크가 Haseth El Javillo 수준 가치?" → 아니요. Haseth는 자체 체인 소유(100), Unipharm은 파트너 약국 제휴(40). 환자 로열티 프로그램 강점이나 직접 소매 채널 소유 아님. 도매 전담 타 파트너 대비 차별점
+
+**전략적 시사점**: "중미 지역 전문 중형 제약사 + 파나마 물류 허브 + 약국 네트워크 프로그램" 케이스. Tecnoquímicas(62.6)와 유사한 LATAM 지역 특화 전략이나 파나마 물류 센터 공식 주장 + Unisalud 약국 네트워크로 Tecnoquímicas보다 상위 포지션. 중미 전체 통합 진출 시나리오에서 유리
+
+**출처**:
+- MINSA 공식 라이선스 PDF: https://www.minsa.gob.pa/sites/default/files/general/lista_de_agencias.pdf
+- Grupo Unipharm 공식 연락처: http://site.grupounipharm.com/contactenos/
+- Unipharm 파나마 공식: http://site.grupounipharm.com/panama/
+- Por un Mundo Sano: https://www.porunmundosano.com/
+- Unisalud 환자 지원: https://www.unisalud.com/
+- Luminova Pharma Group: https://www.luminovapg.com/luminova-pharma-group/casas-medicas/unipharm-guatemala/
+- Devex 기업 프로필: https://www.devex.com/organizations/unipharm-s-a-131442
+
+---
+
+**20사 1차 파트너 매칭 조사 완료** (세션 27 매칭 5사 + 세션 28 매칭 15사, 2026-04-19)

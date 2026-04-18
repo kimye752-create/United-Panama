@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (data(phase3): 세션 28 3차 배치 16~20사 최종 append)
+
+### Added
+- `data/phase3/partner_factsheets.md` — 3-16 Guerbet(PSI 35.8) ~ 3-20 Unipharm(PSI 71.0) 팩트시트 append, 하단 20사 조사 완료 문구로 갱신.
+- `data/phase3/partner_psi_matrix.csv` — 5사×8제품 40행 append(데이터 행 총 160 + 헤더 1).
+- `data/phase3/partner_psi_ranking.md` — 20사 최종 순위·3차 발견·Top 5 추천 표 append.
+- `data/phase3/partner_candidate_pool.md` — Guerbet·Baxter·Motta·Tecnoquímicas·Unipharm 5개 `- [x]` 및 세션 28 완료 박제 블록.
+
+### Notes
+- Guerbet Gadvoa direct_competition·Bayer+Guerbet 2개 확정·upgrade 11건 등 지시서 문구 유지. Guerbet 법인명 후보 풀을 `GUERBET IMAGING PANAMÁ, S.A.`로 정렬.
+
 ## [Unreleased] - 2026-04-19 (data(phase3): 세션 28 2차 배치 11~15사 append)
 
 ### Added
