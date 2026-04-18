@@ -5,6 +5,9 @@ export interface StoredReportItem {
   inn: string;
   caseGrade: "A" | "B" | "C";
   generatedAt: string;
+  pdfBase64: string | null;
+  pdfFilename: string | null;
+  reportVersion: "v1" | "v3";
 }
 
 const REPORTS_KEY = "pa_upharma_reports_v1";
@@ -49,6 +52,15 @@ export function loadStoredReports(): StoredReportItem[] {
         inn: item.inn,
         caseGrade: item.caseGrade,
         generatedAt: item.generatedAt,
+        pdfBase64:
+          typeof item.pdfBase64 === "string" && item.pdfBase64.trim() !== ""
+            ? item.pdfBase64
+            : null,
+        pdfFilename:
+          typeof item.pdfFilename === "string" && item.pdfFilename.trim() !== ""
+            ? item.pdfFilename
+            : null,
+        reportVersion: item.reportVersion === "v3" ? "v3" : "v1",
       });
     }
     return out.slice(0, MAX_REPORTS);
@@ -78,6 +90,9 @@ export function upsertStoredReport(
       inn: item.inn,
       caseGrade: item.caseGrade,
       generatedAt: now,
+      pdfBase64: item.pdfBase64,
+      pdfFilename: item.pdfFilename,
+      reportVersion: item.reportVersion,
     },
     ...deduped,
   ].slice(0, MAX_REPORTS);

@@ -125,14 +125,27 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
         typeof (judgment as { case?: unknown }).case === "string"
           ? (judgment as { case: "A" | "B" | "C" }).case
           : "B";
+      const pdfBase64 = result.pdfBase64;
+      const nextPdfFilename = result.pdfFilename;
+      const reportVersion =
+        result.reportVersion === "v3" || result.reportVersion === "v1"
+          ? result.reportVersion
+          : "v1";
+      const pdfBase64ForStore =
+        typeof pdfBase64 === "string" && pdfBase64.trim() !== "" ? pdfBase64 : null;
+      const pdfFilenameForStore =
+        typeof nextPdfFilename === "string" && nextPdfFilename.trim() !== ""
+          ? nextPdfFilename
+          : null;
       upsertStoredReport({
         productId: selectedProduct.product_id,
         brand: selectedProduct.kr_brand_name,
         inn: selectedProduct.who_inn_en,
         caseGrade,
+        pdfBase64: pdfBase64ForStore,
+        pdfFilename: pdfFilenameForStore,
+        reportVersion,
       });
-      const pdfBase64 = result.pdfBase64;
-      const nextPdfFilename = result.pdfFilename;
       if (
         typeof pdfBase64 === "string" &&
         pdfBase64.trim() !== "" &&

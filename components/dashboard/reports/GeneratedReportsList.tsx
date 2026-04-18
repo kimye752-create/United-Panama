@@ -97,6 +97,9 @@ export function GeneratedReportsList() {
             inn: product.who_inn_en,
             caseGrade,
             generatedAt: r.generated_at,
+            pdfBase64: null,
+            pdfFilename: null,
+            reportVersion: "v1",
           });
         }
         if (recovered.length > 0) {
@@ -171,6 +174,13 @@ export function GeneratedReportsList() {
     item: StoredReportItem,
     signal?: AbortSignal,
   ): Promise<{ blob: Blob; filename: string }> => {
+    if (item.pdfBase64 !== null && item.pdfFilename !== null) {
+      const bytes = Uint8Array.from(window.atob(item.pdfBase64), (char) =>
+        char.charCodeAt(0),
+      );
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      return { blob, filename: item.pdfFilename };
+    }
     const cached = pdfCacheRef.current.get(item.id);
     if (cached !== undefined) {
       return cached;

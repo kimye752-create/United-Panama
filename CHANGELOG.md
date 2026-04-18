@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 19:39:31 (feat(reports): 보고서 탭에서 1공정 PDF Base64 재사용)
+
+### Changed
+- feat(report-store): `src/lib/dashboard/reports_store.ts`의 `StoredReportItem`에 `pdfBase64`, `pdfFilename`, `reportVersion` 필드를 추가해 1공정 완료 시점의 PDF를 목록 메타에 함께 저장.
+- feat(phase1-save): `components/main-preview/Phase1Section.tsx`에서 `/api/panama/analyze` 응답의 `pdfBase64/pdfFilename/reportVersion`을 `upsertStoredReport`에 함께 전달하도록 저장 로직 확장.
+- feat(reports-viewer): `components/dashboard/reports/GeneratedReportsList.tsx`의 PDF 획득 우선순위를 (1) 저장된 Base64 → (2) 메모리 캐시 → (3) `/api/panama/pdf` 호출로 변경해 탭 전환 시 즉시 미리보기/다운로드를 우선 보장.
+- chore(report-client): `components/PanamaReportClient.tsx`에서 확장된 저장 스키마에 맞춰 기본값(`pdfBase64=null`, `pdfFilename=null`, `reportVersion`)을 함께 기록.
+
 ## [Unreleased] - 2026-04-18 19:38:57 (fix(pdf): /api/panama/pdf V1/V3 분기 및 버전 캐시 분리)
 
 ### Changed

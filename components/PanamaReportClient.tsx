@@ -416,6 +416,9 @@ export function PanamaReportClient({
       brand: data.product.kr_brand_name,
       inn: data.product.who_inn_en,
       caseGrade: data.judgment.case,
+      pdfBase64: null,
+      pdfFilename: null,
+      reportVersion: llm.reportVersion,
     });
   }, [data, llm, error]);
 
