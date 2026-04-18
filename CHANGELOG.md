@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 19:09:01 (chore(branding): 유나이티드 심볼 파비콘 복원)
+
+### Changed
+- feat(favicon): 사용자 제공 유나이티드 심볼 이미지를 `public/images/united-favicon.png`로 반영.
+- feat(layout): `app/layout.tsx`의 `metadata.icons`를 설정해 기본/shortcut/apple 파비콘이 모두 유나이티드 심볼로 노출되도록 구성.
+
 ## [Unreleased] - 2026-04-18 18:21:13 (feat(report1-v3-stage3): analyze V1/V3 스위치 + 클라이언트 렌더 분기)
 
 ### Changed

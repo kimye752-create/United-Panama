@@ -6,6 +6,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "UPharma — 파나마 1공정",
   description: "파나마 의약품 시장 분석",
+  icons: {
+    icon: "/images/united-favicon.png",
+    shortcut: "/images/united-favicon.png",
+    apple: "/images/united-favicon.png",
+  },
 };
 
 export default function RootLayout({
