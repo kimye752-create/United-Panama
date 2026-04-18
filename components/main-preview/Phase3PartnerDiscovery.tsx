@@ -94,7 +94,7 @@ export function Phase3PartnerDiscovery({
   if (!isAnalysisComplete) {
     return (
       <div className="rounded-[10px] border border-[#dce4ef] bg-[#fbfcfe] px-3 py-4 text-[12px] text-[#8a99ad]">
-        파트너 발굴 실행 버튼을 눌러 분석을 시작하세요.
+        파트너 매칭을 실행해 분석을 시작하세요.
       </div>
     );
   }

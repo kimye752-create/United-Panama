@@ -20,8 +20,10 @@ import { Phase3WeightPanel } from "./Phase3WeightPanel";
 import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
 
 interface Phase3ContainerProps {
-  isActive: boolean;
   reports: StoredReportItem[];
+  /** 실행 차단에는 사용하지 않음 — 1·2공정 미완료 시 권장 안내만 표시 */
+  phase1Complete: boolean;
+  phase2Complete: boolean;
 }
 
 const DEFAULT_CHECKED: PSICheckedState = {
@@ -35,7 +37,7 @@ const DEFAULT_CHECKED: PSICheckedState = {
 const DEBOUNCE_MS = 300;
 
 /** 3공정 파트너 발굴 UI A단계 — 스테퍼·가중치·계층 카드·모달 */
-export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
+export function Phase3Container({ reports, phase1Complete, phase2Complete }: Phase3ContainerProps) {
   const [expanded, setExpanded] = useState(true);
   const [reportId, setReportId] = useState("");
   const [partners, setPartners] = useState<PartnerWithPSI[]>([]);
@@ -117,10 +119,6 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
   }, [modalPartner, ranked]);
 
   const runAnalysis = useCallback(async (): Promise<void> => {
-    if (!isActive) {
-      window.alert("3공정은 1·2공정 완료 후 활성화됩니다.");
-      return;
-    }
     if (productId === null || reportId === "") {
       setError("먼저 1공정 보고서를 선택해 주세요.");
       return;
@@ -167,7 +165,7 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
       clearProgressTimers();
       setLoading(false);
     }
-  }, [isActive, productId, reportId]);
+  }, [productId, reportId]);
 
   function toggleCriterion(key: PSICriterionKey): void {
     setChecked((prev) => {
@@ -215,12 +213,16 @@ export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
               reportId={reportId}
               onReportChange={handleReportChange}
               loading={loading}
-              isActive={isActive}
               productId={productId}
               onRun={() => {
                 void runAnalysis();
               }}
             />
+            {!phase1Complete || !phase2Complete ? (
+              <p className="mt-2 text-xs text-slate-500">
+                ⚠ 1·2공정을 먼저 완료하시면 보다 정확한 분석이 가능합니다.
+              </p>
+            ) : null}
           </div>
 
           <Phase3WeightPanel checked={checked} onToggle={toggleCriterion} onResetDefaults={resetDefaults} />
