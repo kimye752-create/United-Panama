@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 22:30:00 (feat(phase2): 수출가격 전략 UI·API·PDF 대개편)
+
+### Added
+- feat(phase2-api): `app/api/panama/phase2/analyze/route.ts` — `fetchCompetitorPrices`(공공 `panamacompra_v3`, 민간 `acodeco_cabamed%`), `generatePriceScenarios`, `generatePhase2Report`(Haiku), `Phase2Document` PDF 렌더 후 `pdfBase64`/`pdfFilename`/`competitorPrices` 응답.
+- feat(pdf-phase2): `lib/pdf/Phase2Document.tsx` — NotoSansKR, 단일 `Page`, 원가격·경쟁사 표·공식·3시나리오.
+- feat(phase2-logic): `src/logic/phase2/competitor_prices.ts` — 경쟁사 가격 집계 순수 로직.
+
+### Changed
+- feat(phase2-ui): `components/main-preview/Phase2Section.tsx` — 분석 전 단계 UI·다운로드 숨김, 3s/6s 타이머 후 `/api/panama/phase2/analyze` 호출, 완료 후 Blob PDF 다운로드, 경쟁사 가격 테이블 표시.
+- feat(phase2-prompt): `src/llm/phase2/phase2_system_context.ts` — USD 기준·block2 서술·Case 포지셔닝 규칙 보강.
+
 ## [Unreleased] - 2026-04-18 21:25:00 (fix(ui): 매크로 카드 값 중앙·출처 우하단·GDP 한 줄)
 
 ### Changed
