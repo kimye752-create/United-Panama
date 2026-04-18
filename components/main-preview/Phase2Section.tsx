@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
 import { getStoredReports } from "@/src/lib/dashboard/reports_store";
 import type { CompetitorPricesPayload } from "@/src/logic/phase2/competitor_prices";
-import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 import {
   Phase2ResultTabs,
   type Phase2ResultPayload,
@@ -26,9 +26,17 @@ interface AnalyzeApiResponse {
   generatedAt: string;
 }
 
-function resolveBrand(productId: string): string {
-  const hit = TARGET_PRODUCTS.find((product) => product.product_id === productId);
-  return hit?.kr_brand_name ?? productId;
+function formatReportLabel(item: StoredReportItem): string {
+  const date = new Date(item.analyzedAt);
+  if (Number.isNaN(date.getTime())) {
+    return `1공정 보고서 · ${item.productBrandName} · 날짜 미상`;
+  }
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `1공정 보고서 · ${item.productBrandName} · ${y}-${m}-${d} ${hh}:${mm}`;
 }
 
 function formatPriceCell(value: number | null): string {
@@ -215,7 +223,7 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
               <option value="">보고서를 선택하세요</option>
               {reports.map((report) => (
                 <option key={report.id} value={report.id}>
-                  {`1공정 보고서 · ${resolveBrand(report.productId)} · Case ${report.caseGrade}`}
+                  {formatReportLabel(report)}
                 </option>
               ))}
             </select>

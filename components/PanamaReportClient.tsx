@@ -414,8 +414,10 @@ export function PanamaReportClient({
     upsertStoredReport({
       productId: data.product.product_id,
       brand: data.product.kr_brand_name,
+      productBrandName: data.product.kr_brand_name,
       inn: data.product.who_inn_en,
       caseGrade: data.judgment.case,
+      analyzedAt: new Date().toISOString(),
       pdfBase64: null,
       pdfFilename: null,
       reportVersion: llm.reportVersion,

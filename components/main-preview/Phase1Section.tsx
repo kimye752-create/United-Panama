@@ -218,8 +218,10 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
       upsertStoredReport({
         productId: selectedProduct.product_id,
         brand: selectedProduct.kr_brand_name,
+        productBrandName: selectedProduct.kr_brand_name,
         inn: selectedProduct.who_inn_en,
         caseGrade,
+        analyzedAt: new Date().toISOString(),
         pdfBase64: pdfBase64ForStore,
         pdfFilename: pdfFilenameForStore,
         reportVersion,

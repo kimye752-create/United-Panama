@@ -2,9 +2,13 @@ export interface StoredReportItem {
   id: string;
   productId: string;
   brand: string;
+  /** 드롭다운 라벨용 브랜드명 (구버전은 brand와 동일하게 복구) */
+  productBrandName: string;
   inn: string;
   caseGrade: "A" | "B" | "C";
   generatedAt: string;
+  /** 분석 완료 시각 (ISO 8601, 라벨에 표시) */
+  analyzedAt: string;
   pdfBase64: string | null;
   pdfFilename: string | null;
   reportVersion: "v1" | "v3";
@@ -51,13 +55,23 @@ export function loadStoredReports(): StoredReportItem[] {
       if (item.caseGrade !== "A" && item.caseGrade !== "B" && item.caseGrade !== "C") {
         continue;
       }
+      const productBrandName =
+        typeof item.productBrandName === "string" && item.productBrandName.trim() !== ""
+          ? item.productBrandName
+          : item.brand;
+      const analyzedAt =
+        typeof item.analyzedAt === "string" && item.analyzedAt.trim() !== ""
+          ? item.analyzedAt
+          : item.generatedAt;
       out.push({
         id: item.id,
         productId: item.productId,
         brand: item.brand,
+        productBrandName,
         inn: item.inn,
         caseGrade: item.caseGrade,
         generatedAt: item.generatedAt,
+        analyzedAt,
         pdfBase64:
           typeof item.pdfBase64 === "string" && item.pdfBase64.trim() !== ""
             ? item.pdfBase64
@@ -93,9 +107,11 @@ export function upsertStoredReport(
       id: `${item.productId}-${Date.now()}`,
       productId: item.productId,
       brand: item.brand,
+      productBrandName: item.productBrandName,
       inn: item.inn,
       caseGrade: item.caseGrade,
       generatedAt: now,
+      analyzedAt: item.analyzedAt,
       pdfBase64: item.pdfBase64,
       pdfFilename: item.pdfFilename,
       reportVersion: item.reportVersion,
