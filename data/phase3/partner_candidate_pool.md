@@ -13,15 +13,15 @@ MINSA 공식 라이선스 리스트 기준 강력 후보들:
 - [x] **GLAXOSMITHKLINE PANAMÁ, S.A.** — GSK 본사 직영, Sereterol 경쟁 구도 핵심 — ✅ 세션 28 매칭 완료 (PSI 77.85)
 - [x] **NOVARTIS PHARMA (LOGISTICS), INC.** — Novartis 파나마 물류 법인 — ✅ 세션 28 매칭 완료 (PSI 56.1)
 - [x] **PFIZER FREE ZONE PANAMÁ, S. DE R.L.** — Pfizer 자유무역지대 법인 — ✅ 세션 28 매칭 완료 (PSI 55.4)
-- [ ] **SANOFI-AVENTIS DE PANAMÁ, S.A.** — Sanofi 본사 직영
-- [ ] **MSD CENTRAL AMERICA SERVICES S. DE R.L.** — Merck 중미 본사
+- [x] **SANOFI-AVENTIS DE PANAMÁ, S.A.** — Sanofi 본사 직영 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 55.4)
+- [x] **MSD CENTRAL AMERICA SERVICES S. DE R.L.** — Merck 중미 본사 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 54.0)
 - [x] **BAYER** — 조영제 Gadvoa 경쟁 구도 핵심 — ✅ 세션 28 매칭 완료 (PSI 58.2)
 - [ ] **CSL BEHRING PANAMÁ, S.A.** — 혈액제제 전문
-- [ ] **Laboratorios Bagó de Panamá, S.A.** — 아르헨티나 MNC LATAM 법인
+- [x] **Laboratorios Bagó de Panamá, S.A.** — 아르헨티나 MNC LATAM 법인 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 52.6)
 
 ### 7-2. LATAM 지역 강자 (Tier 2~3)
-- [ ] **PISA FARMACÉUTICA DE PANAMÁ, S.A.** — 멕시코 PISA 그룹 파나마 법인
-- [ ] **CORPORACIÓN SEQUISA, S.A.** — 의약품 전문 유통
+- [x] **PISA FARMACÉUTICA DE PANAMÁ, S.A.** — 멕시코 PISA 그룹 파나마 법인 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 47.7)
+- [x] **CORPORACIÓN SEQUISA, S.A.** — 의약품 전문 유통 — ✅ 세션 28 2차 배치 매칭 완료 (PSI 36.6)
 - [ ] **LABORATORIOS TECNOQUIMICAS, S.A.** — 콜롬비아 Tecnoquímicas LATAM
 - [ ] **UNIPHARM (PANAMÁ), S.A.** — 과테말라 유니팜 중미 법인
 - [ ] **ALTIAN PHARMA GRUPPE DE CENTRO AMÉRICA, S.A.**

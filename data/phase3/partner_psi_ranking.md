@@ -31,6 +31,33 @@
 | 9 | NOVARTIS (LOGISTICS) | 56.1 | 스위스 | CML 치료 글로벌 1위 (Hydrine 최강 매칭) |
 | 10 | PFIZER FREE ZONE | 55.4 | 미국 | 글로벌 Top 5, Zona Libre 재수출 허브 |
 
+## 세션 28 2차 배치 완료 — 15사 확장 순위 (2026-04-19)
+
+| 순위 | 기업 | PSI | 국적 | 핵심 차별점 |
+|------|------|-----|------|-------------|
+| 1 | SEVEN PHARMA | 88.0 | 인도 (Hetero) | ARV·Oncology·심혈관 풍부 |
+| 2 | Menafar (Menarini) | 86.6 | 이탈리아 | 4제품 upgrade 기회 |
+| 3 | APOTEX | 85.2 | 캐나다 | 제네릭 스타틴 강자 |
+| 4 | GSK PANAMÁ | 77.85 | 영국 | 파나마 70년 제조 플랜트 + Sereterol 원개발사 |
+| 5 | Haseth | 77.6 | 파나마 | 약국 체인 El Javillo |
+| 6 | PRODUCTOS ROCHE | 63.8 | 스위스 | Oncology 글로벌 리더 |
+| 7 | Medipan | 62.0 | 파나마 | 자체 RosuMed 시리즈 |
+| 8 | BAYER | 58.2 | 독일 | Gadvoa 원개발사, 중미 허브 |
+| 9 | NOVARTIS (LOGISTICS) | 56.1 | 스위스 | CML 치료 글로벌 1위 (Hydrine 최강 매칭) |
+| 10= | SANOFI | 55.4 | 프랑스 | Plavix 항혈전 네트워크 |
+| 10= | PFIZER FREE ZONE | 55.4 | 미국 | 글로벌 Top 5, Zona Libre 재수출 허브 |
+| 12 | MSD | 54.0 | 미국 | 글로벌 Top 3 (Keytruda), 제품 매칭 적음 |
+| 13 | Bagó | 52.6 | 아르헨티나 | LATAM Big 3, 2개 스타틴 복합제 upgrade |
+| 14 | PISA | 47.7 | 멕시코 | 14-16 제조 플랜트, nephrology/oncology 전문 |
+| 15 | Sequisa | 36.6 | 파나마 | 로컬 소형 유통사 |
+
+### 세션 28 2차 배치의 발견
+
+- **글로벌 Top 5 MNC 5개(Roche·Bayer·Novartis·Sanofi·Pfizer) + Top 3 MSD = 총 6개 MNC가 Top 5 바깥 분포**
+- PSI 로직 설계 철학 "글로벌 5위 제약사도 파나마 실질 유통 역량 부족하면 Top 5 못 들어온다" 6개 MNC 케이스로 완벽 증명
+- Bagó(LATAM Big 3)의 Rosumeg·Atmeg 2개 upgrade_opportunity = Menarini(4개) 다음으로 많은 upgrade 수
+- PISA의 14-16 멕시코 제조 플랜트는 Hydrine 1개만 매칭 → 규모보다 제품 라인업 적합성 중요
+
 ### PSI 로직 설계 철학 (세션 28 박제 확정)
 > **"글로벌 5위 제약사도 파나마 실질 유통 역량 부족하면 Top 5 못 들어온다."**
 

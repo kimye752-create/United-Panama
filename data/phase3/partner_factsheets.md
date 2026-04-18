@@ -380,4 +380,227 @@
 
 ---
 
-세션 28 추가 예정: 11번 ~ 20번 매칭 결과 순차 append
+### 3-11. SANOFI-AVENTIS DE PANAMÁ, S.A. — PSI 55.4
+
+**그룹**: Sanofi S.A. (프랑스 파리 본사, 2004년 Sanofi-Synthélabo+Aventis 합병, Genzyme 2011년 인수)
+**매출 Tier**: 1 (100점) — 2024 매출 약 €41bn (~$44bn), 글로벌 Top 10
+**주소(본사)**: PH Evolution Tower, Ciudad de Panamá (Sanofi 공식 affiliate 리스트)
+**주소(이전)**: Ave. Aquilino de la Guardia y Calle, Edif. PH Ocean Business Plaza, Piso 19, Panama City
+**MINSA 라이선스**: 3-031 A/DNFD (Colón Agencia, 2024-08-09 갱신)
+**영업 범위**: Importación, Re-exportación, Almacenamiento, Distribución y Venta al por mayor de Medicamentos y Cosméticos
+**Panjiva 수출 기록**: 4,457건 남미 수출 + 9개 고객 → LATAM 재수출 허브 기능
+
+**Sanofi 핵심 포트폴리오 (2024)**:
+- Immunology (최대 프랜차이즈) ⭐: Dupixent (Dupilumab, Regeneron alliance, Q3 2024 €3.3bn+, 60개국 승인, 100만명+ 환자)
+- Diabetes: Lantus, Toujeo, Tzield (Provention Bio 2023 인수)
+- Cardiovascular·Thrombosis: Plavix (Clopidogrel P2Y12 항혈소판제, Q3 2024 €230M), Lovenox (Enoxaparin 저분자량 헤파린)
+- Rare Disease (Genzyme): Nexviazyme/Nexviadyme (Pompe), Fabrazyme (Fabry), Cerezyme, Myozyme
+- Oncology: Sarclisa (Isatuximab 다발성골수종), Jevtana (전립선암)
+- Neurology: Aubagio (MS, 2023 특허만료), tolebrutinib 파이프라인
+- Vaccines: Beyfortus (RSV), Flublok, Vaxelis, Quadracel
+- Consumer Health: Opella 2024년 CD&R 지배지분 매각 협상 중
+
+**파이프라인 매칭 핵심**:
+- Rosumeg·Atmeg: ✅ none — 스타틴 직접 취급 없음. Sanofi 심혈관은 항혈소판·항응고제 중심
+- Ciloduo: 🟢 adjacent_category — Plavix(Clopidogrel P2Y12)와 Cilostazol(PDE3) 기전 다르나 PAD·뇌졸중 재발 방지 DAPT 요법에서 병용 임상 근거 풍부. Sanofi 심혈관·신경학 처방 네트워크 활용 가능
+- Gastiin·Omethyl·Gadvoa: ✅ none
+- Sereterol: ✅ none — Sanofi는 Dupixent·amlitelimab·lunsekimig·itepekimab·rilzabrutinib 등 차세대 생물학·경구 신약 중심. Salmeterol+Fluticasone DPI 카테고리 비주력. GSK 같은 🔴 direct_competition 아님
+- Hydrine: 🟢 adjacent_category — Sarclisa·Jevtana 등 종양학 있으나 Hydroxyurea·CML TKI 미취급
+
+**Tier 구성**:
+- 매출 1 (100)
+- 파이프라인 평균 30 (Ciloduo·Hydrine 3점 + 나머지 6개 5점)
+- 제조소 X (0) — 파나마 국내 제조 플랜트 미확인
+- 수입경험 풍부 (100)
+- 약국체인 X (0)
+
+**PSI 계산**: 100×0.35 + 30×0.28 + 0×0.20 + 100×0.12 + 0×0.05 = 55.4
+
+**출처**:
+- MINSA 공식 라이선스 PDF (3-031): https://www.minsa.gob.pa/sites/default/files/general/agencias_distribuidoras_.pdf
+- Sanofi 공식 affiliate 리스트 (2026-01-08): https://www.sanofi.com/assets/dotcom/pages/docs/privacy-and-accessibility/list-of-affiliates-dpo-contacts-08-01-2026.pdf
+- Panjiva Sanofi-Aventis de Panama: https://panjiva.com/Sanofi-Aventis-De-Panama-S-A/24006677
+- Nasdaq Sanofi Q3 2024: https://www.nasdaq.com/articles/sanofi-q3-earnings-beat-dupixent-new-drugs-vaccines-drive-sales
+- Sanofi 호흡기 파이프라인 2025: https://www.sanofi.com/en/media-room/press-releases/2025/2025-04-15-05-00-00-3061368
+
+---
+
+### 3-12. MSD CENTRAL AMERICA SERVICES, S. de R.L. — PSI 54.0
+
+**그룹**: Merck & Co., Inc. (미국 뉴저지 Rahway 본사, 1891년 설립. 미국·캐나다 외 지역에서 MSD 브랜드)
+**매출 Tier**: 1 (100점) — 2024 매출 $64.2bn, 글로벌 제약 Top 3 (제약부문 $57.4bn, +7%)
+**주소(본사)**: Torre MMG, Piso 15, Ave. Paseo del Mar y Ave. la Rotonda, Costa del Este, Parque Lefevre, Ciudad de Panamá (Novartis 13층과 같은 빌딩)
+**주소(창고)**: Ave. Randolph, MIT Logistic Park, Zona Libre de Colón
+**전화**: +507 282-7200
+**이메일**: aquimsd.caribe@merck.com / privacycenca@merck.com
+**우편**: Apartado 0819-06410, Panamá
+**MINSA 라이선스**: MSD CENTRAL AMERICA SERVICES S. de R.L. (Colón Agencia, A/DNFD)
+**영업 범위**: Importación, Exportación, Reexportación, Almacenamiento, Distribución y Venta al por mayor de Medicamentos
+
+**지역 허브 기능 공식 명시**:
+- "Regional office in Panama" — 중미 전체 + 카리브 + 베네수엘라 통합 관리
+- MSD CustomerLink 공식 디지털 플랫폼 파나마 기반 운영
+- 자매 법인 Intervet Centralamérica S. de R.L (동물건강, 같은 주소)
+- 2009년 Schering-Plough 합병으로 중미 운영 통합
+- 공급원: Schering Plough SA de CV 멕시코 (Panjiva)
+
+**MSD 핵심 포트폴리오 (2024)**:
+- Oncology (핵심 프랜차이즈) ⭐: Keytruda (Pembrolizumab PD-1, 2024 $25bn, 전체 매출 40%, 세계 1위 의약품), Lynparza (Olaparib, AstraZeneca alliance $1.3bn), Lenvima (Lenvatinib, Eisai alliance $960M), Welireg (Belzutifan HIF-2α, $509M +133% YoY), Reblozyl (BMS alliance)
+- Vaccines: Gardasil 9 (HPV 9가, $8.6bn), Pneumovax 23, Vaxneuvance, Capvaxive, MMRII, Varivax, ProQuad, RotaTeq
+- Cardiovascular: Winrevair (Sotatercept, 폐동맥고혈압, 2024 출시 신약)
+- Diabetes: Januvia (Sitagliptin DPP-4, 제네릭 경쟁 급감), Janumet
+- Hospital Acute Care: Prevymis (Letermovir CMV), Bridion (Sugammadex)
+- Respiratory (신규): Ohtuvayre (Verona Pharma 2025년 $10bn 인수, COPD 신약)
+- COVID: Lagevrio (Molnupiravir)
+- 2021년 Organon 분사로 여성건강·바이오시밀러·기존 제네릭 분리
+
+**파이프라인 매칭 핵심**:
+- Rosumeg·Atmeg·Ciloduo·Gastiin·Omethyl·Sereterol·Gadvoa: ✅ none
+- Hydrine: 🟢 adjacent_category — MSD는 Oncology 글로벌 1위 (Keytruda 세계 1위 의약품). 거의 모든 고형암 적응증 + Lynparza·Lenvima·Welireg 종양학 강자. 단, Hydroxyurea·CML TKI 등 혈액암 직접 치료 영역 미취급 (CML은 Novartis 영역). 종양 전문의 처방 네트워크 + 면역치료 병용 환자 대상 간접 접점 활용 가능
+
+**Tier 구성**:
+- 매출 1 (100) — Merck 글로벌 Top 3, $64bn
+- 파이프라인 평균 25 (Hydrine 3점 + 나머지 7개 5점)
+- 제조소 X (0) — 파나마 국내 제조 플랜트 미확인, 영업·유통·서비스 법인 성격
+- 수입경험 풍부 (100) — 중미·카리브 통합 허브 공식 지정, CustomerLink 플랫폼
+- 약국체인 X (0)
+
+**PSI 계산**: 100×0.35 + 25×0.28 + 0×0.20 + 100×0.12 + 0×0.05 = 54.0
+
+**전략적 시사점**: 글로벌 Top 3이지만 우리 8개 제품 라인업과 매칭 제품이 Hydrine adjacent 1개만. 파나마 실질 유통 역량보다 제품 라인업 불일치가 낮은 PSI의 원인. Keytruda로 거의 모든 매출을 만드는 MSD에게 IMD 제네릭 유통은 전략적 우선순위 거의 없음.
+
+**출처**:
+- MSD Privacy 공식 페이지: https://www.msdprivacy.com/ccv/en/
+- MSD CustomerLink 파나마: https://msdcustomerlink.com.pa/en/
+- MSD Conecta 프라이버시: https://msdconecta.co.cr/en/politicadeprivacidad/
+- Panjiva MSD Central America: https://panjiva.com/Msd-Central-America-Services-S-De-R-L/31591484
+- Merck 2024 Q4 Financial: https://www.nasdaq.com/press-release/merck-announces-fourth-quarter-and-full-year-2024-financial-results-2025-02-04
+- PharmaLive Merck 2025: https://www.pharmalive.com/merck-co-2025-keytruda-and/
+
+---
+
+### 3-13. LABORATORIOS BAGÓ DE PANAMÁ, S.A. — PSI 52.6
+
+**그룹**: Grupo Bagó (아르헨티나 Buenos Aires 본사, 1934년 Sebastián Bagó 설립)
+**매출 Tier**: 2 (80점) — 그룹 연 $1.1bn+, 6,500+ 직원, 11 제조 플랜트, 148 특허, 480+ 제품, 40+ 치료영역, 22개국 법인, 50개국 유통. LATAM Big 3 (Argentina Roemmers·Elea와 함께)
+**주소**: Farmazona, José Dominador Bazán, Fuerte Davis, Lote N° 1, 2 Y 3, Manzana 5, Zona Libre de Colón
+**MINSA 라이선스**: 3-039 A/DNFD (Colón Agencia, 2025-02-12 갱신)
+**영업 범위**: Importación, Re-exportación, Distribución y Venta al por mayor de Medicamentos; Importación, Re-exportación y Distribución de Muestras Médicas
+
+**Bagó LATAM 네트워크**:
+- 22개국 법인 + 50개국 제품 유통
+- Bagó Caricam (카리브·중미 통합): 과테말라·온두라스·엘살바도르·니카라과·코스타리카·파나마·도미니카
+- 11개 해외 제조 플랜트: 아르헨티나 La Plata 등, 브라질 Rio de Janeiro, 멕시코 Armstrong, 파키스탄 BF Biosciences, 스리랑카
+- 자매사: Bioprofarma-Bagó(바이오텍·oncology), Química Montpellier, Nutricia-Bagó, Synthon-Bagó, Sinergium Biotech, Disprofarma
+
+**Bagó 핵심 포트폴리오 (파나마 관련)**:
+- Cardiovascular·Lipids ⭐: Rosuvast (Rosuvastatin 5/10/20/40mg 자체 단일제, La Plata 플랜트 $200M 투자로 전량 생산), Rosuvast EZ (Rosuvastatin+Ezetimibe 10/10, 20/10 자체 개발 복합제)
+- Gastrointestinal: Ulcozol (Omeprazole 다양한 제형·용량)
+- Urology·Antibiotics: Uroseptal, Vixcef (Cefixime)
+- Oncology: Bioprofarma-Bagó 바이오텍 자회사 항암 라인, Tyvaso (흡입 PAH)
+- 전체 148 특허 · 40 치료영역 커버
+
+**파이프라인 매칭 핵심**:
+- Rosumeg: 🟡 upgrade_opportunity ⭐ — Bagó는 Rosuvast(Rosuvastatin 단일)와 Rosuvast EZ(Rosuvastatin+Ezetimibe) 보유. Rosumeg(Rosuvastatin+Omega-3)는 완전히 다른 복합 파트너(오메가-3). Case A(우리 복합제 O + 파트너 단일/다른조합) 해당. Bagó 심혈관 처방 네트워크 + La Plata GMP 플랜트 Rosuvast 제조 역량 기반으로 Rosumeg를 "오메가-3 복합 옵션"으로 포트폴리오 확장 제안 가능. 단 Rosuvast EZ와 카테고리 경쟁 가능성
+- Atmeg: 🟡 upgrade_opportunity — Atorvastatin 복합제 라인 확인 안 됨. Bagó LATAM Big 3로 스타틴 처방 네트워크 강력. Atmeg(Atorvastatin+Omega-3)는 포트폴리오 확장 기회
+- Ciloduo: 🟢 adjacent_category — Bagó 심혈관·PAD·뇌졸중 처방 네트워크 강자
+- Gastiin: ✅ none — Ulcozol(Omeprazole)로 소화기 강자이나 Prokinetic(Mosapride) 직접 취급 없음
+- Omethyl·Sereterol·Gadvoa: ✅ none
+- Hydrine: 🟢 adjacent_category — Bioprofarma-Bagó oncology 라인, Hydroxyurea·CML TKI 직접 취급 확인 안 됨
+
+**Farmazona S.A. 정체**: 파나마 Zona Libre de Colón 전문 의약품 3PL 물류 허브(1958 설립). 연 1억 치료건 유통, 2,200만 판매 단위 조건화. GMP·ISO 9001·IATA·OAS 인증. Bagó는 Farmazona 내부에 창고 보유(Agencia 라이선스만)
+
+**Tier 구성**:
+- 매출 2 (80) — LATAM Big 3, 11 플랜트, $1.1bn+, 50개국 유통
+- 파이프라인 평균 45 (Rosumeg·Atmeg 2점 + Ciloduo·Hydrine 3점 + 나머지 4개 5점)
+- 제조소 X (0) — 파나마 국내 Laboratorio 라이선스 미확인. Farmazona GMP 시설 내 창고뿐 (제3자 3PL)
+- 수입경험 풍부 (100) — 22개국 법인, 50개국 유통, Farmazona GMP 허브 활용
+- 약국체인 X (0)
+
+**PSI 계산**: 80×0.35 + 45×0.28 + 0×0.20 + 100×0.12 + 0×0.05 = 52.6
+
+**선제 방어 — 예상 Q&A**:
+- Q: "Bagó LATAM Big 3인데 왜 PSI 52.6?" A: 매출 Tier 2(글로벌 Top 5 MNC의 $40bn+ 대비 $1.1bn)가 주 원인. 단 Rosumeg·Atmeg 2개 upgrade_opportunity는 Menarini(4개) 다음으로 많음. "매출 규모는 중형이나 2개 핵심 스타틴 복합제의 포트폴리오 확장 파트너로서 가치는 Top 3 MNC보다 높음" 포지셔닝 가능
+- Q: "Farmazona GMP 시설에 있는데 제조소 0점?" A: 세션 27 로직은 "파나마 국내 자체 Laboratorio 라이선스(L/DNFD)" 명시적 보유만 100점 인정. Bagó는 Agencia(A/DNFD) 라이선스만, Farmazona는 제3자 3PL. 본국 11 플랜트 + Farmazona 인프라 활용 가능성은 실무 협상에서 별도 평가 가능
+
+**출처**:
+- MINSA 공식 라이선스 PDF (3-039)
+- Grupo Bagó 공식: https://www.bago.com/en/
+- Bagó Caricam: https://bagocaricam.com/
+- LinkedIn Bagó: https://www.linkedin.com/company/laboratorios_bago/
+- Rosuvast 제품: https://www.bago.com.ar/vademecum/productos/rosuvast-ez/
+- Farmazona 3PL: https://www.cphi-online.com/company/farmazona-s-a/
+- Pharmabiz Rosuvast La Plata 생산: https://www.pharmabiz.net/bago-cambios-para-rosuvast/
+
+---
+
+### 3-14. PISA FARMACÉUTICA DE PANAMÁ, S.A. — PSI 47.7
+
+**그룹**: PISA® Farmacéutica (멕시코 Guadalajara 본사, 1945년 설립, 100% 멕시코 자본, 78년 역사)
+**매출 Tier**: 2 (80점) — 매출 공시 미공개이나 26,000+ 직원, 14-16 멕시코 내 제조 플랜트, 1,500+ 브랜드, 17 전문 라인. LATAM 대형 제약사 (Bagó 수준)
+**주소**: Parque Lefevre, Calle 15 Calle U (detrás del Colegio Moscote), Zona 10, Panamá
+**전화**: +507 224-5280
+**MINSA 라이선스**: 8-370 A/DNFD (Agencia, Panamá)
+**영업 범위**: Importación, Almacenamiento, Distribución y Venta al por mayor de Medicamentos
+
+**PISA 그룹 강점** (파나마 진출은 영업·유통 법인만, 자체 제조 플랜트 없음):
+- Nephrology (핵심) ⭐: 복막투석 제품 LATAM 최대 제조사. PD PACIFICA(자동복막투석 기기, CONACYT 혁신 인정), FLEXOVAL(Blow-Fill-Seal), 복막투석액 대량생산 5개 라인
+- Oncology: Coyoacán 멕시코시티 + Tlajomulco 신규 고함유·Pharma 4.0 oncology 플랜트 2개 건설. 항암제 주사제 연 1,000만 도즈 + 고형제 5억 도즈
+- Immunosuppressant: 2억 캡슐·정제·vial 생산 능력
+- Antibiotics: Betalactam(Cephalosporin·Penicillin) 전용 플랜트
+- Electrolyte: Electrolit (경구수액, 멕시코 1위 브랜드)
+- Anesthesiology: 치과용·수술용 앰플
+- SANEFRO(Nephrology Integral Services) hospital·dialysis 네트워크
+
+**파이프라인 매칭 핵심**:
+- Rosumeg·Atmeg·Ciloduo·Gastiin·Omethyl·Sereterol·Gadvoa: ✅ none — 심혈관·호흡기·조영제·스타틴 모두 비주력
+- Hydrine: 🟡 upgrade_opportunity — PISA Coyoacán·Tlajomulco oncology 플랜트에서 항암제 주사제·고형제 대량생산. Hydroxyurea 직접 취급 확인 안 되나 혈액암·면역 영역 강자. SANEFRO hospital·dialysis 네트워크 활용 시 CML·혈액암 환자 접점 확보 가능. 파나마에서 Hydrine 유통을 통한 PISA oncology 라인 확장 가능
+
+**Tier 구성**:
+- 매출 2 (80) — 26,000 직원, 14-16 멕시코 플랜트
+- 파이프라인 평균 27.5 (Hydrine 2점 + 나머지 7개 5점)
+- 제조소 X (0) — 파나마 국내 Laboratorio 라이선스 없음. 멕시코 14-16 플랜트는 본사 자산
+- 수입경험 풍부 (100) — 멕시코·미국·LATAM·카리브 유통, 78년 역사
+- 약국체인 X (0)
+
+**PSI 계산**: 80×0.35 + 27.5×0.28 + 0×0.20 + 100×0.12 + 0×0.05 = 47.7
+
+**전략적 시사점**: LATAM 최대 nephrology·oncology 제조사이나 우리 8개 제품과 매칭이 Hydrine 1개(upgrade)만. Hydrine 전용 파트너 가치 있으나 전체 포트폴리오 운영 파트너로는 부적합.
+
+**출처**:
+- PISA 공식 Our Company: https://www.pisa.com.mx/our-company/?lang=en
+- PISA Locations: https://www.pisa.com.mx/locations/?lang=en
+- MINSA 라이선스 PDF (8-370)
+- PISA USA: https://www.pisa-usa.com/
+
+---
+
+### 3-15. CORPORACIÓN SEQUISA, S.A. — PSI 36.6
+
+**그룹**: 파나마 로컬 기업 (Quimifar 건물 소재 — Quimifar 관련사 가능성)
+**매출 Tier**: 4 (40점) — 파나마 국내 중형 유통사. 공시 매출 없음. 공개 정보 제한적
+**주소**: Calle Primera, Perejil, Edificio Quimifar, Local 18, Panamá
+**MINSA 라이선스**: 8-116 A/DNFD (Panamá Agencia, 2025-03-11 갱신)
+**영업 범위**: Importación, Almacenamiento, Distribución y Venta al por mayor de Medicamentos y Cosméticos
+
+**파이프라인 매칭 핵심** (구체 포트폴리오 정보 제한적, 로컬 유통사 성격상 다수 브랜드 분배 가능하나 전문 영역 없음):
+- Rosumeg·Atmeg·Ciloduo·Gastiin·Omethyl·Sereterol·Hydrine: 🟢 adjacent_category — 로컬 유통 역량 활용. 전문성 낮음
+- Gadvoa: ✅ none — 조영제 특수 취급 없음
+
+**Tier 구성**:
+- 매출 4 (40)
+- 파이프라인 평균 55 (7개 adjacent 3점 + 1개 none 5점)
+- 제조소 X (0)
+- 수입경험 보통 (60) — 파나마 로컬 유통 이력
+- 약국체인 X (0)
+
+**PSI 계산**: 40×0.35 + 55×0.28 + 0×0.20 + 60×0.12 + 0×0.05 = 36.6
+
+**전략적 시사점**: 파나마 로컬 중소 유통사로 우리 8개 제품 전담 파트너로는 역량·전문성 모두 부족. 보조 파트너 자격 — Haseth·Medipan 같은 강자 파나마 로컬 파트너 가용하므로 후순위.
+
+**출처**:
+- MINSA 공식 라이선스 PDF (8-116)
+
+---
+
+세션 28 추가 예정: 16번 ~ 20번 매칭 결과 순차 append

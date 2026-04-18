@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (data(phase3): 세션 28 2차 배치 11~15사 append)
+
+### Added
+- `data/phase3/partner_factsheets.md` — 3-11 Sanofi(PSI 55.4) ~ 3-15 Sequisa(PSI 36.6) 팩트시트 append, 하단 예정 문구 16~20번으로 갱신.
+- `data/phase3/partner_psi_matrix.csv` — 5사×8제품 40행 append(데이터 행 총 120 + 헤더 1).
+- `data/phase3/partner_psi_ranking.md` — 15사 확장 순위(10= 동점)·2차 배치 발견 블록 append(글로벌 5위 제약사 문구 인용 유지).
+- `data/phase3/partner_candidate_pool.md` — Sanofi·MSD·Bagó·PISA·Sequisa 5개 `- [x]` 및 2차 배치 PSI 부기.
+
+### Notes
+- Bagó Rosumeg·Atmeg upgrade 인사이트, PISA 14-16 플랜트, MSD Keytruda 수치, Sanofi Plavix €230M 등 지시서 수치·문구 원문 유지.
+
 ## [Unreleased] - 2026-04-19 (data(phase3): 세션 28 1차 배치 6~10사 append)
 
 ### Added
