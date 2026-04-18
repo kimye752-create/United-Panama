@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 17:32:06 (feat(phase1-ux): 분석 1회로 보고서+PDF 완료 통합)
+
+### Changed
+- feat(api-analyze): `app/api/panama/analyze/route.ts`에서 LLM 본문 생성 직후 `Report1Document` PDF를 렌더링하고 `pdfBase64`, `pdfFilename`을 응답에 포함하도록 확장.
+- fix(api-analyze): PDF Base64 응답 크기 방어를 위해 원본 버퍼가 4.5MB를 넘으면 Base64 변환을 생략하는 안전 로직을 추가.
+- feat(api-analyze-cache): `panama_report_cache`의 `pdf_base64`, `pdf_filename` 컬럼을 활용해 PDF 캐시 조회/저장을 연동하여 재호출 시 즉시 반환 가능하도록 구성.
+- feat(phase1-ui): `components/main-preview/Phase1Section.tsx`에서 `/api/panama/analyze` 응답의 `pdfBase64`를 즉시 Blob URL로 변환해 저장하고 다운로드 버튼을 즉시 활성화하도록 변경.
+- refactor(phase1-ui): `pdfLoading` 기반 별도 `/api/panama/pdf` 호출 경로를 제거하고, 준비된 Blob URL을 직접 다운로드하는 단일 클릭 UX로 전환.
+- fix(phase1-ui): 분석 성공 시 `setStep(5)`를 사용해 4단계 `PDF 생성` 체크가 완료 상태로 확실히 표시되도록 조정.
+- note(db): Supabase `public.panama_report_cache` 테이블에 `pdf_base64 TEXT`, `pdf_filename TEXT` 컬럼을 마이그레이션으로 추가.
+
 ## [Unreleased] - 2026-04-18 16:47:45 (fix(report1-length): 모든 필드 250자 상한 재조정)
 
 ### Changed

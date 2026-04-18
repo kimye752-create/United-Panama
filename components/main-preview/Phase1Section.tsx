@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { upsertStoredReport } from "@/src/lib/dashboard/reports_store";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
@@ -69,7 +69,8 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
   const [step, setStep] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [readyProductId, setReadyProductId] = useState<string | null>(null);
-  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [pdfFilename, setPdfFilename] = useState<string | null>(null);
   const [productId, setProductId] = useState(TARGET_PRODUCTS[0]?.product_id ?? "");
   const [tradeName, setTradeName] = useState("");
   const [inn, setInn] = useState("");
@@ -80,6 +81,14 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
     [productId],
   );
 
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl !== null) {
+        URL.revokeObjectURL(pdfBlobUrl);
+      }
+    };
+  }, [pdfBlobUrl]);
+
   const runAnalyze = async () => {
     if (selectedProduct === null) {
       return;
@@ -87,6 +96,13 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
     setLoading(true);
     setToastMessage(null);
     setReadyProductId(null);
+    setPdfFilename(null);
+    setPdfBlobUrl((prev) => {
+      if (prev !== null) {
+        URL.revokeObjectURL(prev);
+      }
+      return null;
+    });
     setStep(1);
     const progressTimer = window.setInterval(() => {
       setStep((prev) => (prev < 4 ? prev + 1 : prev));
@@ -115,8 +131,54 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
         inn: selectedProduct.who_inn_en,
         caseGrade,
       });
+      const pdfBase64 = result.pdfBase64;
+      const nextPdfFilename = result.pdfFilename;
+      if (
+        typeof pdfBase64 === "string" &&
+        pdfBase64.trim() !== "" &&
+        typeof nextPdfFilename === "string" &&
+        nextPdfFilename.trim() !== ""
+      ) {
+        try {
+          const binary = window.atob(pdfBase64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i += 1) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: "application/pdf" });
+          const nextBlobUrl = URL.createObjectURL(blob);
+          setPdfBlobUrl((prev) => {
+            if (prev !== null) {
+              URL.revokeObjectURL(prev);
+            }
+            return nextBlobUrl;
+          });
+          setPdfFilename(nextPdfFilename);
+        } catch (error: unknown) {
+          setPdfBlobUrl((prev) => {
+            if (prev !== null) {
+              URL.revokeObjectURL(prev);
+            }
+            return null;
+          });
+          setPdfFilename(null);
+          window.alert(
+            `PDF 변환 실패 원인: ${
+              error instanceof Error ? error.message : "알 수 없는 오류"
+            }\n해결 방법: 1공정 분석을 다시 실행해 PDF를 재생성해 주세요.`,
+          );
+        }
+      } else {
+        setPdfBlobUrl((prev) => {
+          if (prev !== null) {
+            URL.revokeObjectURL(prev);
+          }
+          return null;
+        });
+        setPdfFilename(null);
+      }
       setReadyProductId(selectedProduct.product_id);
-      setStep(4);
+      setStep(5);
       setToastMessage(
         buildPhase1ToastMessage(selectedProduct.kr_brand_name, parseEntryGrade(result)),
       );
@@ -133,48 +195,16 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
     }
   };
 
-  const runPdfDownload = async () => {
-    if (readyProductId === null) {
+  const runPdfDownload = () => {
+    if (readyProductId === null || pdfBlobUrl === null || pdfFilename === null) {
       return;
     }
-    setPdfLoading(true);
-    try {
-      const response = await fetch("/api/panama/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: readyProductId }),
-      });
-      if (!response.ok) {
-        const errorPayload = (await response.json().catch(() => null)) as
-          | { error?: unknown }
-          | null;
-        const rootCause =
-          errorPayload !== null && typeof errorPayload.error === "string"
-            ? errorPayload.error
-            : `HTTP ${String(response.status)}`;
-        window.alert(
-          `PDF 생성 실패 원인: ${rootCause}\n해결 방법: 잠시 후 다시 시도하거나 동일 품목으로 분석을 다시 실행한 뒤 재다운로드해 주세요.`,
-        );
-        return;
-      }
-      const blob = await response.blob();
-      const objectUrl = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = `UPharma_Panama_Report_${new Date().toISOString().slice(0, 10)}.pdf`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      window.URL.revokeObjectURL(objectUrl);
-    } catch (error: unknown) {
-      window.alert(
-        `PDF 생성 실패 원인: ${
-          error instanceof Error ? error.message : "알 수 없는 오류"
-        }\n해결 방법: 네트워크 연결 상태를 확인하고 다시 시도해 주세요.`,
-      );
-    } finally {
-      setPdfLoading(false);
-    }
+    const anchor = document.createElement("a");
+    anchor.href = pdfBlobUrl;
+    anchor.download = pdfFilename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
   };
 
   return (
@@ -284,7 +314,7 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
             <div className="mt-2 h-[2px] w-full rounded-full bg-[#dfe7f2]">
               <div
                 className="h-full rounded-full bg-[#69b89d] transition-all duration-300"
-                style={{ width: `${((step <= 0 ? 0 : step) / 4) * 100}%` }}
+                style={{ width: `${(Math.min(Math.max(step, 0), 4) / 4) * 100}%` }}
               />
             </div>
           </div>
@@ -297,13 +327,13 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
             <p className="mb-2 text-[11px] font-semibold text-[#546b86]">• PDF 보고서</p>
             <button
               type="button"
-              disabled={readyProductId === null || pdfLoading || loading}
+              disabled={readyProductId === null || pdfBlobUrl === null || loading}
               onClick={() => {
-                void runPdfDownload();
+                runPdfDownload();
               }}
               className="inline-flex h-[36px] items-center justify-center rounded-[9px] border border-[#e2e7f0] bg-[#f4f7fb] px-4 text-[12px] font-bold text-[#3e5574] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {pdfLoading ? "PDF 생성 중..." : "📄 PDF 보고서 다운로드"}
+              {pdfBlobUrl === null ? "분석 후 다운로드 가능" : "📄 PDF 보고서 다운로드"}
             </button>
           </div>
         </div>
