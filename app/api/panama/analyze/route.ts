@@ -682,6 +682,7 @@ export async function POST(req: Request): Promise<Response> {
     }, {
       headers: {
         "X-Report-Version": reportVersion,
+        "X-LLM-Source": llm.source,
       },
     });
   } catch (error: unknown) {
