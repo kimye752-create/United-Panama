@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import type { ScenarioRow } from "@/src/logic/phase2/price_scenario_generator";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
+import {
+  Phase2ResultTabs,
+  type Phase2ResultPayload,
+} from "./Phase2ResultTabs";
+import { buildPhase2ReportText } from "@/lib/phase2_pdf_template";
 
 interface Phase2SectionProps {
   onCompleted: () => void;
 }
-
-type MarketSegment = "public" | "private";
 
 interface Phase2ReportOption {
   id: string;
@@ -19,8 +21,10 @@ interface Phase2ReportOption {
 }
 
 interface CalculateResponse {
-  baseline: ScenarioRow;
-  scenarios: ScenarioRow[];
+  finalPricePab: number;
+  public_market: Phase2ResultPayload["public_market"];
+  private_market: Phase2ResultPayload["private_market"];
+  generatedAt: string;
 }
 
 function resolveBrand(productId: string): string {
@@ -32,9 +36,9 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
   const [expanded, setExpanded] = useState(true);
   const [reports, setReports] = useState<Phase2ReportOption[]>([]);
   const [reportId, setReportId] = useState("");
-  const [segment, setSegment] = useState<MarketSegment>("public");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<CalculateResponse | null>(null);
+  const [progressStep, setProgressStep] = useState(0);
+  const [result, setResult] = useState<Phase2ResultPayload | null>(null);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -83,26 +87,42 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
     [reports, reportId],
   );
 
+  const PROGRESS_LABELS = [
+    "PDF 추출",
+    "가격 추출",
+    "AI 분석",
+    "보고서 생성",
+  ] as const;
+
   const runPhase2 = async () => {
     if (selectedReport === null) {
       window.alert("먼저 1공정 보고서를 선택해 주세요.");
       return;
     }
     setLoading(true);
+    setProgressStep(1);
+    const progressTimer = window.setInterval(() => {
+      setProgressStep((prev) => (prev < 4 ? prev + 1 : prev));
+    }, 900);
     try {
       const response = await fetch("/api/panama/phase2/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           finalPricePab: 19.8,
-          segment,
         }),
       });
       if (!response.ok) {
         throw new Error(`HTTP ${String(response.status)}`);
       }
       const payload = (await response.json()) as CalculateResponse;
-      setResult(payload);
+      setResult({
+        finalPricePab: payload.finalPricePab,
+        public_market: payload.public_market,
+        private_market: payload.private_market,
+        generatedAt: payload.generatedAt,
+      });
+      setProgressStep(4);
       onCompleted();
     } catch (error: unknown) {
       window.alert(
@@ -111,8 +131,28 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
         }\n해결 방법: 보고서 선택 상태와 서버 연결을 확인한 뒤 다시 시도해 주세요.`,
       );
     } finally {
+      window.clearInterval(progressTimer);
       setLoading(false);
     }
+  };
+
+  const downloadReport = () => {
+    if (selectedReport === null || result === null) {
+      return;
+    }
+    const text = buildPhase2ReportText({
+      productName: resolveBrand(selectedReport.productId),
+      caseGrade: selectedReport.caseGrade,
+      generatedAt: result.generatedAt ?? new Date().toISOString(),
+      result,
+    });
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `phase2_report_${selectedReport.productId}.txt`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -150,34 +190,9 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
               ))}
             </select>
           </div>
-          <div className="grid gap-2 md:grid-cols-[auto_auto_1fr_auto] md:items-center">
-            <p className="text-[10.5px] font-semibold text-[#667b95] md:col-span-4">시장 선택 및 분석 실행</p>
-            <button
-              type="button"
-              onClick={() => setSegment("public")}
-              className={`h-[34px] rounded-[10px] px-4 text-[12px] font-bold ${
-                segment === "public"
-                  ? "bg-[#1E4E8C] text-white"
-                  : "border border-[#cfd9e8] bg-white text-[#1f3e64]"
-              }`}
-            >
-              공공 시장
-            </button>
-            <button
-              type="button"
-              onClick={() => setSegment("private")}
-              className={`h-[34px] rounded-[10px] px-4 text-[12px] font-bold ${
-                segment === "private"
-                  ? "bg-[#1E4E8C] text-white"
-                  : "border border-[#cfd9e8] bg-white text-[#1f3e64]"
-              }`}
-            >
-              민간 시장
-            </button>
-            <p className="text-[11px] text-[#6f8299]">
-              {segment === "public"
-                ? "공공 시장: PanamaCompra V3 · MINSA/CSS 조달 기준"
-                : "민간 시장: SuperXtra · ACODECO 약국 소비자가 기준"}
+          <div className="grid gap-2 md:grid-cols-[1fr_auto] md:items-center">
+            <p className="text-[10.5px] font-semibold text-[#667b95]">
+              단일 실행으로 공공(Logic A)·민간(Logic B) 시장을 동시에 분석합니다.
             </p>
             <button
               type="button"
@@ -190,23 +205,44 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
               ▶ AI 가격 분석 실행
             </button>
           </div>
-          {result !== null ? (
-            <div className="rounded-[12px] bg-[#f4f7fc] p-3">
-              <p className="text-[11px] font-bold text-[#1f3e64]">
-                축약 결과 · 기준 FOB ${result.baseline.fob.fobUsd.toFixed(2)}
-              </p>
-              <div className="mt-2 grid gap-2 md:grid-cols-3">
-                {result.scenarios.map((scenario) => (
-                  <div key={scenario.scenario} className="rounded-[10px] bg-white px-3 py-2 shadow-sh3">
-                    <p className="text-[11px] font-bold text-[#28466d]">{scenario.title}</p>
-                    <p className="text-[10.5px] text-[#6f8299]">
-                      FOB ${scenario.fob.fobUsd.toFixed(2)} · 포지셔닝 ${scenario.fob.positioningPricePab.toFixed(2)}
-                    </p>
+          <div className="pt-1">
+            <div className="grid grid-cols-4 gap-2">
+              {PROGRESS_LABELS.map((label, index) => {
+                const current = index + 1;
+                const done = progressStep > current;
+                const active = progressStep === current && loading;
+                return (
+                  <div key={label} className="text-center">
+                    <div
+                      className={`mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                        done
+                          ? "bg-[#dff2ea] text-[#2a9a71]"
+                          : active
+                            ? "bg-[#dbe6f8] text-[#1f3e64]"
+                            : "bg-[#eef2f8] text-[#8ea0b7]"
+                      }`}
+                    >
+                      {done ? "✓" : current}
+                    </div>
+                    <p className="text-[10px] text-[#6c809a]">{label}</p>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
+          </div>
+          {result !== null ? (
+            <Phase2ResultTabs result={result} />
           ) : null}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={downloadReport}
+              disabled={result === null}
+              className="inline-flex h-[36px] items-center rounded-[10px] border border-[#d9e1ed] bg-[#f5f8fc] px-4 text-[12px] font-bold text-[#1f3e64] disabled:cursor-not-allowed disabled:text-[#9aa9bc]"
+            >
+              📄 수출가격전략 보고서 다운로드
+            </button>
+          </div>
         </div>
       ) : null}
     </section>

@@ -22,10 +22,52 @@ const PRODUCT_LABEL_BY_ID: Record<string, string> = {
 
 const STEP_LABELS = ["DB조회 및 크롤링", "클로드 분석", "논문 검색", "PDF 생성"] as const;
 
+type EntryFeasibilityGrade =
+  | "A_immediate"
+  | "B_short_term"
+  | "C_mid_term"
+  | "D_long_term"
+  | "F_blocked"
+  | "unknown";
+
+const GRADE_DISPLAY_MAP: Record<EntryFeasibilityGrade, string> = {
+  A_immediate: "즉시 진입 가능",
+  B_short_term: "단기 진입 가능",
+  C_mid_term: "중기 진입 (WLA 트랙)",
+  D_long_term: "장기 진입 (시장 교육 필요)",
+  F_blocked: "진출 불가",
+  unknown: "판정 보류",
+};
+
+function parseEntryGrade(payload: Record<string, unknown>): EntryFeasibilityGrade {
+  const entry = payload["entryFeasibility"];
+  if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+    return "unknown";
+  }
+  const grade = (entry as { grade?: unknown }).grade;
+  if (
+    grade === "A_immediate" ||
+    grade === "B_short_term" ||
+    grade === "C_mid_term" ||
+    grade === "D_long_term" ||
+    grade === "F_blocked" ||
+    grade === "unknown"
+  ) {
+    return grade;
+  }
+  return "unknown";
+}
+
+function buildPhase1ToastMessage(productName: string, grade: EntryFeasibilityGrade): string {
+  const gradeLabel = GRADE_DISPLAY_MAP[grade];
+  return `✅ ${productName} 시장조사 분석 완료 — 판정: ${gradeLabel}. 상세 보고서는 [보고서] 탭에서 확인하세요.`;
+}
+
 export function Phase1Section({ onCompleted }: Phase1SectionProps) {
   const [expanded, setExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [productId, setProductId] = useState(TARGET_PRODUCTS[0]?.product_id ?? "");
   const [tradeName, setTradeName] = useState("");
   const [inn, setInn] = useState("");
@@ -41,6 +83,7 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
       return;
     }
     setLoading(true);
+    setToastMessage(null);
     setStep(1);
     const progressTimer = window.setInterval(() => {
       setStep((prev) => (prev < 4 ? prev + 1 : prev));
@@ -70,6 +113,9 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
         caseGrade,
       });
       setStep(4);
+      setToastMessage(
+        buildPhase1ToastMessage(selectedProduct.kr_brand_name, parseEntryGrade(result)),
+      );
       onCompleted();
     } catch (error: unknown) {
       window.alert(
@@ -194,6 +240,11 @@ export function Phase1Section({ onCompleted }: Phase1SectionProps) {
               />
             </div>
           </div>
+          {toastMessage !== null ? (
+            <p className="rounded-[10px] border border-[#d8e4f2] bg-[#f3f8ff] px-3 py-2 text-[11px] text-[#2f4e72]">
+              {toastMessage}
+            </p>
+          ) : null}
         </div>
       ) : null}
     </section>

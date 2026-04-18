@@ -1,5 +1,43 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 15:00:08 (fix(reports-tab): PDF 다운로드 복구 + 하단 A4 미리보기 확장)
+
+### Fixed
+- fix(reports-ui): `components/dashboard/reports/GeneratedReportsList.tsx`의 `↓ PDF` 버튼에 실제 다운로드 핸들러를 연결해 `/api/panama/pdf` 호출 후 파일이 저장되도록 복구.
+- fix(reports-ui): 다운로드 실패 시 원인 메시지와 재시도 안내를 포함한 경고를 노출해 사용자 복구 동선을 명확화.
+
+### Added
+- feat(reports-ui): 보고서 탭에서 항목 선택 시 하단에 A4 PDF 미리보기 `iframe`가 펼쳐지도록 추가.
+- feat(reports-ui): 탭 진입 후 보고서 목록이 있으면 첫 항목을 자동 선택해 미리보기를 바로 로드하도록 개선.
+- feat(reports-ui): 항목별 `보고서 보기` 버튼을 추가해 원하는 보고서를 즉시 하단 미리보기로 전환 가능.
+
+## [Unreleased] - 2026-04-18 13:16:15 (feat(main-preview): 세션25 1·2·3공정 통합 리디자인 1차 구현)
+
+### Changed (1공정)
+- `components/main-preview/Phase1Section.tsx` 완료 토스트 문구를 `✅ {제품명} 시장조사 분석 완료 — 판정: {등급}. 상세 보고서는 [보고서] 탭에서 확인하세요.` 형식으로 교체.
+- `EntryFeasibility.grade` 매핑(`A_immediate`~`unknown`)을 추가해 판정 라벨을 `즉시 진입 가능/단기 진입 가능/중기 진입(WLA 트랙)/장기 진입(시장 교육 필요)/진출 불가/판정 보류`로 표준화.
+
+### Changed (2공정)
+- `app/api/panama/phase2/calculate/route.ts`를 단일 실행 기반으로 개편해 `public_market` + `private_market`를 동시 반환하도록 변경.
+- `components/main-preview/Phase2Section.tsx`에서 공공/민간 택1 버튼을 제거하고 단일 `▶ AI 가격 분석 실행` 버튼 + 4단계 체크포인트(UI) 구조로 전환.
+- `components/main-preview/Phase2ResultTabs.tsx` 신규 추가로 공공/민간 탭 전환 및 3시나리오 카드 렌더링을 분리.
+- `lib/phase2_pdf_template.ts` 신규 추가로 공공+민간 이원 결과를 보고서 텍스트로 내보내는 템플릿 구현.
+
+### Added (3공정)
+- `app/api/panama/phase3/route.ts` 신규 추가: 후보 조회 → (옵션) LLM 심층 보강 → 5항목 점수화 → Top10 응답 파이프라인 구성.
+- `src/types/phase3_partner.ts`, `src/logic/partner_scorer.ts`, `src/logic/partner_search.ts`, `src/llm/partner_enrichment.ts` 신규 추가.
+- `components/main-preview/Phase3Section.tsx`를 실행형 UI로 개편하고 `Phase3PartnerDiscovery`, `PartnerCard`, `CriterionCheckbox`, `ScoreCell` 신규 컴포넌트 연결.
+- `scripts/sql/panama_partner_candidates.sql` 신규 추가(파트너 후보 통합 스키마).
+- `scripts/runners/seed_partners_pharmchoices.ts`, `seed_partners_cphi.ts`, `seed_partners_dnb.ts` 신규 추가(소스별 사전 적재 러너).
+
+## [Unreleased] - 2026-04-18 12:42:13 (style(main-preview): 지도 타이틀 및 GDP 카드 표기 방식 변경)
+
+### Changed
+- style(map-title): `components/main-preview/PanamaMap.tsx` 카드 제목을 `파나마 주요 거점 위치`에서 `파나마 위치`로 변경.
+- style(macro): `src/logic/panama_landing.ts` GDP 카드를 단일 `1인당 GDP` 값에서 `국가 총 GDP / 1인당 GDP` 2줄 표기로 전환하고, 요청 값(`US$ 87.6 Billion`, `US$ 19,445`) 및 출처(`IMF 2024`)를 반영.
+- style(macro-ui): `components/main-preview/MacroCards.tsx`에 다중 라인 지표 렌더링 분기를 추가해 GDP 카드에서 2개 지표를 본문으로, 출처를 하단 소형 텍스트로 표시.
+- note(ui): 변경되는 시각 요소는 지도 제목 텍스트와 GDP 카드 본문/출처 레이아웃이며, 나머지 카드의 폰트·간격·배치는 유지.
+
 ## [Unreleased] - 2026-04-18 12:32:29 (style(map): 초기 지도 배율 추가 축소)
 
 ### Changed

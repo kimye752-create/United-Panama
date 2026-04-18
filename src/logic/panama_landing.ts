@@ -26,6 +26,8 @@ export interface PanamaLandingMetricCard {
   value: string;
   footer: string;
   yoy?: string;
+  detailLines?: readonly string[];
+  sourceNote?: string;
   hasData: boolean;
 }
 
@@ -170,6 +172,20 @@ function buildFallbackCard(label: string): PanamaLandingMetricCard {
   };
 }
 
+function buildImfGdpCard(): PanamaLandingMetricCard {
+  return {
+    label: "국가 GDP / 1인당 GDP",
+    value: "IMF 기준",
+    detailLines: [
+      "국가 총 GDP: US$ 87.6 Billion (2024, IMF)",
+      "1인당 GDP: US$ 19,445 (2024, IMF)",
+    ],
+    footer: "출처: IMF (2024)",
+    sourceNote: "출처: IMF (2024)",
+    hasData: true,
+  };
+}
+
 function buildStatistaMarketCard(): PanamaLandingMetricCard {
   return {
     label: "의약품 시장 규모",
@@ -211,20 +227,7 @@ export async function getPanamaLandingMetricCards(): Promise<
     ]);
 
     const worldbankRows = (worldbankRes.data ?? []) as PanamaMacroRow[];
-    const gdpRow = worldbankRows.find((row) =>
-      extractNotesText(row.pa_notes).includes("GDP per capita"),
-    );
-    const gdpValue =
-      gdpRow === undefined ? null : parseGdpPerCapita(extractNotesText(gdpRow.pa_notes));
-    const gdpCard =
-      worldbankRes.error === null && gdpRow !== undefined && gdpValue !== null
-        ? {
-            label: "1인당 GDP",
-            value: formatUsd(gdpValue),
-            footer: `${readYear(gdpRow)} · ${sourceLabel(gdpRow.pa_source)}`,
-            hasData: true,
-          }
-        : buildFallbackCard("1인당 GDP");
+    const gdpCard = buildImfGdpCard();
 
     const populationCard =
       worldbankRes.error === null
@@ -278,7 +281,7 @@ export async function getPanamaLandingMetricCards(): Promise<
   } catch {
     // 외부 DB 연결 실패 시에도 레이아웃이 깨지지 않도록 기본 카드로 반환합니다.
     return [
-      buildFallbackCard("1인당 GDP"),
+      buildImfGdpCard(),
       buildFallbackCard("인구"),
       buildStatistaMarketCard(),
       buildFallbackCard("실질 성장률"),
