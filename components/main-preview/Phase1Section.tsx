@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { upsertStoredReport } from "@/src/lib/dashboard/reports_store";
+import { formatProductOptionLabel } from "@/src/utils/product_option_labels";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 interface Phase1SectionProps {
@@ -10,17 +11,6 @@ interface Phase1SectionProps {
   /** 1공정 보고서가 세션에 저장된 직후(Phase2 드롭다운 갱신용) */
   onReportGenerated?: () => void;
 }
-
-const PRODUCT_LABEL_BY_ID: Record<string, string> = {
-  "bdfc9883-6040-438a-8e7a-df01f1230682": "[항암제] Hydrine",
-  "fcae4399-aa80-4318-ad55-89d6401c10a9": "[개량신약] Ciloduo",
-  "24738c3b-3a5b-40a9-9e8e-889ec075b453": "[개량신약] Gastiin CR",
-  "2504d79b-c2ce-4660-9ea7-5576c8bb755f": "[개량신약] Rosumeg Combigel",
-  "859e60f9-8544-43b3-a6a0-f6c7529847eb": "[개량신약] Atmeg Combigel",
-  "014fd4d2-dc66-4fc1-8d4f-59695183387f": "[일반제] Sereterol Activair",
-  "f88b87b8-c0ab-4f6e-ba34-e9330d1d4e18": "[개량신약] Omethyl Cutielet",
-  "895f49ae-6ce3-44a3-93bd-bb77e027ba59": "[일반제] Gadvoa Inj.",
-};
 
 const STEP_LABELS = ["DB 조회", "Claude 분석", "논문 검색", "PDF 생성"] as const;
 const STEP_STORAGE_KEY = "pa_phase1_step_v1";
@@ -343,9 +333,7 @@ export function Phase1Section({ onCompleted, onReportGenerated }: Phase1SectionP
               >
                 {TARGET_PRODUCTS.map((product) => (
                   <option key={product.product_id} value={product.product_id}>
-                    {`${PRODUCT_LABEL_BY_ID[product.product_id] ?? `[일반제] ${product.kr_brand_name}`} · ${
-                      product.who_inn_en
-                    }`}
+                    {formatProductOptionLabel(product)}
                   </option>
                 ))}
               </select>

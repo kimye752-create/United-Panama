@@ -29,7 +29,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
         return (
           <article
             key={card.label}
-            className="flex min-h-[132px] flex-col rounded-[14px] border border-[#e4eaf2] bg-white px-4 py-3 shadow-sh2"
+            className="flex min-h-[100px] flex-col rounded-[14px] border border-[#e4eaf2] bg-white px-3 py-2 shadow-sh2"
           >
             <p className="text-left text-[10px] font-semibold text-[#6a7e98]">{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (
@@ -53,7 +53,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
             ) : (
               <>
                 <div
-                  className={`flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-2 ${
+                  className={`flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-1 ${
                     isGdpCard ? "overflow-x-auto" : ""
                   }`}
                 >
