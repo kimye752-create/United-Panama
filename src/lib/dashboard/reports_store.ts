@@ -14,6 +14,11 @@ const REPORTS_KEY = "pa_upharma_reports_v2";
 const LEGACY_REPORTS_KEY = "pa_upharma_reports_v1";
 const MAX_REPORTS = 30;
 
+/** 세션 전용 보고서 목록 (Phase2 드롭다운 등에서 사용) */
+export function getStoredReports(): StoredReportItem[] {
+  return loadStoredReports();
+}
+
 export function loadStoredReports(): StoredReportItem[] {
   if (typeof window === "undefined") {
     return [];

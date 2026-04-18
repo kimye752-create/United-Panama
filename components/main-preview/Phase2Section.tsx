@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { getStoredReports } from "@/src/lib/dashboard/reports_store";
 import type { CompetitorPricesPayload } from "@/src/logic/phase2/competitor_prices";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 import {
@@ -11,13 +12,6 @@ import {
 
 interface Phase2SectionProps {
   onCompleted: () => void;
-}
-
-interface Phase2ReportOption {
-  id: string;
-  productId: string;
-  caseGrade: string;
-  generatedAt: string;
 }
 
 interface AnalyzeApiResponse {
@@ -46,7 +40,7 @@ function formatPriceCell(value: number | null): string {
 
 export function Phase2Section({ onCompleted }: Phase2SectionProps) {
   const [expanded, setExpanded] = useState(true);
-  const [reports, setReports] = useState<Phase2ReportOption[]>([]);
+  const [reports, setReports] = useState(() => getStoredReports());
   const [reportId, setReportId] = useState("");
   const [loading, setLoading] = useState(false);
   const [analysisStarted, setAnalysisStarted] = useState(false);
@@ -66,45 +60,7 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
   }, [pdfBlobUrl]);
 
   useEffect(() => {
-    const loadReports = async () => {
-      try {
-        const response = await fetch("/api/panama/phase2/report");
-        if (!response.ok) {
-          return;
-        }
-        const payload = (await response.json()) as unknown;
-        if (payload === null || typeof payload !== "object" || Array.isArray(payload)) {
-          return;
-        }
-        const rows = Array.isArray((payload as { reports?: unknown[] }).reports)
-          ? ((payload as { reports: unknown[] }).reports as unknown[])
-          : [];
-        const parsed: Phase2ReportOption[] = [];
-        for (const row of rows) {
-          if (row === null || typeof row !== "object" || Array.isArray(row)) {
-            continue;
-          }
-          const item = row as Record<string, unknown>;
-          if (
-            typeof item.id === "string" &&
-            typeof item.product_id === "string" &&
-            typeof item.case_grade === "string" &&
-            typeof item.generated_at === "string"
-          ) {
-            parsed.push({
-              id: item.id,
-              productId: item.product_id,
-              caseGrade: item.case_grade,
-              generatedAt: item.generated_at,
-            });
-          }
-        }
-        setReports(parsed);
-      } catch {
-        setReports([]);
-      }
-    };
-    void loadReports();
+    setReports(getStoredReports());
   }, []);
 
   const selectedReport = useMemo(
