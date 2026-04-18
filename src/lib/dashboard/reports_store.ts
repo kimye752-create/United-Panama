@@ -10,7 +10,8 @@ export interface StoredReportItem {
   reportVersion: "v1" | "v3";
 }
 
-const REPORTS_KEY = "pa_upharma_reports_v1";
+const REPORTS_KEY = "pa_upharma_reports_v2";
+const LEGACY_REPORTS_KEY = "pa_upharma_reports_v1";
 const MAX_REPORTS = 30;
 
 export function loadStoredReports(): StoredReportItem[] {
@@ -18,7 +19,7 @@ export function loadStoredReports(): StoredReportItem[] {
     return [];
   }
   try {
-    const raw = localStorage.getItem(REPORTS_KEY);
+    const raw = sessionStorage.getItem(REPORTS_KEY);
     if (raw === null) {
       return [];
     }
@@ -73,7 +74,7 @@ export function saveStoredReports(items: StoredReportItem[]): void {
   if (typeof window === "undefined") {
     return;
   }
-  localStorage.setItem(REPORTS_KEY, JSON.stringify(items.slice(0, MAX_REPORTS)));
+  sessionStorage.setItem(REPORTS_KEY, JSON.stringify(items.slice(0, MAX_REPORTS)));
 }
 
 export function upsertStoredReport(
@@ -98,4 +99,15 @@ export function upsertStoredReport(
   ].slice(0, MAX_REPORTS);
   saveStoredReports(next);
   return next;
+}
+
+export function purgeLegacyStoredReports(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    localStorage.removeItem(LEGACY_REPORTS_KEY);
+  } catch {
+    return;
+  }
 }

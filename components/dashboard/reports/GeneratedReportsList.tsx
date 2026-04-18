@@ -5,10 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "../shared/Card";
 import {
   loadStoredReports,
+  purgeLegacyStoredReports,
   saveStoredReports,
   type StoredReportItem,
 } from "@/src/lib/dashboard/reports_store";
-import { findProductById } from "@/src/utils/product-dictionary";
 
 function caseBadgeClass(caseGrade: StoredReportItem["caseGrade"]): string {
   if (caseGrade === "A") {
@@ -40,78 +40,78 @@ export function GeneratedReportsList() {
     const sync = () => {
       setItems(loadStoredReports());
     };
+    purgeLegacyStoredReports();
     sync();
-    window.addEventListener("storage", sync);
     window.addEventListener("focus", sync);
     return () => {
-      window.removeEventListener("storage", sync);
       window.removeEventListener("focus", sync);
     };
   }, []);
 
-  useEffect(() => {
-    const bootstrapFromDbCache = async () => {
-      const local = loadStoredReports();
-      if (local.length > 0) {
-        return;
-      }
-      try {
-        const response = await fetch("/api/panama/phase2/report");
-        if (!response.ok) {
-          return;
-        }
-        const payload = (await response.json()) as unknown;
-        if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
-          return;
-        }
-        const reportsRaw = (payload as { reports?: unknown }).reports;
-        if (!Array.isArray(reportsRaw) || reportsRaw.length === 0) {
-          return;
-        }
-        const recovered: StoredReportItem[] = [];
-        for (const row of reportsRaw) {
-          if (typeof row !== "object" || row === null || Array.isArray(row)) {
-            continue;
-          }
-          const r = row as Record<string, unknown>;
-          if (
-            typeof r.id !== "string" ||
-            typeof r.product_id !== "string" ||
-            typeof r.case_grade !== "string" ||
-            typeof r.generated_at !== "string"
-          ) {
-            continue;
-          }
-          const product = findProductById(r.product_id);
-          if (product === undefined) {
-            continue;
-          }
-          const caseGrade =
-            r.case_grade === "A" || r.case_grade === "B" || r.case_grade === "C"
-              ? r.case_grade
-              : "B";
-          recovered.push({
-            id: r.id,
-            productId: r.product_id,
-            brand: product.kr_brand_name,
-            inn: product.who_inn_en,
-            caseGrade,
-            generatedAt: r.generated_at,
-            pdfBase64: null,
-            pdfFilename: null,
-            reportVersion: "v1",
-          });
-        }
-        if (recovered.length > 0) {
-          saveStoredReports(recovered);
-          setItems(recovered);
-        }
-      } catch {
-        return;
-      }
-    };
-    void bootstrapFromDbCache();
-  }, []);
+  // 레거시 DB bootstrap 경로는 과거 세션 데이터를 다시 주입하므로 임시 비활성화합니다.
+  // useEffect(() => {
+  //   const bootstrapFromDbCache = async () => {
+  //     const local = loadStoredReports();
+  //     if (local.length > 0) {
+  //       return;
+  //     }
+  //     try {
+  //       const response = await fetch("/api/panama/phase2/report");
+  //       if (!response.ok) {
+  //         return;
+  //       }
+  //       const payload = (await response.json()) as unknown;
+  //       if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+  //         return;
+  //       }
+  //       const reportsRaw = (payload as { reports?: unknown }).reports;
+  //       if (!Array.isArray(reportsRaw) || reportsRaw.length === 0) {
+  //         return;
+  //       }
+  //       const recovered: StoredReportItem[] = [];
+  //       for (const row of reportsRaw) {
+  //         if (typeof row !== "object" || row === null || Array.isArray(row)) {
+  //           continue;
+  //         }
+  //         const r = row as Record<string, unknown>;
+  //         if (
+  //           typeof r.id !== "string" ||
+  //           typeof r.product_id !== "string" ||
+  //           typeof r.case_grade !== "string" ||
+  //           typeof r.generated_at !== "string"
+  //         ) {
+  //           continue;
+  //         }
+  //         const product = findProductById(r.product_id);
+  //         if (product === undefined) {
+  //           continue;
+  //         }
+  //         const caseGrade =
+  //           r.case_grade === "A" || r.case_grade === "B" || r.case_grade === "C"
+  //             ? r.case_grade
+  //             : "B";
+  //         recovered.push({
+  //           id: r.id,
+  //           productId: r.product_id,
+  //           brand: product.kr_brand_name,
+  //           inn: product.who_inn_en,
+  //           caseGrade,
+  //           generatedAt: r.generated_at,
+  //           pdfBase64: null,
+  //           pdfFilename: null,
+  //           reportVersion: "v1",
+  //         });
+  //       }
+  //       if (recovered.length > 0) {
+  //         saveStoredReports(recovered);
+  //         setItems(recovered);
+  //       }
+  //     } catch {
+  //       return;
+  //     }
+  //   };
+  //   void bootstrapFromDbCache();
+  // }, []);
 
   useEffect(() => {
     if (items.length === 0) {

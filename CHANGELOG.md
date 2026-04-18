@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 19:45:45 (feat(reports): sessionStorage 이주 + DB bootstrap 비활성화)
+
+### Changed
+- feat(reports-storage): `src/lib/dashboard/reports_store.ts` 저장 키를 `pa_upharma_reports_v2`로 변경하고 저장소를 `localStorage`에서 `sessionStorage`로 이주.
+- feat(reports-cleanup): `purgeLegacyStoredReports()`를 추가해 레거시 `pa_upharma_reports_v1` 키를 마운트 시 정리.
+- feat(reports-policy): `components/dashboard/reports/GeneratedReportsList.tsx`에서 `storage` 이벤트 의존을 제거하고 `focus` 기반 동기화만 유지(동일 탭 세션 정책).
+- feat(reports-bootstrap): 과거 DB 레코드를 클라이언트로 다시 밀어넣던 `/api/panama/phase2/report` bootstrap 로직을 주석 처리로 비활성화.
+
 ## [Unreleased] - 2026-04-18 19:44:19 (feat(phase1): 탭 전환 시 step/ready 상태 sessionStorage 유지)
 
 ### Changed
