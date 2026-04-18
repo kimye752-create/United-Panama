@@ -14,6 +14,7 @@ const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const NEWS_CACHE_TABLE = "panama_news_cache";
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_NEWS_LIMIT = 6;
 
 type NewsCategory = "파나마 현지" | "한국 발행" | "글로벌";
 
@@ -73,6 +74,13 @@ const FALLBACK_NEWS: PanamaDashboardNewsItem[] = [
     category: "파나마 현지",
   },
 ];
+
+const KOTRA_2026_NEWS: PanamaDashboardNewsItem = {
+  headline: "2026 파나마 진출전략",
+  meta_line: "한국 발행 · KOTRA · 2026-01-01",
+  url: "https://openknowledge.kotra.or.kr/handle/2014.oak/33829",
+  category: "한국 발행",
+};
 
 function resolveAnthropicKey(): string | null {
   const key = process.env.ANTHROPIC_API_KEY;
@@ -151,10 +159,91 @@ function inferSourceFromUrl(url: string | undefined, explicitSource: string | nu
     return "PharmTech";
   }
   if (hostname === "news.naver.com") {
-    // 네이버 뉴스는 원문 언론사명을 써야 하므로 미제공 시 빈값 처리한다.
+    // 네이버 뉴스는 원문 언론사명이 별도 추출되어야 하므로 이 함수에서는 빈값 처리한다.
     return "";
   }
   return hostname;
+}
+
+function isGenericSourceLabel(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized === "대한민국" ||
+    normalized === "한국" ||
+    normalized === "파나마" ||
+    normalized === "글로벌" ||
+    normalized === "global" ||
+    normalized === "국내"
+  );
+}
+
+function parseNaverPressFromText(text: string): string {
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+  for (const line of lines) {
+    const m = line.match(/([가-힣A-Za-z][가-힣A-Za-z0-9&.\- ]{1,30})\s*·\s*(19\d{2}|20\d{2})[./-]\d{1,2}[./-]\d{1,2}/);
+    if (m !== null) {
+      const press = m[1].trim();
+      if (press !== "" && !isGenericSourceLabel(press)) {
+        return press;
+      }
+    }
+  }
+  const fallback = text.match(/([가-힣A-Za-z][가-힣A-Za-z0-9&.\- ]{1,30})(?:\s*뉴스)?/);
+  if (fallback !== null) {
+    const press = fallback[1].trim();
+    if (press !== "" && !isGenericSourceLabel(press)) {
+      return press;
+    }
+  }
+  return "";
+}
+
+function resolveSource(row: Record<string, unknown>, url: string | undefined, metaSource: string | null): string {
+  const explicitSource = textField(
+    row,
+    "source",
+    "source_label",
+    "publisher",
+    "press",
+    "outlet",
+    "original_press",
+    "newspaper",
+    "media",
+  );
+  const hostname = stripWwwPrefix(toHostname(url));
+  if (hostname === "news.naver.com") {
+    const candidates: string[] = [];
+    if (explicitSource !== null) {
+      candidates.push(explicitSource);
+    }
+    if (metaSource !== null) {
+      candidates.push(metaSource);
+    }
+    const naverHints = [
+      textField(row, "snippet", "summary", "description", "content_snippet"),
+      textField(row, "title", "headline"),
+    ];
+    for (const hint of naverHints) {
+      if (hint !== null) {
+        candidates.push(hint);
+      }
+    }
+    for (const candidate of candidates) {
+      const press = parseNaverPressFromText(candidate);
+      if (press !== "") {
+        return press;
+      }
+    }
+    return "";
+  }
+  const source = inferSourceFromUrl(url, explicitSource ?? metaSource).trim();
+  if (source === "" || isGenericSourceLabel(source)) {
+    return "";
+  }
+  return source;
 }
 
 function parseMetaLine(metaLine: string | null): { category: string | null; source: string | null; date: string | null } {
@@ -272,7 +361,7 @@ function normalizeNewsItem(raw: unknown): PanamaDashboardNewsItem | null {
   }
   const url = normalizeUrl(textField(row, "url", "link"));
   const meta = parseMetaLine(textField(row, "meta_line", "metaLine"));
-  const source = inferSourceFromUrl(url, textField(row, "source", "source_label", "publisher", "press", "outlet") ?? meta.source);
+  const source = resolveSource(row, url, meta.source);
   const date = resolveDate(row, meta.date);
   if (source.trim() === "" || date.trim() === "") {
     return null;
@@ -337,6 +426,10 @@ function dedupeAndLimit(items: readonly PanamaDashboardNewsItem[], limit: number
   return result;
 }
 
+function ensureKotra2026Included(items: readonly PanamaDashboardNewsItem[], limit: number): PanamaDashboardNewsItem[] {
+  return dedupeAndLimit([KOTRA_2026_NEWS, ...items], limit);
+}
+
 function extractTextBlocks(raw: unknown): string {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     return "";
@@ -377,12 +470,13 @@ async function requestHaikuNews(apiKey: string): Promise<PanamaDashboardNewsItem
           role: "user",
           content:
             "파나마 의약품 시장 최신 뉴스(2023~2026)를 검색해 JSON 배열만 반환하시오. " +
+            "반드시 news.naver.com 결과를 2건 이상 포함하고, 네이버 항목은 서로 다른 원문 언론사(예: 경향신문, 한겨레 등)로 구성하시오. " +
             "기사는 반드시 실제 URL이 있는 항목만 포함하고, 각 항목에서 source/date를 절대 누락하지 마시오. " +
             "web_search 결과의 URL·페이지 제목·snippet에서 source/date를 직접 파싱하시오. " +
             "source 규칙: dream.kotra.or.kr=KOTRA, kita.net=KITA 한국무역협회, statista.com=Statista, gabionline.net=GABIonline, pharmtech.com=PharmTech, news.naver.com=원문 언론사명, 그 외=도메인명. " +
             "date 규칙: snippet 또는 페이지 내용에서 추출하고, 못 찾으면 빈 문자열(절대 '날짜 미상' 금지). " +
             "항목 스키마는 " +
-            "[{\"title\":\"...\",\"source\":\"...\",\"date\":\"YYYY-MM-DD or YYYY 또는 빈 문자열\",\"url\":\"https://...\",\"category\":\"파나마 현지|한국 발행|글로벌\",\"snippet\":\"...\"}] 형식으로 작성하시오. " +
+            "[{\"title\":\"...\",\"source\":\"...\",\"date\":\"YYYY-MM-DD or YYYY 또는 빈 문자열\",\"url\":\"https://...\",\"category\":\"파나마 현지|한국 발행|글로벌\",\"snippet\":\"...\",\"original_press\":\"(네이버일 때 필수)\"}] 형식으로 작성하시오. " +
             "source 또는 date가 빈 문자열인 항목은 출력하지 말고 제외하시오. 최소 6건, 최대 10건. 파나마 무관 기사 제외.",
         },
       ],
@@ -425,7 +519,7 @@ async function loadCache(): Promise<PanamaDashboardNewsItem[] | null> {
     if (items.length === 0) {
       return null;
     }
-    return dedupeAndLimit(items, 6);
+    return ensureKotra2026Included(items, DEFAULT_NEWS_LIMIT);
   } catch {
     return null;
   }
@@ -464,7 +558,7 @@ export async function fetchPanamaDashboardNews(): Promise<PanamaDashboardNewsPay
   const apiKey = resolveAnthropicKey();
   if (apiKey === null) {
     return {
-      items: FALLBACK_NEWS.slice(0, 6),
+      items: ensureKotra2026Included(FALLBACK_NEWS, DEFAULT_NEWS_LIMIT),
       generated_at: generatedAt,
       source: "fallback",
       warning: "ANTHROPIC_API_KEY가 비어 있어 fallback 뉴스를 사용했습니다.",
@@ -473,7 +567,7 @@ export async function fetchPanamaDashboardNews(): Promise<PanamaDashboardNewsPay
 
   try {
     const rawItems = await requestHaikuNews(apiKey);
-    const items = dedupeAndLimit([...rawItems, ...FALLBACK_NEWS], 6);
+    const items = ensureKotra2026Included([...rawItems, ...FALLBACK_NEWS], DEFAULT_NEWS_LIMIT);
     if (items.length === 0) {
       throw new Error("Haiku 뉴스 파싱 결과가 비어 있습니다.");
     }
@@ -487,7 +581,7 @@ export async function fetchPanamaDashboardNews(): Promise<PanamaDashboardNewsPay
     const message = error instanceof Error ? error.message : String(error);
     process.stderr.write(`[panama_news] Haiku FAILED: ${message}\n`);
     return {
-      items: FALLBACK_NEWS.slice(0, 6),
+      items: ensureKotra2026Included(FALLBACK_NEWS, DEFAULT_NEWS_LIMIT),
       generated_at: generatedAt,
       source: "fallback",
       warning: `뉴스 API fallback: ${message.slice(0, 240)}`,

@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 
 const PANAMA_CENTER = { lat: 8.9824, lng: -79.5199 };
-const PANAMA_DEFAULT_ZOOM = 10;
+const PANAMA_DEFAULT_ZOOM = 6;
 
 export function PanamaMap() {
   const mapRef = useRef<HTMLDivElement | null>(null);

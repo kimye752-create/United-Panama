@@ -1,5 +1,26 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 12:32:29 (style(map): 초기 지도 배율 추가 축소)
+
+### Changed
+- style(main-preview-map): `components/main-preview/PanamaMap.tsx` 기본 줌을 `7 → 6`으로 추가 조정해, 첫 진입 시 파나마 단일 도시 확대 화면이 아닌 중미-북남미 사이 위치 맥락이 더 잘 보이도록 보정.
+- note(ui): 변경되는 시각 요소는 초기 지도 표시 범위(한 단계 더 넓어짐)이며, 카드 레이아웃/폰트/간격/마커 스타일은 유지.
+
+## [Unreleased] - 2026-04-18 12:30:17 (feat(news): 네이버 원문 언론사 표기 + KOTRA 2026 링크 고정 노출)
+
+### Changed
+- feat(news-logic): `src/logic/fetch_panama_dashboard_news.ts`에서 Haiku 프롬프트에 `news.naver.com` 2건 이상 수집 조건을 추가하고, 네이버 항목은 원문 언론사명을 `original_press`로 반환하도록 지시.
+- feat(news-logic): `news.naver.com` URL 전용 파서를 추가해 snippet/title/meta에서 `언론사 · 날짜` 패턴을 추출하고, 국가명/일반 라벨(예: 대한민국) 같은 비언론사 값은 source에서 제외.
+- feat(news-logic): 최종 뉴스 합성 시 `KOTRA 2026 파나마 진출전략` 링크를 항상 포함하도록 `ensureKotra2026Included` 보강.
+- feat(news-ui): `components/dashboard/main/MarketNewsCard.tsx`에서 headline을 URL 앵커로 렌더링하도록 변경해 카드에서 원문 링크를 직접 열 수 있게 개선.
+- note(ui): 시각적으로 바뀌는 요소는 뉴스 제목의 링크 스타일(hover 시 밑줄)이며, 카드 레이아웃/폰트 크기/간격은 유지.
+
+## [Unreleased] - 2026-04-18 12:24:57 (style(map): 파나마 지도 기본 배율 축소)
+
+### Changed
+- style(main-preview-map): `components/main-preview/PanamaMap.tsx`의 기본 줌을 `10 → 7`로 조정해, 파나마 단일 도시 중심 화면이 아니라 중미/북남미 인접 맥락이 함께 보이는 초기 지도로 설정.
+- note(ui): 변경되는 시각 요소는 지도 표시 범위(더 넓은 지역 노출)이며, 카드 레이아웃/폰트/간격/마커 스타일은 유지.
+
 ## [Unreleased] - 2026-04-18 12:21:45 (fix(news): Haiku source/date 강제 추출 및 카드 노출 필터링)
 
 ### Fixed

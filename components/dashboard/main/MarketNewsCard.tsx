@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Card, IRow } from "../shared/Card";
 
 type NewsPayload = {
-  items: Array<{ headline: string; meta_line: string }>;
+  items: Array<{ headline: string; meta_line: string; url?: string }>;
   generated_at?: string;
   source?: string;
   warning?: string;
@@ -25,7 +25,7 @@ async function fetchNews(): Promise<NewsPayload> {
   if (!Array.isArray(itemsRaw)) {
     throw new Error("뉴스 items 배열이 없습니다.");
   }
-  const items: Array<{ headline: string; meta_line: string }> = [];
+  const items: Array<{ headline: string; meta_line: string; url?: string }> = [];
   for (const row of itemsRaw) {
     if (typeof row !== "object" || row === null || Array.isArray(row)) {
       continue;
@@ -33,8 +33,9 @@ async function fetchNews(): Promise<NewsPayload> {
     const r = row as Record<string, unknown>;
     const headline = typeof r.headline === "string" ? r.headline : "";
     const meta_line = typeof r.meta_line === "string" ? r.meta_line : "";
+    const url = typeof r.url === "string" ? r.url : undefined;
     if (headline.trim() !== "") {
-      items.push({ headline: headline.trim(), meta_line: meta_line.trim() });
+      items.push({ headline: headline.trim(), meta_line: meta_line.trim(), url });
     }
   }
   return {
@@ -46,7 +47,7 @@ async function fetchNews(): Promise<NewsPayload> {
 }
 
 export function MarketNewsCard() {
-  const [items, setItems] = useState<Array<{ headline: string; meta_line: string }>>([]);
+  const [items, setItems] = useState<Array<{ headline: string; meta_line: string; url?: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -111,7 +112,18 @@ export function MarketNewsCard() {
                 )
               : items.map((item, index) => (
               <IRow key={`news-${String(index)}`}>
-                <div className="text-[12px] font-bold leading-relaxed text-navy">{item.headline}</div>
+                {item.url !== undefined && item.url.trim() !== "" ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[12px] font-bold leading-relaxed text-navy underline-offset-2 hover:underline"
+                  >
+                    {item.headline}
+                  </a>
+                ) : (
+                  <div className="text-[12px] font-bold leading-relaxed text-navy">{item.headline}</div>
+                )}
                 <div className="mt-1 text-[10.5px] text-muted">{item.meta_line}</div>
               </IRow>
             ))}
