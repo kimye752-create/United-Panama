@@ -34,13 +34,18 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: "bold",
   },
+  /** 블록 ②③④ 상단 간격 (헤더 직후 첫 블록은 sectionBlockFirst 사용) */
+  sectionBlock: { marginTop: 16 },
+  sectionBlockFirst: { marginTop: 0 },
+  /** ①②③④ 대제목 */
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
-    marginTop: 12,
-    marginBottom: 6,
+    marginBottom: 8,
     color: "#1f3e64",
   },
+  /** 카테고리 박스 간 세로 간격 */
+  categoryItem: { marginTop: 6 },
   verdictCard: {
     borderWidth: 1,
     borderColor: "#d1d5db",
@@ -52,7 +57,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d1d5db",
     padding: 8,
-    marginBottom: 4,
   },
   categoryTitle: { fontSize: 10, fontWeight: "bold", marginBottom: 2, color: "#0f172a" },
   bodyText: { fontSize: 9, lineHeight: 1.4, color: "#1f2937" },
@@ -88,7 +92,7 @@ const styles = StyleSheet.create({
 
 function renderCategory(title: string, body: string): React.ReactElement {
   return (
-    <View style={styles.categoryBlock}>
+    <View style={[styles.categoryBlock, styles.categoryItem]}>
       <Text style={styles.categoryTitle}>{title}</Text>
       <Text style={styles.bodyText}>{body}</Text>
     </View>
@@ -113,101 +117,107 @@ export function Report1DocumentV3(props: Report1PdfV3Props) {
           </Text>
         </View>
 
-        <Text style={styles.sectionTitle}>① 핵심 판정</Text>
-        <View style={styles.verdictCard}>
-          <Text style={styles.verdictText}>{props.caseVerdict}</Text>
+        <View style={styles.sectionBlockFirst}>
+          <Text style={styles.sectionTitle}>① 핵심 판정</Text>
+          <View style={styles.verdictCard}>
+            <Text style={styles.verdictText}>{props.caseVerdict}</Text>
+          </View>
         </View>
 
-        <Text style={styles.sectionTitle}>② 두괄식 판정 근거</Text>
-        {renderCategory("시장 / 의료", props.payload.block2_market_medical)}
-        {renderCategory("규제", props.payload.block2_regulation)}
-        {renderCategory("무역", props.payload.block2_trade)}
-        {renderCategory("조달", props.payload.block2_procurement)}
-        {renderCategory("유통", props.payload.block2_distribution)}
-        {props.payload.block2_reference_price !== null &&
-          renderCategory("참고 가격", props.payload.block2_reference_price)}
-      </Page>
+        <View style={styles.sectionBlock}>
+          <Text style={styles.sectionTitle}>② 두괄식 판정 근거</Text>
+          {renderCategory("시장 / 의료", props.payload.block2_market_medical)}
+          {renderCategory("규제", props.payload.block2_regulation)}
+          {renderCategory("무역", props.payload.block2_trade)}
+          {renderCategory("조달", props.payload.block2_procurement)}
+          {renderCategory("유통", props.payload.block2_distribution)}
+          {props.payload.block2_reference_price !== null &&
+            renderCategory("참고 가격", props.payload.block2_reference_price)}
+        </View>
 
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.sectionTitle}>③ 시장 진출 전략</Text>
-        {hasGap && (
-          <View style={styles.gapBanner}>
-            <Text style={styles.bodyText}>
-              데이터 수집 현황: {props.payload.block3_data_gaps.note}
-            </Text>
-          </View>
-        )}
-        {renderCategory("3-1 진입 채널", props.payload.block3_1_channel)}
-        {renderCategory("3-2 가격 포지셔닝", props.payload.block3_2_pricing)}
-        {renderCategory("3-3 유통 파트너", props.payload.block3_3_partners)}
-        {renderCategory("3-4 리스크·조건", props.payload.block3_4_risks)}
-        {renderCategory("3-5 진출 가능성", props.payload.block3_5_entry_feasibility)}
-      </Page>
+        <View style={styles.sectionBlock}>
+          <Text style={styles.sectionTitle}>③ 시장 진출 전략</Text>
+          {hasGap && (
+            <View style={[styles.gapBanner, styles.categoryItem]}>
+              <Text style={styles.bodyText}>
+                데이터 수집 현황: {props.payload.block3_data_gaps.note}
+              </Text>
+            </View>
+          )}
+          {renderCategory("3-1 진입 채널", props.payload.block3_1_channel)}
+          {renderCategory("3-2 가격 포지셔닝", props.payload.block3_2_pricing)}
+          {renderCategory("3-3 유통 파트너", props.payload.block3_3_partners)}
+          {renderCategory("3-4 리스크·조건", props.payload.block3_4_risks)}
+          {renderCategory("3-5 진출 가능성", props.payload.block3_5_entry_feasibility)}
+        </View>
 
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.sectionTitle}>④ 근거 · 출처</Text>
+        <View style={styles.sectionBlock}>
+          <Text style={styles.sectionTitle}>④ 근거 · 출처</Text>
 
-        <Text style={styles.categoryTitle}>4-1. Perplexity 추천 논문</Text>
-        <View style={styles.table}>
-          <View style={styles.tableHeaderRow}>
-            <View style={[styles.tableCell, { width: "10%" }]}>
-              <Text style={styles.tableHeaderText}>No.</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "50%" }]}>
-              <Text style={styles.tableHeaderText}>논문 제목 / 출처</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "40%", borderRightWidth: 0 }]}>
-              <Text style={styles.tableHeaderText}>한국어 요약</Text>
-            </View>
-          </View>
-          {props.payload.block4_papers.map((paper) => (
-            <View key={paper.no} style={styles.tableRow}>
+          <Text style={[styles.categoryTitle, styles.categoryItem]}>4-1. Perplexity 추천 논문</Text>
+          <View style={styles.table}>
+            <View style={styles.tableHeaderRow}>
               <View style={[styles.tableCell, { width: "10%" }]}>
-                <Text style={styles.bodyText}>{paper.no}</Text>
+                <Text style={styles.tableHeaderText}>No.</Text>
               </View>
               <View style={[styles.tableCell, { width: "50%" }]}>
-                <Text style={styles.paperTitle}>{paper.title}</Text>
-                <Text style={styles.paperSource}>[{paper.source}]</Text>
-                <Text style={styles.paperUrl}>{paper.url}</Text>
+                <Text style={styles.tableHeaderText}>논문 제목 / 출처</Text>
               </View>
               <View style={[styles.tableCell, { width: "40%", borderRightWidth: 0 }]}>
-                <Text style={styles.bodyText}>{paper.summary_ko}</Text>
+                <Text style={styles.tableHeaderText}>한국어 요약</Text>
               </View>
             </View>
-          ))}
-        </View>
-
-        <Text style={[styles.categoryTitle, { marginTop: 10 }]}>4-2. 사용된 DB / 기관</Text>
-        <View style={styles.table}>
-          <View style={styles.tableHeaderRow}>
-            <View style={[styles.tableCell, { width: "30%" }]}>
-              <Text style={styles.tableHeaderText}>DB / 기관명</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "45%" }]}>
-              <Text style={styles.tableHeaderText}>설명</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "25%", borderRightWidth: 0 }]}>
-              <Text style={styles.tableHeaderText}>링크</Text>
-            </View>
+            {props.payload.block4_papers.map((paper) => (
+              <View key={paper.no} style={styles.tableRow}>
+                <View style={[styles.tableCell, { width: "10%" }]}>
+                  <Text style={styles.bodyText}>{paper.no}</Text>
+                </View>
+                <View style={[styles.tableCell, { width: "50%" }]}>
+                  <Text style={styles.paperTitle}>{paper.title}</Text>
+                  <Text style={styles.paperSource}>[{paper.source}]</Text>
+                  <Text style={styles.paperUrl}>{paper.url}</Text>
+                </View>
+                <View style={[styles.tableCell, { width: "40%", borderRightWidth: 0 }]}>
+                  <Text style={styles.bodyText}>{paper.summary_ko}</Text>
+                </View>
+              </View>
+            ))}
           </View>
-          {props.payload.block4_databases.map((db, index) => (
-            <View key={`${db.name}-${index}`} style={styles.tableRow}>
+
+          <Text style={[styles.categoryTitle, styles.categoryItem, { marginTop: 10 }]}>
+            4-2. 사용된 DB / 기관
+          </Text>
+          <View style={styles.table}>
+            <View style={styles.tableHeaderRow}>
               <View style={[styles.tableCell, { width: "30%" }]}>
-                <Text style={styles.paperTitle}>{db.name}</Text>
+                <Text style={styles.tableHeaderText}>DB / 기관명</Text>
               </View>
               <View style={[styles.tableCell, { width: "45%" }]}>
-                <Text style={styles.bodyText}>{db.description}</Text>
+                <Text style={styles.tableHeaderText}>설명</Text>
               </View>
               <View style={[styles.tableCell, { width: "25%", borderRightWidth: 0 }]}>
-                <Text style={styles.paperUrl}>{db.link ?? "내부 데이터"}</Text>
+                <Text style={styles.tableHeaderText}>링크</Text>
               </View>
             </View>
-          ))}
-        </View>
+            {props.payload.block4_databases.map((db, index) => (
+              <View key={`${db.name}-${index}`} style={styles.tableRow}>
+                <View style={[styles.tableCell, { width: "30%" }]}>
+                  <Text style={styles.paperTitle}>{db.name}</Text>
+                </View>
+                <View style={[styles.tableCell, { width: "45%" }]}>
+                  <Text style={styles.bodyText}>{db.description}</Text>
+                </View>
+                <View style={[styles.tableCell, { width: "25%", borderRightWidth: 0 }]}>
+                  <Text style={styles.paperUrl}>{db.link ?? "내부 데이터"}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
 
-        <View style={styles.footer}>
-          <Text>최종 수집: {collectedAt}</Text>
-          <Text>LLM 본문 생성: Anthropic Claude Haiku (Tool Use 강제 양식 V3)</Text>
+          <View style={styles.footer}>
+            <Text>최종 수집: {collectedAt}</Text>
+            <Text>LLM 본문 생성: Anthropic Claude Haiku (Tool Use 강제 양식 V3)</Text>
+          </View>
         </View>
       </Page>
     </Document>

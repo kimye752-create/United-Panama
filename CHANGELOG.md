@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 21:10:00 (fix(pdf): V3 레이아웃 단일 Page 연속 흐름)
+
+### Changed
+- fix(pdf-v3-layout): `lib/pdf/Report1DocumentV3.tsx`에서 `<Page>`를 3개에서 1개로 통합하고, 블록 ①~④를 `sectionBlock`/`sectionBlockFirst`로 감싸 `marginTop`만으로 구분해 공백 페이지·강제 분리를 제거.
+
 ## [Unreleased] - 2026-04-18 20:45:30 (fix(phase1): 4단계 진행 간격을 API 소요 시간에 맞춤)
 
 ### Fixed
