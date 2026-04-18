@@ -6,17 +6,26 @@ import type { Message } from "@anthropic-ai/sdk/resources/messages/messages.js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ZodIssue } from "zod";
 
-import { buildFallbackReport, type FallbackInput } from "./report1_fallback_template";
+import {
+  buildFallbackReport,
+  buildFallbackReportV3,
+  type FallbackInput,
+} from "./report1_fallback_template";
 import type { EntryFeasibility } from "./logic/panama_entry_feasibility";
 import type { MarketPriceStats } from "../logic/market_stats";
+import type { PerplexityPaper } from "../logic/perplexity_insights";
 import { getSupabaseClient } from "../utils/db_connector";
 import { findProductById } from "../utils/product-dictionary";
 import {
   parseReport1Payload,
   REPORT1_PAYLOAD_SCHEMA,
+  parseReport1PayloadV3,
   REPORT1_SYSTEM_PROMPT,
+  REPORT1_SYSTEM_PROMPT_V3,
   REPORT1_TOOL,
+  REPORT1_TOOL_V3,
   type Report1Payload,
+  type Report1PayloadV3,
 } from "./report1_schema";
 
 /** 신선도 판정(`freshness_checker`)과 동일 Haiku 스냅샷 ID */
@@ -167,11 +176,18 @@ export interface GeneratorInput {
   rawDataDigest: string;
   entryFeasibility: EntryFeasibility;
   entryFeasibilityText: string;
+  perplexityPapers?: PerplexityPaper[];
 }
 
 export interface GeneratorResult {
   payload: Report1Payload;
   source: "cache" | "haiku" | "fallback";
+  modelUsed: string;
+}
+
+export interface GeneratorResultV3 {
+  payload: Report1PayloadV3;
+  source: "haiku" | "fallback";
   modelUsed: string;
 }
 
@@ -382,6 +398,47 @@ ${input.rawDataDigest}
 위 데이터를 근거로 generate_report1 도구를 호출하여 보고서 본문을 생성하시오. 모든 필드는 필수이며, 도구의 description에 명시된 양식·금지·강제 룰을 100% 준수하시오.`;
 }
 
+function buildUserPromptV3(input: GeneratorInput): string {
+  const selectedProduct = findProductById(input.productId);
+  const selectedInn = selectedProduct?.who_inn_en ?? input.innEn;
+  const selectedAtc4 =
+    selectedProduct?.is_combination_drug === true &&
+    selectedProduct.secondary_atc4 !== undefined &&
+    selectedProduct.secondary_atc4.trim() !== ""
+      ? `${selectedProduct.atc4_code} + ${selectedProduct.secondary_atc4}`
+      : (selectedProduct?.atc4_code ?? "UNKNOWN");
+  const panamacompraLine =
+    input.panamacompraStats === null
+      ? "공공조달 통계: 미수집"
+      : `공공조달 통계: 건수 ${String(input.panamacompraStats.count)}, 평균 ${String(input.panamacompraStats.avgPrice)}, 최고 ${String(input.panamacompraStats.maxPrice)}, 최저 ${String(input.panamacompraStats.minPrice)}`;
+  const cabamedLine =
+    input.cabamedStats === null
+      ? "민간 소매 통계: 미수집"
+      : `민간 소매 통계: 건수 ${String(input.cabamedStats.count)}, 평균 ${String(input.cabamedStats.avgPrice)}, 최고 ${String(input.cabamedStats.maxPrice)}, 최저 ${String(input.cabamedStats.minPrice)}`;
+
+  return `[V3 입력 데이터]
+- 제품명: ${input.brandName}
+- INN: ${selectedInn}
+- ATC4: ${selectedAtc4}
+- Case 등급/판정: ${input.caseGrade} / ${input.caseVerdict}
+- WHO EML: ${input.emlWho ? "Y" : "N"}
+- PAHO Strategic Fund: ${input.emlPaho ? "Y" : "N"}
+- prevalence: ${input.prevalenceMetric.trim() !== "" ? input.prevalenceMetric : "미수집"}
+- 발굴 파트너: ${input.distributorNames.join(", ")}
+- ${panamacompraLine}
+- ${cabamedLine}
+- PanamaCompra V3 top: ${input.panamacompraV3Top === null ? "미수집" : JSON.stringify(input.panamacompraV3Top)}
+- entryFeasibility: ${JSON.stringify(input.entryFeasibility)}
+- entryFeasibilityText: ${input.entryFeasibilityText}
+
+[V3 강제 규칙]
+- 반드시 generate_report1_v3 도구 호출
+- 필수 필드 14개 전부 생성
+- 각 문자열 필드 250자 초과 금지
+- data_gaps는 입력 통계를 기준으로 true/false 판정
+- block4_papers는 최소 1개, block4_databases는 최소 3개`;
+}
+
 async function callLLM(
   model: string,
   input: GeneratorInput,
@@ -454,6 +511,91 @@ async function callLLM(
     throw new Error(`Schema mismatch: ${parseMessage}`);
   }
 }
+
+async function callLLMV3(
+  model: string,
+  input: GeneratorInput,
+  timeoutMs: number,
+): Promise<Report1PayloadV3> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (apiKey === undefined || apiKey.trim() === "") {
+    throw new Error(
+      "ANTHROPIC_API_KEY가 없습니다. 환경변수를 설정한 뒤 다시 시도하세요.",
+    );
+  }
+  const client = new Anthropic({ apiKey });
+  const userPrompt = buildUserPromptV3(input);
+  process.stderr.write(`[report1_generator_v3] USER_PROMPT_BEGIN model=${model}\n`);
+  process.stderr.write(`${userPrompt}\n`);
+  process.stderr.write("[report1_generator_v3] USER_PROMPT_END\n");
+
+  const response: Message = await new Promise<Message>((resolve, reject) => {
+    const t = setTimeout(() => {
+      reject(new Error(`LLM timeout (${model})`));
+    }, timeoutMs);
+    client.messages
+      .create({
+        model,
+        max_tokens: MAX_TOKENS,
+        temperature: 0,
+        system: REPORT1_SYSTEM_PROMPT_V3,
+        tools: [REPORT1_TOOL_V3],
+        tool_choice: { type: "tool", name: "generate_report1_v3" },
+        messages: [{ role: "user", content: userPrompt }],
+      })
+      .then((msg) => {
+        clearTimeout(t);
+        resolve(msg);
+      })
+      .catch((err: unknown) => {
+        clearTimeout(t);
+        reject(err);
+      });
+  });
+
+  const toolUseBlock = response.content.find((b) => b.type === "tool_use");
+  if (toolUseBlock === undefined || toolUseBlock.type !== "tool_use") {
+    throw new Error(`${model} 응답에 tool_use 블록이 없습니다.`);
+  }
+  try {
+    const parsed = parseReport1PayloadV3(toolUseBlock.input);
+    if (parsed === null) {
+      throw new Error("parseReport1PayloadV3 returned null");
+    }
+    return parsed;
+  } catch (parseErr: unknown) {
+    const parseMessage =
+      parseErr instanceof Error ? parseErr.message : String(parseErr);
+    process.stderr.write(
+      `[report1_generator_v3] Parse error: ${parseMessage}\n`,
+    );
+    throw new Error(`Schema mismatch: ${parseMessage}`);
+  }
+}
+
+// Stage 1 임시 fallback 보존용 (원복 필요 시 참고).
+// function temporaryFallbackV3(): Report1PayloadV3 {
+//   return {
+//     block2_market_medical: "...",
+//     block2_regulation: "...",
+//     block2_trade: "...",
+//     block2_procurement: "...",
+//     block2_distribution: "...",
+//     block2_reference_price: null,
+//     block3_1_channel: "...",
+//     block3_2_pricing: "...",
+//     block3_3_partners: "...",
+//     block3_4_risks: "...",
+//     block3_5_entry_feasibility: "...",
+//     block3_data_gaps: {
+//       public_procurement_missing: false,
+//       retail_missing: false,
+//       note: "...",
+//     },
+//     block4_papers: [],
+//     block4_databases: [],
+//   };
+// }
 
 export async function generateReport1(input: GeneratorInput): Promise<GeneratorResult> {
   const maxCalls = readMaxLlmCallsPerRun();
@@ -562,5 +704,59 @@ export async function generateReport1(input: GeneratorInput): Promise<GeneratorR
     payload,
     source: "fallback",
     modelUsed: "rule-based-template",
+  };
+}
+
+export async function generateReport1V3(input: GeneratorInput): Promise<GeneratorResultV3> {
+  const maxCalls = readMaxLlmCallsPerRun();
+  let llmCallsThisRun = 0;
+  if (llmCallsThisRun < maxCalls) {
+    llmCallsThisRun += 1;
+    const primaryTimeoutMs = normalizeTimeoutMs(LLM_TIMEOUT_MS, 58000);
+    const retryTimeoutMs = normalizeTimeoutMs(LLM_RETRY_TIMEOUT_MS, 30000);
+    try {
+      process.stderr.write(`[report1_generator_v3] Haiku ATTEMPT model=${HAIKU_MODEL}\n`);
+      const payload = await callLLMV3(HAIKU_MODEL, input, primaryTimeoutMs);
+      return { payload, source: "haiku", modelUsed: HAIKU_MODEL };
+    } catch (haikuErr: unknown) {
+      const message = stringifyUnknownError(haikuErr);
+      process.stderr.write(`[report1_generator_v3] Haiku FAILED: ${message}\n`);
+      if (canRetryHaiku(haikuErr)) {
+        process.stderr.write("[report1_generator_v3] retryable error → RETRY\n");
+        try {
+          const retryPayload = await callLLMV3(HAIKU_MODEL, input, retryTimeoutMs);
+          return { payload: retryPayload, source: "haiku", modelUsed: HAIKU_MODEL };
+        } catch (retryErr: unknown) {
+          const retryMessage = stringifyUnknownError(retryErr);
+          process.stderr.write(
+            `[report1_generator_v3] Haiku RETRY FAILED: ${retryMessage}\n`,
+          );
+        }
+      }
+    }
+  }
+  const fallbackInput: FallbackInput = {
+    innEn: input.innEn,
+    brandName: input.brandName,
+    caseGrade: input.caseGrade,
+    caseVerdict: input.caseVerdict,
+    emlWho: input.emlWho,
+    emlPaho: input.emlPaho,
+    prevalenceMetric: input.prevalenceMetric,
+    pahoRegionalReference: input.pahoRegionalReference,
+    distributorNames: input.distributorNames,
+    panamacompraCount: input.panamacompraCount,
+    panamacompraStats: input.panamacompraStats,
+    panamacompraV3Top: input.panamacompraV3Top,
+    cabamedStats: input.cabamedStats,
+    entryFeasibility: input.entryFeasibility,
+    entryFeasibilityText: input.entryFeasibilityText,
+    perplexityPapers: input.perplexityPapers,
+  };
+  const fallbackPayload = buildFallbackReportV3(fallbackInput);
+  return {
+    payload: fallbackPayload,
+    source: "fallback",
+    modelUsed: "rule-based-template-v3",
   };
 }

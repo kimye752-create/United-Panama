@@ -12,18 +12,25 @@ import {
   dedupeDistributorNames,
   extractPrevalenceMetric,
 } from "@/src/logic/report1_digest";
-import { generateReport1, type GeneratorInput } from "@/src/llm/report1_generator";
+import {
+  generateReport1,
+  generateReport1V3,
+  type GeneratorInput,
+} from "@/src/llm/report1_generator";
 import { getCabamedStats, getPanamacompraStats } from "@/src/logic/market_stats";
 import { getPahoRegionalReferenceLine } from "@/src/logic/paho_reference_prices";
 import { getPerplexityCacheInsight } from "@/src/logic/perplexity_insights";
 import { findProductById } from "@/src/utils/product-dictionary";
 import { getSupabaseClient } from "@/src/utils/db_connector";
 import type { PanamaRow } from "@/src/logic/fetch_panama_data";
+import type { Report1PayloadV3 } from "@/src/llm/report1_schema";
+import type { Report1Payload } from "@/src/llm/report1_schema";
 import {
   evaluatePanamaEntryFeasibility,
   feasibilityToReportText,
 } from "@/src/llm/logic/panama_entry_feasibility";
 import { Report1Document, type SourceRow } from "@/lib/pdf/Report1Document";
+import { Report1DocumentV3 } from "@/lib/pdf/Report1DocumentV3";
 
 export const runtime = "nodejs";
 
@@ -89,6 +96,7 @@ type PanamaCompraV3Top = {
 type CachedPdfRow = {
   pdf_base64: unknown;
   pdf_filename: unknown;
+  report_version?: unknown;
 };
 
 function toFiniteNumber(value: number | string | null | undefined): number | null {
@@ -376,15 +384,43 @@ function toPdfSourceRows(raw: unknown): SourceRow[] {
 
 async function tryLoadCachedPdf(
   productId: string,
+  reportVersion: "v1" | "v3",
 ): Promise<{ pdfBase64: string; pdfFilename: string } | null> {
   try {
     const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("panama_report_cache")
-      .select("pdf_base64, pdf_filename")
+      .select("pdf_base64, pdf_filename, report_version")
       .eq("product_id", productId)
+      .eq("report_version", reportVersion)
       .maybeSingle();
-    if (error !== null || data === null) {
+    if (error !== null) {
+      const legacy = await supabase
+        .from("panama_report_cache")
+        .select("pdf_base64, pdf_filename")
+        .eq("product_id", productId)
+        .maybeSingle();
+      if (legacy.error !== null || legacy.data === null) {
+        return null;
+      }
+      const legacyRow = legacy.data as CachedPdfRow;
+      if (typeof legacyRow.pdf_filename !== "string") {
+        return null;
+      }
+      const name = legacyRow.pdf_filename.toLowerCase();
+      const expectedToken = reportVersion === "v3" ? "_v3" : "_v1";
+      if (!name.includes(expectedToken)) {
+        return null;
+      }
+      if (typeof legacyRow.pdf_base64 !== "string" || legacyRow.pdf_base64.trim() === "") {
+        return null;
+      }
+      return {
+        pdfBase64: legacyRow.pdf_base64,
+        pdfFilename: legacyRow.pdf_filename,
+      };
+    }
+    if (data === null) {
       return null;
     }
     const row = data as CachedPdfRow;
@@ -407,17 +443,28 @@ async function savePdfCache(
   productId: string,
   pdfBase64: string,
   pdfFilename: string,
+  reportVersion: "v1" | "v3",
 ): Promise<void> {
   try {
     const supabase = getSupabaseClient();
     const { error } = await supabase
       .from("panama_report_cache")
-      .update({ pdf_base64: pdfBase64, pdf_filename: pdfFilename })
+      .update({
+        pdf_base64: pdfBase64,
+        pdf_filename: pdfFilename,
+        report_version: reportVersion,
+      })
       .eq("product_id", productId);
     if (error !== null) {
-      process.stderr.write(
-        `[analyze] PDF cache update 실패: ${error.message}\n`,
-      );
+      const legacy = await supabase
+        .from("panama_report_cache")
+        .update({ pdf_base64: pdfBase64, pdf_filename: pdfFilename })
+        .eq("product_id", productId);
+      if (legacy.error !== null) {
+        process.stderr.write(
+          `[analyze] PDF cache update 실패: ${legacy.error.message}\n`,
+        );
+      }
     }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
@@ -449,6 +496,8 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const productId = (body as { productId: string }).productId;
+  const useV3 = process.env.USE_REPORT1_V3 === "true";
+  const reportVersion: "v1" | "v3" = useV3 ? "v3" : "v1";
   if (findProductById(productId) === undefined) {
     return NextResponse.json(
       { error: "등록되지 않은 product_id입니다." },
@@ -488,6 +537,9 @@ export async function POST(req: Request): Promise<Response> {
       result.priceRows as PanamaRow[],
     );
     const entryFeasibilityText = feasibilityToReportText(entryFeasibility);
+    const perplexityInsight = await getPerplexityCacheInsight(
+      result.product.who_inn_en,
+    );
     if (process.env.DEBUG_REPORT1_V3 === "1") {
       console.log(
         "[DEBUG] panamacompraV3Top:",
@@ -515,6 +567,7 @@ export async function POST(req: Request): Promise<Response> {
       rawDataDigest,
       entryFeasibility,
       entryFeasibilityText,
+      perplexityPapers: perplexityInsight?.papers ?? [],
     };
     if (process.env.DEBUG_REPORT1_V3 === "1") {
       console.log(
@@ -523,10 +576,9 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
 
-    const llm = await generateReport1(generatorInput);
-    const perplexityInsight = await getPerplexityCacheInsight(
-      result.product.who_inn_en,
-    );
+    const llm = useV3
+      ? await generateReport1V3(generatorInput)
+      : await generateReport1(generatorInput);
     const sourceRowsForPdf = toPdfSourceRows(result.sourceAggregation);
     const confidenceRaw = (result.judgment as { confidence?: unknown }).confidence;
     const confidence =
@@ -537,16 +589,24 @@ export async function POST(req: Request): Promise<Response> {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     let pdfBase64: string | null = null;
     let pdfFilename: string | null = null;
-    const cachedPdf = await tryLoadCachedPdf(productId);
+    const cachedPdf = await tryLoadCachedPdf(productId, reportVersion);
     if (cachedPdf !== null) {
       pdfBase64 = cachedPdf.pdfBase64;
       pdfFilename = cachedPdf.pdfFilename;
     } else {
       try {
-        const pdfBuffer = await renderToBuffer(
-          React.createElement(
-            Report1Document,
-            {
+        const pdfElement = useV3
+          ? React.createElement(Report1DocumentV3, {
+              brandName: result.product.kr_brand_name,
+              innEn: result.product.who_inn_en,
+              hsCode: result.product.hs_code ?? "3004",
+              caseGrade,
+              caseVerdict: result.judgment.verdict,
+              confidence,
+              payload: llm.payload as Report1PayloadV3,
+              collectedAt: new Date().toISOString().slice(0, 10),
+            })
+          : React.createElement(Report1Document, {
               brandName: result.product.kr_brand_name,
               innEn: result.product.who_inn_en,
               dosageForm: result.product.formulation,
@@ -554,20 +614,22 @@ export async function POST(req: Request): Promise<Response> {
               caseGrade,
               caseVerdict: result.judgment.verdict,
               confidence,
-              llmPayload: llm.payload,
+              llmPayload: llm.payload as Report1Payload,
               sourceRows: sourceRowsForPdf,
               perplexityPapers: perplexityInsight?.papers ?? [],
               perplexitySource: perplexityInsight?.source ?? "cache_miss",
               collectedAt: new Date().toISOString().slice(0, 10),
-            },
-          ) as React.ReactElement<DocumentProps>,
+            });
+        const pdfBuffer = await renderToBuffer(
+          pdfElement as React.ReactElement<DocumentProps>,
         );
         if (pdfBuffer.length > 4_500_000) {
           process.stderr.write("[analyze] PDF too large, skipping base64\n");
         } else {
           pdfBase64 = Buffer.from(pdfBuffer).toString("base64");
-          pdfFilename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(result.product.who_inn_en)}.pdf`;
-          await savePdfCache(productId, pdfBase64, pdfFilename);
+          const versionSuffix = reportVersion === "v3" ? "_v3" : "_v1";
+          pdfFilename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(result.product.who_inn_en)}${versionSuffix}.pdf`;
+          await savePdfCache(productId, pdfBase64, pdfFilename, reportVersion);
         }
       } catch (pdfErr: unknown) {
         const message = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);
@@ -616,6 +678,11 @@ export async function POST(req: Request): Promise<Response> {
       perplexityPapers: perplexityInsight?.papers ?? [],
       pdfBase64,
       pdfFilename,
+      reportVersion,
+    }, {
+      headers: {
+        "X-Report-Version": reportVersion,
+      },
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "분석 실패";

@@ -8,8 +8,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { upsertStoredReport } from "@/src/lib/dashboard/reports_store";
-import { parseReport1Payload } from "@/src/llm/report1_schema";
-import type { Report1Payload } from "@/src/llm/report1_schema";
+import {
+  parseReport1Payload,
+  parseReport1PayloadV3,
+} from "@/src/llm/report1_schema";
+import type { Report1Payload, Report1PayloadV3 } from "@/src/llm/report1_schema";
 import type { AnalyzePanamaResult } from "@/src/logic/panama_analysis";
 import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 import type { ProductMaster } from "@/src/utils/product-dictionary";
@@ -18,6 +21,8 @@ import { AnalysisResultDashboard } from "./panama/AnalysisResultDashboard";
 import type { ConfidenceBreakdown, DashboardBundle, SourceBreakdown } from "./panama/types";
 import INNTabs from "./INNTabs";
 import type { LlmBundle } from "./Report1";
+import { Report1 } from "./Report1";
+import { Report1V3 } from "./Report1V3";
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return x !== null && typeof x === "object" && !Array.isArray(x);
@@ -47,6 +52,86 @@ function parseLlmBundle(raw: unknown): LlmBundle | null {
     return null;
   }
   return { payload: parsed, source: normalized, modelUsed: raw.modelUsed };
+}
+
+type ReportVersion = "v1" | "v3";
+
+type LlmBundleV3 = {
+  payload: Report1PayloadV3;
+  source: "cache" | "haiku" | "fallback";
+  modelUsed: string;
+};
+
+type UnifiedLlmBundle = {
+  reportVersion: ReportVersion;
+  rawPayload: Report1Payload | Report1PayloadV3;
+  v1Bundle: LlmBundle;
+  v3Bundle: LlmBundleV3 | null;
+};
+
+function convertV3ToV1Payload(payload: Report1PayloadV3): Report1Payload {
+  return {
+    block3_reasoning: [
+      payload.block2_market_medical,
+      payload.block2_regulation,
+      payload.block2_trade,
+      payload.block2_procurement,
+      payload.block2_distribution,
+    ],
+    block3_latam_scope_footnote: null,
+    block4_1_channel: payload.block3_1_channel,
+    block4_2_pricing: payload.block3_2_pricing,
+    block4_3_partners: payload.block3_3_partners,
+    block4_4_risks: payload.block3_4_risks,
+    block4_5_entry_feasibility: payload.block3_5_entry_feasibility,
+  };
+}
+
+function parseUnifiedLlmBundle(raw: unknown, reportVersionHint: ReportVersion): UnifiedLlmBundle | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+  const s = raw.source;
+  let normalizedSource: "cache" | "haiku" | "fallback";
+  if (s === "cache") {
+    normalizedSource = "cache";
+  } else if (s === "fallback") {
+    normalizedSource = "fallback";
+  } else if (s === "haiku" || s === "opus" || s === "sonnet") {
+    normalizedSource = "haiku";
+  } else {
+    return null;
+  }
+  if (typeof raw.modelUsed !== "string") {
+    return null;
+  }
+  const parsedV3 = parseReport1PayloadV3(raw.payload);
+  if (parsedV3 !== null) {
+    return {
+      reportVersion: "v3",
+      rawPayload: parsedV3,
+      v1Bundle: {
+        payload: convertV3ToV1Payload(parsedV3),
+        source: normalizedSource,
+        modelUsed: raw.modelUsed,
+      },
+      v3Bundle: {
+        payload: parsedV3,
+        source: normalizedSource,
+        modelUsed: raw.modelUsed,
+      },
+    };
+  }
+  const legacyV1Bundle = parseLlmBundle(raw);
+  if (legacyV1Bundle !== null) {
+    return {
+      reportVersion: reportVersionHint,
+      rawPayload: legacyV1Bundle.payload,
+      v1Bundle: legacyV1Bundle,
+      v3Bundle: null,
+    };
+  }
+  return null;
 }
 
 const EMPTY_SOURCE_BREAKDOWN: SourceBreakdown = {
@@ -167,8 +252,12 @@ export function PanamaReportClient({
   onLoadingChange,
 }: Props) {
   const [data, setData] = useState<AnalyzePanamaResult | null>(null);
-  const [llm, setLlm] = useState<LlmBundle | null>(null);
+  const [llm, setLlm] = useState<UnifiedLlmBundle | null>(null);
   const [dashboard, setDashboard] = useState<DashboardBundle | null>(null);
+  const [rawDataDigest, setRawDataDigest] = useState<string>("");
+  const [prevalenceMetric, setPrevalenceMetric] = useState<string>("");
+  const [perplexityPapers, setPerplexityPapers] = useState<PerplexityPaper[]>([]);
+  const [perplexitySource, setPerplexitySource] = useState<string>("cache_miss");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -178,6 +267,10 @@ export function PanamaReportClient({
     setData(null);
     setLlm(null);
     setDashboard(null);
+    setRawDataDigest("");
+    setPrevalenceMetric("");
+    setPerplexityPapers([]);
+    setPerplexitySource("cache_miss");
     try {
       const res = await fetch("/api/panama/analyze", {
         method: "POST",
@@ -185,6 +278,9 @@ export function PanamaReportClient({
         body: JSON.stringify({ productId: product.product_id }),
       });
       const raw: unknown = await res.json();
+      const headerVersionRaw = res.headers.get("X-Report-Version");
+      const headerVersion: ReportVersion =
+        headerVersionRaw === "v3" ? "v3" : "v1";
       if (!res.ok) {
         const msg =
           isRecord(raw) && typeof raw.error === "string"
@@ -198,7 +294,7 @@ export function PanamaReportClient({
         return;
       }
 
-      const lb = parseLlmBundle(raw.llm);
+      const lb = parseUnifiedLlmBundle(raw.llm, headerVersion);
       if (lb === null) {
         setError("LLM 응답 파싱 실패");
         return;
@@ -241,6 +337,10 @@ export function PanamaReportClient({
         });
         perplexitySource = perplexityRaw.source;
       }
+      setRawDataDigest(dr);
+      setPrevalenceMetric(pm);
+      setPerplexityPapers(perplexityPapers);
+      setPerplexitySource(perplexitySource);
 
       if (
         raw.judgment === null ||
@@ -288,7 +388,7 @@ export function PanamaReportClient({
         caseGrade: analyze.judgment.case,
         confidence: analyze.judgment.confidence,
         verdict: analyze.judgment.verdict,
-        llmPayload: lb.payload,
+        llmPayload: lb.v1Bundle.payload,
         sourceBreakdown: parseSourceBreakdown(raw.sourceBreakdown),
         confidenceBreakdown: parseConfidenceBreakdown(raw.confidenceBreakdown),
         perplexityPapers,
@@ -371,6 +471,26 @@ export function PanamaReportClient({
                 }}
                 loading={loading}
               />
+              {llm.reportVersion === "v3" && llm.v3Bundle !== null ? (
+                <Report1V3
+                  brandName={data.product.kr_brand_name}
+                  innEn={data.product.who_inn_en}
+                  hsCode={data.product.hs_code ?? "3004"}
+                  caseGrade={data.judgment.case}
+                  caseVerdict={data.judgment.verdict}
+                  confidence={data.judgment.confidence}
+                  payload={llm.v3Bundle.payload}
+                />
+              ) : (
+                <Report1
+                  data={data}
+                  llm={llm.v1Bundle}
+                  rawDataDigest={rawDataDigest}
+                  prevalenceMetric={prevalenceMetric}
+                  perplexityPapers={perplexityPapers}
+                  perplexitySource={perplexitySource}
+                />
+              )}
             </div>
           ) : null}
         </>

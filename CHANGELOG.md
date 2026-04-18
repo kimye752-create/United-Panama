@@ -1,5 +1,53 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 18:21:13 (feat(report1-v3-stage3): analyze V1/V3 스위치 + 클라이언트 렌더 분기)
+
+### Changed
+- feat(api-switch): `app/api/panama/analyze/route.ts`에 `USE_REPORT1_V3` 환경변수 분기를 추가해 `generateReport1V3`/`generateReport1`을 선택 실행하도록 변경.
+- feat(api-switch): 동일 파일의 PDF 렌더링 경로를 분기해 V3는 `Report1DocumentV3`, V1은 기존 `Report1Document`를 사용하도록 구성.
+- feat(api-header): 분석 응답에 `X-Report-Version` 헤더(`v1`/`v3`)와 `reportVersion` 본문 필드를 추가해 프런트가 명시적으로 버전을 판별하도록 보강.
+- fix(api-cache-guard): `panama_report_cache` PDF 조회/저장 로직에 `report_version` 조건을 우선 적용하고, 컬럼 미존재 환경에서는 파일명 토큰(`_v1`/`_v3`) 기반 안전 폴백을 사용해 V1/V3 오염을 방지.
+- feat(client-switch): `components/PanamaReportClient.tsx`에 V1/V3 통합 파서(`parseUnifiedLlmBundle`)를 추가하고, 헤더 버전+payload 구조 기반으로 `Report1V3` 또는 `Report1`을 분기 렌더링.
+- refactor(client-compat): V3 payload를 대시보드용 V1 형태로 변환하는 어댑터를 추가해 기존 `AnalysisResultDashboard`를 변경 없이 재사용.
+- chore(env): `.env.local`에 `USE_REPORT1_V3=true`를 추가해 로컬 기본 검증 모드를 V3로 설정.
+
+### Verified
+- test(build-v3): `USE_REPORT1_V3=true` 상태에서 `npm run build` 통과.
+- test(build-v1): 쉘 환경변수 `USE_REPORT1_V3=false` 강제 후 `npm run build` 통과.
+- test(api-v3): `POST /api/panama/analyze` 호출 결과 `X-Report-Version=v3`, `X-LLM-Source=haiku`, `block2_*` 5개 카테고리 필드 존재, `block4_papers=2`, `block4_databases=5` 확인.
+- test(api-v1): `POST /api/panama/analyze` 호출 결과 `X-Report-Version=v1`, `hasV1=true`, `hasV3=false`, `X-LLM-Source=cache` 확인.
+
+## [Unreleased] - 2026-04-18 18:02:43 (feat(report1-v3-stage2): V3 fallback + 웹/PDF 렌더링 컴포넌트 추가)
+
+### Added
+- feat(report1-v3-fallback): `src/llm/report1_fallback_template.ts`에 `buildFallbackReportV3`, `detectDataGapsV3`, `fitV3`, V3 논문/DB 행 빌더를 추가해 Stage 1 임시 fallback을 규칙 기반 V3 payload 생성으로 교체 가능한 상태로 확장.
+- feat(report1-v3-fallback): `FallbackInput`에 `perplexityPapers?: PerplexityPaper[]`를 추가해 V3 fallback 경로에서도 입력 논문 리스트를 `block4_papers`로 우선 반영하도록 구성.
+- feat(report1-v3-web): 신규 `components/Report1V3.tsx` 추가. 기존 `Report1.tsx`를 건드리지 않고 V3 전용 UI(블록2 카테고리 분리, 블록3 데이터갭 배너, 블록4 논문/DB 표)를 독립 렌더링.
+- feat(report1-v3-pdf): 신규 `lib/pdf/Report1DocumentV3.tsx` 추가. 기존 `Report1Document.tsx` 유지한 채 Pretendard 폰트 경로(`./pdf-fonts`)를 재사용하고 3페이지 구조(판정/근거, 전략, 표 근거)로 분리 렌더링.
+
+### Changed
+- refactor(report1-v3-generator): `src/llm/report1_generator.ts`에서 `generateReport1V3`의 fallback 경로를 `temporaryFallbackV3` 대신 `buildFallbackReportV3(fallbackInput)`로 변경.
+- refactor(report1-v3-generator): Stage 1 임시 함수는 삭제 대신 주석 보존해 원복 가능성을 남김.
+- chore(report1-v3-debug): `scripts/debug/test_report1_v3.ts`를 확장해 (1) Haiku V3 생성 (2) 의도적 data gap fallback 샘플 생성 (3) `Report1DocumentV3` PDF 렌더링(`tmp/report1_v3_test.pdf`)을 한 번에 검증.
+
+### Verified
+- test(v3-script): `npx tsx scripts/debug/test_report1_v3.ts` 실행 성공. `source=haiku`, payload 14개 필드 출력, fallback payload 키/갭 노트 출력, PDF 생성 확인.
+- test(v3-pdf): 생성 파일 `tmp/report1_v3_test.pdf`, 크기 `30,570 bytes`, 페이지 수 `3` 확인.
+- test(build): `npm run build` 성공(타입체크 포함). 외부 환율 API 인증서 경고 로그는 기존 네트워크 이슈이며 빌드 실패와 무관.
+
+## [Unreleased] - 2026-04-18 17:49:04 (feat(report1-v3-stage1): V3 스키마/툴/프롬프트/제너레이터 병행 추가)
+
+### Added
+- feat(report1-v3-schema): `src/llm/report1_schema.ts`에 `Report1PayloadV3`, `REPORT1_PAYLOAD_V3_SCHEMA`, `parseReport1PayloadV3`를 추가해 블록2 카테고리 분리, 블록3 data_gaps, 블록4 표 구조(papers/databases)를 길이 제약(최대 250자 중심)과 함께 검증 가능하도록 확장.
+- feat(report1-v3-tool): 기존 `REPORT1_TOOL`을 유지한 채 `REPORT1_TOOL_V3`(`generate_report1_v3`)를 병행 정의해 V3 입력 스키마(14개 필수 필드, 배열 min/max, 중첩 객체 required)를 별도 강제.
+- feat(report1-v3-prompt): 기존 `REPORT1_SYSTEM_PROMPT`를 유지한 채 `REPORT1_SYSTEM_PROMPT_V3`를 추가해 블록2/3/4 작성 규칙, data_gaps 판정 기준, 금지 표현을 V3 전용으로 분리.
+- feat(report1-v3-generator): `src/llm/report1_generator.ts`에 `GeneratorResultV3`, `buildUserPromptV3`, `callLLMV3`, `generateReport1V3`, `temporaryFallbackV3`를 추가해 V1 경로와 충돌 없이 V3 생성 경로를 독립 구현.
+- feat(report1-v3-debug): `scripts/debug/test_report1_v3.ts`를 신규 추가해 V3 생성 함수 단독 호출과 payload 14개 필드 존재 여부를 즉시 점검할 수 있도록 구성.
+
+### Verified
+- test(v3-script): `npx tsx scripts/debug/test_report1_v3.ts` 실행 결과 `source: haiku` 확인, payload key 14개 출력, `block4_papers`/`block4_databases` 카운트 정상 출력.
+- test(build): `npm run build` 성공(타입 체크 포함). 빌드 중 환율 수집 API 인증서 검증 실패 로그(`unable to verify the first certificate`)는 기존 외부 연동 이슈이며, Stage 1 코드 변경으로 인한 빌드 실패는 없음.
+
 ## [Unreleased] - 2026-04-18 17:32:06 (feat(phase1-ux): 분석 1회로 보고서+PDF 완료 통합)
 
 ### Changed
