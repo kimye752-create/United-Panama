@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 01:10:00 (style(ui): 매크로 카드 세로 높이 추가 축소)
+
+### Changed
+- style(macro-cards): `components/main-preview/MacroCards.tsx` — `min-h` 제거, 카드·그리드 패딩·본문/출처 글자 크기 축소로 상단 4지표 카드 세로 길이 추가 단축.
+
 ## [Unreleased] - 2026-04-19 00:40:00 (세션26: 1·2공정 UI·문구 — 품목 라벨·Logic A/B 제거·가격 책정 명칭)
 
 ### Changed
