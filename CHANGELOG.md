@@ -1,5 +1,12 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 00:40:00 (세션26: 1·2공정 UI·문구 — 품목 라벨·Logic A/B 제거·가격 책정 명칭)
+
+### Changed
+- feat(phase1-ui): `src/utils/product_option_labels.ts` — 품목 드롭다운을 `[품목군 · 개량신약|일반제] 브랜드 (INN·제형·함량)` 형식으로 표시, 복합제는 성분별 함량을 `+`로 연결. `MacroCards` 카드 `min-h`/패딩 축소로 상단 4지표 세로 높이 완화.
+- refactor(phase2-copy): Logic A/B 표기를 공공조달·민간소매 용어로 통일(`Phase2Section`·`Phase2ResultTabs`·`Phase2Document`·`phase2/analyze`·`calculate`·폴백 템플릿).
+- feat(phase2-download): 다운로드 버튼·PDF 파일명(`UPharma_Panama_PriceStrategy_…`)·2공정 섹션 제목을 「가격 책정 전략」으로 정렬.
+
 ## [Unreleased] - 2026-04-18 23:55:00 (fix(phase2): 보고서 드롭다운 세션 전용·라벨·동기화·product_not_found)
 
 ### Changed
