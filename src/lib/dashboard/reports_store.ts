@@ -89,6 +89,16 @@ export function loadStoredReports(): StoredReportItem[] {
   }
 }
 
+/** 세션에서 보고서 한 건 제거 (유효하지 않은 ID 정리 등) */
+export function removeStoredReport(reportId: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const reports = getStoredReports();
+  const filtered = reports.filter((r) => r.id !== reportId);
+  saveStoredReports(filtered);
+}
+
 export function saveStoredReports(items: StoredReportItem[]): void {
   if (typeof window === "undefined") {
     return;

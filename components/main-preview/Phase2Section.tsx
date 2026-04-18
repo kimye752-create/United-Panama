@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
+import { removeStoredReport, type StoredReportItem } from "@/src/lib/dashboard/reports_store";
 import type { CompetitorPricesPayload } from "@/src/logic/phase2/competitor_prices";
 import {
   Phase2ResultTabs,
@@ -12,11 +12,14 @@ import {
 interface Phase2SectionProps {
   onCompleted: () => void;
   reports: StoredReportItem[];
+  /** 세션에서 보고서 제거 후 목록 재동기화 */
+  onReportsChanged?: () => void;
 }
 
 interface AnalyzeApiResponse {
   ok?: boolean;
   error?: string;
+  message?: string;
   finalPricePab: number;
   public_market: Phase2ResultPayload["public_market"];
   private_market: Phase2ResultPayload["private_market"];
@@ -46,9 +49,10 @@ function formatPriceCell(value: number | null): string {
   return `$${value.toFixed(4)}`;
 }
 
-export function Phase2Section({ onCompleted, reports }: Phase2SectionProps) {
+export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2SectionProps) {
   const [expanded, setExpanded] = useState(true);
   const [reportId, setReportId] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [analysisStarted, setAnalysisStarted] = useState(false);
   const [analysisCompleted, setAnalysisCompleted] = useState(false);
@@ -65,6 +69,10 @@ export function Phase2Section({ onCompleted, reports }: Phase2SectionProps) {
       }
     };
   }, [pdfBlobUrl]);
+
+  useEffect(() => {
+    setErrorMessage(null);
+  }, [reportId]);
 
   const selectedReport = useMemo(
     () => reports.find((report) => report.id === reportId) ?? null,
@@ -84,6 +92,7 @@ export function Phase2Section({ onCompleted, reports }: Phase2SectionProps) {
       return;
     }
     setLoading(true);
+    setErrorMessage(null);
     setAnalysisStarted(true);
     setAnalysisCompleted(false);
     setResult(null);
@@ -115,6 +124,19 @@ export function Phase2Section({ onCompleted, reports }: Phase2SectionProps) {
         }),
       });
       const payload = (await response.json()) as AnalyzeApiResponse;
+      if (response.status === 404 && payload.error === "product_not_found") {
+        removeStoredReport(selectedReport.id);
+        onReportsChanged?.();
+        setReportId("");
+        setErrorMessage(
+          typeof payload.message === "string" && payload.message.trim() !== ""
+            ? payload.message
+            : "해당 보고서는 유효하지 않습니다. 1공정에서 새로 생성해주세요.",
+        );
+        setAnalysisStarted(false);
+        setProgressStep(0);
+        return;
+      }
       if (!response.ok || payload.ok !== true) {
         const msg =
           typeof payload.error === "string" && payload.error.trim() !== ""
@@ -210,6 +232,9 @@ export function Phase2Section({ onCompleted, reports }: Phase2SectionProps) {
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
           <div>
             <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 선택</p>
+            {errorMessage !== null ? (
+              <p className="mb-2 text-[11px] font-medium text-[#c0392b]">{errorMessage}</p>
+            ) : null}
             <select
               value={reportId}
               onChange={(event) => setReportId(event.target.value)}

@@ -58,6 +58,9 @@ export function MainPreviewSections() {
       />
       <Phase2Section
         reports={reports}
+        onReportsChanged={() => {
+          setReports(getStoredReports());
+        }}
         onCompleted={() => {
           setPhase2Done(true);
         }}

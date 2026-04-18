@@ -146,10 +146,41 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ error: "productId 또는 유효한 reportId가 필요합니다." }, { status: 400 });
   }
 
-  const product = findProductById(productId);
-  if (product === undefined) {
-    return NextResponse.json({ error: "product not found" }, { status: 404 });
+  let productName: string | undefined;
+  let innEn: string | undefined;
+  try {
+    const sb = createSupabaseServer();
+    const { data: row, error: productErr } = await sb
+      .from("products")
+      .select("kr_brand_name, who_inn_en")
+      .eq("product_id", productId)
+      .maybeSingle();
+    if (productErr === null && row !== null && typeof row === "object" && !Array.isArray(row)) {
+      const r = row as Record<string, unknown>;
+      if (typeof r.kr_brand_name === "string" && typeof r.who_inn_en === "string") {
+        productName = r.kr_brand_name;
+        innEn = r.who_inn_en;
+      }
+    }
+  } catch {
+    // products 테이블 미구성 등 — 사전 데이터로 폴백
   }
+  if (productName === undefined || innEn === undefined) {
+    const pm = findProductById(productId);
+    if (pm === undefined) {
+      return NextResponse.json(
+        {
+          error: "product_not_found",
+          message: "해당 제품 정보를 찾을 수 없습니다. 1공정 보고서를 다시 생성해 주세요.",
+        },
+        { status: 404 },
+      );
+    }
+    productName = pm.kr_brand_name;
+    innEn = pm.who_inn_en;
+  }
+
+  const product = { kr_brand_name: productName, who_inn_en: innEn };
 
   const market: Phase2MarketSegment = payload.market === "private" ? "private" : "public";
 
