@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (data(phase3): 세션 28 1차 배치 6~10사 append)
+
+### Added
+- `data/phase3/partner_factsheets.md` — 세션 28 블록: 3-6 Roche(PSI 63.8) ~ 3-10 Novartis Logistics(PSI 56.1) 팩트시트 append, 하단 예정 문구 11~20번으로 갱신.
+- `data/phase3/partner_psi_matrix.csv` — 5사×8제품 40행 append(총 데이터 80행 + 헤더 1행).
+- `data/phase3/partner_psi_ranking.md` — 10사 확장 순위표 + PSI 로직 설계 철학(글로벌 5위 제약사 문구 박제) append.
+- `data/phase3/partner_candidate_pool.md` — Roche·GSK·Novartis·Pfizer Free Zone·BAYER 5개 `- [x]` 및 PSI 부기, 제 추천 Roche 줄 동기화.
+
+### Notes
+- Sereterol(GSK)·Gadvoa(Bayer) direct_competition 인사이트 및 순위표 인용 문구는 지시서 원문 유지.
+
 ## [Unreleased] - 2026-04-19 12:15:00 (docs(phase3): 세션 27 매칭 데이터 data/phase3 분리)
 
 ### Added

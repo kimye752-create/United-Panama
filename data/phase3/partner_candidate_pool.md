@@ -9,13 +9,13 @@
 MINSA 공식 라이선스 리스트 기준 강력 후보들:
 
 ### 7-1. MNC 본사 직영법인 (Tier 1~2 예상)
-- [ ] **PRODUCTOS ROCHE (PANAMÁ), S.A.** — Roche 본사 직영, 항암제 벤치마크
-- [ ] **GLAXOSMITHKLINE PANAMÁ, S.A.** — GSK 본사 직영, Sereterol 경쟁 구도 핵심
-- [ ] **NOVARTIS PHARMA (LOGISTICS), INC.** — Novartis 파나마 물류 법인
-- [ ] **PFIZER FREE ZONE PANAMÁ, S. DE R.L.** — Pfizer 자유무역지대 법인
+- [x] **PRODUCTOS ROCHE (PANAMÁ), S.A.** — Roche 본사 직영, 항암제 벤치마크 — ✅ 세션 28 매칭 완료 (PSI 63.8)
+- [x] **GLAXOSMITHKLINE PANAMÁ, S.A.** — GSK 본사 직영, Sereterol 경쟁 구도 핵심 — ✅ 세션 28 매칭 완료 (PSI 77.85)
+- [x] **NOVARTIS PHARMA (LOGISTICS), INC.** — Novartis 파나마 물류 법인 — ✅ 세션 28 매칭 완료 (PSI 56.1)
+- [x] **PFIZER FREE ZONE PANAMÁ, S. DE R.L.** — Pfizer 자유무역지대 법인 — ✅ 세션 28 매칭 완료 (PSI 55.4)
 - [ ] **SANOFI-AVENTIS DE PANAMÁ, S.A.** — Sanofi 본사 직영
 - [ ] **MSD CENTRAL AMERICA SERVICES S. DE R.L.** — Merck 중미 본사
-- [ ] **BAYER** — 조영제 Gadvoa 경쟁 구도 핵심
+- [x] **BAYER** — 조영제 Gadvoa 경쟁 구도 핵심 — ✅ 세션 28 매칭 완료 (PSI 58.2)
 - [ ] **CSL BEHRING PANAMÁ, S.A.** — 혈액제제 전문
 - [ ] **Laboratorios Bagó de Panamá, S.A.** — 아르헨티나 MNC LATAM 법인
 
@@ -43,4 +43,4 @@ MINSA 공식 라이선스 리스트 기준 강력 후보들:
 - [ ] **QUALIPHARM PANAMÁ, S.A.**
 
 ### 제 추천 6번째 후보
-- [ ] **PRODUCTOS ROCHE (PANAMÁ), S.A.** — Roche 본사 직영법인은 파나마 시장에서 Top 10 자리 가치 평가가 불가피한 상징적 파트너. 특히 Hydrine 항암제 매칭에서 Roche의 기존 Oncology 포트폴리오와 경쟁/협업 구도 분석이 발표 차별점 형성. MNC Tier 1 (100점) 매출 + 항암 전문성 + 본사 직영이라는 3박자.
+- [x] **PRODUCTOS ROCHE (PANAMÁ), S.A.** — Roche 본사 직영법인은 파나마 시장에서 Top 10 자리 가치 평가가 불가피한 상징적 파트너. 특히 Hydrine 항암제 매칭에서 Roche의 기존 Oncology 포트폴리오와 경쟁/협업 구도 분석이 발표 차별점 형성. MNC Tier 1 (100점) 매출 + 항암 전문성 + 본사 직영이라는 3박자. — ✅ 세션 28 매칭 완료 (PSI 63.8)
