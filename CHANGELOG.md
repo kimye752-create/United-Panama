@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 19:38:57 (fix(pdf): /api/panama/pdf V1/V3 분기 및 버전 캐시 분리)
+
+### Changed
+- fix(pdf-route): `app/api/panama/pdf/route.ts`에 `USE_REPORT1_V3` 분기를 추가해 V3에서는 `generateReport1V3` + `Report1DocumentV3`, V1에서는 기존 `generateReport1` + `Report1Document`를 유지하도록 분기.
+- fix(pdf-cache): fast-cache 조회 시 `report_version`(`v1`/`v3`) 필터를 우선 적용하고, V3 payload는 `parseReport1PayloadV3`로 검증하도록 보강.
+- fix(pdf-header): `/api/panama/pdf` 응답 헤더에 `X-Report-Version`을 추가하고 `X-LLM-Source`를 경로별로 일관 노출.
+- fix(pdf-cache-write): PDF 경로에서도 `panama_report_cache` upsert 시 `report_version`을 함께 저장(컬럼 미존재 시 레거시 upsert로 폴백).
+
 ## [Unreleased] - 2026-04-18 19:09:01 (chore(branding): 유나이티드 심볼 파비콘 복원)
 
 ### Changed

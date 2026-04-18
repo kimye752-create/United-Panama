@@ -10,12 +10,18 @@ import {
   Report1Document,
   type Report1PdfProps,
 } from "@/lib/pdf/Report1Document";
+import { Report1DocumentV3 } from "@/lib/pdf/Report1DocumentV3";
 import type { PerplexityPaper } from "@/src/logic/perplexity_insights";
 import {
   generateReport1,
+  generateReport1V3,
   type GeneratorInput,
 } from "@/src/llm/report1_generator";
-import { parseReport1Payload } from "@/src/llm/report1_schema";
+import {
+  parseReport1Payload,
+  parseReport1PayloadV3,
+  type Report1PayloadV3,
+} from "@/src/llm/report1_schema";
 import type { MarketPriceStats } from "@/src/logic/market_stats";
 import { analyzePanamaProduct } from "@/src/logic/panama_analysis";
 import {
@@ -37,6 +43,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 120; // Vercel Function timeout 120초 (Haiku 58초 + PDF 렌더링 여유)
+const USE_V3 = process.env.USE_REPORT1_V3 === "true";
 
 interface PdfRequestBody {
   productId: string;
@@ -81,7 +88,24 @@ interface CachedReportRow {
   report_payload: unknown;
   generated_at: string;
   expires_at: string;
+  report_version?: string | null;
 }
+
+type CachedPdfBuildResult =
+  | { version: "v1"; props: Report1PdfProps }
+  | {
+      version: "v3";
+      payload: Report1PayloadV3;
+      product: {
+        brandName: string;
+        innEn: string;
+        hsCode: string;
+      };
+      caseGrade: "A" | "B" | "C";
+      caseVerdict: string;
+      confidence: number;
+      collectedAt: string;
+    };
 
 function parsePerplexityPapers(raw: unknown): PerplexityPaper[] | null {
   if (!Array.isArray(raw)) {
@@ -339,26 +363,51 @@ function parseCaseGrade(raw: unknown): "A" | "B" | "C" | null {
   return null;
 }
 
-async function tryBuildPdfPropsFromCache(productId: string): Promise<Report1PdfProps | null> {
+async function tryBuildPdfPropsFromCache(
+  productId: string,
+): Promise<CachedPdfBuildResult | null> {
   const product = findProductById(productId);
   if (product === undefined) {
     return null;
   }
   const sb = createSupabaseServer();
-  const { data, error } = await sb
-    .from("panama_report_cache")
-    .select("case_grade, report_payload, generated_at, expires_at")
-    .eq("product_id", productId)
-    .maybeSingle();
-  if (error !== null || data === null) {
+  let row: CachedReportRow | null = null;
+  if (USE_V3) {
+    const current = await sb
+      .from("panama_report_cache")
+      .select("case_grade, report_payload, generated_at, expires_at, report_version")
+      .eq("product_id", productId)
+      .eq("report_version", "v3")
+      .maybeSingle();
+    if (current.error !== null || current.data === null) {
+      return null;
+    }
+    row = current.data as CachedReportRow;
+  } else {
+    const current = await sb
+      .from("panama_report_cache")
+      .select("case_grade, report_payload, generated_at, expires_at, report_version")
+      .eq("product_id", productId)
+      .eq("report_version", "v1")
+      .maybeSingle();
+    if (current.error === null && current.data !== null) {
+      row = current.data as CachedReportRow;
+    } else {
+      const legacy = await sb
+        .from("panama_report_cache")
+        .select("case_grade, report_payload, generated_at, expires_at")
+        .eq("product_id", productId)
+        .maybeSingle();
+      if (legacy.error !== null || legacy.data === null) {
+        return null;
+      }
+      row = legacy.data as CachedReportRow;
+    }
+  }
+  if (row === null) {
     return null;
   }
-  const row = data as CachedReportRow;
   if (new Date(row.expires_at) < new Date()) {
-    return null;
-  }
-  const llmPayload = parseReport1Payload(row.report_payload);
-  if (llmPayload === null) {
     return null;
   }
   const caseGrade = parseCaseGrade(row.case_grade) ?? "B";
@@ -369,26 +418,94 @@ async function tryBuildPdfPropsFromCache(productId: string): Promise<Report1PdfP
     }
     return iso.slice(0, 10);
   })();
-  return {
-    brandName: product.kr_brand_name,
-    innEn: product.who_inn_en,
-    dosageForm: defaultDosageForm(product.who_inn_en),
-    hsCode: defaultHsCode(),
-    caseGrade,
-    caseVerdict: resolveCaseVerdict(caseGrade),
-    confidence: resolveConfidence(caseGrade),
-    llmPayload,
-    sourceRows: [
-      {
-        source: "panama_report_cache",
-        count: 1,
-        avgConfidence: resolveConfidence(caseGrade),
+  if (USE_V3) {
+    const llmPayload = parseReport1PayloadV3(row.report_payload);
+    if (llmPayload === null) {
+      return null;
+    }
+    return {
+      version: "v3",
+      payload: llmPayload,
+      product: {
+        brandName: product.kr_brand_name,
+        innEn: product.who_inn_en,
+        hsCode: product.hs_code ?? defaultHsCode(),
       },
-    ],
-    perplexityPapers: [],
-    perplexitySource: "cache_only",
-    collectedAt,
+      caseGrade,
+      caseVerdict: resolveCaseVerdict(caseGrade),
+      confidence: resolveConfidence(caseGrade),
+      collectedAt,
+    };
+  }
+  const llmPayload = parseReport1Payload(row.report_payload);
+  if (llmPayload === null) {
+    return null;
+  }
+  return {
+    version: "v1",
+    props: {
+      brandName: product.kr_brand_name,
+      innEn: product.who_inn_en,
+      dosageForm: defaultDosageForm(product.who_inn_en),
+      hsCode: defaultHsCode(),
+      caseGrade,
+      caseVerdict: resolveCaseVerdict(caseGrade),
+      confidence: resolveConfidence(caseGrade),
+      llmPayload,
+      sourceRows: [
+        {
+          source: "panama_report_cache",
+          count: 1,
+          avgConfidence: resolveConfidence(caseGrade),
+        },
+      ],
+      perplexityPapers: [],
+      perplexitySource: "cache_only",
+      collectedAt,
+    },
   };
+}
+
+async function saveReportPayloadCache(
+  productId: string,
+  caseGrade: "A" | "B" | "C",
+  reportPayload: unknown,
+  llmModel: string,
+): Promise<void> {
+  const sb = createSupabaseServer();
+  const generatedAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const withVersion = await sb.from("panama_report_cache").upsert(
+    {
+      product_id: productId,
+      case_grade: caseGrade,
+      report_payload: reportPayload,
+      llm_model: llmModel,
+      report_version: USE_V3 ? "v3" : "v1",
+      generated_at: generatedAt,
+      expires_at: expiresAt,
+    },
+    { onConflict: "product_id" },
+  );
+  if (withVersion.error === null) {
+    return;
+  }
+  const legacy = await sb.from("panama_report_cache").upsert(
+    {
+      product_id: productId,
+      case_grade: caseGrade,
+      report_payload: reportPayload,
+      llm_model: llmModel,
+      generated_at: generatedAt,
+      expires_at: expiresAt,
+    },
+    { onConflict: "product_id" },
+  );
+  if (legacy.error !== null) {
+    process.stderr.write(
+      `[pdf-route] 캐시 저장 실패: ${legacy.error.message}\n`,
+    );
+  }
 }
 
 type PriceRowLite = {
@@ -600,14 +717,33 @@ export async function POST(req: NextRequest): Promise<Response> {
     try {
       const cachedProps = await tryBuildPdfPropsFromCache(minimalBody.productId);
       if (cachedProps !== null) {
-        const cachedBuffer = await renderToBuffer(
-          React.createElement(
-            Report1Document,
-            cachedProps,
-          ) as React.ReactElement<DocumentProps>,
-        );
+        const cachedBuffer =
+          cachedProps.version === "v3"
+            ? await renderToBuffer(
+                React.createElement(Report1DocumentV3, {
+                  brandName: cachedProps.product.brandName,
+                  innEn: cachedProps.product.innEn,
+                  hsCode: cachedProps.product.hsCode,
+                  caseGrade: cachedProps.caseGrade,
+                  caseVerdict: cachedProps.caseVerdict,
+                  confidence: cachedProps.confidence,
+                  payload: cachedProps.payload,
+                  collectedAt: cachedProps.collectedAt,
+                }) as React.ReactElement<DocumentProps>,
+              )
+            : await renderToBuffer(
+                React.createElement(
+                  Report1Document,
+                  cachedProps.props,
+                ) as React.ReactElement<DocumentProps>,
+              );
         const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-        const filename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(cachedProps.innEn)}.pdf`;
+        const cachedInn =
+          cachedProps.version === "v3"
+            ? cachedProps.product.innEn
+            : cachedProps.props.innEn;
+        const versionSuffix = cachedProps.version === "v3" ? "_v3" : "_v1";
+        const filename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(cachedInn)}${versionSuffix}.pdf`;
         return new NextResponse(new Uint8Array(cachedBuffer), {
           status: 200,
           headers: {
@@ -615,6 +751,7 @@ export async function POST(req: NextRequest): Promise<Response> {
             "Content-Disposition": `attachment; filename="${filename}"`,
             "X-LLM-Source": "cache",
             "X-PDF-Path": "fast-cache",
+            "X-Report-Version": cachedProps.version,
           },
         });
       }
@@ -665,10 +802,20 @@ export async function POST(req: NextRequest): Promise<Response> {
     rawDataDigest: resolvedBody.rawDataDigest,
     entryFeasibility,
     entryFeasibilityText,
+    perplexityPapers: resolvedBody.perplexityPapers,
   };
 
   try {
-    const llmResult = await generateReport1(generatorInput);
+    const llmResult = USE_V3
+      ? await generateReport1V3(generatorInput)
+      : await generateReport1(generatorInput);
+
+    await saveReportPayloadCache(
+      resolvedBody.productId,
+      resolvedBody.caseGrade,
+      llmResult.payload,
+      llmResult.modelUsed,
+    );
 
     const pdfProps: Report1PdfProps = {
       brandName: product.kr_brand_name,
@@ -685,14 +832,24 @@ export async function POST(req: NextRequest): Promise<Response> {
       collectedAt: new Date().toISOString().slice(0, 10),
     };
 
+    const pdfElement = USE_V3
+      ? React.createElement(Report1DocumentV3, {
+          brandName: product.kr_brand_name,
+          innEn: product.who_inn_en,
+          hsCode: product.hs_code ?? "3004",
+          caseGrade: resolvedBody.caseGrade,
+          caseVerdict: resolvedBody.caseVerdict,
+          confidence: resolvedBody.confidence,
+          payload: llmResult.payload as Report1PayloadV3,
+          collectedAt: new Date().toISOString().slice(0, 10),
+        })
+      : React.createElement(Report1Document, pdfProps);
     const buffer = await renderToBuffer(
-      React.createElement(
-        Report1Document,
-        pdfProps,
-      ) as React.ReactElement<DocumentProps>,
+      pdfElement as React.ReactElement<DocumentProps>,
     );
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    const filename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(product.who_inn_en)}.pdf`;
+    const versionSuffix = USE_V3 ? "_v3" : "_v1";
+    const filename = `UPharma_Panama_Report_${today}_${safeFilenameSegment(product.who_inn_en)}${versionSuffix}.pdf`;
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
@@ -700,6 +857,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,
         "X-LLM-Source": llmResult.source,
+        "X-Report-Version": USE_V3 ? "v3" : "v1",
       },
     });
   } catch (err: unknown) {
