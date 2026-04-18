@@ -18,6 +18,7 @@ import {
   type GeneratorInput,
 } from "@/src/llm/report1_generator";
 import {
+  type Report1Payload,
   parseReport1Payload,
   parseReport1PayloadV3,
   type Report1PayloadV3,
@@ -825,7 +826,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       caseGrade: resolvedBody.caseGrade,
       caseVerdict: resolvedBody.caseVerdict,
       confidence: resolvedBody.confidence,
-      llmPayload: llmResult.payload,
+      llmPayload: llmResult.payload as Report1Payload,
       sourceRows: resolvedBody.sourceRows,
       perplexityPapers: resolvedBody.perplexityPapers,
       perplexitySource: resolvedBody.perplexitySource,

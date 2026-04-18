@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 19:47:46 (fix(pdf): V1 payload 타입 캐스팅으로 V3 유니온 빌드 오류 수정)
+
+### Fixed
+- fix(type): `app/api/panama/pdf/route.ts`에서 `llmResult.payload` 유니온(`Report1Payload | Report1PayloadV3`)을 V1 PDF props에 주입할 때 `Report1Payload`로 명시 캐스팅해 Next 빌드 타입 오류를 해결.
+
 ## [Unreleased] - 2026-04-18 19:45:45 (feat(reports): sessionStorage 이주 + DB bootstrap 비활성화)
 
 ### Changed
