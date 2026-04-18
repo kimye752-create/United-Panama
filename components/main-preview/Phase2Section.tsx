@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import type { CompetitorPricesPayload } from "@/src/logic/phase2/competitor_prices";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 import {
   Phase2ResultTabs,
   type Phase2ResultPayload,
 } from "./Phase2ResultTabs";
-import { buildPhase2ReportText } from "@/lib/phase2_pdf_template";
 
 interface Phase2SectionProps {
   onCompleted: () => void;
@@ -20,10 +20,15 @@ interface Phase2ReportOption {
   generatedAt: string;
 }
 
-interface CalculateResponse {
+interface AnalyzeApiResponse {
+  ok?: boolean;
+  error?: string;
   finalPricePab: number;
   public_market: Phase2ResultPayload["public_market"];
   private_market: Phase2ResultPayload["private_market"];
+  competitorPrices: CompetitorPricesPayload;
+  pdfBase64?: string | null;
+  pdfFilename?: string | null;
   generatedAt: string;
 }
 
@@ -32,13 +37,33 @@ function resolveBrand(productId: string): string {
   return hit?.kr_brand_name ?? productId;
 }
 
+function formatPriceCell(value: number | null): string {
+  if (value === null) {
+    return "미수집";
+  }
+  return `$${value.toFixed(4)}`;
+}
+
 export function Phase2Section({ onCompleted }: Phase2SectionProps) {
   const [expanded, setExpanded] = useState(true);
   const [reports, setReports] = useState<Phase2ReportOption[]>([]);
   const [reportId, setReportId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [analysisStarted, setAnalysisStarted] = useState(false);
+  const [analysisCompleted, setAnalysisCompleted] = useState(false);
   const [progressStep, setProgressStep] = useState(0);
   const [result, setResult] = useState<Phase2ResultPayload | null>(null);
+  const [competitorPrices, setCompetitorPrices] = useState<CompetitorPricesPayload | null>(null);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [pdfFilename, setPdfFilename] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl !== null) {
+        URL.revokeObjectURL(pdfBlobUrl);
+      }
+    };
+  }, [pdfBlobUrl]);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -100,29 +125,82 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
       return;
     }
     setLoading(true);
+    setAnalysisStarted(true);
+    setAnalysisCompleted(false);
+    setResult(null);
+    setCompetitorPrices(null);
+    setPdfBlobUrl((prev) => {
+      if (prev !== null) {
+        URL.revokeObjectURL(prev);
+      }
+      return null;
+    });
+    setPdfFilename(null);
     setProgressStep(1);
-    const progressTimer = window.setInterval(() => {
-      setProgressStep((prev) => (prev < 4 ? prev + 1 : prev));
-    }, 900);
+
+    const timer1 = window.setTimeout(() => {
+      setProgressStep(2);
+    }, 3000);
+    const timer2 = window.setTimeout(() => {
+      setProgressStep(3);
+    }, 6000);
+
     try {
-      const response = await fetch("/api/panama/phase2/calculate", {
+      const response = await fetch("/api/panama/phase2/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          finalPricePab: 19.8,
+          productId: selectedReport.productId,
+          reportId: selectedReport.id,
+          market: "public",
         }),
       });
-      if (!response.ok) {
-        throw new Error(`HTTP ${String(response.status)}`);
+      const payload = (await response.json()) as AnalyzeApiResponse;
+      if (!response.ok || payload.ok !== true) {
+        const msg =
+          typeof payload.error === "string" && payload.error.trim() !== ""
+            ? payload.error
+            : `HTTP ${String(response.status)}`;
+        throw new Error(msg);
       }
-      const payload = (await response.json()) as CalculateResponse;
+
+      setProgressStep(4);
+      await new Promise<void>((resolve) => {
+        window.setTimeout(resolve, 2000);
+      });
+      setProgressStep(5);
+
       setResult({
         finalPricePab: payload.finalPricePab,
         public_market: payload.public_market,
         private_market: payload.private_market,
         generatedAt: payload.generatedAt,
       });
-      setProgressStep(4);
+      setCompetitorPrices(payload.competitorPrices);
+
+      if (
+        typeof payload.pdfBase64 === "string" &&
+        payload.pdfBase64.trim() !== "" &&
+        typeof payload.pdfFilename === "string" &&
+        payload.pdfFilename.trim() !== ""
+      ) {
+        try {
+          const binary = window.atob(payload.pdfBase64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i += 1) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: "application/pdf" });
+          setPdfBlobUrl(URL.createObjectURL(blob));
+          setPdfFilename(payload.pdfFilename);
+        } catch {
+          window.alert(
+            "PDF 데이터 변환에 실패했습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.",
+          );
+        }
+      }
+
+      setAnalysisCompleted(true);
       onCompleted();
     } catch (error: unknown) {
       window.alert(
@@ -130,29 +208,25 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
           error instanceof Error ? error.message : "알 수 없는 오류"
         }\n해결 방법: 보고서 선택 상태와 서버 연결을 확인한 뒤 다시 시도해 주세요.`,
       );
+      setAnalysisStarted(false);
+      setProgressStep(0);
     } finally {
-      window.clearInterval(progressTimer);
+      window.clearTimeout(timer1);
+      window.clearTimeout(timer2);
       setLoading(false);
     }
   };
 
-  const downloadReport = () => {
-    if (selectedReport === null || result === null) {
+  const handleDownload = () => {
+    if (pdfBlobUrl === null || pdfFilename === null) {
       return;
     }
-    const text = buildPhase2ReportText({
-      productName: resolveBrand(selectedReport.productId),
-      caseGrade: selectedReport.caseGrade,
-      generatedAt: result.generatedAt ?? new Date().toISOString(),
-      result,
-    });
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `phase2_report_${selectedReport.productId}.txt`;
+    anchor.href = pdfBlobUrl;
+    anchor.download = pdfFilename;
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(anchor);
   };
 
   return (
@@ -205,47 +279,148 @@ export function Phase2Section({ onCompleted }: Phase2SectionProps) {
               ▶ AI 가격 분석 실행
             </button>
           </div>
-          <div className="pt-1">
-            <div className="grid grid-cols-4 gap-2">
-              {PROGRESS_LABELS.map((label, index) => {
-                const current = index + 1;
-                const done = progressStep > current;
-                const active = progressStep === current && loading;
-                return (
-                  <div key={label} className="text-center">
-                    <div
-                      className={`mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                        done
-                          ? "bg-[#dff2ea] text-[#2a9a71]"
-                          : active
-                            ? "bg-[#dbe6f8] text-[#1f3e64]"
-                            : "bg-[#eef2f8] text-[#8ea0b7]"
-                      }`}
-                    >
-                      {done ? "✓" : current}
+          {analysisStarted ? (
+            <div className="pt-1">
+              <div className="grid grid-cols-4 gap-2">
+                {PROGRESS_LABELS.map((label, index) => {
+                  const current = index + 1;
+                  const done = progressStep > current;
+                  const active = progressStep === current && loading;
+                  return (
+                    <div key={label} className="text-center">
+                      <div
+                        className={`mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                          done
+                            ? "bg-[#dff2ea] text-[#2a9a71]"
+                            : active
+                              ? "bg-[#dbe6f8] text-[#1f3e64]"
+                              : "bg-[#eef2f8] text-[#8ea0b7]"
+                        }`}
+                      >
+                        {done ? "✓" : current}
+                      </div>
+                      <p className="text-[10px] text-[#6c809a]">{label}</p>
                     </div>
-                    <p className="text-[10px] text-[#6c809a]">{label}</p>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+              <div className="mt-2 h-[2px] w-full rounded-full bg-[#dfe7f2]">
+                <div
+                  className="h-full rounded-full bg-[#69b89d] transition-all duration-300"
+                  style={{
+                    width: `${(Math.min(Math.max(progressStep, 0), 4) / 4) * 100}%`,
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          {result !== null ? (
-            <Phase2ResultTabs result={result} />
+          ) : null}
+          {analysisCompleted && result !== null ? (
+            <>
+              {competitorPrices !== null ? (
+                <div className="rounded-[12px] border border-[#dce4ef] bg-white p-3 shadow-sh3">
+                  <h3 className="mb-2 text-[13px] font-extrabold text-[#1f3e64]">경쟁사 가격 참조</h3>
+                  <div className="mb-3">
+                    <div className="mb-1 text-[12px] font-semibold text-[#3e5574]">
+                      공공조달 (PanamaCompra V3)
+                    </div>
+                    <table className="w-full border-collapse border border-[#dce4ef] text-[11px]">
+                      <thead className="bg-[#f4f7fc]">
+                        <tr>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            평균
+                          </th>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            최고
+                          </th>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            최저
+                          </th>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            건수
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-[#dce4ef] p-2">
+                            {formatPriceCell(competitorPrices.publicProcurement.avg)}
+                          </td>
+                          <td className="border border-[#dce4ef] p-2">
+                            {formatPriceCell(competitorPrices.publicProcurement.max)}
+                          </td>
+                          <td className="border border-[#dce4ef] p-2">
+                            {formatPriceCell(competitorPrices.publicProcurement.min)}
+                          </td>
+                          <td className="border border-[#dce4ef] p-2">
+                            {competitorPrices.publicProcurement.count}건
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p className="mt-1 text-[10px] text-[#8b97aa]">
+                      {competitorPrices.publicProcurement.source}
+                    </p>
+                  </div>
+                  <div>
+                    <div className="mb-1 text-[12px] font-semibold text-[#3e5574]">
+                      민간 소매 (ACODECO CABAMED)
+                    </div>
+                    <table className="w-full border-collapse border border-[#dce4ef] text-[11px]">
+                      <thead className="bg-[#f4f7fc]">
+                        <tr>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            평균
+                          </th>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            최고
+                          </th>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            최저
+                          </th>
+                          <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">
+                            건수
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-[#dce4ef] p-2">
+                            {formatPriceCell(competitorPrices.privateRetail.avg)}
+                          </td>
+                          <td className="border border-[#dce4ef] p-2">
+                            {formatPriceCell(competitorPrices.privateRetail.max)}
+                          </td>
+                          <td className="border border-[#dce4ef] p-2">
+                            {formatPriceCell(competitorPrices.privateRetail.min)}
+                          </td>
+                          <td className="border border-[#dce4ef] p-2">
+                            {competitorPrices.privateRetail.count}건
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p className="mt-1 text-[10px] text-[#8b97aa]">
+                      {competitorPrices.privateRetail.source}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+              <Phase2ResultTabs result={result} />
+            </>
           ) : null}
           <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={downloadReport}
-              disabled={result === null}
-              className="inline-flex h-[36px] items-center rounded-[10px] border border-[#d9e1ed] bg-[#f5f8fc] px-4 text-[12px] font-bold text-[#1f3e64] disabled:cursor-not-allowed disabled:text-[#9aa9bc]"
-            >
-              📄 수출가격전략 보고서 다운로드
-            </button>
+            {analysisCompleted && pdfBlobUrl !== null && pdfFilename !== null ? (
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="inline-flex h-[36px] items-center rounded-[10px] border border-[#d9e1ed] bg-[#f5f8fc] px-4 text-[12px] font-bold text-[#1f3e64]"
+              >
+                📄 수출전략보고서 다운로드
+              </button>
+            ) : null}
           </div>
         </div>
       ) : null}
     </section>
   );
 }
-
