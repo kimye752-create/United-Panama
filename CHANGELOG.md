@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 (fix(phase1): 품목 라벨 함량·개량신약 태그 — 카탈로그 v2 대조)
+
+### Changed
+- `src/utils/product_option_labels.ts` — `PRODUCT_OPTION_META` 8건: 함량 정정(Ciloduo Rosuvastatin 10mg, Gastiin CR 15mg, Rosumeg/Atmeg Omega-3 조합, Omethyl 2g·Pouch), `therapeutic_group` Ciloduo「혈전+지질 개선」, 개량신약 6종에 `drug_type: 개량신약` 통일(Hydrine·Gadvoa는 drug_type 미표기 유지). 제품 UUID 미변경.
+
 ## [Unreleased] - 2026-04-18 (fix(phase3): 스테퍼 조건·파이프라인 라벨·productId 정규화)
 
 ### Changed
