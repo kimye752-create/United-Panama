@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 23:55:00 (fix(phase2): 보고서 드롭다운 세션 전용·라벨·동기화·product_not_found)
+
+### Changed
+- fix(phase2-dropdown): `Phase2Section` 드롭다운을 `/api/panama/phase2/report`(panama_report_cache) 대신 `sessionStorage`의 `getStoredReports()`만 사용. 시크릿 창에서 이전 세션 UUID 목록이 보이던 문제 수정.
+- feat(phase2-label): `StoredReportItem`에 `productBrandName`·`analyzedAt` 저장, 드롭다운 라벨을 `1공정 보고서 · 브랜드 · YYYY-MM-DD HH:mm` 형식으로 표시. `Phase1Section`/`PanamaReportClient`의 `upsertStoredReport`에 동일 필드 반영.
+- feat(phase2-sync): `MainPreviewSections`에서 `reports` state를 끌어올리고 `Phase1Section` `onReportGenerated`로 1공정 완료 시 목록 갱신, `Phase2Section`은 `reports` props만 사용.
+- fix(phase2-product): `removeStoredReport` 추가, `/api/panama/phase2/analyze`에서 `products` 조회 후 폴백 `findProductById`, 미존재 시 `error: product_not_found` JSON. 클라이언트에서 404 시 세션 항목 제거·에러 문구 표시.
+
 ## [Unreleased] - 2026-04-18 22:30:00 (feat(phase2): 수출가격 전략 UI·API·PDF 대개편)
 
 ### Added
