@@ -175,7 +175,7 @@ function buildFallbackCard(label: string): PanamaLandingMetricCard {
 function buildImfGdpCard(): PanamaLandingMetricCard {
   return {
     label: "국가GDP/1인당GDP",
-    value: "US$ 87.6 Billion / $ 19,445",
+    value: "US$ 87.6 Billion / $19,445",
     footer: "출처: IMF (2024)",
     hasData: true,
   };

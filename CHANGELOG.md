@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 21:25:00 (fix(ui): 매크로 카드 값 중앙·출처 우하단·GDP 한 줄)
+
+### Changed
+- fix(macro-cards): `components/main-preview/MacroCards.tsx`에서 지표 값을 카드 가운데 정렬, 본문 굵기를 `font-semibold` 수준으로 완화, 출처를 우측 하단 정렬. GDP 카드는 `whitespace-nowrap`과 `clamp` 폰트로 한 줄 표기.
+- chore(landing): `src/logic/panama_landing.ts`의 GDP 표기 문자열을 `$19,445` 형태로 정리.
+
 ## [Unreleased] - 2026-04-18 21:10:00 (fix(pdf): V3 레이아웃 단일 Page 연속 흐름)
 
 ### Changed
