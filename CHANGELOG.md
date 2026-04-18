@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 12:21:45 (fix(news): Haiku source/date 강제 추출 및 카드 노출 필터링)
+
+### Fixed
+- fix(news-logic): `src/logic/fetch_panama_dashboard_news.ts`에 도메인 기반 출처 추론 규칙을 추가해 `dream.kotra.or.kr`/`kita.net`/`statista.com`/`gabionline.net`/`pharmtech.com` 매핑과 기타 도메인 fallback을 일관 적용.
+- fix(news-logic): Haiku 프롬프트를 강화해 `web_search`의 URL·제목·snippet에서 `source/date`를 반드시 파싱하도록 명시하고, `source` 또는 `date`가 빈 항목은 결과에서 제외하도록 강제.
+- fix(news-logic): 날짜 파서를 추가해 `YYYY-MM-DD`, `YYYY/MM/DD`, `YYYY.MM.DD`, `YYYY년 M월 D일`, 영문 월 표기 및 연도형(`YYYY`)을 정규화하고, `날짜 미상` 문자열은 빈값으로 처리.
+- fix(news-logic): `source` 또는 `date`가 비어 있는 뉴스를 `normalizeNewsItem` 단계에서 스킵하도록 변경해 카드에 `출처 미상 · 날짜 미상`이 노출되지 않도록 보강.
+
 ## [Unreleased] - 2026-04-17 23:18:05 (fix(haiku)+feat(news): Haiku 진단 강화 + 뉴스 캐시 수집 전환)
 
 ### Fixed

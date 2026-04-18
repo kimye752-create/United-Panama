@@ -109,6 +109,158 @@ function normalizeUrl(url: string | null): string | undefined {
   return url;
 }
 
+function toHostname(url: string | undefined): string {
+  if (url === undefined) {
+    return "";
+  }
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function stripWwwPrefix(hostname: string): string {
+  if (hostname.startsWith("www.")) {
+    return hostname.slice(4);
+  }
+  return hostname;
+}
+
+function inferSourceFromUrl(url: string | undefined, explicitSource: string | null): string {
+  if (explicitSource !== null && explicitSource.trim() !== "" && explicitSource.trim() !== "출처 미상") {
+    return explicitSource.trim();
+  }
+  const hostname = stripWwwPrefix(toHostname(url));
+  if (hostname === "") {
+    return "";
+  }
+  if (hostname === "dream.kotra.or.kr") {
+    return "KOTRA";
+  }
+  if (hostname === "kita.net" || hostname.endsWith(".kita.net")) {
+    return "KITA 한국무역협회";
+  }
+  if (hostname === "statista.com" || hostname.endsWith(".statista.com")) {
+    return "Statista";
+  }
+  if (hostname === "gabionline.net" || hostname.endsWith(".gabionline.net")) {
+    return "GABIonline";
+  }
+  if (hostname === "pharmtech.com" || hostname.endsWith(".pharmtech.com")) {
+    return "PharmTech";
+  }
+  if (hostname === "news.naver.com") {
+    // 네이버 뉴스는 원문 언론사명을 써야 하므로 미제공 시 빈값 처리한다.
+    return "";
+  }
+  return hostname;
+}
+
+function parseMetaLine(metaLine: string | null): { category: string | null; source: string | null; date: string | null } {
+  if (metaLine === null || metaLine.trim() === "") {
+    return { category: null, source: null, date: null };
+  }
+  const parts = metaLine
+    .split("·")
+    .map((part) => part.trim())
+    .filter((part) => part !== "");
+  if (parts.length < 3) {
+    return { category: null, source: null, date: null };
+  }
+  return { category: parts[0] ?? null, source: parts[1] ?? null, date: parts[2] ?? null };
+}
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function normalizeDateValue(raw: string | null): string {
+  if (raw === null) {
+    return "";
+  }
+  const text = raw.trim();
+  if (text === "" || text === "날짜 미상") {
+    return "";
+  }
+  const isoLike = text.match(/\b(19\d{2}|20\d{2})[-./](\d{1,2})[-./](\d{1,2})\b/);
+  if (isoLike !== null) {
+    const year = Number(isoLike[1]);
+    const month = Number(isoLike[2]);
+    const day = Number(isoLike[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return `${String(year)}-${pad2(month)}-${pad2(day)}`;
+    }
+  }
+  const koreanDate = text.match(/\b(19\d{2}|20\d{2})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일\b/);
+  if (koreanDate !== null) {
+    const year = Number(koreanDate[1]);
+    const month = Number(koreanDate[2]);
+    const day = Number(koreanDate[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return `${String(year)}-${pad2(month)}-${pad2(day)}`;
+    }
+  }
+
+  const monthMap: Record<string, number> = {
+    january: 1,
+    february: 2,
+    march: 3,
+    april: 4,
+    may: 5,
+    june: 6,
+    july: 7,
+    august: 8,
+    september: 9,
+    october: 10,
+    november: 11,
+    december: 12,
+  };
+  const englishDate1 = text.match(
+    /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(19\d{2}|20\d{2})\b/i,
+  );
+  if (englishDate1 !== null) {
+    const month = monthMap[englishDate1[1].toLowerCase()];
+    const day = Number(englishDate1[2]);
+    const year = Number(englishDate1[3]);
+    if (month !== undefined && day >= 1 && day <= 31) {
+      return `${String(year)}-${pad2(month)}-${pad2(day)}`;
+    }
+  }
+  const englishDate2 = text.match(
+    /\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(19\d{2}|20\d{2})\b/i,
+  );
+  if (englishDate2 !== null) {
+    const day = Number(englishDate2[1]);
+    const month = monthMap[englishDate2[2].toLowerCase()];
+    const year = Number(englishDate2[3]);
+    if (month !== undefined && day >= 1 && day <= 31) {
+      return `${String(year)}-${pad2(month)}-${pad2(day)}`;
+    }
+  }
+  const yearOnly = text.match(/\b(19\d{2}|20\d{2})\b/);
+  if (yearOnly !== null) {
+    return yearOnly[1];
+  }
+  return "";
+}
+
+function resolveDate(row: Record<string, unknown>, metaDate: string | null): string {
+  const direct = normalizeDateValue(
+    textField(row, "date", "published_at", "publishedAt", "published_date", "date_hint", "published"),
+  );
+  if (direct !== "") {
+    return direct;
+  }
+  const fromMeta = normalizeDateValue(metaDate);
+  if (fromMeta !== "") {
+    return fromMeta;
+  }
+  return normalizeDateValue(
+    textField(row, "snippet", "summary", "description", "content_snippet", "title", "headline"),
+  );
+}
+
 function normalizeNewsItem(raw: unknown): PanamaDashboardNewsItem | null {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     return null;
@@ -118,13 +270,17 @@ function normalizeNewsItem(raw: unknown): PanamaDashboardNewsItem | null {
   if (headline === null) {
     return null;
   }
-  const source = textField(row, "source", "source_label") ?? "출처 미상";
-  const date = textField(row, "date", "date_hint") ?? "날짜 미상";
-  const category = normalizeCategory(textField(row, "category"));
   const url = normalizeUrl(textField(row, "url", "link"));
+  const meta = parseMetaLine(textField(row, "meta_line", "metaLine"));
+  const source = inferSourceFromUrl(url, textField(row, "source", "source_label", "publisher", "press", "outlet") ?? meta.source);
+  const date = resolveDate(row, meta.date);
+  if (source.trim() === "" || date.trim() === "") {
+    return null;
+  }
+  const category = normalizeCategory(textField(row, "category") ?? meta.category);
   return {
     headline: headline.slice(0, 400),
-    meta_line: `${category} · ${source} · ${date}`.slice(0, 300),
+    meta_line: `${category} · ${source.trim()} · ${date.trim()}`.slice(0, 300),
     url,
     category,
   };
@@ -221,9 +377,13 @@ async function requestHaikuNews(apiKey: string): Promise<PanamaDashboardNewsItem
           role: "user",
           content:
             "파나마 의약품 시장 최신 뉴스(2023~2026)를 검색해 JSON 배열만 반환하시오. " +
-            "기사는 실제 URL이 있는 항목만 포함하고, 항목 스키마는 " +
-            "[{\"title\":\"...\",\"source\":\"...\",\"date\":\"YYYY-MM-DD or YYYY\",\"url\":\"https://...\",\"category\":\"파나마 현지|한국 발행|글로벌\"}] 형식으로 작성하시오. " +
-            "최소 6건, 최대 10건. 파나마 무관 기사 제외.",
+            "기사는 반드시 실제 URL이 있는 항목만 포함하고, 각 항목에서 source/date를 절대 누락하지 마시오. " +
+            "web_search 결과의 URL·페이지 제목·snippet에서 source/date를 직접 파싱하시오. " +
+            "source 규칙: dream.kotra.or.kr=KOTRA, kita.net=KITA 한국무역협회, statista.com=Statista, gabionline.net=GABIonline, pharmtech.com=PharmTech, news.naver.com=원문 언론사명, 그 외=도메인명. " +
+            "date 규칙: snippet 또는 페이지 내용에서 추출하고, 못 찾으면 빈 문자열(절대 '날짜 미상' 금지). " +
+            "항목 스키마는 " +
+            "[{\"title\":\"...\",\"source\":\"...\",\"date\":\"YYYY-MM-DD or YYYY 또는 빈 문자열\",\"url\":\"https://...\",\"category\":\"파나마 현지|한국 발행|글로벌\",\"snippet\":\"...\"}] 형식으로 작성하시오. " +
+            "source 또는 date가 빈 문자열인 항목은 출력하지 말고 제외하시오. 최소 6건, 최대 10건. 파나마 무관 기사 제외.",
         },
       ],
     }),
