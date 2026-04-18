@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 12:15:00 (docs(phase3): 세션 27 매칭 데이터 data/phase3 분리)
+
+### Added
+- `data/phase3/partner_factsheets.md` — 핸드오프 세션 27 섹션 3(1~5사 팩트시트 전문) 이관, 세션 28 6~20사 append 예정 메모.
+- `data/phase3/partner_psi_matrix.csv` — 섹션 4 CSV 40행(헤더+데이터), UTF-8 BOM 없음, DB INSERT 복붙용.
+- `data/phase3/partner_psi_ranking.md` — 섹션 5 PSI 순위표·스펙트럼 문구 이관.
+- `data/phase3/partner_candidate_pool.md` — 섹션 7 후보 풀(7-1~7-4 + 6번째 추천), 기업별 `- [ ]` 체크박스로 진행 추적 가능.
+
+### Notes
+- `핸드오프27_3공정로직_.md` 원본은 수정하지 않음(이력 보존). 원본에 “data 이관됨” 한 줄 메모는 달강 확인 후 선택 작업.
+
 ## [Session 27 - Phase 3 기초 공사 + 경쟁/기회 플래그]
 
 ### Added
