@@ -1,5 +1,27 @@
 # Vibe Coding Log
 
+## [3공정 하드코딩 전환 + PDF] 2026-04-19
+
+### Added
+- `src/lib/phase3/partners-data.ts` — 20사×8제품 하드코딩(기존 파일 유지).
+- `src/lib/phase3/product-uuid-to-slug.ts`, `hardcoded-partner-mapper.ts` — UUID↔슬러그·`PartnerWithPSI` 매핑.
+- `SelectedProductBanner.tsx` — 결과 영역 상단 선택 제품 안내.
+- `src/lib/phase3/report/Phase3ReportDocument.tsx` — 3공정 PDF 8페이지(1~7 기업·4장 Top10 구분선·8 방법론).
+- `app/api/panama/phase3/report/pdf/route.tsx` — PDF `POST` (`renderToBuffer`).
+- `Phase3Container` — PDF 다운로드 버튼.
+
+### Changed
+- `partner-data-loader.ts` — Supabase `/api/.../analyze` 제거, 로컬 `PARTNERS` 즉시 반환.
+- `Phase3TabProductMatch.tsx` — `PARTNERS` 기준 8제품 카드 + 선택 제품 노란 하이라이트·상단 정렬.
+- `Phase3DetailModal` — `selectedProductSlug` prop.
+- 스테퍼 타이머 120/320/620ms → 400/800/1200ms(단계 간격 400ms대).
+
+### Fixed
+- `panama_partner_psi_precomputed` 미구축 시 3공정 실행 실패 → 로컬 데이터로 동작.
+
+### Notes
+- 1·2공정 Supabase 패키지·라우트는 유지. `app/api/panama/phase3/analyze`는 미사용 시 레거시로 남음.
+
 ## [Unreleased] - 2026-04-19 [Phase3 URL 반영]
 
 ### Added

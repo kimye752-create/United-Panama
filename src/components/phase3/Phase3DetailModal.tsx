@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import type { ProductId } from "@/src/lib/phase3/partners-data";
 import type { Phase3ModalTabId } from "@/src/lib/phase3/types";
 import type { PSICheckedState } from "@/src/lib/phase3/types";
 import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
@@ -16,6 +17,8 @@ interface Phase3DetailModalProps {
   partner: PartnerWithDynamicPsi | null;
   checked: PSICheckedState;
   rankHint: number | null;
+  /** 1공정 선택 제품 슬러그 — 제품매칭 탭 하이라이트 */
+  selectedProductSlug: ProductId | null;
   onClose: () => void;
 }
 
@@ -27,7 +30,14 @@ const TABS: { id: Phase3ModalTabId; label: string }[] = [
 ];
 
 /** 카드·리스트 공통 상세 모달 — 4탭 */
-export function Phase3DetailModal({ open, partner, checked, rankHint, onClose }: Phase3DetailModalProps) {
+export function Phase3DetailModal({
+  open,
+  partner,
+  checked,
+  rankHint,
+  selectedProductSlug,
+  onClose,
+}: Phase3DetailModalProps) {
   const [tab, setTab] = useState<Phase3ModalTabId>("basic");
 
   useEffect(() => {
@@ -81,7 +91,9 @@ export function Phase3DetailModal({ open, partner, checked, rankHint, onClose }:
         <div className="max-h-[min(60vh,480px)] overflow-y-auto px-4 py-3">
           {tab === "basic" ? <Phase3TabBasicInfo partner={partner} /> : null}
           {tab === "psi" ? <Phase3TabPsiAnalysis partner={partner} checked={checked} /> : null}
-          {tab === "products" ? <Phase3TabProductMatch partner={partner} /> : null}
+          {tab === "products" ? (
+            <Phase3TabProductMatch partner={partner} selectedProductSlug={selectedProductSlug} />
+          ) : null}
           {tab === "reason" ? <Phase3TabRecommendReason partner={partner} rankHint={rankHint} /> : null}
         </div>
       </div>

@@ -1,4 +1,5 @@
 export { Phase3Container } from "./Phase3Container";
+export { SelectedProductBanner } from "./SelectedProductBanner";
 export { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
 export { Phase3ReportToolbar } from "./Phase3ReportToolbar";
 export { Phase3WeightPanel } from "./Phase3WeightPanel";

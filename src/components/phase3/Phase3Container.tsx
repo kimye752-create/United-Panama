@@ -5,12 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
 import { fetchPartnersForProduct } from "@/src/lib/phase3/partner-data-loader";
+import { uuidToProductSlug } from "@/src/lib/phase3/product-uuid-to-slug";
 import { rankPartnersForDisplay } from "@/src/lib/phase3/psi-calculator";
 import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
 import type { PartnerWithPSI } from "@/src/lib/phase3/types";
 import type { Phase3WorkflowStepIndex, PSICheckedState, PSICriterionKey } from "@/src/lib/phase3/types";
 
 import { Phase3DetailModal } from "./Phase3DetailModal";
+import { SelectedProductBanner } from "./SelectedProductBanner";
 import { Phase3ErrorBanner } from "./Phase3ErrorBanner";
 import { Phase3GoldGrid } from "./Phase3GoldGrid";
 import { Phase3RankList } from "./Phase3RankList";
@@ -20,10 +22,8 @@ import { Phase3WeightPanel } from "./Phase3WeightPanel";
 import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
 
 interface Phase3ContainerProps {
+  isActive: boolean;
   reports: StoredReportItem[];
-  /** 실행 차단에는 사용하지 않음 — 1·2공정 미완료 시 권장 안내만 표시 */
-  phase1Complete: boolean;
-  phase2Complete: boolean;
 }
 
 const DEFAULT_CHECKED: PSICheckedState = {
@@ -35,9 +35,11 @@ const DEFAULT_CHECKED: PSICheckedState = {
 };
 
 const DEBOUNCE_MS = 300;
+/** 스테퍼 단계 전환 간격(ms) — 발표용으로 짧게 유지 */
+const PIPELINE_STEP_DELAYS_MS = [400, 800, 1200] as const;
 
 /** 3공정 파트너 발굴 UI A단계 — 스테퍼·가중치·계층 카드·모달 */
-export function Phase3Container({ reports, phase1Complete, phase2Complete }: Phase3ContainerProps) {
+export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
   const [expanded, setExpanded] = useState(true);
   const [reportId, setReportId] = useState("");
   const [partners, setPartners] = useState<PartnerWithPSI[]>([]);
@@ -51,6 +53,7 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
   const [isExecuting, setIsExecuting] = useState(false);
   /** 내부 파이프라인 단계(0~3), 4=4단계 모두 완료 */
   const [pipelineStep, setPipelineStep] = useState<Phase3WorkflowStepIndex>(0);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const progressTimersRef = useRef<number[]>([]);
 
   const selectedReport = useMemo(
@@ -65,6 +68,8 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
     const raw = selectedReport.productId.trim();
     return raw.length > 0 ? raw : null;
   }, [selectedReport]);
+
+  const selectedProductSlug = useMemo(() => uuidToProductSlug(productId), [productId]);
 
   function clearProgressTimers(): void {
     for (const id of progressTimersRef.current) {
@@ -119,6 +124,10 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
   }, [modalPartner, ranked]);
 
   const runAnalysis = useCallback(async (): Promise<void> => {
+    if (!isActive) {
+      window.alert("3공정은 1·2공정 완료 후 활성화됩니다.");
+      return;
+    }
     if (productId === null || reportId === "") {
       setError("먼저 1공정 보고서를 선택해 주세요.");
       return;
@@ -130,13 +139,13 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
     progressTimersRef.current = [
       window.setTimeout(() => {
         setPipelineStep(1);
-      }, 120),
+      }, PIPELINE_STEP_DELAYS_MS[0]),
       window.setTimeout(() => {
         setPipelineStep(2);
-      }, 320),
+      }, PIPELINE_STEP_DELAYS_MS[1]),
       window.setTimeout(() => {
         setPipelineStep(3);
-      }, 620),
+      }, PIPELINE_STEP_DELAYS_MS[2]),
     ];
 
     setLoading(true);
@@ -153,7 +162,7 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
       const n = list.length;
       setFetchMessage(
         n === 0
-          ? "PSI 사전 계산 데이터가 없습니다. Supabase 테이블·스크립트 적용 후 다시 시도해 주세요."
+          ? "표시할 파트너 데이터가 없습니다. partners-data 설정을 확인해 주세요."
           : `파트너 ${String(n)}건을 불러왔습니다. 체크박스 가중치 변경은 ${String(DEBOUNCE_MS)}ms 후 반영됩니다.`,
       );
     } catch (err: unknown) {
@@ -165,7 +174,7 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
       clearProgressTimers();
       setLoading(false);
     }
-  }, [productId, reportId]);
+  }, [isActive, productId, reportId]);
 
   function toggleCriterion(key: PSICriterionKey): void {
     setChecked((prev) => {
@@ -182,6 +191,37 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
   function resetDefaults(): void {
     setChecked({ ...DEFAULT_CHECKED });
   }
+
+  const handleDownloadPhase3Pdf = useCallback(async (): Promise<void> => {
+    if (productId === null) {
+      window.alert("1공정 보고서를 선택한 뒤 다시 시도해 주세요.");
+      return;
+    }
+    setPdfLoading(true);
+    try {
+      const res = await fetch("/api/panama/phase3/report/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+      if (!res.ok) {
+        const errJson = (await res.json()) as { error?: string };
+        throw new Error(errJson.error ?? `HTTP ${String(res.status)}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `phase3_partner_report_${productId.slice(0, 8)}_${String(Date.now())}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "PDF 다운로드에 실패했습니다.";
+      window.alert(message);
+    } finally {
+      setPdfLoading(false);
+    }
+  }, [productId]);
 
   return (
     <section className="rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
@@ -213,16 +253,12 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
               reportId={reportId}
               onReportChange={handleReportChange}
               loading={loading}
+              isActive={isActive}
               productId={productId}
               onRun={() => {
                 void runAnalysis();
               }}
             />
-            {!phase1Complete || !phase2Complete ? (
-              <p className="mt-2 text-xs text-slate-500">
-                ⚠ 1·2공정을 먼저 완료하시면 보다 정확한 분석이 가능합니다.
-              </p>
-            ) : null}
           </div>
 
           <Phase3WeightPanel checked={checked} onToggle={toggleCriterion} onResetDefaults={resetDefaults} />
@@ -240,6 +276,19 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
           {ranked.length > 0 ? (
             <LayoutGroup id="phase3-partner-morph">
               <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleDownloadPhase3Pdf();
+                    }}
+                    disabled={pdfLoading || productId === null}
+                    className="rounded-[10px] border border-[#c7d7ea] bg-[#f4f7fc] px-3 py-2 text-[11px] font-extrabold text-[#1E3A5F] hover:bg-[#e8eef8] disabled:opacity-50"
+                  >
+                    {pdfLoading ? "PDF 생성 중…" : "📄 파트너 매칭 보고서 PDF"}
+                  </button>
+                </div>
+                <SelectedProductBanner productSlug={selectedProductSlug} />
                 <Phase3GoldGrid partners={gold} onOpen={setModalPartner} />
                 <Phase3StandardGrid partners={standard} startRank={6} onOpen={setModalPartner} />
                 <Phase3RankList partners={rest} startRank={11} onOpen={setModalPartner} />
@@ -254,6 +303,7 @@ export function Phase3Container({ reports, phase1Complete, phase2Complete }: Pha
         partner={modalPartner}
         checked={debouncedChecked}
         rankHint={modalRankHint}
+        selectedProductSlug={selectedProductSlug}
         onClose={() => {
           setModalPartner(null);
         }}
