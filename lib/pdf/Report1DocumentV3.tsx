@@ -17,7 +17,7 @@ export interface Report1PdfV3Props {
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 32, fontFamily: "Pretendard", fontSize: 9, color: "#1f2937" },
+  page: { padding: 32, fontFamily: "NotoSansKR", fontSize: 9, color: "#1f2937" },
   header: {
     marginBottom: 12,
     borderBottomWidth: 2,

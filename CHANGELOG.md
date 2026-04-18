@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 20:45:06 (fix(pdf): V3 PDF 폰트를 NotoSansKR로 통일)
+
+### Fixed
+- fix(pdf-v3): `lib/pdf/Report1DocumentV3.tsx`의 페이지 기본 `fontFamily`를 V1(`pdf-styles`)과 동일한 `NotoSansKR`로 변경해 Vercel 등 환경에서 Pretendard 로드 실패 시 한글 깨짐을 방지.
+
 ## [Unreleased] - 2026-04-18 19:47:46 (fix(pdf): V1 payload 타입 캐스팅으로 V3 유니온 빌드 오류 수정)
 
 ### Fixed
