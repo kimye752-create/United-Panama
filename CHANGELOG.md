@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 02:00:00 (refactor(phase1): 품목 드롭다운 라벨 최종 포맷)
+
+### Changed
+- refactor(phase1-labels): `src/utils/product_option_labels.ts` — `ProductOptionMeta`(therapeutic_group, 선택 drug_type, inn_display, dosage_form, strength_display)로 8개 제품 고정. `[제품군 · 유형] 브랜드 (INN, 제형, 함량)` 형식으로 통일.
+
 ## [Unreleased] - 2026-04-19 01:10:00 (style(ui): 매크로 카드 세로 높이 추가 축소)
 
 ### Changed
