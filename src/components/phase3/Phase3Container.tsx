@@ -69,6 +69,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
   const [partners, setPartners] = useState<PartnerWithPSI[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** 로딩 완료 안내 문구(내부 상태만 유지, UI 박스는 표시하지 않음) */
   const [fetchMessage, setFetchMessage] = useState<string | null>(null);
   const [checked, setChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
   const [debouncedChecked, setDebouncedChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
@@ -271,12 +272,11 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[11px] font-black text-white">
-            03
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[13px] font-black text-white">
+            3
           </span>
           <div>
-            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">3공정 · 파트너 매칭 (PSI)</h3>
-            <p className="text-[11px] text-[#7a8ba1]">동적 PSI · 가중치 재분배 · Top 20 계층 · 상세 모달</p>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">파트너 매칭 (PSI)</h3>
           </div>
         </div>
         <span className="text-[14px] text-[#516882]">{expanded ? "▲" : "▼"}</span>
@@ -307,7 +307,8 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
               {!phase1Complete ? (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
                   <div className="text-slate-700">
-                    📋 1공정 보고서와 품목을 선택하면 파트너 매칭을 실행할 수 있습니다.
+                    📋 시장조사 분석 후 파트너 매칭을 실행할 수 있습니다. 가격책정 분석까지 완료하면 파트너와 전략적인
+                    가격협의를 할 수 있습니다.
                   </div>
                 </div>
               ) : null}
@@ -327,12 +328,6 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
           {isExecuting ? <Phase3WorkflowStepper currentStep={pipelineStep} /> : null}
 
           {error !== null ? <Phase3ErrorBanner message={error} /> : null}
-
-          {fetchMessage !== null ? (
-            <div className="rounded-[10px] border border-[#dbe3ef] bg-[#f4f7fc] p-3 text-[11px] text-[#3e5574]">
-              {fetchMessage}
-            </div>
-          ) : null}
 
           {ranked.length > 0 ? (
             <div className="space-y-4">

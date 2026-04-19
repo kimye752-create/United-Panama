@@ -1,5 +1,12 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(phase3): UI 정리 + PDF 리뉴얼 v2 (STEP15-D PART A+B 보완))
+
+### Changed
+- `Phase3Container.tsx` — `fetchMessage` 상태는 유지하되 로딩 완료 안내 **박스 JSX 제거**(내부 문구는 `setFetchMessage`로만 갱신).
+- `Phase3PartnerCard.tsx` — `GOLD_STYLE`·`SILVER_STYLE`의 `mainText`를 `#000000`으로 통일, 기업명에 동일 적용.
+- `Phase3ReportDocument.tsx` — STEP15-D PART B: 표지 1p 간소화, 2~11p에 기업 2건/페이지·`getCardTheme` 배지·ㅗ형(헤더+좌우+하단) 카드, 5대 요소 서술+가중 기여점, 8제품 매칭 `stripTierPrefix`, 12p에 평가 원칙·PSI·Tier 기준표, 이모지 제거, `PSI_BASIC_WEIGHTS`로 점수 행 계산.
+
 ## [Unreleased] - 2026-04-19 (feat(phase3): 평가 기준 패널 가독성 강화 + 제목 문구 교체)
 
 ### Changed
