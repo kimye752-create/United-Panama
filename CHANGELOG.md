@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): MainPreview ↔ Phase3Container props 통일)
+
+### Changed
+- `Phase3ContainerProps`: `isActive` 대신 `phase1Complete`·`phase2Complete` 수신 후 내부에서 `isActive` 계산.
+- `MainPreviewSections.tsx`: `Phase3Section`에 동일 prop 전달 — Vercel TS 빌드 오류 해결.
+
 ## [3공정 하드코딩 전환 + PDF] 2026-04-19
 
 ### Added

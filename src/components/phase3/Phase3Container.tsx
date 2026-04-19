@@ -22,7 +22,10 @@ import { Phase3WeightPanel } from "./Phase3WeightPanel";
 import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
 
 interface Phase3ContainerProps {
-  isActive: boolean;
+  /** 1공정 완료 여부 — 3공정 실행 버튼 등 활성화에 사용 */
+  phase1Complete: boolean;
+  /** 2공정 완료 여부 */
+  phase2Complete: boolean;
   reports: StoredReportItem[];
 }
 
@@ -39,7 +42,8 @@ const DEBOUNCE_MS = 300;
 const PIPELINE_STEP_DELAYS_MS = [400, 800, 1200] as const;
 
 /** 3공정 파트너 발굴 UI A단계 — 스테퍼·가중치·계층 카드·모달 */
-export function Phase3Container({ isActive, reports }: Phase3ContainerProps) {
+export function Phase3Container({ phase1Complete, phase2Complete, reports }: Phase3ContainerProps) {
+  const isActive = phase1Complete && phase2Complete;
   const [expanded, setExpanded] = useState(true);
   const [reportId, setReportId] = useState("");
   const [partners, setPartners] = useState<PartnerWithPSI[]>([]);
