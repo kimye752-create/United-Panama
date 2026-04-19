@@ -1,5 +1,13 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): 모달을 section 밖으로 분리 + 조건부 렌더링 추가 (최종))
+
+### Changed
+- `Phase3Container.tsx` — `return`만 수정: 최상위 `<>...</>`, `<Phase3DetailModal>`을 `<section>` 밖으로 이동, `modalPartner !== null`일 때만 모달 마운트(`partner={modalPartner.partner_meta ?? null}`).
+
+### Notes
+- `LayoutGroup`·dynamic import·state 로직 등 return 외 변경 없음.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): framer-motion 컴포넌트 전체 dynamic ssr:false (React 19 hydration 해결))
 
 ### Changed

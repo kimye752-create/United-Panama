@@ -241,7 +241,8 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
   }, [productId]);
 
   return (
-    <section className="rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
+    <>
+      <section className="rounded-[16px] border border-[#e3e9f2] bg-white shadow-sh2">
       <button
         type="button"
         onClick={() => {
@@ -338,14 +339,17 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
           ) : null}
         </div>
       ) : null}
+      </section>
 
-      <Phase3DetailModal
-        partner={modalPartner?.partner_meta ?? null}
-        selectedProductSlug={selectedProductSlug}
-        onClose={() => {
-          setModalPartner(null);
-        }}
-      />
-    </section>
+      {modalPartner !== null ? (
+        <Phase3DetailModal
+          partner={modalPartner.partner_meta ?? null}
+          selectedProductSlug={selectedProductSlug}
+          onClose={() => {
+            setModalPartner(null);
+          }}
+        />
+      ) : null}
+    </>
   );
 }
