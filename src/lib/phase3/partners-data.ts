@@ -150,7 +150,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '인도 제네릭 글로벌 Top, 126개국 공급망',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Hetero 그룹 연매출 $2.5bn+)',
+      revenue: 'Tier 1 (Hetero 그룹 연매출 USD 25억+)',
       manufacturing: 'O (인도 본사 GMP · 파나마 ZLC Farmazona 창고 직접 운영)',
       pharmacyChain: 'X (B2B 도매·재수출 전문, 소매 체인 미보유)',
       pipeline: 'High (ARV·Oncology·심혈관 단일제 풍부, 복합제 Upgrade 기회)',
@@ -213,7 +213,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: '8-xxx A (Panama City Casa)',
     operatingScope: 'Importación, Distribución y Venta al por mayor de Medicamentos',
     revenueTier: 2,
-    revenueScore: 90,
+    revenueScore: 100,
     pipelineAvgScore: 95,
     manufacturingScore: 85,
     importExperienceScore: 85,
@@ -224,7 +224,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '이탈리아 Top 제약, 파나마 27년 직접 운영',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Menarini 그룹 €4.4bn, 유럽 제약 Top 10)',
+      revenue: 'Tier 1 (Menarini 그룹 연매출 USD 47억, 유럽 제약 Top 10)',
       manufacturing: 'O (이탈리아 본사 · 유럽 4개 GMP 공장)',
       pharmacyChain: 'X (약국 체인 운영 안 함, 도매 유통 중심)',
       pipeline: 'Very High (심혈관·호흡기·통증·소화기 전 라인 + 복합제 4건 Upgrade)',
@@ -288,7 +288,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: '8-xxx A (Panama City)',
     operatingScope: 'Importación, Distribución y Venta al por mayor de Medicamentos',
     revenueTier: 2,
-    revenueScore: 85,
+    revenueScore: 100,
     pipelineAvgScore: 90,
     manufacturingScore: 90,
     importExperienceScore: 80,
@@ -299,7 +299,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '캐나다 제네릭 Top 5, 115개국 공급망',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Apotex 그룹 연매출 C$2.5bn+, 캐나다 제네릭 1위)',
+      revenue: 'Tier 1 (Apotex 그룹 연매출 USD 18억+, 캐나다 제네릭 1위)',
       manufacturing: 'O (캐나다 본사 · 토론토 대형 GMP 공장 · FDA 승인 시설)',
       pharmacyChain: 'X (약국 체인 운영 안 함, 도매 유통)',
       pipeline: 'High (스타틴·심혈관·감염증 제네릭 200종+ 라인업)',
@@ -362,7 +362,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: '8-xxx A (Panama City)',
     operatingScope: 'Importación, Fabricación, Distribución y Venta al por mayor de Medicamentos',
     revenueTier: 1,
-    revenueScore: 95,
+    revenueScore: 100,
     pipelineAvgScore: 75,
     manufacturingScore: 95,
     importExperienceScore: 75,
@@ -373,7 +373,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '영국 글로벌 Top 5, 파나마 70년 자체 제조',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (GSK 그룹 £30bn+, 글로벌 제약 Top 5)',
+      revenue: 'Tier 1 (GSK 그룹 연매출 USD 380억+, 글로벌 제약 Top 5)',
       manufacturing: 'O (파나마 직접 GMP 제조 플랜트 70년 운영, MNC 중 유일)',
       pharmacyChain: 'X (약국 체인 미보유, 병원·도매 중심)',
       pipeline: 'Medium (호흡기·백신·HIV 강점, Sereterol Direct Competition)',
@@ -436,7 +436,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: '8-xxx A (Panama City)',
     operatingScope: 'Importación, Distribución, Venta al por mayor y al por menor (약국 체인 포함)',
     revenueTier: 3,
-    revenueScore: 50,
+    revenueScore: 55,
     pipelineAvgScore: 70,
     manufacturingScore: 30,
     importExperienceScore: 80,
@@ -447,7 +447,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 로컬 45년 유통, El Javillo 약국 52개',
     fiveFactorsDescription: {
-      revenue: 'Tier 3 (파나마 로컬 중형, 매출 공시 미비)',
+      revenue: 'Tier 4 (파나마 로컬 중형, 추정 USD 3천만 수준, 공시 미비)',
       manufacturing: 'X (제조 시설 미보유, 수입 유통 중심)',
       pharmacyChain: 'O (자체 El Javillo 약국 체인 52개 지점 · Top 20 유일)',
       pipeline: 'Medium (로컬 일반·OTC 유통 풍부, 전문의약품 확장 중)',
@@ -510,7 +510,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos; Unisalud 약국 네트워크 연계',
     revenueTier: 3,
-    revenueScore: 60,
+    revenueScore: 70,
     pipelineAvgScore: 70,
     manufacturingScore: 60,
     importExperienceScore: 90,
@@ -521,7 +521,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '중미 Top 8 제약, Unisalud 약국 네트워크',
     fiveFactorsDescription: {
-      revenue: 'Tier 3 (중미 Top 8 제약, 그룹 연매출 ~$100M+ 추정)',
+      revenue: 'Tier 3 (중미 Top 8 제약, 그룹 연매출 USD 1억+ 추정)',
       manufacturing: 'O (과테말라 본사 GMP 공장 + 엘살바도르 생산 시설)',
       pharmacyChain: 'O (Unisalud 약국 네트워크 연계, 파나마 소매 강점)',
       pipeline: 'Medium (중미 로컬 심혈관·소화기·진통제 라인)',
@@ -594,7 +594,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '스위스 글로벌 Top 3, Oncology·진단 선도',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Roche 그룹 CHF 60bn+, 글로벌 제약 Top 3)',
+      revenue: 'Tier 1 (Roche 그룹 연매출 USD 680억+, 글로벌 제약 Top 3)',
       manufacturing: 'O (스위스·독일·미국 등 글로벌 GMP 생산 시설)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통 중심)',
       pipeline: 'Low (제네릭 미주력, Hydrine·Gadvoa 일부 Adjacent)',
@@ -656,7 +656,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos (브랜드 MK)',
     revenueTier: 2,
-    revenueScore: 80,
+    revenueScore: 85,
     pipelineAvgScore: 75,
     manufacturingScore: 70,
     importExperienceScore: 80,
@@ -667,7 +667,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '콜롬비아 MK 브랜드, 중남미 교차 마케팅',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Tecnoquímicas 그룹 매출 ~$600M, 콜롬비아 LATAM Top)',
+      revenue: 'Tier 2 (Tecnoquímicas 그룹 연매출 USD 6억, 콜롬비아 LATAM Top)',
       manufacturing: 'O (콜롬비아 본사 GMP 공장, MK 브랜드 제조)',
       pharmacyChain: 'X (약국 체인 미운영, 도매 유통 중심)',
       pipeline: 'Medium (Cardiolat 심혈관 + MK 소화기 라인 + Rosumeg·Atmeg 2건 Upgrade)',
@@ -729,7 +729,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos; 자체 RosuMed 브랜드 보유',
     revenueTier: 4,
-    revenueScore: 40,
+    revenueScore: 55,
     pipelineAvgScore: 75,
     manufacturingScore: 40,
     importExperienceScore: 90,
@@ -740,7 +740,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 로컬 심혈관 전문, 자체 RosuMed 보유',
     fiveFactorsDescription: {
-      revenue: 'Tier 4 (파나마 로컬 중소, 자체 브랜드 RosuMed)',
+      revenue: 'Tier 4 (파나마 로컬 중소, 자체 브랜드 RosuMed 보유, 추정 USD 2천만)',
       manufacturing: 'X (자체 제조 시설 미보유, 수입 유통)',
       pharmacyChain: 'X (약국 체인 미운영)',
       pipeline: 'Medium (심혈관 전문 + 자체 Rosuvastatin 브랜드)',
@@ -813,7 +813,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '독일 글로벌 Top 10, Gadvoa 원개발사',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Bayer 그룹 €47bn+, 글로벌 제약 Top 10)',
+      revenue: 'Tier 1 (Bayer 그룹 연매출 USD 510억+, 글로벌 제약 Top 10)',
       manufacturing: 'O (독일·미국 등 글로벌 GMP 공장 + 조영제 전용 시설)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·도매 중심)',
       pipeline: 'Low (Gadavist Direct Competition + Xarelto·Nexavar 강점)',
@@ -886,7 +886,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '스위스 글로벌 Top 5, CML Gleevec 1위',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Novartis 그룹 $50bn+, 글로벌 제약 Top 5)',
+      revenue: 'Tier 1 (Novartis 그룹 연매출 USD 500억+, 글로벌 제약 Top 5)',
       manufacturing: 'O (스위스·독일·미국 등 글로벌 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통 중심)',
       pipeline: 'Low (혁신 신약 중심, Hydrine 1건 Adjacent)',
@@ -959,7 +959,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '프랑스 글로벌 Top 5, Plavix 항혈전 표준',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Sanofi 그룹 €43bn+, 글로벌 제약 Top 5)',
+      revenue: 'Tier 1 (Sanofi 그룹 연매출 USD 460억+, 글로벌 제약 Top 5)',
       manufacturing: 'O (프랑스·독일·미국 글로벌 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통)',
       pipeline: 'Low (혁신 신약 중심, Ciloduo 1건 Adjacent)',
@@ -1032,7 +1032,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '미국 매출 Top 1, ZLC 재수출 허브',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Pfizer 그룹 $58bn+, 글로벌 제약 매출 Top 1)',
+      revenue: 'Tier 1 (Pfizer 그룹 연매출 USD 580억+, 글로벌 제약 매출 Top 1)',
       manufacturing: 'O (미국·유럽 GMP 공장 + ZLC 재수출 거점)',
       pharmacyChain: 'X (약국 체인 미운영)',
       pipeline: 'Low (혁신 신약·백신 중심, Atmeg 1건 Adjacent)',
@@ -1105,7 +1105,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '미국 글로벌 Top 5, Keytruda 면역항암',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (MSD 그룹 $64bn+, 글로벌 제약 Top 5)',
+      revenue: 'Tier 1 (MSD 그룹 연매출 USD 640억+, 글로벌 제약 Top 5)',
       manufacturing: 'O (미국·유럽 등 글로벌 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통)',
       pipeline: 'Low (혁신 신약·백신 중심, Hydrine·Atmeg 2건 Adjacent)',
@@ -1167,7 +1167,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
     revenueTier: 2,
-    revenueScore: 80,
+    revenueScore: 100,
     pipelineAvgScore: 70,
     manufacturingScore: 60,
     importExperienceScore: 75,
@@ -1178,7 +1178,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: 'LATAM Big 3, 20개국+ 유통망',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Bagó 그룹 ~$1bn+, LATAM Big 3 제약)',
+      revenue: 'Tier 1 (Bagó 그룹 연매출 USD 10억+, LATAM Big 3 제약)',
       manufacturing: 'O (아르헨티나 본사 GMP 공장 + 우루과이 생산)',
       pharmacyChain: 'X (약국 체인 미운영, 도매 유통)',
       pipeline: 'Medium (심혈관·소화기·항생제 + Rosumeg·Atmeg Upgrade)',
@@ -1240,7 +1240,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
     revenueTier: 3,
-    revenueScore: 60,
+    revenueScore: 85,
     pipelineAvgScore: 60,
     manufacturingScore: 60,
     importExperienceScore: 70,
@@ -1251,7 +1251,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '멕시코 병원 채널 강자, Oncology 전문',
     fiveFactorsDescription: {
-      revenue: 'Tier 3 (PiSA 그룹 LATAM 병원 채널, 매출 중형)',
+      revenue: 'Tier 2 (PiSA 그룹 LATAM 병원 채널, 그룹 연매출 USD 5억 수준)',
       manufacturing: 'O (멕시코 본사 GMP 공장, 병원 수액 전문 생산)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·특수 채널)',
       pipeline: 'Medium (Oncology·신장학·수액, Hydrine 1건 Upgrade)',
@@ -1313,7 +1313,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos y Dispositivos Médicos',
     revenueTier: 2,
-    revenueScore: 80,
+    revenueScore: 100,
     pipelineAvgScore: 50,
     manufacturingScore: 70,
     importExperienceScore: 70,
@@ -1324,7 +1324,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '미국 병원 수액·의료기기 글로벌',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Baxter 그룹 $15bn+, 병원 수액 글로벌 Top)',
+      revenue: 'Tier 1 (Baxter 그룹 연매출 USD 150억+, 병원 수액 글로벌 Top)',
       manufacturing: 'O (미국·유럽 GMP 공장 + 수액·의료기기 전용 시설)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·의료기관 중심)',
       pipeline: 'Low (수액·의료기기 중심, Gadvoa 1건 Adjacent)',
@@ -1386,7 +1386,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos, Productos de Consumo',
     revenueTier: 2,
-    revenueScore: 80,
+    revenueScore: 85,
     pipelineAvgScore: 50,
     manufacturingScore: 0,
     importExperienceScore: 80,
@@ -1397,7 +1397,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 Grupo Motta, 약국·슈퍼마켓 유통',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Grupo Motta 계열 대형 유통, 파나마 주요 그룹)',
+      revenue: 'Tier 2 (Grupo Motta 계열 대형 유통, 파나마 주요 그룹 추정 USD 3억+)',
       manufacturing: 'X (제조 시설 미보유, 순수 유통 전문)',
       pharmacyChain: 'O (약국·슈퍼마켓·대형마트 소비재 채널 60점)',
       pipeline: 'Low (소비재·OTC 중심, Rx 복합제 전문성 제한)',
@@ -1459,7 +1459,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
     revenueTier: 4,
-    revenueScore: 40,
+    revenueScore: 30,
     pipelineAvgScore: 45,
     manufacturingScore: 0,
     importExperienceScore: 60,
@@ -1470,7 +1470,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 로컬 소형 유통, 보조 파트너군',
     fiveFactorsDescription: {
-      revenue: 'Tier 4 (파나마 로컬 중소, 매출 규모 제한적)',
+      revenue: 'Tier 5 (파나마 로컬 중소, 매출 규모 USD 1천만 미만 추정)',
       manufacturing: 'X (제조 시설 미보유)',
       pharmacyChain: 'X (약국 체인 미운영)',
       pipeline: 'Low (전문 포트폴리오 제한, 일반 제네릭 유통)',
@@ -1532,7 +1532,7 @@ export const PARTNERS: Partner[] = [
     minsaLicense: '대리점 A/DNFD 경유',
     operatingScope: 'Distribución de Medios de Contraste para Diagnóstico por Imagen',
     revenueTier: 3,
-    revenueScore: 60,
+    revenueScore: 85,
     pipelineAvgScore: 40,
     manufacturingScore: 50,
     importExperienceScore: 60,
@@ -1543,7 +1543,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '프랑스 조영제 전문, Gadvoa 경쟁사',
     fiveFactorsDescription: {
-      revenue: 'Tier 3 (Guerbet 그룹 €800M+, 조영제 글로벌 Top 3)',
+      revenue: 'Tier 2 (Guerbet 그룹 연매출 USD 8.6억+, 조영제 글로벌 Top 3)',
       manufacturing: 'O (프랑스 본사 조영제 전용 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원 조영제 전문)',
       pipeline: 'Low (조영제 단일 카테고리, Gadvoa Direct Competition)',

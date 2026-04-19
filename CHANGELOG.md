@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 20:38 KST (feat(phase3): 매출 Tier 정량 구간 재조정 + USD 단위 통일 + 기준표 토글 (STEP15-B))
+
+### Changed
+- `src/lib/phase3/partners-data.ts` — 20개사 `fiveFactorsDescription.revenue`를 USD 기준 Tier 서술로 통일; 14개사 `revenueScore`를 신규 Tier 구간(100/85/70/55/30)에 맞게 조정(Motta 85, Sequisa 30, Guerbet Tier2·USD 8.6억+ 서술 등).
+- `src/components/phase3/Phase3DetailModal.tsx` — PSI 배점 블록과 기업 소개 사이에 `isTierCriteriaOpen`(기본 닫힘) 아코디언 「📘 5대 요소 평가 기준」 추가(매출 Tier 표·5대 요소 요약·USD 환산 주석).
+
+## [Unreleased] - 2026-04-19 (chore(phase3): 평가 패널 문구·글자 크기·섹션 제목 정리)
+
+### Changed
+- `Phase3WeightPanel.tsx` — 체크 목록·제목 글자 약간 확대, 부제를 「※ 유나이티드제약 AHP 평가 항목」으로 변경.
+- `Phase3Container.tsx` — 접이식 헤더에서 「3공정」·부제 한 줄 제거(제목만 `파트너 매칭 (PSI)`), 1공정 미완료 안내 문구를 시장조사·가격책정 안내로 교체(「시랭」→「실행」).
+
 ## [Unreleased] - 2026-04-19 (feat(phase3): UI 9가지 통합 개선 (STEP15-A))
 
 ### Changed
