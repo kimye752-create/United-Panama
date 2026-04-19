@@ -5,7 +5,7 @@ export { Phase3ReportToolbar } from "./Phase3ReportToolbar";
 export { Phase3WeightPanel } from "./Phase3WeightPanel";
 export { Phase3Top10Grid } from "./Phase3Top10Grid";
 export { Phase3RankList } from "./Phase3RankList";
-export { Phase3PartnerCardShell } from "./Phase3PartnerCardShell";
+export { Phase3PartnerCard } from "./Phase3PartnerCard";
 export { Phase3PartnerListRow } from "./Phase3PartnerListRow";
 export { Phase3DetailModal } from "./Phase3DetailModal";
 export { Phase3TabBasicInfo } from "./Phase3TabBasicInfo";

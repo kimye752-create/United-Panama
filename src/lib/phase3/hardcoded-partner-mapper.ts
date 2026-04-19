@@ -77,5 +77,7 @@ export function mapHardcodedPartnerToWithPSI(
         importExperience: p.fiveFactorsDescription.importExperience,
       },
     },
+    // 세션29: 카드·모달에서 v2 원본 필드 사용 (위 basePSI·rank 매핑과 동일 소스 p, 재계산 없음)
+    partner_meta: p,
   };
 }

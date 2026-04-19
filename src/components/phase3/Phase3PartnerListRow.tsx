@@ -1,17 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
 import { getPartnerWebsiteHref } from "@/src/lib/phase3/website-url";
 
 interface Phase3PartnerListRowProps {
   partner: PartnerWithDynamicPsi;
-  onOpen: (partner: PartnerWithDynamicPsi) => void;
+  onRowClick: (partnerId: string) => void;
 }
 
-/** 11~20위 리스트 행 — 카드와 동일 layoutId로 전환 시 morphing */
-export function Phase3PartnerListRow({ partner, onOpen }: Phase3PartnerListRowProps) {
+/** 11~20위 리스트 행 */
+export function Phase3PartnerListRow({ partner, onRowClick }: Phase3PartnerListRowProps) {
   const hc = partner.hc_display;
   const displayRank = hc !== undefined ? hc.hc_catalog_rank : 1;
   const code = hc !== undefined ? hc.hc_country_code : "";
@@ -19,11 +17,10 @@ export function Phase3PartnerListRow({ partner, onOpen }: Phase3PartnerListRowPr
 
   return (
     <div className="flex w-full items-center gap-2">
-      <motion.button
+      <button
         type="button"
-        layoutId={`p3-${partner.id}`}
         onClick={() => {
-          onOpen(partner);
+          onRowClick(partner.partner_id);
         }}
         className="flex w-full min-w-0 flex-1 items-center justify-between rounded-lg border border-slate-200 bg-white p-3 text-left hover:bg-slate-50"
       >
@@ -38,7 +35,7 @@ export function Phase3PartnerListRow({ partner, onOpen }: Phase3PartnerListRowPr
             <div className="text-xs text-slate-500">PSI</div>
           </div>
         </div>
-      </motion.button>
+      </button>
       {websiteHref !== null ? (
         <a
           href={websiteHref}

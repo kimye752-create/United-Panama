@@ -1,5 +1,7 @@
 // 3공정 PSI 점수화 시스템 공용 타입
 
+import type { Partner as CatalogPartner } from "@/src/lib/phase3/partners-data";
+
 export type PSICriterionKey =
   | "revenue"
   | "pipeline"
@@ -106,6 +108,8 @@ export interface PartnerWithPSI extends PartnerPSIRecord {
   business_description: string | null;
   /** 세션 28 카탈로그 UI 필드 — 없으면 레거시 DB 행 */
   hc_display?: PartnerWithPSIHardcodedDisplay;
+  /** partners-data 원본(v2 필드 포함) — 모달·신규 카드 전용, 순위·PSI 필드와 별개 */
+  partner_meta?: CatalogPartner;
 }
 
 export interface DynamicPSIResult {

@@ -1,6 +1,5 @@
 "use client";
 
-import { LayoutGroup } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
@@ -117,13 +116,10 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
   const top10 = useMemo(() => ranked.slice(0, 10), [ranked]);
   const rest = useMemo(() => ranked.slice(10, 20), [ranked]);
 
-  const modalRankHint = useMemo(() => {
-    if (modalPartner === null) {
-      return null;
-    }
-    const idx = ranked.findIndex((p) => p.id === modalPartner.id);
-    return idx >= 0 ? idx + 1 : null;
-  }, [modalPartner, ranked]);
+  const openPartnerById = useCallback((partnerId: string): void => {
+    const p = ranked.find((x) => x.partner_id === partnerId) ?? null;
+    setModalPartner(p);
+  }, [ranked]);
 
   const runAnalysis = useCallback(async (): Promise<void> => {
     if (productId === null || reportId === "") {
@@ -277,33 +273,29 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
           ) : null}
 
           {ranked.length > 0 ? (
-            <LayoutGroup id="phase3-partner-morph">
-              <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void handleDownloadPhase3Pdf();
-                    }}
-                    disabled={pdfLoading || productId === null}
-                    className="rounded-[10px] border border-[#c7d7ea] bg-[#f4f7fc] px-3 py-2 text-[11px] font-extrabold text-[#1E3A5F] hover:bg-[#e8eef8] disabled:opacity-50"
-                  >
-                    {pdfLoading ? "PDF 생성 중…" : "📄 파트너 매칭 보고서 PDF"}
-                  </button>
-                </div>
-                <SelectedProductBanner productSlug={selectedProductSlug} />
-                <Phase3Top10Grid partners={top10} onOpen={setModalPartner} />
-                <Phase3RankList partners={rest} onOpen={setModalPartner} />
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleDownloadPhase3Pdf();
+                  }}
+                  disabled={pdfLoading || productId === null}
+                  className="rounded-[10px] border border-[#c7d7ea] bg-[#f4f7fc] px-3 py-2 text-[11px] font-extrabold text-[#1E3A5F] hover:bg-[#e8eef8] disabled:opacity-50"
+                >
+                  {pdfLoading ? "PDF 생성 중…" : "📄 파트너 매칭 보고서 PDF"}
+                </button>
               </div>
-            </LayoutGroup>
+              <SelectedProductBanner productSlug={selectedProductSlug} />
+              <Phase3Top10Grid partners={top10} onCardClick={openPartnerById} />
+              <Phase3RankList partners={rest} onRowClick={openPartnerById} />
+            </div>
           ) : null}
         </div>
       ) : null}
 
       <Phase3DetailModal
-        open={modalPartner !== null}
-        partner={modalPartner}
-        rankHint={modalRankHint}
+        partner={modalPartner?.partner_meta ?? null}
         selectedProductSlug={selectedProductSlug}
         onClose={() => {
           setModalPartner(null);

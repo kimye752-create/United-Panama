@@ -1,17 +1,16 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
-import type { ProductId } from "@/src/lib/phase3/partners-data";
-import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
+import type { Partner, ProductId } from "@/src/lib/phase3/partners-data";
 import { getPartnerWebsiteHref } from "@/src/lib/phase3/website-url";
 
 import { Phase3ProductMatchSection } from "./Phase3ProductMatchSection";
 
 interface Phase3DetailModalProps {
-  open: boolean;
-  partner: PartnerWithDynamicPsi | null;
-  rankHint: number | null;
+  partner: Partner | null;
   selectedProductSlug: ProductId | null;
   onClose: () => void;
 }
@@ -63,46 +62,81 @@ function FactorRow({ icon, label, value }: { icon: string; label: string; value:
   );
 }
 
-/** 카드·리스트 공통 상세 모달 — 탭 없이 ㅗ자 3블록 + 8제품 매칭 */
+/** partners-data 원본 기준 상세 모달 — body 포털·ESC·스크롤 잠금 */
 export function Phase3DetailModal({
-  open,
   partner,
-  rankHint,
   selectedProductSlug,
   onClose,
 }: Phase3DetailModalProps): ReactElement | null {
-  if (!open || partner === null) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent): void => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    if (partner !== null) {
+      document.addEventListener("keydown", handleEsc);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.body.style.overflow = "";
+    };
+  }, [partner, onClose]);
+
+  if (!mounted || partner === null) {
     return null;
   }
 
-  const websiteHref = getPartnerWebsiteHref(partner.website);
-  const hc = partner.hc_display;
-  const displayRank = hc !== undefined ? hc.hc_catalog_rank : rankHint ?? 1;
-  const five = hc?.hc_five_factors;
-  const companyDesc = hc !== undefined ? hc.hc_company_description : partner.business_description ?? "";
-  const minsa = hc !== undefined ? hc.hc_minsa_license : "";
+  const scores = [
+    { label: "매출규모 (Revenue)", value: partner.revenueScore, weight: 0.35 },
+    { label: "파이프라인 (Pipeline)", value: partner.pipelineAvgScore, weight: 0.28 },
+    { label: "제조소 보유 (Manufacturing)", value: partner.manufacturingScore, weight: 0.2 },
+    { label: "수입 경험 (Import Exp.)", value: partner.importExperienceScore, weight: 0.12 },
+    { label: "약국체인 운영 (Pharmacy)", value: partner.pharmacyChainScore, weight: 0.05 },
+  ] as const;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <button type="button" className="absolute inset-0 cursor-default" aria-label="모달 배경 닫기" onClick={onClose} />
-      <div className="relative z-[1] max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-200 p-4">
+  const websiteHref = getPartnerWebsiteHref(partner.website);
+
+  const modal = (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="phase3-modal-title"
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="shrink-0 text-sm font-bold text-slate-700">#{String(displayRank)}</span>
-            {displayRank <= 5 ? (
+            <span className="shrink-0 text-sm font-bold text-slate-700">#{String(partner.rank)}</span>
+            {partner.rank <= 5 ? (
               <span className="shrink-0" aria-hidden>
                 🏅
               </span>
             ) : null}
-            <h2 className="truncate text-lg font-bold text-slate-900">{partner.company_name}</h2>
+            <h2 id="phase3-modal-title" className="truncate text-lg font-bold text-slate-900">
+              {partner.partnerName}
+            </h2>
           </div>
           <div className="flex shrink-0 items-center gap-4">
-            <span className="text-base font-semibold text-amber-700">PSI {String(partner.dynamic_psi)}</span>
+            <span className="text-base font-semibold text-amber-700">PSI {String(partner.basePSI)}</span>
             <button
               type="button"
               onClick={onClose}
-              className="rounded px-2 py-1 text-lg leading-none text-slate-500 hover:bg-slate-100"
               aria-label="닫기"
+              className="flex h-8 w-8 items-center justify-center rounded text-xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             >
               ✕
             </button>
@@ -129,56 +163,46 @@ export function Phase3DetailModal({
                 isLink={websiteHref !== null}
                 href={websiteHref}
               />
-              <InfoRow icon="📋" label="MINSA" value={minsa !== "" ? minsa : null} />
+              <InfoRow icon="📋" label="MINSA" value={partner.minsaLicense} />
             </div>
           </div>
 
           <div className="p-4">
             <h3 className="mb-3 text-sm font-bold text-slate-700">📊 5대 요소 현황</h3>
             <div className="space-y-2 text-sm">
-              <FactorRow
-                icon="💰"
-                label="매출규모"
-                value={five !== undefined ? five.revenue : "정보 없음"}
-              />
-              <FactorRow
-                icon="🏭"
-                label="제조소 보유"
-                value={five !== undefined ? five.manufacturing : "정보 없음"}
-              />
-              <FactorRow
-                icon="💊"
-                label="약국체인 운영"
-                value={five !== undefined ? five.pharmacyChain : "정보 없음"}
-              />
-              <FactorRow
-                icon="📦"
-                label="파이프라인"
-                value={five !== undefined ? five.pipeline : "정보 없음"}
-              />
-              <FactorRow
-                icon="🌍"
-                label="수입 경험"
-                value={five !== undefined ? five.importExperience : "정보 없음"}
-              />
+              <FactorRow icon="💰" label="매출규모" value={partner.fiveFactorsDescription.revenue} />
+              <FactorRow icon="🏭" label="제조소 보유" value={partner.fiveFactorsDescription.manufacturing} />
+              <FactorRow icon="💊" label="약국체인 운영" value={partner.fiveFactorsDescription.pharmacyChain} />
+              <FactorRow icon="📦" label="파이프라인" value={partner.fiveFactorsDescription.pipeline} />
+              <FactorRow icon="🌍" label="수입 경험" value={partner.fiveFactorsDescription.importExperience} />
             </div>
           </div>
         </div>
 
         <div className="border-b border-slate-200 bg-slate-50 p-4">
-          <h3 className="mb-3 text-sm font-bold text-slate-700">📊 PSI 계산식</h3>
-          <div className="mb-4 rounded border border-slate-200 bg-white p-3 font-mono text-xs">
-            PSI = ({String(partner.revenue_tier_score)} × 35%) + ({String(partner.pipeline_tier_score)} × 28%)
-            <br />
-            + ({String(partner.manufacturing_score)} × 20%) + ({String(partner.import_experience_score)} × 12%)
-            <br />
-            + ({String(partner.pharmacy_chain_score)} × 5%)
-            <br />
-            <strong>= {String(partner.psi_total_default)}</strong>
+          <h3 className="mb-3 text-sm font-bold text-slate-700">📊 PSI 배점</h3>
+
+          <div className="mb-4 rounded border border-slate-200 bg-white p-4 font-mono text-xs">
+            <div className="space-y-1.5">
+              {scores.map((s) => (
+                <div key={s.label} className="flex justify-between gap-2">
+                  <span className="text-slate-600">{s.label}</span>
+                  <span className="text-right text-slate-900">
+                    {String(s.value)}점 × {(s.weight * 100).toFixed(0)}% ={" "}
+                    <strong>{(s.value * s.weight).toFixed(1)}</strong>
+                  </span>
+                </div>
+              ))}
+              <div className="my-2 border-t border-slate-300" />
+              <div className="flex justify-between font-bold text-slate-900">
+                <span>총점 (PSI)</span>
+                <span className="text-base text-amber-700">{String(partner.basePSI)}</span>
+              </div>
+            </div>
           </div>
 
           <h3 className="mb-2 text-sm font-bold text-slate-700">💡 기업 소개</h3>
-          <div className="whitespace-pre-line text-sm text-slate-700">{companyDesc !== "" ? companyDesc : "정보 없음"}</div>
+          <div className="whitespace-pre-line text-sm text-slate-700">{partner.companyDescription}</div>
         </div>
 
         <div className="p-4">
@@ -188,4 +212,6 @@ export function Phase3DetailModal({
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

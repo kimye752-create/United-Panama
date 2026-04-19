@@ -1,5 +1,21 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(phase3): 세션29 최종 핫픽스 — 모달 포털·카드 1:1.4·토글·PSI 배점)
+
+### Changed
+- `Phase3DetailModal.tsx` — `document.body` 포털 + `z-[100]` 오버레이, ESC·배경 스크롤 잠금, 하단 **PSI 배점** 명칭별 행, `Partner`(v2) 전용.
+- `Phase3PartnerCard.tsx` 신규 — 골드 `#FAEEDA` / 은 `#E8E7E1`, 원형 게이지, 본사·파나마 거점 분리, `phase3_partner_card_formatters.ts` 포맷.
+- `Phase3Top10Grid.tsx` — `gap-2`, `Phase3PartnerCard`, `onCardClick(partnerId)`.
+- `Phase3RankList.tsx` / `Phase3PartnerListRow.tsx` — 토글 `useState` 복구, 행 클릭 `onRowClick(partnerId)`.
+- `Phase3ProductMatchSection.tsx` — props를 `Partner` 원본으로 단순화.
+- `Phase3Container.tsx` — `LayoutGroup` 제거, `openPartnerById`, 모달에 `partner_meta`만 전달.
+- `src/logic/phase3/types.ts` — `partner_meta?: CatalogPartner` (모달·카드용).
+- `hardcoded-partner-mapper.ts` — **`partner_meta: p`만 추가** (기존 rank·basePSI·5대 점수 매핑 불변).
+- `Phase3PartnerCardShell.tsx` 삭제.
+
+### Notes
+- 로컬 `npm run build` 성공(2026-04-19).
+
 ## [Unreleased] - 2026-04-19 (feat(phase3): 카드·모달·리스트 전면 재설계 — 세션 29 통합 핫픽스)
 
 ### Changed

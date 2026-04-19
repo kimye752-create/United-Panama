@@ -2,11 +2,10 @@
 
 import type { ReactElement } from "react";
 
-import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
-import { PARTNERS, type ProductId, type ProductMatch } from "@/src/lib/phase3/partners-data";
+import type { Partner, ProductId, ProductMatch } from "@/src/lib/phase3/partners-data";
 
 interface Phase3ProductMatchSectionProps {
-  partner: PartnerWithDynamicPsi;
+  partner: Partner;
   selectedProductSlug: ProductId | null;
 }
 
@@ -30,24 +29,7 @@ export function Phase3ProductMatchSection({
   partner,
   selectedProductSlug,
 }: Phase3ProductMatchSectionProps): ReactElement {
-  const full = PARTNERS.find((row) => row.id === partner.partner_id);
-
-  if (full === undefined) {
-    return (
-      <div className="space-y-2 text-sm text-slate-600">
-        {partner.pipeline_matched_products !== null && partner.pipeline_matched_products.length > 0 ? (
-          <p className="font-semibold text-slate-800">{partner.pipeline_matched_products.join(", ")}</p>
-        ) : (
-          <p className="text-xs">등록된 동일 제품 매칭 정보가 없습니다.</p>
-        )}
-        {partner.conflict_level !== "none" && partner.conflict_insight !== null && partner.conflict_insight !== "" ? (
-          <p className="text-xs text-slate-700">{partner.conflict_insight}</p>
-        ) : null}
-      </div>
-    );
-  }
-
-  const sortedMatches = [...full.productMatches].sort((a, b) => {
+  const sortedMatches = [...partner.productMatches].sort((a, b) => {
     if (selectedProductSlug === null) {
       return 0;
     }
