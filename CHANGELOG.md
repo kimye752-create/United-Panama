@@ -1,5 +1,14 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): framer-motion 컴포넌트 전체 dynamic ssr:false (React 19 hydration 해결))
+
+### Changed
+- `Phase3Container.tsx` — `Phase3Top10Grid`·`Phase3RankList`를 `next/dynamic` + `{ ssr: false }`로 로드(모달과 동일); 청크 로드용 `loading` 플레이스홀더 추가.
+
+### Notes
+- `Phase3DetailModal`의 `dynamic` 설정은 유지.
+- 3공정 섹션 내 카드·리스트·모달만 클라이언트 전용 청크; 메인·1·2공정 등 나머지 페이지 SSR 영향 없음.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): 모달 dynamic ssr:false 전환으로 hydration error 해결 + layoutId 분리 + 게이지 중앙 정렬)
 
 ### Changed

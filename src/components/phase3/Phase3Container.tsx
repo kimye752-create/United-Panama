@@ -14,15 +14,33 @@ import type { Phase3WorkflowStepIndex, PSICheckedState, PSICriterionKey } from "
 
 import { SelectedProductBanner } from "./SelectedProductBanner";
 import { Phase3ErrorBanner } from "./Phase3ErrorBanner";
-import { Phase3RankList } from "./Phase3RankList";
 import { Phase3ReportToolbar } from "./Phase3ReportToolbar";
-import { Phase3Top10Grid } from "./Phase3Top10Grid";
 import { Phase3WeightPanel } from "./Phase3WeightPanel";
 import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
 
 const Phase3DetailModal = dynamic(
   () => import("./Phase3DetailModal").then((mod) => ({ default: mod.Phase3DetailModal })),
   { ssr: false },
+);
+
+const Phase3Top10Grid = dynamic(
+  () => import("./Phase3Top10Grid").then((mod) => ({ default: mod.Phase3Top10Grid })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[400px] items-center justify-center text-slate-400">파트너 카드 로딩 중...</div>
+    ),
+  },
+);
+
+const Phase3RankList = dynamic(
+  () => import("./Phase3RankList").then((mod) => ({ default: mod.Phase3RankList })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[200px] items-center justify-center text-slate-400">순위 목록 로딩 중...</div>
+    ),
+  },
 );
 
 interface Phase3ContainerProps {
