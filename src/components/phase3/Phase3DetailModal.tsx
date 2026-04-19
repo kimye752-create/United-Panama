@@ -62,7 +62,7 @@ function FactorRow({ icon, label, value }: { icon: string; label: string; value:
   );
 }
 
-/** partners-data 원본 기준 상세 모달 — body 포털·ESC·스크롤 잠금 */
+/** partners-data 원본 — document.body 포털·SSR mounted 가드·z-[9999] */
 export function Phase3DetailModal({
   partner,
   selectedProductSlug,
@@ -72,21 +72,29 @@ export function Phase3DetailModal({
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      setMounted(false);
+    };
   }, []);
 
   useEffect(() => {
+    if (partner === null) {
+      return;
+    }
+
     const handleEsc = (e: KeyboardEvent): void => {
       if (e.key === "Escape") {
         onClose();
       }
     };
-    if (partner !== null) {
-      document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
-    }
+
+    document.addEventListener("keydown", handleEsc);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalOverflow;
     };
   }, [partner, onClose]);
 
@@ -104,9 +112,9 @@ export function Phase3DetailModal({
 
   const websiteHref = getPartnerWebsiteHref(partner.website);
 
-  const modal = (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -213,5 +221,5 @@ export function Phase3DetailModal({
     </div>
   );
 
-  return createPortal(modal, document.body);
+  return createPortal(modalContent, document.body);
 }

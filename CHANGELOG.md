@@ -1,5 +1,29 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): STEP8 — 모달 포털·z-index·카드 헤더·게이지)
+
+### Changed
+- `Phase3DetailModal.tsx` — `createPortal(..., document.body)` 유지, `mounted` 언마운트 시 `false`, `partner` 없을 때 스크롤 잠금 미적용, `body.style.overflow` 원래 값 복원, 오버레이 `z-[9999]`·`bg-black/60`.
+- `Phase3PartnerCard.tsx` — 상단 `flex`(본사·순위 좌 / 배지 우), 회사명 `min-h-[50px]`·`text-[20px]`, 게이지 `flex-1 min-h-0`, `layoutId`·framer 설정 STEP7 유지.
+
+### Notes
+- `hardcoded-partner-mapper.ts`·`Phase3RankList` 토글·`LayoutGroup` 미변경.
+- 로컬 `npm run build` 성공(2026-04-19).
+
+## [Unreleased] - 2026-04-19 (fix(phase3): STEP7 — LayoutGroup·동적 순위·실버 대비)
+
+### Changed
+- `Phase3Container.tsx` — `LayoutGroup id="phase3-partner-morph"`로 Top10+11~20 영역 재감싸기(가중치 변경 시 레이아웃 애니메이션).
+- `Phase3PartnerCard.tsx` — `motion.button` + `layout` + `layoutId={p3-${id}}`, `currentRank`로 골드(TOP5)·순위 라벨 판정, 실버 배경 `#D3D1C7`·진한 테두리, 게이지 `motion.circle`.
+- `Phase3Top10Grid.tsx` — `currentRank={index + 1}` 전달.
+- `Phase3RankList.tsx` — `currentRank={index + 11}` 전달(토글 로직 유지).
+- `Phase3PartnerListRow.tsx` — 동일 `layoutId`, 동적 `#순위`.
+- `phase3_partner_card_formatters.ts` — `(Free Zone)` 제거, 빈 주소·MMG 라벨 정리.
+
+### Notes
+- `Phase3DetailModal.tsx`·`hardcoded-partner-mapper.ts` 미변경.
+- 로컬 `npm run build` 성공(2026-04-19).
+
 ## [Unreleased] - 2026-04-19 (chore: 지시서 파일명 확장자 중복 제거)
 
 ### Changed

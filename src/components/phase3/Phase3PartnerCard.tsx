@@ -47,37 +47,41 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
       whileHover={{ scale: 1.02 }}
     >
       <div
-        className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border-[1.5px] p-[14px]"
+        className="flex h-full w-full flex-col overflow-hidden rounded-xl border-[1.5px] p-[14px]"
         style={{
           background: style.bg,
           borderColor: style.border,
         }}
       >
-        <div
-          className="absolute right-0 top-0 rounded-bl-lg px-2 py-[3px] text-[10px] font-medium"
-          style={{
-            background: style.badgeBg,
-            color: style.badgeText,
-          }}
-        >
-          {isTop5 ? "🏅 TOP5" : `🥈 #${String(currentRank)}`}
+        {/* 상단: 본사·순위(좌) / 배지(우) — absolute 배지 제거로 겹침 방지 */}
+        <div className="-mx-[4px] -mt-[4px] mb-[6px] flex items-start justify-between gap-1">
+          <div className="min-w-0 flex-1 pl-[4px] pt-[4px] text-[10px] font-medium" style={{ color: style.subText }}>
+            #{String(currentRank)} · 본사 {homeCountry}
+          </div>
+          <div
+            className="shrink-0 rounded-bl-md rounded-tr-lg px-[6px] py-[3px] text-[9px] font-medium"
+            style={{
+              background: style.badgeBg,
+              color: style.badgeText,
+            }}
+          >
+            {isTop5 ? "🏅 TOP5" : `🥈 #${String(currentRank)}`}
+          </div>
         </div>
 
-        <div className="mb-[6px] text-[10px] font-medium" style={{ color: style.subText }}>
-          #{String(currentRank)} · 본사 {homeCountry}
+        <div className="min-h-[50px]">
+          <div
+            className="mb-[3px] whitespace-pre-line text-[20px] font-medium leading-[1.1] tracking-tight"
+            style={{ color: style.mainText }}
+          >
+            {formatPartnerName(meta.partnerName)}
+          </div>
+          <div className="text-[11px]" style={{ color: style.subText }}>
+            {meta.groupName !== null ? meta.groupName.replace(/\s*\([^)]*\)/u, "") : ""}
+          </div>
         </div>
 
-        <div
-          className="mb-[3px] whitespace-pre-line text-[22px] font-medium leading-[1.1] tracking-tight"
-          style={{ color: style.mainText }}
-        >
-          {formatPartnerName(meta.partnerName)}
-        </div>
-        <div className="text-[11px]" style={{ color: style.subText }}>
-          {meta.groupName !== null ? meta.groupName.replace(/\s*\([^)]*\)/u, "") : ""}
-        </div>
-
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex min-h-0 flex-1 items-center justify-center">
           <div className="relative h-[82px] w-[82px]">
             <svg
               width="82"
