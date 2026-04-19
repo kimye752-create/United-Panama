@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(phase3): UI 9가지 통합 개선 (STEP15-A))
+
+### Changed
+- `Phase3DetailModal.tsx` — PSI 배점 행마다 `fiveFactorsDescription` 정성 서술(`qualitative`) 추가; 이메일은 `EmailPopup`으로 보기/복사.
+- `Phase3PartnerCard.tsx` — 회사명 동적 `fontSize`, 좌상단 메달+순위·본사만(우상단 배지 제거), 실버 `SILVER_STYLE` 밝기 조정, ✉ → `EmailPopup`.
+- `EmailPopup.tsx` — 신규(포털·복사·ESC).
+- `Phase3Container.tsx` — `SelectedProductBanner` 제거, 평가 패널을 PDF 아래·그리드 위로 이동, `toggleAllCriteria`(전체 체크 ↔ 매출만 남김).
+- `Phase3WeightPanel.tsx` — 버튼 라벨 `전체 항목 체크` / `전체 해제`.
+
+### Notes
+- `modalRank`/테마/8제품 토글/모달·게이지 SVG(STEP14)/`partners-data` 미변경.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): 모달 크기·게이지 중앙·PDF 한글 3가지 통합 핫픽스)
 
 ### Changed

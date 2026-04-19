@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import type { Partner, ProductId } from "@/src/lib/phase3/partners-data";
 import { getPartnerWebsiteHref } from "@/src/lib/phase3/website-url";
 
+import { EmailPopup } from "./EmailPopup";
 import { Phase3ProductMatchSection } from "./Phase3ProductMatchSection";
 
 interface Phase3DetailModalProps {
@@ -71,6 +72,7 @@ export function Phase3DetailModal({
   onClose,
 }: Phase3DetailModalProps): ReactElement | null {
   const [isProductMatchOpen, setIsProductMatchOpen] = useState(false);
+  const [emailPopupOpen, setEmailPopupOpen] = useState(false);
 
   useEffect(() => {
     if (partner === null) {
@@ -134,12 +136,37 @@ export function Phase3DetailModal({
         };
 
   const scores = [
-    { label: "매출규모 (Revenue)", value: partner.revenueScore, weight: 0.35 },
-    { label: "파이프라인 (Pipeline)", value: partner.pipelineAvgScore, weight: 0.28 },
-    { label: "제조소 보유 (Manufacturing)", value: partner.manufacturingScore, weight: 0.2 },
-    { label: "수입 경험 (Import Exp.)", value: partner.importExperienceScore, weight: 0.12 },
-    { label: "약국체인 운영 (Pharmacy)", value: partner.pharmacyChainScore, weight: 0.05 },
-  ] as const;
+    {
+      label: "매출규모 (Revenue)",
+      value: partner.revenueScore,
+      weight: 0.35,
+      qualitative: partner.fiveFactorsDescription.revenue,
+    },
+    {
+      label: "파이프라인 (Pipeline)",
+      value: partner.pipelineAvgScore,
+      weight: 0.28,
+      qualitative: partner.fiveFactorsDescription.pipeline,
+    },
+    {
+      label: "제조소 보유 (Manufacturing)",
+      value: partner.manufacturingScore,
+      weight: 0.2,
+      qualitative: partner.fiveFactorsDescription.manufacturing,
+    },
+    {
+      label: "수입 경험 (Import Exp.)",
+      value: partner.importExperienceScore,
+      weight: 0.12,
+      qualitative: partner.fiveFactorsDescription.importExperience,
+    },
+    {
+      label: "약국체인 운영 (Pharmacy)",
+      value: partner.pharmacyChainScore,
+      weight: 0.05,
+      qualitative: partner.fiveFactorsDescription.pharmacyChain,
+    },
+  ];
 
   const websiteHref = getPartnerWebsiteHref(partner.website);
 
@@ -216,13 +243,25 @@ export function Phase3DetailModal({
             <h3 className="mb-3 text-sm font-bold text-slate-700">🏢 기본 정보</h3>
             <div className="space-y-2 text-sm">
               <InfoRow icon="📍" label="소재지" value={partner.address} />
-              <InfoRow
-                icon="✉"
-                label="이메일"
-                value={partner.email}
-                isLink={partner.email !== null && partner.email !== ""}
-                href={partner.email !== null && partner.email !== "" ? `mailto:${partner.email}` : null}
-              />
+              <div className="flex items-start gap-2">
+                <span className="shrink-0">✉</span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs text-slate-500">이메일</div>
+                  {partner.email !== null && partner.email !== "" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailPopupOpen(true);
+                      }}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      이메일 보기
+                    </button>
+                  ) : (
+                    <div className="break-all text-slate-700">정보 없음</div>
+                  )}
+                </div>
+              </div>
               <InfoRow icon="📞" label="연락처" value={partner.phone} />
               <InfoRow
                 icon="🌐"
@@ -253,12 +292,17 @@ export function Phase3DetailModal({
           <div className="mb-4 rounded border border-slate-200 bg-white p-4 font-mono text-xs">
             <div className="space-y-1.5">
               {scores.map((s) => (
-                <div key={s.label} className="flex justify-between gap-2">
-                  <span className="text-slate-600">{s.label}</span>
-                  <span className="text-right text-slate-900">
-                    {String(s.value)}점 × {(s.weight * 100).toFixed(0)}% ={" "}
-                    <strong>{(s.value * s.weight).toFixed(1)}</strong>
-                  </span>
+                <div key={s.label} className="space-y-1 border-b border-slate-100 pb-2 last:border-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-medium text-slate-700">{s.label}</span>
+                    <span className="shrink-0 text-right font-mono text-xs">
+                      <span className="text-slate-900">
+                        {String(s.value)}점 × {(s.weight * 100).toFixed(0)}% ={" "}
+                      </span>
+                      <strong className="text-amber-700">{(s.value * s.weight).toFixed(1)}</strong>
+                    </span>
+                  </div>
+                  <div className="pl-1 text-[11px] text-slate-500">{s.qualitative}</div>
                 </div>
               ))}
               <div className="my-2 border-t border-slate-300" />
@@ -298,5 +342,17 @@ export function Phase3DetailModal({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      {emailPopupOpen && partner.email !== null && partner.email !== "" ? (
+        <EmailPopup
+          email={partner.email}
+          onClose={() => {
+            setEmailPopupOpen(false);
+          }}
+        />
+      ) : null}
+    </>
+  );
 }

@@ -12,7 +12,6 @@ import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
 import type { PartnerWithPSI } from "@/src/lib/phase3/types";
 import type { Phase3WorkflowStepIndex, PSICheckedState, PSICriterionKey } from "@/src/lib/phase3/types";
 
-import { SelectedProductBanner } from "./SelectedProductBanner";
 import { Phase3ErrorBanner } from "./Phase3ErrorBanner";
 import { Phase3ReportToolbar } from "./Phase3ReportToolbar";
 import { Phase3WeightPanel } from "./Phase3WeightPanel";
@@ -213,8 +212,21 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
     });
   }
 
-  function resetDefaults(): void {
-    setChecked({ ...DEFAULT_CHECKED });
+  function toggleAllCriteria(): void {
+    setChecked((prev) => {
+      const allChecked = (Object.keys(prev) as PSICriterionKey[]).every((k) => prev[k]);
+
+      if (allChecked) {
+        return {
+          revenue: true,
+          pipeline: false,
+          manufacture: false,
+          import: false,
+          pharmacy: false,
+        };
+      }
+      return { ...DEFAULT_CHECKED };
+    });
   }
 
   const handleDownloadPhase3Pdf = useCallback(async (): Promise<void> => {
@@ -312,8 +324,6 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
             />
           </div>
 
-          <Phase3WeightPanel checked={checked} onToggle={toggleCriterion} onResetDefaults={resetDefaults} />
-
           {isExecuting ? <Phase3WorkflowStepper currentStep={pipelineStep} /> : null}
 
           {error !== null ? <Phase3ErrorBanner message={error} /> : null}
@@ -338,7 +348,11 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
                   {pdfLoading ? "PDF 생성 중…" : "📄 파트너 매칭 보고서 PDF"}
                 </button>
               </div>
-              <SelectedProductBanner productSlug={selectedProductSlug} />
+              <Phase3WeightPanel
+                checked={checked}
+                onToggle={toggleCriterion}
+                onResetDefaults={toggleAllCriteria}
+              />
               <LayoutGroup id="phase3-partner-morph">
                 <Phase3Top10Grid partners={top10} onCardClick={openPartnerById} />
                 <Phase3RankList partners={rest} onRowClick={openPartnerById} />

@@ -22,6 +22,7 @@ interface Phase3WeightPanelProps {
 /** 5대 지표 체크박스 — 최소 1개 선택은 onToggle 측에서 강제 */
 export function Phase3WeightPanel({ checked, onToggle, onResetDefaults }: Phase3WeightPanelProps) {
   const keys = Object.keys(CRITERION_LABELS) as PSICriterionKey[];
+  const allChecked = (Object.keys(checked) as PSICriterionKey[]).every((k) => checked[k]);
 
   return (
     <div className="rounded-[12px] border border-[#dce4ef] bg-[#f7f9fc] p-3">
@@ -34,7 +35,7 @@ export function Phase3WeightPanel({ checked, onToggle, onResetDefaults }: Phase3
           onClick={onResetDefaults}
           className="rounded-[8px] border border-[#cbd5e1] bg-white px-2 py-1 text-[10px] font-semibold text-[#3e5574] hover:bg-[#f1f5f9]"
         >
-          기본값 복원 (5개 전체)
+          {allChecked ? "전체 해제" : "전체 항목 체크"}
         </button>
       </div>
       <p className="mb-3 text-[10px] leading-relaxed text-[#64748b]">
