@@ -128,10 +128,6 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
   }, [modalPartner, ranked]);
 
   const runAnalysis = useCallback(async (): Promise<void> => {
-    if (!isActive) {
-      window.alert("3공정은 1·2공정 완료 후 활성화됩니다.");
-      return;
-    }
     if (productId === null || reportId === "") {
       setError("먼저 1공정 보고서를 선택해 주세요.");
       return;
@@ -178,7 +174,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
       clearProgressTimers();
       setLoading(false);
     }
-  }, [isActive, productId, reportId]);
+  }, [productId, reportId]);
 
   function toggleCriterion(key: PSICriterionKey): void {
     setChecked((prev) => {
@@ -252,12 +248,17 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
           <div>
             <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 · 실행</p>
+            {!isActive ? (
+              <p className="mb-2 rounded-[8px] border border-amber-200 bg-amber-50 px-2.5 py-2 text-[10.5px] leading-snug text-amber-900">
+                ⚠ 1·2공정을 모두 완료하면 전체 진행 맥락이 명확해집니다. 보고서와 품목만 선택되면 아래 버튼으로 파트너 매칭을 실행할 수
+                있습니다.
+              </p>
+            ) : null}
             <Phase3ReportToolbar
               reports={reports}
               reportId={reportId}
               onReportChange={handleReportChange}
               loading={loading}
-              isActive={isActive}
               productId={productId}
               onRun={() => {
                 void runAnalysis();

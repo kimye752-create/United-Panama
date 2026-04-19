@@ -5,7 +5,6 @@ interface Phase3ReportToolbarProps {
   reportId: string;
   onReportChange: (id: string) => void;
   loading: boolean;
-  isActive: boolean;
   productId: string | null;
   onRun: () => void;
 }
@@ -28,7 +27,6 @@ export function Phase3ReportToolbar({
   reportId,
   onReportChange,
   loading,
-  isActive,
   productId,
   onRun,
 }: Phase3ReportToolbarProps) {
@@ -50,13 +48,14 @@ export function Phase3ReportToolbar({
       </select>
       <button
         type="button"
+        aria-label={loading ? "파트너 매칭 불러오는 중" : "파트너 매칭 실행"}
         onClick={() => {
           onRun();
         }}
-        disabled={!isActive || loading || reportId === "" || productId === null}
+        disabled={loading || reportId === "" || productId === null}
         className="h-[40px] rounded-[10px] bg-[#1E4E8C] px-5 text-[12px] font-extrabold text-white hover:bg-[#1a4378] disabled:opacity-60"
       >
-        {loading ? "불러오는 중…" : "▶ 3공정 실행"}
+        {loading ? "불러오는 중…" : "▶ 파트너 매칭"}
       </button>
     </div>
   );

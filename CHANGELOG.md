@@ -1,5 +1,12 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): 파트너 매칭 버튼 활성화·명칭·가중치 UX)
+
+### Changed
+- `Phase3ReportToolbar.tsx` — `disabled`에서 `isActive` 제거(보고서·`productId`만 검사). 라벨 `▶ 파트너 매칭`, `aria-label` 동기화.
+- `Phase3Container.tsx` — `runAnalysis`의 1·2공정 완료 `alert` 가드 제거. 미완료 시 노란 안내 박스만 표시.
+- `Phase3WeightPanel.tsx` — 항목별 AHP 가중치 `(35%)` 등 파란 볼드 + AHP 안내 문구, 그리드 간격 조정.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): MainPreview ↔ Phase3Container props 통일)
 
 ### Changed

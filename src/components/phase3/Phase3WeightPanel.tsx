@@ -1,12 +1,17 @@
+import { PSI_BASIC_WEIGHTS } from "@/src/lib/phase3/types";
 import type { PSICheckedState, PSICriterionKey } from "@/src/lib/phase3/types";
 
 const CRITERION_LABELS: Record<PSICriterionKey, string> = {
   revenue: "① 매출규모",
-  pipeline: "② 파이프라인 (동일/유사 의약품 취급)",
+  pipeline: "② 파이프라인",
   manufacture: "③ 제조소 보유",
   import: "④ 수입 경험",
   pharmacy: "⑤ 약국체인 운영",
 };
+
+function weightPercent(key: PSICriterionKey): string {
+  return `${String(Math.round(PSI_BASIC_WEIGHTS[key] * 100))}%`;
+}
 
 interface Phase3WeightPanelProps {
   checked: PSICheckedState;
@@ -32,7 +37,10 @@ export function Phase3WeightPanel({ checked, onToggle, onResetDefaults }: Phase3
           기본값 복원 (5개 전체)
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
+      <p className="mb-3 text-[10px] leading-relaxed text-[#64748b]">
+        ※ 유나이티드제약 실무자 확정 우선순위 기반 AHP 가중치
+      </p>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {keys.map((key) => (
           <label key={key} className="flex cursor-pointer items-center gap-2 text-[11px] text-[#2b4568]">
             <input
@@ -43,7 +51,10 @@ export function Phase3WeightPanel({ checked, onToggle, onResetDefaults }: Phase3
                 onToggle(key);
               }}
             />
-            <span>{CRITERION_LABELS[key]}</span>
+            <span>
+              {CRITERION_LABELS[key]}{" "}
+              <strong className="font-extrabold text-[#1E4E8C]">({weightPercent(key)})</strong>
+            </span>
           </label>
         ))}
       </div>
