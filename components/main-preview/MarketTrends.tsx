@@ -7,6 +7,40 @@ interface TrendItem {
   meta_line: string;
   url?: string;
   category?: "파나마 현지" | "한국 발행" | "글로벌";
+  /** API가 주면 정렬 시 우선 사용 */
+  publishedAt?: string;
+}
+
+/** ISO 또는 연도만(YYYY) — 연도만이면 해당 연 12/31로 보정 */
+function parseNewsDate(dateStr: string): number {
+  const t = dateStr.trim();
+  if (/^\d{4}$/.test(t)) {
+    return new Date(`${t}-12-31T23:59:59.000Z`).getTime();
+  }
+  const ms = new Date(t).getTime();
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+/** 발행일 기준 정렬 키 — publishedAt 없으면 meta_line에서 추출 */
+function sortKeyFromTrendItem(item: TrendItem): number {
+  if (item.publishedAt !== undefined && item.publishedAt.trim() !== "") {
+    return parseNewsDate(item.publishedAt);
+  }
+  const meta = item.meta_line.trim();
+  const parts = meta.split("·").map((s) => s.trim());
+  const last = parts[parts.length - 1] ?? "";
+  if (last !== "" && (/^\d{4}-\d{2}-\d{2}$/.test(last) || /^\d{4}$/.test(last))) {
+    return parseNewsDate(last);
+  }
+  const iso = meta.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  if (iso !== null) {
+    return parseNewsDate(iso[1]);
+  }
+  const years = meta.match(/\b(20\d{2})\b/g);
+  if (years !== null && years.length > 0) {
+    return parseNewsDate(years[years.length - 1]);
+  }
+  return 0;
 }
 
 interface TrendPayload {
@@ -29,6 +63,7 @@ function parsePayload(raw: unknown): TrendPayload {
     if (typeof row.headline !== "string") {
       continue;
     }
+    const publishedRaw = row["publishedAt"] ?? row["published_at"] ?? row["date"];
     items.push({
       headline: row.headline,
       meta_line: typeof row.meta_line === "string" ? row.meta_line : "",
@@ -40,6 +75,7 @@ function parsePayload(raw: unknown): TrendPayload {
         row.category === "파나마 현지" || row.category === "한국 발행" || row.category === "글로벌"
           ? row.category
           : undefined,
+      publishedAt: typeof publishedRaw === "string" && publishedRaw.trim() !== "" ? publishedRaw.trim() : undefined,
     });
   }
   return {
@@ -61,7 +97,10 @@ export function MarketTrends() {
       });
       const json = (await response.json()) as unknown;
       const payload = parsePayload(json);
-      setItems(payload.items.slice(0, 6));
+      const sorted = [...payload.items].sort(
+        (a, b) => sortKeyFromTrendItem(b) - sortKeyFromTrendItem(a),
+      );
+      setItems(sorted.slice(0, 6));
     } finally {
       setLoading(false);
     }

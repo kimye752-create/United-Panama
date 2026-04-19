@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(main): 매크로 카드 가독성 개선 + 국가 GDP 단일화 + 뉴스피드 최신순 정렬)
+
+### Changed
+- `components/main-preview/MacroCards.tsx` — 첫 카드 「국가 GDP」만 표시(1인당 GDP 비노출, 이전 라벨·값은 주석 보관); 제목 `#1E293B` bold, 수치 `#1E3A5F` extrabold로 4카드 공통 가독성 통일, 출처 줄은 기존 작은 회색 유지.
+- `components/main-preview/MarketTrends.tsx` — `publishedAt` 또는 `meta_line`에서 날짜 추출 후 최신순 정렬(연도만 `YYYY-12-31` 보정), 상위 6건 표시.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): basePSI 재계산으로 행별 합산과 총점 일치 (STEP15-C))
 
 ### Changed
