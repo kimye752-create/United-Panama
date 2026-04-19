@@ -17,7 +17,7 @@ function formatDynamicPsiDisplay(psi: number): string {
   return psi.toFixed(1).replace(/\.0$/u, "");
 }
 
-/** 11~20위 리스트 행 — layoutId로 카드와 동일 엔티티 연결 */
+/** 11~20위 리스트 행 — layoutId는 리스트 전용 네임스페이스(p3-list-*) */
 export function Phase3PartnerListRow({ partner, currentRank, onRowClick }: Phase3PartnerListRowProps) {
   const meta = partner.partner_meta;
   const code = meta !== undefined ? meta.countryCode : "";

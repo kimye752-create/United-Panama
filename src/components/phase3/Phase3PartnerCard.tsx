@@ -13,11 +13,6 @@ interface Phase3PartnerCardProps {
   onClick: () => void;
 }
 
-/** 동적 PSI 숫자 표기(정수면 소수 제거) */
-function formatDynamicPsiDisplay(psi: number): string {
-  return psi.toFixed(1).replace(/\.0$/u, "");
-}
-
 /** Top10 카드 — LayoutGroup용 layoutId, currentRank 기준 골드/실버 */
 export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3PartnerCardProps) {
   const meta = partner.partner_meta;
@@ -26,8 +21,8 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
   }
 
   const isTop5 = currentRank <= 5;
-  const psiRaw = partner.dynamic_psi;
-  const psiGauge = Math.min(100, Math.max(0, psiRaw));
+  const psi = partner.dynamic_psi;
+  const psiGauge = Math.min(100, Math.max(0, psi));
   const homeCountry = meta.countryName;
   const panamaAddress = formatPanamaAddress(meta.address);
   const circumference = 213.6;
@@ -108,9 +103,16 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex flex-col items-center justify-center" style={{ lineHeight: 1 }}>
-                <div className="text-[24px] font-medium" style={{ color: style.mainText, lineHeight: 1 }}>
-                  {formatDynamicPsiDisplay(psiRaw)}
-                </div>
+                <motion.div
+                  key={psi}
+                  initial={{ opacity: 0.5, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-[24px] font-medium"
+                  style={{ color: style.mainText, lineHeight: 1 }}
+                >
+                  {typeof psi === "number" ? psi.toFixed(1).replace(/\.0$/u, "") : String(psi)}
+                </motion.div>
                 <div className="mt-[3px] text-[9px] font-medium" style={{ color: style.subText, lineHeight: 1 }}>
                   PSI
                 </div>

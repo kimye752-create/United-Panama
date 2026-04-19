@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): 모달 dynamic ssr:false 전환으로 hydration error 해결 + layoutId 분리 + 게이지 중앙 정렬)
+
+### Changed
+- `Phase3PartnerCard.tsx` — 게이지 중앙에 `motion.div`(key=`psi`) + `lineHeight: 1`·24px 숫자 표기로 보강; `dynamic_psi` 변수명 `psi`로 통일.
+- `Phase3PartnerListRow.tsx` — 주석만 정리(리스트 전용 `p3-list-*` layoutId).
+
+### Notes
+- `Phase3Container` dynamic 모달·`Phase3DetailModal` mounted 제거·layoutId `p3-card-*` / `p3-list-*` 는 이전 커밋과 동일 유지.
+- 로컬 `Remove-Item .next; npm run build` 성공 후 커밋.
+
 ## [Unreleased] - 2026-04-18 (fix(phase3): 모달 dynamic ssr:false 전환으로 hydration error 해결)
 
 ### Changed
