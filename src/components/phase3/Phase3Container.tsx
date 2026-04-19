@@ -307,7 +307,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
               {!phase1Complete ? (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
                   <div className="text-slate-700">
-                    📋 시장조사 분석 후 파트너 매칭을 실행할 수 있습니다. 가격책정 분석까지 완료하면 파트너와 전략적인
+                    📋 시장조사 분석 후 파트너 매칭을 실행할 수 있습니다. 가격책정 분석까지 완료하면 매칭파트너와 전략적인
                     가격협의를 할 수 있습니다.
                   </div>
                 </div>

@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): 안내 문구 "매칭파트너" 로 구체화)
+
+### Changed
+- `src/components/phase3/Phase3Container.tsx` — 1공정 미완료 안내 박스: 「파트너와」→「매칭파트너와」(가격협의 대상을 매칭 결과 파트너로 명확화).
+
 ## [Unreleased] - 2026-04-19 (feat(phase3): UI 정리 + PDF 리뉴얼 v2 (STEP15-D PART A+B 보완))
 
 ### Changed
