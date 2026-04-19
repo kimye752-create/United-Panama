@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): 모달 컨테이너 inline style 적용으로 z-index 문제 해결)
+
+### Changed
+- `Phase3DetailModal.tsx` — 오버레이 루트에 `position: fixed`, `inset: 0` 상응, `zIndex: 9999`를 인라인 스타일로 지정(Tailwind `fixed`/`z-[9999]` 미적용 이슈 우회).
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): 모달을 section 밖으로 분리 + 조건부 렌더링 추가 (최종))
 
 ### Changed

@@ -105,7 +105,15 @@ export function Phase3DetailModal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
+      className="flex items-center justify-center bg-black/60 p-4"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+      }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
