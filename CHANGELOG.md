@@ -1,5 +1,14 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(phase3): 모달 골드/실버 테마 적용 + 8제품 매칭 토글 + modalRank state 추가)
+
+### Changed
+- `Phase3Container.tsx` — `modalRank` state, `openPartnerById`에서 클릭 시점 순위(`idx + 1`) 고정, 보고서 변경·모달 닫기 시 `setModalRank(0)`.
+- `Phase3DetailModal.tsx` — `currentRank` prop, Top5/Top10/그 외 테마 객체·헤더 배지·패널 스타일, 8제품 매칭 접기/펼치기(`useState`).
+
+### Notes
+- 오버레이 `position: fixed` + `zIndex: 9999` 인라인, Fragment·dynamic·Portal 로직 유지.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): 모달 컨테이너 inline style 적용으로 z-index 문제 해결)
 
 ### Changed

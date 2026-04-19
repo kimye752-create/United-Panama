@@ -74,6 +74,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
   const [checked, setChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
   const [debouncedChecked, setDebouncedChecked] = useState<PSICheckedState>({ ...DEFAULT_CHECKED });
   const [modalPartner, setModalPartner] = useState<PartnerWithDynamicPsi | null>(null);
+  const [modalRank, setModalRank] = useState<number>(0);
   /** 실행 버튼 클릭 후 ~분석 완료까지 true — 스테퍼는 이 구간에서만 표시 */
   const [isExecuting, setIsExecuting] = useState(false);
   /** 내부 파이프라인 단계(0~3), 4=4단계 모두 완료 */
@@ -118,6 +119,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
     setFetchMessage(null);
     setError(null);
     setModalPartner(null);
+    setModalRank(0);
     setIsExecuting(false);
     setPipelineStep(0);
     clearProgressTimers();
@@ -140,8 +142,14 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
   const rest = useMemo(() => ranked.slice(10, 20), [ranked]);
 
   const openPartnerById = useCallback((partnerId: string): void => {
-    const p = ranked.find((x) => x.partner_id === partnerId) ?? null;
-    setModalPartner(p);
+    const idx = ranked.findIndex((x) => x.partner_id === partnerId);
+    if (idx === -1) {
+      setModalPartner(null);
+      setModalRank(0);
+      return;
+    }
+    setModalPartner(ranked[idx]);
+    setModalRank(idx + 1);
   }, [ranked]);
 
   const runAnalysis = useCallback(async (): Promise<void> => {
@@ -344,9 +352,11 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
       {modalPartner !== null ? (
         <Phase3DetailModal
           partner={modalPartner.partner_meta ?? null}
+          currentRank={modalRank}
           selectedProductSlug={selectedProductSlug}
           onClose={() => {
             setModalPartner(null);
+            setModalRank(0);
           }}
         />
       ) : null}

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { Partner, ProductId } from "@/src/lib/phase3/partners-data";
@@ -11,6 +11,7 @@ import { Phase3ProductMatchSection } from "./Phase3ProductMatchSection";
 
 interface Phase3DetailModalProps {
   partner: Partner | null;
+  currentRank: number;
   selectedProductSlug: ProductId | null;
   onClose: () => void;
 }
@@ -65,9 +66,12 @@ function FactorRow({ icon, label, value }: { icon: string; label: string; value:
 /** partners-data 원본 — document.body 포털·z-[9999] (모달은 Phase3Container에서 dynamic ssr:false) */
 export function Phase3DetailModal({
   partner,
+  currentRank,
   selectedProductSlug,
   onClose,
 }: Phase3DetailModalProps): ReactElement | null {
+  const [isProductMatchOpen, setIsProductMatchOpen] = useState(false);
+
   useEffect(() => {
     if (partner === null) {
       return;
@@ -92,6 +96,42 @@ export function Phase3DetailModal({
   if (partner === null) {
     return null;
   }
+
+  const isTop5 = currentRank > 0 && currentRank <= 5;
+  const isRankCard = currentRank > 0 && currentRank <= 10;
+
+  const theme = isTop5
+    ? {
+        bodyBg: "#FFFFFF",
+        headerBg: "#FAEEDA",
+        border: "#BA7517",
+        shadow: "0 20px 60px rgba(186, 117, 23, 0.25)",
+        badge: "🏅 TOP5",
+        badgeBg: "#BA7517",
+        badgeText: "#FAEEDA",
+        accent: "#412402",
+      }
+    : isRankCard
+      ? {
+          bodyBg: "#FFFFFF",
+          headerBg: "#D3D1C7",
+          border: "#5F5E5A",
+          shadow: "0 20px 60px rgba(44, 44, 42, 0.25)",
+          badge: `🥈 #${String(currentRank)}`,
+          badgeBg: "#2C2C2A",
+          badgeText: "#F1EFE8",
+          accent: "#2C2C2A",
+        }
+      : {
+          bodyBg: "#FFFFFF",
+          headerBg: "#F8FAFC",
+          border: "#CBD5E1",
+          shadow: "0 20px 60px rgba(15, 23, 42, 0.15)",
+          badge: `#${String(currentRank)}`,
+          badgeBg: "#64748B",
+          badgeText: "#FFFFFF",
+          accent: "#475569",
+        };
 
   const scores = [
     { label: "매출규모 (Revenue)", value: partner.revenueScore, weight: 0.35 },
@@ -120,20 +160,38 @@ export function Phase3DetailModal({
       aria-labelledby="phase3-modal-title"
     >
       <div
-        className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl"
+        style={{
+          background: theme.bodyBg,
+          border: `2px solid ${theme.border}`,
+          boxShadow: theme.shadow,
+        }}
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-4">
+        <div
+          className="sticky top-0 z-10 flex items-center justify-between border-b p-4"
+          style={{
+            background: theme.headerBg,
+            borderBottomColor: theme.border,
+          }}
+        >
           <div className="flex min-w-0 items-center gap-3">
-            <span className="shrink-0 text-sm font-bold text-slate-700">#{String(partner.rank)}</span>
-            {partner.rank <= 5 ? (
-              <span className="shrink-0" aria-hidden>
-                🏅
-              </span>
-            ) : null}
-            <h2 id="phase3-modal-title" className="truncate text-lg font-bold text-slate-900">
+            <span
+              className="shrink-0 rounded-md px-2.5 py-1 text-[11px] font-semibold"
+              style={{
+                background: theme.badgeBg,
+                color: theme.badgeText,
+              }}
+            >
+              {theme.badge}
+            </span>
+            <h2
+              id="phase3-modal-title"
+              className="truncate text-lg font-bold"
+              style={{ color: theme.accent }}
+            >
               {partner.partnerName}
             </h2>
           </div>
@@ -143,7 +201,7 @@ export function Phase3DetailModal({
               type="button"
               onClick={onClose}
               aria-label="닫기"
-              className="flex h-8 w-8 items-center justify-center rounded text-xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+              className="flex h-8 w-8 items-center justify-center rounded text-xl leading-none text-slate-500 hover:bg-white/50 hover:text-slate-900"
             >
               ✕
             </button>
@@ -213,8 +271,25 @@ export function Phase3DetailModal({
         </div>
 
         <div className="p-4">
-          <h3 className="mb-3 text-sm font-bold text-slate-700">💊 8제품 매칭</h3>
-          <Phase3ProductMatchSection partner={partner} selectedProductSlug={selectedProductSlug} />
+          <button
+            type="button"
+            onClick={() => {
+              setIsProductMatchOpen((prev) => !prev);
+            }}
+            className="flex w-full items-center justify-between rounded-lg border bg-slate-50 p-3 transition-colors hover:bg-slate-100"
+            style={{ borderColor: theme.border }}
+          >
+            <span className="text-sm font-bold text-slate-700">💊 8제품 매칭 상세</span>
+            <span className="text-xs font-medium text-slate-500">
+              {isProductMatchOpen ? "▲ 접기" : "▼ 클릭해서 열기"}
+            </span>
+          </button>
+
+          {isProductMatchOpen ? (
+            <div className="mt-3">
+              <Phase3ProductMatchSection partner={partner} selectedProductSlug={selectedProductSlug} />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
