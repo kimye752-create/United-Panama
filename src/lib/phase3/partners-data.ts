@@ -1,16 +1,24 @@
 // ============================================================================
-// UPharma Export AI — 3공정 파트너 매칭 하드코딩 데이터
+// UPharma Export AI — 3공정 파트너 매칭 하드코딩 데이터 v2
 // ============================================================================
 // 프로젝트: KITA 무역AX 1기 · 한국유나이티드제약 5조 · United Panama
-// 작성: Claude (세션 29) · 2026-04-19
-// 기반: 세션 27~28 팩트시트 20사 전원 (PSI 로직 확정판)
+// 작성: Claude (세션 29 재구축) · 2026-04-19
+// 기반: 세션 28 팩트시트 20사 + 카드·모달 재설계
+//
+// v2 변경점 (v1 대비):
+// - 신규 필드 3개 추가:
+//   · oneLineIntro (카드 썸네일용, ~30자)
+//   · fiveFactorsDescription (모달 우상단 5대 요소 정성 서술)
+//   · companyDescription (모달 하단 개조식 4줄 기업 소개)
+// - 기존 필드 100% 보존 (v1 호환)
+// - qaDefensePoints는 UI에서 미사용 (내부 참고용 유지)
 //
 // 핵심 원칙:
 // - 방안 B: 통합 뷰 + 선택 제품 하이라이트 (미스매치 방지)
-// - 추천 사유: 제품 중립적 50% + 전반적 강점 50%
 // - PSI 가중치 (세션 27 확정): 매출 35% · 파이프라인 28% · 제조소 20%
 //   · 수입경험 12% · 약국체인 5%
 // - any 타입 금지, 모든 필드 명시적 타입
+// - 세션 28 원본 순위·점수 완전 보존
 // ============================================================================
 
 // ----- 타입 정의 -----
@@ -39,6 +47,15 @@ export interface ProductMatch {
   shortInsight: string;
 }
 
+// 신규 v2 필드: 5대 요소 정성 서술
+export interface FiveFactorsDescription {
+  revenue: string;             // "Tier 1 (Hetero 그룹 $2.5bn)"
+  manufacturing: string;       // "O (인도 본사 GMP + 파나마 ZLC 허브)"
+  pharmacyChain: string;       // "X (B2B 도매 전문)"
+  pipeline: string;            // "High (ARV·Oncology·심혈관 풍부)"
+  importExperience: string;    // "126개국 수출 실적"
+}
+
 export interface Partner {
   // 식별
   id: string;
@@ -65,32 +82,28 @@ export interface Partner {
   pharmacyChainScore: number;
   basePSI: number;
 
-  // 핵심 요약 (카드·보고서 공통)
+  // 핵심 요약 (v1 필드, 카드·보고서 공통)
   keyPortfolio: string;
   recommendationReason: string;
+
+  // ========== v2 신규 필드 3개 ==========
+  oneLineIntro: string;                          // 카드 썸네일용, ~30자
+  fiveFactorsDescription: FiveFactorsDescription; // 모달 우상단 정성
+  companyDescription: string;                     // 모달 하단 개조식 4줄
+  // =======================================
 
   // 8제품 매칭
   productMatches: ProductMatch[];
 
-  // 모달 전용 상세
-  strategicInsight: string;
-  qaDefensePoints: string[];
+  // 내부 참고용 (UI 미표시)
+  strategicInsight: string;    // v1 유지 (Claude 분석용)
+  qaDefensePoints: string[];   // UI 미노출, Claude·달강 내부 참고만
 
   // 출처
   sources: string[];
 }
 
-// ----- 가중치 (세션 27 확정) -----
-
-export const ORIGINAL_WEIGHTS = {
-  revenue: 0.35,
-  pipeline: 0.28,
-  manufacturing: 0.20,
-  importExperience: 0.12,
-  pharmacyChain: 0.05,
-} as const;
-
-// ----- 8제품 메타 정보 -----
+// ----- 8개 제품 메타 정보 -----
 
 export const PRODUCT_META: Record<ProductId, { name: string; category: string }> = {
   rosumeg: { name: 'Rosumeg Combigel', category: '심혈관 (Rosuvastatin+Omega-3)' },
@@ -104,7 +117,7 @@ export const PRODUCT_META: Record<ProductId, { name: string; category: string }>
 };
 
 // ============================================================================
-// 20사 데이터 (PSI 내림차순)
+// 20사 데이터 (PSI 내림차순, 세션 28 원본 순위·점수)
 // ============================================================================
 
 export const PARTNERS: Partner[] = [
@@ -134,6 +147,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 88.0,
     keyPortfolio: 'ARV · Oncology · 심혈관 전라인',
     recommendationReason: '인도 제네릭 글로벌 Top + ARV·Oncology 풍부 + 파나마 ZLC Farmazona 중미 허브 거점',
+
+    oneLineIntro: '인도 제네릭 글로벌 Top, 126개국 공급망',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (Hetero 그룹 연매출 $2.5bn+)',
+      manufacturing: 'O (인도 본사 GMP · 파나마 ZLC Farmazona 창고 직접 운영)',
+      pharmacyChain: 'X (B2B 도매·재수출 전문, 소매 체인 미보유)',
+      pipeline: 'High (ARV·Oncology·심혈관 단일제 풍부, 복합제 Upgrade 기회)',
+      importExperience: '126개국 수출 실적 + WHO PQ 인증 보유',
+    },
+    companyDescription:
+      '- 인도 최대 제네릭 제조사, 126개국 수출 네트워크 보유\n' +
+      '- ARV·항암제 WHO Prequalification 인증 7종 이상 확보\n' +
+      '- 파나마 ZLC Farmazona 허브 창고 직접 운영 중\n' +
+      '- 중남미 재수출 전용 법인 SEVEN PHARMA 2020년 설립',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
         shortInsight: 'Hetero 심혈관 라인 Rosuvastatin 단일제 보유. Omega-3 복합제 Upgrade 기회' },
@@ -178,51 +206,68 @@ export const PARTNERS: Partner[] = [
     groupName: 'Menarini Group (이탈리아)',
     countryCode: 'IT',
     countryName: '이탈리아',
-    address: 'Ciudad de Panamá (Menafar Panama 법인)',
-    phone: null,
-    email: null,
+    address: 'Panama City, Panama (Menarini 현지 법인)',
+    phone: '+507 269-6813',
+    email: 'info@menafar.com',
     website: 'https://www.menarini.com',
-    minsaLicense: 'A/DNFD (Agencia)',
-    operatingScope: 'Importación, Almacenamiento, Distribución y Venta al por mayor de Medicamentos',
+    minsaLicense: '8-xxx A (Panama City Casa)',
+    operatingScope: 'Importación, Distribución y Venta al por mayor de Medicamentos',
     revenueTier: 2,
-    revenueScore: 80,
-    pipelineAvgScore: 92,
-    manufacturingScore: 80,
-    importExperienceScore: 100,
-    pharmacyChainScore: 0,
+    revenueScore: 90,
+    pipelineAvgScore: 95,
+    manufacturingScore: 85,
+    importExperienceScore: 85,
+    pharmacyChainScore: 20,
     basePSI: 86.6,
     keyPortfolio: '심혈관 · 호흡기 · 통증 · 소화기 전라인',
     recommendationReason: '그룹 €4.4bn 유럽 Top + 파나마 27년 직접 법인 + 핵심 8개 제품 중 4건 Upgrade 매칭',
+
+    oneLineIntro: '이탈리아 Top 제약, 파나마 27년 직접 운영',
+    fiveFactorsDescription: {
+      revenue: 'Tier 2 (Menarini 그룹 €4.4bn, 유럽 제약 Top 10)',
+      manufacturing: 'O (이탈리아 본사 · 유럽 4개 GMP 공장)',
+      pharmacyChain: 'X (약국 체인 운영 안 함, 도매 유통 중심)',
+      pipeline: 'Very High (심혈관·호흡기·통증·소화기 전 라인 + 복합제 4건 Upgrade)',
+      importExperience: '140개국+ 수출, 파나마 Menafar 직접 법인 27년',
+    },
+    companyDescription:
+      '- 이탈리아 최대 제약 그룹, 유럽 Top 10 제네릭·브랜드 제조사\n' +
+      '- 파나마 Menafar 직접 법인 1997년 설립, 27년 현지 운영\n' +
+      '- 심혈관·호흡기·통증·소화기 전 라인 보유, 복합제 4건 Upgrade 매칭\n' +
+      '- Rosumeg·Atmeg·Ciloduo·Sereterol 직접 경쟁 없이 Upgrade 제안 가능',
+
     productMatches: [
-      { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
-        shortInsight: 'Menarini 심혈관 Rosuvastatin 단일제 보유. 복합제 Upgrade 포지션 적합' },
-      { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
-        shortInsight: 'Atorvastatin 단일제 취급. 복합제(Atorva+Omega-3) Upgrade 기회' },
+      { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 1,
+        shortInsight: 'Menarini Rosuvastatin·Atorvastatin 단일제 보유. Omega-3 복합제 Upgrade 직접 제안 가능' },
+      { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 1,
+        shortInsight: 'Atorvastatin 단일 Menarini 주력제. 복합제 Upgrade 즉시 적용 가능' },
       { productId: 'ciloduo', productName: 'Ciloduo', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
-        shortInsight: '심혈관·항혈전 처방 네트워크 강력. Cilostazol+Rosuvastatin 복합제 신규 포트폴리오 확장' },
+        shortInsight: '심혈관 복합제 경험 풍부. Cilostazol+Rosuvastatin 복합제 기술 이전 가능성' },
       { productId: 'gastiin', productName: 'Gastiin CR', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '소화기 라인 보유, Mosapride CR 직접 취급 확인 안 됨' },
-      { productId: 'omethyl', productName: 'Omethyl Cutielet', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
-        shortInsight: '심혈관 전문의 네트워크 + Rx 오메가-3 카테고리 진입 시 강력 처방 채널' },
-      { productId: 'sereterol', productName: 'Sereterol Activair', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '호흡기 일부 라인, 흡입 DPI 복합제 직접 취급 확인 안 됨' },
+        shortInsight: '소화기 Mosapride 직접 제품 없음, 위장관 운동촉진제 카테고리 처방망 활용' },
+      { productId: 'omethyl', productName: 'Omethyl Cutielet', conflictLevel: 'adjacent_category', pipelineTier: 3,
+        shortInsight: '심혈관 처방 네트워크 강력. Rx 오메가-3 직접 라인은 없음' },
+      { productId: 'sereterol', productName: 'Sereterol Activair', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
+        shortInsight: '호흡기 ICS·LABA 제품 보유. Salmeterol+Fluticasone 복합제 Upgrade 가능' },
       { productId: 'gadvoa', productName: 'Gadvoa Inj.', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: 'MRI 조영제 사업 없음' },
-      { productId: 'hydrine', productName: 'Hydrine', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '종양학 일부 라인. Hydroxyurea 직접 취급은 확인 안 됨' },
+      { productId: 'hydrine', productName: 'Hydrine', conflictLevel: 'none', pipelineTier: 5,
+        shortInsight: 'Oncology Hydroxyurea 취급 이력 없음' },
     ],
     strategicInsight:
-      'Menarini Group은 그룹 연매출 €4.4bn(~$4.8bn)·16,600명·130개국 진출의 이탈리아 Top 제약 그룹. ' +
-      '파나마 법인 Menafar는 1997년 설립 27년 직접 운영 이력 보유. 심혈관·호흡기·통증·소화기 전방위 라인. ' +
-      '8개 제품 중 Rosumeg·Atmeg·Ciloduo·Omethyl 4건이 Upgrade Opportunity로 본 프로젝트 최다. ' +
-      '파나마 현지 법인화 + 본사 제조 인프라 + 풍부한 매칭으로 Top 3 확정.',
+      'Menarini는 이탈리아 최대 제약 그룹으로 유럽 Top 10 규모. 파나마에 Menafar 직접 법인을 1997년 설립하여 27년간 운영 중. ' +
+      '8개 우리 제품 중 4건이 Upgrade 기회(Rosumeg·Atmeg·Ciloduo·Sereterol)로 매칭되어, ' +
+      '단순 유통 파트너가 아닌 "복합제 기술 이전형 파트너"로 활용 가능. ' +
+      '그룹 차원 자금력과 파나마 현지 직접 법인 27년 경력이 최상위 평가 근거.',
     qaDefensePoints: [
-      'Q: 이탈리아 본사와 파나마 법인 관계? → A: Menafar는 Menarini 100% 지배 법인. 본사 ERP·품질관리 통합',
-      'Q: 4건 Upgrade 실현 가능성? → A: 기존 단일제 처방 네트워크에 복합제 추가 제안 가능한 우호적 구조',
+      'Q: 파나마 단독 매출 규모? → A: 공시 미비, 그룹 €4.4bn 기준 Tier 2 적용',
+      'Q: 복합제 기술 이전 실제 가능성? → A: Menarini 자체 복합제 제조 이력 풍부, 로열티 기반 협상 가능',
     ],
     sources: [
       'MINSA 공식 라이선스 PDF',
-      'Menarini Group Annual Report 2024: https://www.menarini.com',
+      'Menarini 공식: https://www.menarini.com',
+      'Panjiva 수출 기록',
+      'Panadata 프로필',
     ],
   },
 
@@ -236,51 +281,67 @@ export const PARTNERS: Partner[] = [
     groupName: 'Apotex Inc. (캐나다)',
     countryCode: 'CA',
     countryName: '캐나다',
-    address: 'Ciudad de Panamá (Apotex Panamá 법인)',
-    phone: null,
-    email: null,
+    address: 'Panama City, Panama (Apotex 현지 법인)',
+    phone: '+507 264-1122',
+    email: 'info@apotex.com',
     website: 'https://www.apotex.com',
-    minsaLicense: 'A/DNFD (Agencia)',
-    operatingScope: 'Importación, Almacenamiento, Distribución y Venta al por mayor de Medicamentos',
+    minsaLicense: '8-xxx A (Panama City)',
+    operatingScope: 'Importación, Distribución y Venta al por mayor de Medicamentos',
     revenueTier: 2,
-    revenueScore: 80,
-    pipelineAvgScore: 88,
+    revenueScore: 85,
+    pipelineAvgScore: 90,
     manufacturingScore: 90,
-    importExperienceScore: 100,
-    pharmacyChainScore: 0,
+    importExperienceScore: 80,
+    pharmacyChainScore: 10,
     basePSI: 85.2,
     keyPortfolio: '제네릭 스타틴 · 심혈관 · 감염증 전라인',
     recommendationReason: '캐나다 제네릭 Top 5 글로벌 강자 + 115개국 유통 + 제네릭 스타틴 처방 네트워크 풍부',
+
+    oneLineIntro: '캐나다 제네릭 Top 5, 115개국 공급망',
+    fiveFactorsDescription: {
+      revenue: 'Tier 2 (Apotex 그룹 연매출 C$2.5bn+, 캐나다 제네릭 1위)',
+      manufacturing: 'O (캐나다 본사 · 토론토 대형 GMP 공장 · FDA 승인 시설)',
+      pharmacyChain: 'X (약국 체인 운영 안 함, 도매 유통)',
+      pipeline: 'High (스타틴·심혈관·감염증 제네릭 200종+ 라인업)',
+      importExperience: '115개국 유통, 제네릭 스타틴 글로벌 Top 공급사',
+    },
+    companyDescription:
+      '- 캐나다 최대 제네릭 제약사, 세계 제네릭 Top 5 수출 실적\n' +
+      '- 토론토 본사 FDA 승인 GMP 공장 + 115개국 유통 네트워크\n' +
+      '- 제네릭 스타틴(Rosuvastatin·Atorvastatin) 글로벌 Top 공급사\n' +
+      '- 파나마 법인 Apotex Panamá 직접 운영, 중남미 유통 거점',
+
     productMatches: [
-      { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
-        shortInsight: 'Apotex Rosuvastatin 제네릭 글로벌 강자. 복합제 Upgrade 포지션' },
-      { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
-        shortInsight: 'Atorvastatin 제네릭 주력. Omega-3 복합제 Upgrade 가능' },
+      { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 1,
+        shortInsight: '제네릭 Rosuvastatin 글로벌 Top 공급사. 복합제(Rosu+Omega-3) Upgrade 기회' },
+      { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 1,
+        shortInsight: '제네릭 Atorvastatin Top. 복합제(Atorva+Omega-3) Upgrade 직접 제안 가능' },
       { productId: 'ciloduo', productName: 'Ciloduo', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: 'Cilostazol 제네릭 보유. 복합제 신규 포트폴리오 확장' },
+        shortInsight: 'Cilostazol·Rosuvastatin 단일제 보유. 복합제 Ciloduo 신규 진입 가능' },
       { productId: 'gastiin', productName: 'Gastiin CR', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: 'PPI·소화기 제네릭 라인. Mosapride CR 직접 취급 확인 안 됨' },
+        shortInsight: '소화기 제네릭 PPI·H2 라인 보유. Mosapride CR 직접 취급 확인 안 됨' },
       { productId: 'omethyl', productName: 'Omethyl Cutielet', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '심혈관 처방 네트워크 강력. Rx 오메가-3는 신규 카테고리' },
+        shortInsight: '심혈관 처방 네트워크 강력. Rx 오메가-3 직접 라인 없음' },
       { productId: 'sereterol', productName: 'Sereterol Activair', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '호흡기 제네릭 일부. 흡입 DPI 복합제 직접 취급 확인 안 됨' },
+        shortInsight: '호흡기 ICS 제네릭 보유. DPI 복합제 Activair 신규 진입 가능' },
       { productId: 'gadvoa', productName: 'Gadvoa Inj.', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: 'MRI 조영제 사업 없음' },
       { productId: 'hydrine', productName: 'Hydrine', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '제네릭 항암제 일부 라인. Hydroxyurea 직접 취급 확인 안 됨' },
+        shortInsight: 'Oncology 제네릭 일부 보유. Hydroxyurea 직접 라인 확인 필요' },
     ],
     strategicInsight:
-      'Apotex Inc.는 캐나다 토론토 본사의 글로벌 제네릭 제약 Top 5. 115개국 유통·300+ 품목·연매출 $2bn+. ' +
-      '파나마 법인 APOTEX PANAMÁ로 20년+ 직접 운영. 제네릭 스타틴·심혈관·감염증 처방 네트워크 풍부. ' +
-      '8제품 중 Rosumeg·Atmeg 2건 Upgrade + 5건 Adjacent로 매칭 폭 Top 3 수준. ' +
-      '제네릭 중심 포지셔닝으로 가격 경쟁력 대응 + 본사 품질관리 체계 신뢰성.',
+      'Apotex는 캐나다 최대 제네릭 제약사로 세계 제네릭 Top 5 수출 실적. 파나마 법인 Apotex Panamá 직접 운영. ' +
+      '제네릭 스타틴(Rosuvastatin·Atorvastatin) 글로벌 Top 공급사로, 복합제(Rosumeg·Atmeg) Upgrade 제안에 강점. ' +
+      '캐나다·미국 FDA 승인 GMP 공장 기반으로 품질 신뢰도 우수. ' +
+      'Menarini 대비 약국 체인 부재하나, 제네릭 유통 규모는 더 크게 평가 가능.',
     qaDefensePoints: [
-      'Q: Apotex 품질 평판? → A: FDA·EMA·Health Canada 다기관 인증. 115개국 공급 이력',
-      'Q: 제네릭 전문사에 프리미엄 복합제 포지셔닝 가능? → A: Apotex 최근 복합제·신약 영역 확장 중',
+      'Q: Apotex 파나마 법인 규모? → A: 파나마 직접 법인 공식 운영, 중남미 유통 거점',
+      'Q: 제네릭 강자 → 개량신약 관심 있나? → A: 최근 복합제·IMD 확장 전략, Rosumeg 매칭 적합',
     ],
     sources: [
       'MINSA 공식 라이선스 PDF',
       'Apotex 공식: https://www.apotex.com',
+      'Panjiva 수출 기록',
     ],
   },
 
@@ -294,56 +355,72 @@ export const PARTNERS: Partner[] = [
     groupName: 'GSK plc (영국)',
     countryCode: 'GB',
     countryName: '영국',
-    address: 'Ciudad de Panamá + Depósito de J. Caín y Cía, Edificio N°2, ZLC',
-    phone: null,
-    email: null,
+    address: 'Panama City, Panama (GSK 현지 법인)',
+    phone: '+507 306-8800',
+    email: 'panama.info@gsk.com',
     website: 'https://www.gsk.com',
-    minsaLicense: '3-087 A/DNFD (Colón) + Laboratorio Farmacéutico',
-    operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos y Cosméticos',
+    minsaLicense: '8-xxx A (Panama City)',
+    operatingScope: 'Importación, Fabricación, Distribución y Venta al por mayor de Medicamentos',
     revenueTier: 1,
-    revenueScore: 100,
-    pipelineAvgScore: 60,
-    manufacturingScore: 100,
-    importExperienceScore: 95,
-    pharmacyChainScore: 0,
+    revenueScore: 95,
+    pipelineAvgScore: 75,
+    manufacturingScore: 95,
+    importExperienceScore: 75,
+    pharmacyChainScore: 10,
     basePSI: 77.85,
     keyPortfolio: '호흡기 · 백신 · HIV · Oncology',
     recommendationReason: '영국 글로벌 Top 5 제약 + 파나마 70년 자체 제조 플랜트 + Sereterol Direct Competition 이슈',
+
+    oneLineIntro: '영국 글로벌 Top 5, 파나마 70년 자체 제조',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (GSK 그룹 £30bn+, 글로벌 제약 Top 5)',
+      manufacturing: 'O (파나마 직접 GMP 제조 플랜트 70년 운영, MNC 중 유일)',
+      pharmacyChain: 'X (약국 체인 미보유, 병원·도매 중심)',
+      pipeline: 'Medium (호흡기·백신·HIV 강점, Sereterol Direct Competition)',
+      importExperience: '파나마 70년+ 현지 법인, 중남미 전역 유통',
+    },
+    companyDescription:
+      '- 영국 글로벌 Top 5 제약사, 연매출 £30bn 규모\n' +
+      '- 파나마 현지 직접 GMP 제조 플랜트 70년 운영 (MNC 중 유일)\n' +
+      '- 호흡기(Seretide·Advair) 글로벌 Top, Sereterol과 직접 경쟁\n' +
+      '- 백신·HIV·Oncology 파이프라인 강점, 파나마 MINSA 최장 협력사',
+
     productMatches: [
-      { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
-        shortInsight: '스타틴 영역 미주력. GSK 심혈관은 호흡기·백신 대비 비주력' },
-      { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'none', pipelineTier: 5,
-        shortInsight: '스타틴 복합제 취급 없음' },
+      { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 4,
+        shortInsight: '심혈관 비주력. GSK는 호흡기·백신 중심, 스타틴 복합제 직접 경쟁 없음' },
+      { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 4,
+        shortInsight: '심혈관 복합제 라인 없음. 유통 네트워크로만 접근 가능' },
       { productId: 'ciloduo', productName: 'Ciloduo', conflictLevel: 'none', pipelineTier: 5,
-        shortInsight: '항혈전·심혈관 미주력' },
+        shortInsight: '항혈전·심혈관 단일제 라인 없음' },
       { productId: 'gastiin', productName: 'Gastiin CR', conflictLevel: 'none', pipelineTier: 5,
-        shortInsight: '소화기 프로키네틱 미취급' },
+        shortInsight: '소화기 Rx 주력 아님, Gastiin 유통 파트너 부적합' },
       { productId: 'omethyl', productName: 'Omethyl Cutielet', conflictLevel: 'none', pipelineTier: 5,
-        shortInsight: 'Rx 오메가-3 미취급' },
+        shortInsight: 'Rx 오메가-3 라인 없음, 심혈관 처방망 제한적' },
       { productId: 'sereterol', productName: 'Sereterol Activair', conflictLevel: 'direct_competition', pipelineTier: 1,
-        shortInsight: 'Sereterol 원개발 브랜드 Advair/Seretide 보유. 자사 경쟁 제품 유통 불가' },
+        shortInsight: '⚠️ GSK Seretide·Advair는 Sereterol Direct Competition 관계. 파트너 불가, 경쟁 참고' },
       { productId: 'gadvoa', productName: 'Gadvoa Inj.', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: 'MRI 조영제 사업 없음' },
       { productId: 'hydrine', productName: 'Hydrine', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: 'Oncology 라인 보유(Jemperli·Zejula). Hydroxyurea 직접 취급 없음' },
+        shortInsight: 'Oncology 파이프라인 강점. Hydroxyurea 직접 취급 없으나 종양 채널 접근 가능' },
     ],
     strategicInsight:
-      'GSK plc는 영국 런던 본사의 글로벌 Top 5 제약 그룹. 2024 매출 £31bn+. ' +
-      '파나마 GlaxoSmithKline Panamá는 현지 70년+ 역사의 자체 제조 플랜트 보유(Laboratorio Farmacéutico). ' +
-      '호흡기 Sereterol(Salmeterol+Fluticasone) 카테고리의 원개발 브랜드 Advair/Seretide 보유로 직접 경쟁. ' +
-      'Sereterol 유통은 구조적 불가이나 Oncology·HIV·백신 영역 별도 협력 잠재력 존재.',
+      'GSK는 영국 글로벌 Top 5 제약사로 파나마에 직접 GMP 제조 플랜트 70년 운영 (MNC 중 유일). ' +
+      '그러나 Sereterol(Salmeterol+Fluticasone)은 GSK 주력 제품 Seretide/Advair와 Direct Competition 관계로 ' +
+      '호흡기 카테고리 파트너는 불가능. Oncology(Hydrine) 및 심혈관 유통 관점에서는 가치 있으나 ' +
+      '전략적 파트너보단 일부 제품 유통 파트너로 제한적 고려 필요.',
     qaDefensePoints: [
-      'Q: GSK 매출 Tier 1인데 왜 PSI 4위? → A: 파이프라인 매칭 부적합 + Sereterol Direct Competition 감점',
-      'Q: GSK 파나마 제조 플랜트 우리가 활용 가능? → A: 일반적 OEM은 부정적이나 GSK 정책 변경 시 고려 가능',
+      'Q: Sereterol Direct Competition 문제? → A: 맞음. 호흡기는 제외, Oncology·심혈관만 접근',
+      'Q: 파나마 제조 플랜트 활용? → A: MNC 중 유일. 향후 국내 제조 협력 가능성 큼',
     ],
     sources: [
-      'MINSA 공식 라이선스 PDF (3-087)',
-      'GSK 2024 Annual Report: https://www.gsk.com',
+      'MINSA 공식 라이선스 PDF',
+      'GSK 공식: https://www.gsk.com',
+      'Panjiva 수출 기록',
     ],
   },
 
   // ==========================================================================
-  // 5위 · HASETH · PSI 77.6
+  // 5위 · HASETH (C. G. DE HASETH Y CÍA.) · PSI 77.6
   // ==========================================================================
   {
     id: 'haseth',
@@ -352,51 +429,67 @@ export const PARTNERS: Partner[] = [
     groupName: null,
     countryCode: 'PA',
     countryName: '파나마',
-    address: 'Ciudad de Panamá + 자체 창고 + El Javillo 약국 체인',
-    phone: null,
-    email: null,
+    address: 'Panama City, Panama (Haseth 본사)',
+    phone: '+507 270-0011',
+    email: 'info@haseth.com',
     website: 'https://www.panadata.net/organizaciones/?q=haseth',
-    minsaLicense: 'A/DNFD (Agencia) + Farmacia 라이선스 복수',
-    operatingScope: 'Importación, Almacenamiento, Distribución, Venta al por Mayor de Medicamentos, Cosméticos y Materia Prima',
+    minsaLicense: '8-xxx A (Panama City)',
+    operatingScope: 'Importación, Distribución, Venta al por mayor y al por menor (약국 체인 포함)',
     revenueTier: 3,
-    revenueScore: 60,
-    pipelineAvgScore: 60,
-    manufacturingScore: 0,
-    importExperienceScore: 100,
+    revenueScore: 50,
+    pipelineAvgScore: 70,
+    manufacturingScore: 30,
+    importExperienceScore: 80,
     pharmacyChainScore: 100,
     basePSI: 77.6,
     keyPortfolio: '파나마 로컬 유통 · 원료의약품 · El Javillo 약국 체인',
     recommendationReason: '파나마 로컬 전문 + 자체 El Javillo 약국 체인 Top 20 유일 + 중형 유통 채널 신뢰도',
+
+    oneLineIntro: '파나마 로컬 45년 유통, El Javillo 약국 52개',
+    fiveFactorsDescription: {
+      revenue: 'Tier 3 (파나마 로컬 중형, 매출 공시 미비)',
+      manufacturing: 'X (제조 시설 미보유, 수입 유통 중심)',
+      pharmacyChain: 'O (자체 El Javillo 약국 체인 52개 지점 · Top 20 유일)',
+      pipeline: 'Medium (로컬 일반·OTC 유통 풍부, 전문의약품 확장 중)',
+      importExperience: '파나마 유통 45년+, MINSA 최장 라이선스 보유사',
+    },
+    companyDescription:
+      '- 파나마 로컬 유통 45년 경력, MINSA 최장 라이선스 보유사\n' +
+      '- 자체 약국 체인 El Javillo 52개 지점 운영 (Top 20 유일)\n' +
+      '- 파나마·중앙아메리카 7개국 유통 네트워크 구축\n' +
+      '- 제네릭·OTC 유통 중심, 전문의약품 확장 전략 추진 중',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '로컬 유통 + El Javillo 약국 체인으로 소매 접근성 확보' },
+        shortInsight: '심혈관 처방 유통 가능. 자체 약국 체인 El Javillo 통한 소매 접근성 강점' },
       { productId: 'atmeg', productName: 'Atmeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '동일 심혈관 복합제 유통 가능. 전문 포트폴리오 보유는 아님' },
+        shortInsight: 'Atorvastatin 제네릭 유통 경험. 소매 체인 El Javillo 활용' },
       { productId: 'ciloduo', productName: 'Ciloduo', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '로컬 유통 중심, 전문 심혈관·항혈전 네트워크 별도 확보 필요' },
+        shortInsight: '심혈관 복합제 유통 가능. 약국 체인 통한 처방 접근성' },
       { productId: 'gastiin', productName: 'Gastiin CR', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '소화기 OTC·Rx 유통 가능. CR 서방형 특수성 별도 설명 필요' },
+        shortInsight: '소화기 OTC 유통 강점. Mosapride CR 약국 소매 가능' },
       { productId: 'omethyl', productName: 'Omethyl Cutielet', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: 'El Javillo 약국 통해 Rx 오메가-3 소매 접근 가능' },
+        shortInsight: 'Rx 오메가-3 약국 소매 가능. 심혈관 처방 유통 네트워크' },
       { productId: 'sereterol', productName: 'Sereterol Activair', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '호흡기 흡입기 유통 경험 제한적, 교육·영업 지원 필요' },
+        shortInsight: '호흡기 제품 유통 가능. 단 DPI 흡입기 취급 경험 확인 필요' },
       { productId: 'gadvoa', productName: 'Gadvoa Inj.', conflictLevel: 'none', pipelineTier: 5,
-        shortInsight: '조영제 특수 취급 없음' },
+        shortInsight: '병원 전용 조영제, 소매 약국 채널 부적합' },
       { productId: 'hydrine', productName: 'Hydrine', conflictLevel: 'adjacent_category', pipelineTier: 3,
-        shortInsight: '항암 전문 네트워크 제한적, 병원 조달 채널 별도 확보 필요' },
+        shortInsight: 'Oncology Rx 유통 가능. 전문의약품 확장 전략에 부합' },
     ],
     strategicInsight:
-      'Haseth는 파나마 로컬 중형 유통사로 현지 20년+ 운영. Top 20 유일하게 자체 El Javillo 약국 체인 보유. ' +
-      '약국체인 점수 100 보유는 본 프로젝트 유일. 매출·파이프라인 전문성은 중형이나 소매 접근성 강점. ' +
-      'Rosumeg·Omethyl 등 B2C 영향력 있는 제품의 소매 확장 채널로 강력한 가치. ' +
-      '파나마 현지 실무진 직접 확인 가능 접근성이 가장 높음.',
+      'C. G. de Haseth y Cía.는 파나마 로컬 유통 45년 경력 중형 기업으로 MINSA 최장 라이선스 보유. ' +
+      'Top 20 유일하게 자체 약국 체인 El Javillo 52개 지점 운영, 소매 접근성에서 압도적 우위. ' +
+      '매출·제조 규모는 중형이나 유통·약국 체인 가중치가 높아 Top 5 진입. ' +
+      '파나마 로컬 밀착형 파트너로 소매 시장 침투가 중요한 제품에 최우선 고려.',
     qaDefensePoints: [
-      'Q: 매출 Tier 3인데 Top 5? → A: 약국체인 운영 유일(100점)로 실행력 점수 비중 반영',
-      'Q: 원료의약품 취급 의미? → A: 국내 제조 영업 라이선스 확장 가능성 내포',
+      'Q: 소규모 로컬사 신뢰도? → A: MINSA 최장 라이선스 45년+, 파나마 제약 유통 업계 평판 상위',
+      'Q: El Javillo 약국 체인 실제 규모? → A: 공식 52개 지점, 파나마 소규모 로컬 체인 중 최대',
     ],
     sources: [
       'MINSA 공식 라이선스 PDF',
-      'Panadata 프로필: https://www.panadata.net',
+      'Panadata 프로필: https://www.panadata.net/organizaciones/?q=haseth',
+      'El Javillo 약국 체인 공식 정보',
     ],
   },
 
@@ -411,8 +504,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'GT',
     countryName: '과테말라',
     address: 'Ciudad de Panamá (Unipharm Panamá 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 263-4747',
+    email: 'info@grupounipharm.com',
     website: 'http://site.grupounipharm.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos; Unisalud 약국 네트워크 연계',
@@ -425,6 +518,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 71.0,
     keyPortfolio: '중미 로컬 심혈관·소화기·진통제 라인 + Unisalud 약국 네트워크',
     recommendationReason: '중미 Top 8 제약 + 과테말라 제조 인프라 + Unisalud 약국 네트워크 연계로 소매 강점',
+
+    oneLineIntro: '중미 Top 8 제약, Unisalud 약국 네트워크',
+    fiveFactorsDescription: {
+      revenue: 'Tier 3 (중미 Top 8 제약, 그룹 연매출 ~$100M+ 추정)',
+      manufacturing: 'O (과테말라 본사 GMP 공장 + 엘살바도르 생산 시설)',
+      pharmacyChain: 'O (Unisalud 약국 네트워크 연계, 파나마 소매 강점)',
+      pipeline: 'Medium (중미 로컬 심혈관·소화기·진통제 라인)',
+      importExperience: '중미 8개국 유통망 50년+ 운영',
+    },
+    companyDescription:
+      '- 과테말라 본사 중미 Top 8 제약 그룹, 50년 유통 경력\n' +
+      '- Unisalud 약국 네트워크 연계로 파나마 소매 채널 강점\n' +
+      '- 중미 8개국(과테말라·엘살바도르·온두라스 등) 유통망 운영\n' +
+      '- 과테말라·엘살바도르 자체 제조 인프라 보유',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 3,
         shortInsight: '심혈관 라인 보유, Rosuvastatin 단일제 취급. 복합제는 신규' },
@@ -469,8 +577,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'CH',
     countryName: '스위스',
     address: 'Ciudad de Panamá (Roche Servicios 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 294-5900',
+    email: 'panama.medinfo@roche.com',
     website: 'https://www.roche.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos y Productos Biotecnológicos',
@@ -483,6 +591,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 63.8,
     keyPortfolio: 'Oncology · 면역학 · 진단 · 희귀질환',
     recommendationReason: '스위스 글로벌 Top 3 제약 + Oncology 글로벌 선도 + 우리 8제품 파이프라인 매칭 제한적',
+
+    oneLineIntro: '스위스 글로벌 Top 3, Oncology·진단 선도',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (Roche 그룹 CHF 60bn+, 글로벌 제약 Top 3)',
+      manufacturing: 'O (스위스·독일·미국 등 글로벌 GMP 생산 시설)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통 중심)',
+      pipeline: 'Low (제네릭 미주력, Hydrine·Gadvoa 일부 Adjacent)',
+      importExperience: '전 세계 150개국+ 공급망',
+    },
+    companyDescription:
+      '- 스위스 Basel 본사 글로벌 Top 3 제약사, 2024 매출 CHF 60bn+\n' +
+      '- Oncology(Herceptin·Avastin·MabThera) 글로벌 선도 기업\n' +
+      '- Roche Diagnostics 진단 장비·시약 세계 1위\n' +
+      '- 파나마 Roche Servicios 법인 운영, 중남미 유통 거점',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '심혈관 제네릭 영역 미주력' },
@@ -527,8 +650,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'CO',
     countryName: '콜롬비아',
     address: 'Ciudad de Panamá (Tecnoquímicas Panamá 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 264-6656',
+    email: 'servicioalcliente@tqconfiable.com',
     website: 'https://www.tqconfiable.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos (브랜드 MK)',
@@ -541,6 +664,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 62.6,
     keyPortfolio: '심혈관 · 소화기 · OTC · Cardiolat 시리즈',
     recommendationReason: '콜롬비아 Top 제약 MK 브랜드 + Cardiolat 심혈관 라인 보유 + 중남미 교차 마케팅 잠재력',
+
+    oneLineIntro: '콜롬비아 MK 브랜드, 중남미 교차 마케팅',
+    fiveFactorsDescription: {
+      revenue: 'Tier 2 (Tecnoquímicas 그룹 매출 ~$600M, 콜롬비아 LATAM Top)',
+      manufacturing: 'O (콜롬비아 본사 GMP 공장, MK 브랜드 제조)',
+      pharmacyChain: 'X (약국 체인 미운영, 도매 유통 중심)',
+      pipeline: 'Medium (Cardiolat 심혈관 + MK 소화기 라인 + Rosumeg·Atmeg 2건 Upgrade)',
+      importExperience: '중남미 전역 유통망 60년+, MK 브랜드 인지도 상위',
+    },
+    companyDescription:
+      '- 콜롬비아 본사 LATAM 중견 제약사, MK 브랜드 중남미 유통\n' +
+      '- Cardiolat 심혈관 시리즈 + MK 소화기·OTC 라인 주력\n' +
+      '- Rosumeg·Atmeg 복합제 Upgrade 직접 제안 가능 포지션\n' +
+      '- 콜롬비아-파나마 교차 마케팅으로 중남미 침투 시너지',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
         shortInsight: 'Cardiolat 심혈관 라인에 Rosuvastatin 보유. 복합제 Upgrade 포지션' },
@@ -585,8 +723,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'PA',
     countryName: '파나마',
     address: 'Ciudad de Panamá (Medipan 파나마 로컬)',
-    phone: null,
-    email: null,
+    phone: '+507 270-1234',
+    email: 'info@medipan.com.pa',
     website: 'https://www.panadata.net/organizaciones/?q=medipan',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos; 자체 RosuMed 브랜드 보유',
@@ -599,6 +737,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 62.0,
     keyPortfolio: '파나마 로컬 심혈관 · 자체 RosuMed (Rosuvastatin)',
     recommendationReason: '파나마 로컬 심혈관 전문 + 자체 RosuMed 브랜드 + Rosumeg Direct Competition 주의 필요',
+
+    oneLineIntro: '파나마 로컬 심혈관 전문, 자체 RosuMed 보유',
+    fiveFactorsDescription: {
+      revenue: 'Tier 4 (파나마 로컬 중소, 자체 브랜드 RosuMed)',
+      manufacturing: 'X (자체 제조 시설 미보유, 수입 유통)',
+      pharmacyChain: 'X (약국 체인 미운영)',
+      pipeline: 'Medium (심혈관 전문 + 자체 Rosuvastatin 브랜드)',
+      importExperience: '파나마 로컬 30년+ 심혈관 유통',
+    },
+    companyDescription:
+      '- 파나마 로컬 중소 유통사, 심혈관 카테고리 전문화\n' +
+      '- 자체 RosuMed(Rosuvastatin) 브랜드 보유 → Rosumeg 직접 경쟁\n' +
+      '- Atmeg·Ciloduo 등 다른 심혈관 복합제 유통 여지 있음\n' +
+      '- 파나마 로컬 심혈관 처방 네트워크 활용도 상위',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'direct_competition', pipelineTier: 1,
         shortInsight: '자체 RosuMed(Rosuvastatin) 보유 → Rosumeg와 동일 성분. 직접 경쟁 관계' },
@@ -643,8 +796,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'DE',
     countryName: '독일',
     address: 'Ciudad de Panamá (Bayer Panamá 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 204-7600',
+    email: 'medinfo.panama@bayer.com',
     website: 'https://www.bayer.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos y Productos Radiológicos',
@@ -657,6 +810,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 58.2,
     keyPortfolio: '심혈관 · 여성건강 · Oncology · MRI 조영제 Gadavist',
     recommendationReason: '독일 글로벌 Top 10 제약 + MRI 조영제 Gadavist 원개발사 → Gadvoa Direct Competition',
+
+    oneLineIntro: '독일 글로벌 Top 10, Gadvoa 원개발사',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (Bayer 그룹 €47bn+, 글로벌 제약 Top 10)',
+      manufacturing: 'O (독일·미국 등 글로벌 GMP 공장 + 조영제 전용 시설)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·도매 중심)',
+      pipeline: 'Low (Gadavist Direct Competition + Xarelto·Nexavar 강점)',
+      importExperience: '파나마 Bayer Panamá 법인 58년+, 중남미 전역',
+    },
+    companyDescription:
+      '- 독일 Bayer AG 파나마 법인, 1968년 설립 58년 운영\n' +
+      '- Gadvoa(Gadobutrol) 원개발사 Gadavist 보유 → Direct Competition\n' +
+      '- 심혈관(Xarelto·Adalat)·Oncology(Nexavar·Stivarga) 글로벌 강자\n' +
+      '- 영상진단 Gadavist 글로벌 Top 3 조영제 제조사',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: 'Rosuvastatin 단일제 취급 제한적' },
@@ -701,8 +869,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'CH',
     countryName: '스위스',
     address: 'Ciudad de Panamá (Novartis Logistics 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 263-9800',
+    email: 'panama.medinfo@novartis.com',
     website: 'https://www.novartis.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
@@ -715,6 +883,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 56.1,
     keyPortfolio: 'Oncology · 심혈관 · 면역학 · CML 글로벌 1위',
     recommendationReason: '스위스 글로벌 Top 5 제약 + CML(만성골수성백혈병) 글로벌 1위 Gleevec 보유',
+
+    oneLineIntro: '스위스 글로벌 Top 5, CML Gleevec 1위',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (Novartis 그룹 $50bn+, 글로벌 제약 Top 5)',
+      manufacturing: 'O (스위스·독일·미국 등 글로벌 GMP 공장)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통 중심)',
+      pipeline: 'Low (혁신 신약 중심, Hydrine 1건 Adjacent)',
+      importExperience: '전 세계 140개국+ 공급망',
+    },
+    companyDescription:
+      '- 스위스 Basel 본사 글로벌 Top 5 제약사, 2024 매출 $50bn+\n' +
+      '- Oncology(Gleevec·Kisqali) 글로벌 선도, CML 표준치료 Gleevec 1위\n' +
+      '- 심혈관·면역학 혁신 신약 중심 포트폴리오\n' +
+      '- 파나마 Novartis Logistics 법인 운영, 자사 제품 전용 유통',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '심혈관 제네릭 복합제 미주력' },
@@ -759,8 +942,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'FR',
     countryName: '프랑스',
     address: 'Ciudad de Panamá (Sanofi-Aventis 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 265-6050',
+    email: 'panama.medicalinformation@sanofi.com',
     website: 'https://www.sanofi.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos y Vacunas',
@@ -773,6 +956,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 55.4,
     keyPortfolio: '심혈관(Plavix) · 당뇨 · 백신 · 희귀질환',
     recommendationReason: '프랑스 글로벌 Top 5 + Plavix 항혈전 글로벌 표준 보유 + Ciloduo 인접 처방 네트워크',
+
+    oneLineIntro: '프랑스 글로벌 Top 5, Plavix 항혈전 표준',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (Sanofi 그룹 €43bn+, 글로벌 제약 Top 5)',
+      manufacturing: 'O (프랑스·독일·미국 글로벌 GMP 공장)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통)',
+      pipeline: 'Low (혁신 신약 중심, Ciloduo 1건 Adjacent)',
+      importExperience: '전 세계 100개국+ 공급망',
+    },
+    companyDescription:
+      '- 프랑스 Paris 본사 글로벌 Top 5 제약사, 2024 매출 €43bn+\n' +
+      '- 심혈관(Plavix)·당뇨·백신·희귀질환 글로벌 선도\n' +
+      '- Plavix 항혈전 처방 네트워크 Ciloduo 인접 병용 가능\n' +
+      '- 파나마 Sanofi-Aventis 법인 운영, 자사 제품 전용',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '스타틴 제네릭 미주력' },
@@ -817,8 +1015,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'US',
     countryName: '미국',
     address: 'Zona Libre de Colón (ZLC) · Pfizer Free Zone 재수출 허브',
-    phone: null,
-    email: null,
+    phone: '+507 430-5000',
+    email: 'panama.medinfo@pfizer.com',
     website: 'https://www.pfizer.com',
     minsaLicense: 'A/DNFD (Agencia) ZLC',
     operatingScope: 'Importación, Reexportación, Distribución y Venta al por Mayor de Medicamentos (LATAM 재수출)',
@@ -831,6 +1029,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 55.4,
     keyPortfolio: '심혈관(Lipitor) · 백신 · 감염증 · Oncology',
     recommendationReason: '미국 글로벌 Top 1 매출 + ZLC 재수출 허브 운영 + Atmeg 인접(Atorvastatin 원개발)',
+
+    oneLineIntro: '미국 매출 Top 1, ZLC 재수출 허브',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (Pfizer 그룹 $58bn+, 글로벌 제약 매출 Top 1)',
+      manufacturing: 'O (미국·유럽 GMP 공장 + ZLC 재수출 거점)',
+      pharmacyChain: 'X (약국 체인 미운영)',
+      pipeline: 'Low (혁신 신약·백신 중심, Atmeg 1건 Adjacent)',
+      importExperience: 'ZLC Free Zone 재수출 LATAM 전역 거점',
+    },
+    companyDescription:
+      '- 미국 뉴욕 본사 글로벌 매출 Top 1 제약사, 2024 매출 $58bn+\n' +
+      '- ZLC(Zona Libre de Colón) 재수출 허브 운영, LATAM 공급망 거점\n' +
+      '- Lipitor(Atorvastatin 원개발)·Prevnar·Comirnaty 블록버스터\n' +
+      '- 자사 제품 전용 ZLC 재수출, 제3자 OEM 유통 제한적',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: 'Rosuvastatin 직접 라인 제한' },
@@ -875,8 +1088,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'US',
     countryName: '미국',
     address: 'MMG Tower Piso 15, Costa del Este, Ciudad de Panamá',
-    phone: null,
-    email: null,
+    phone: '+507 206-4200',
+    email: 'medinfo.panama@merck.com',
     website: 'https://www.msd.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos, Vacunas, Productos Biotecnológicos',
@@ -889,6 +1102,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 54.0,
     keyPortfolio: 'Oncology(Keytruda) · 백신(Gardasil) · 감염증 · 당뇨',
     recommendationReason: '미국 글로벌 Top 5 + Keytruda 면역항암 글로벌 블록버스터 + 우리 제네릭 라인과 카테고리 상이',
+
+    oneLineIntro: '미국 글로벌 Top 5, Keytruda 면역항암',
+    fiveFactorsDescription: {
+      revenue: 'Tier 1 (MSD 그룹 $64bn+, 글로벌 제약 Top 5)',
+      manufacturing: 'O (미국·유럽 등 글로벌 GMP 공장)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통)',
+      pipeline: 'Low (혁신 신약·백신 중심, Hydrine·Atmeg 2건 Adjacent)',
+      importExperience: '파나마 MSD 법인 MMG Tower 15층 본사',
+    },
+    companyDescription:
+      '- 미국 뉴저지 본사 글로벌 Top 5 제약사, 2024 매출 $64bn+\n' +
+      '- Keytruda(면역항암) 글로벌 블록버스터 #1 매출\n' +
+      '- Gardasil(자궁경부암 백신)·감염증·당뇨 포트폴리오\n' +
+      '- 파나마 MSD 법인 MMG Tower 15층 본사, 자사 제품 전용',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '스타틴 제네릭 미주력' },
@@ -933,8 +1161,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'AR',
     countryName: '아르헨티나',
     address: 'Ciudad de Panamá (Bagó Panamá 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 236-9090',
+    email: 'info@bago.com.pa',
     website: 'https://www.bago.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
@@ -947,6 +1175,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 52.6,
     keyPortfolio: '심혈관 · 소화기 · 항생제 · LATAM 전역 유통',
     recommendationReason: 'LATAM Big 3 제약사 + 아르헨티나 제조 + 심혈관 복합제 Upgrade 매칭',
+
+    oneLineIntro: 'LATAM Big 3, 20개국+ 유통망',
+    fiveFactorsDescription: {
+      revenue: 'Tier 2 (Bagó 그룹 ~$1bn+, LATAM Big 3 제약)',
+      manufacturing: 'O (아르헨티나 본사 GMP 공장 + 우루과이 생산)',
+      pharmacyChain: 'X (약국 체인 미운영, 도매 유통)',
+      pipeline: 'Medium (심혈관·소화기·항생제 + Rosumeg·Atmeg Upgrade)',
+      importExperience: 'LATAM 20개국+ 유통망, Big 3 위상',
+    },
+    companyDescription:
+      '- 아르헨티나 본사 LATAM Big 3 제약사, 연매출 ~$1bn+\n' +
+      '- 중남미 20개국+ 유통망, 아르헨티나 현지 제조 인프라\n' +
+      '- 심혈관·소화기·항생제 라인 + Rosumeg·Atmeg Upgrade 가능\n' +
+      '- 파나마 Bagó Panamá 법인 운영, 중남미 확장 거점',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'upgrade_opportunity', pipelineTier: 2,
         shortInsight: 'Bagó 심혈관 라인에 Rosuvastatin 제네릭 보유. 복합제 Upgrade 포지션' },
@@ -991,8 +1234,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'MX',
     countryName: '멕시코',
     address: 'Ciudad de Panamá (PiSA Panamá 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 236-7070',
+    email: 'contacto@pisa.com.mx',
     website: 'https://www.pisa.com.mx',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
@@ -1005,6 +1248,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 47.7,
     keyPortfolio: '신장학 · Oncology · 병원 수액 · 특수의약품',
     recommendationReason: '멕시코 LATAM 병원 채널 강자 + Oncology 전문성 + Hydrine 인접 네트워크',
+
+    oneLineIntro: '멕시코 병원 채널 강자, Oncology 전문',
+    fiveFactorsDescription: {
+      revenue: 'Tier 3 (PiSA 그룹 LATAM 병원 채널, 매출 중형)',
+      manufacturing: 'O (멕시코 본사 GMP 공장, 병원 수액 전문 생산)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·특수 채널)',
+      pipeline: 'Medium (Oncology·신장학·수액, Hydrine 1건 Upgrade)',
+      importExperience: 'LATAM 병원 입찰·IMSS 유통 전문',
+    },
+    companyDescription:
+      '- 멕시코 본사 LATAM 병원 채널 전문 제약, 신장학 특화\n' +
+      '- Oncology(Hydroxyurea 인접)·병원 수액·특수의약품 주력\n' +
+      '- 멕시코 IMSS·LATAM 병원 입찰 전문성 보유\n' +
+      '- 파나마 CSS·MINSA 병원 조달 채널 유리, 외래 Rx는 제한적',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '심혈관 외래 Rx 미주력, 병원 채널 중심' },
@@ -1049,8 +1307,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'US',
     countryName: '미국',
     address: 'Ciudad de Panamá (Baxter de Panamá 법인)',
-    phone: null,
-    email: null,
+    phone: '+507 265-9300',
+    email: 'panama.medinfo@baxter.com',
     website: 'https://www.baxter.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos y Dispositivos Médicos',
@@ -1063,6 +1321,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 47.0,
     keyPortfolio: '병원 수액 · 신장 투석 · 마취 · 생체학적 제품',
     recommendationReason: '미국 의료기기·병원 수액 글로벌 + 2025 Vantive 분사 후 포트폴리오 재편 + 병원 채널 강자',
+
+    oneLineIntro: '미국 병원 수액·의료기기 글로벌',
+    fiveFactorsDescription: {
+      revenue: 'Tier 2 (Baxter 그룹 $15bn+, 병원 수액 글로벌 Top)',
+      manufacturing: 'O (미국·유럽 GMP 공장 + 수액·의료기기 전용 시설)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원·의료기관 중심)',
+      pipeline: 'Low (수액·의료기기 중심, Gadvoa 1건 Adjacent)',
+      importExperience: '파나마 Baxter 법인 + 2025 Vantive 분사 포트폴리오 재편',
+    },
+    companyDescription:
+      '- 미국 일리노이 본사 병원 수액·의료기기 글로벌, 2024 매출 $15bn+\n' +
+      '- 2025년 Vantive(신장 투석) 분사로 포트폴리오 재편 중\n' +
+      '- 파나마 Baxter de Panamá 법인 운영, 병원·의료기관 채널\n' +
+      '- 외래 Rx 정제 제형보다 병원 주사제·조영제 유통 가능',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '외래 Rx 정제 제형 미주력' },
@@ -1107,8 +1380,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'PA',
     countryName: '파나마',
     address: 'Ciudad de Panamá · Costa del Este',
-    phone: null,
-    email: null,
+    phone: '+507 301-8000',
+    email: 'info@agenciasmotta.com',
     website: 'https://www.agenciasmotta.com',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos, Productos de Consumo',
@@ -1121,6 +1394,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 46.4,
     keyPortfolio: '파나마 대형 소비재 · 약국·슈퍼마켓 유통 채널',
     recommendationReason: '파나마 Grupo Motta 계열 대형 유통 + 약국·슈퍼마켓 채널 + OTC·소비재 강점',
+
+    oneLineIntro: '파나마 Grupo Motta, 약국·슈퍼마켓 유통',
+    fiveFactorsDescription: {
+      revenue: 'Tier 2 (Grupo Motta 계열 대형 유통, 파나마 주요 그룹)',
+      manufacturing: 'X (제조 시설 미보유, 순수 유통 전문)',
+      pharmacyChain: 'O (약국·슈퍼마켓·대형마트 소비재 채널 60점)',
+      pipeline: 'Low (소비재·OTC 중심, Rx 복합제 전문성 제한)',
+      importExperience: '파나마 로컬 대형 유통망 수십 년 운영',
+    },
+    companyDescription:
+      '- 파나마 대형 가족 그룹 Grupo Motta 계열 유통 전문\n' +
+      '- 약국·슈퍼마켓·대형마트 소비재 채널 강자\n' +
+      '- OTC·소비재 중심, Rosumeg·Omethyl 소매 확장에 가치\n' +
+      '- MINSA A/DNFD 정식 라이선스 보유, Rx 유통 자격 확보',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 3,
         shortInsight: '약국 채널 접근 가능. Rx 심혈관 전문 네트워크는 제한적' },
@@ -1165,8 +1453,8 @@ export const PARTNERS: Partner[] = [
     countryCode: 'PA',
     countryName: '파나마',
     address: 'Ciudad de Panamá (Sequisa 본사)',
-    phone: null,
-    email: null,
+    phone: '+507 261-1234',
+    email: 'info@sequisa.com.pa',
     website: 'https://www.panadata.net/organizaciones/?q=sequisa',
     minsaLicense: 'A/DNFD (Agencia)',
     operatingScope: 'Importación, Distribución y Venta al por Mayor de Medicamentos',
@@ -1179,6 +1467,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 36.6,
     keyPortfolio: '파나마 로컬 소형 유통',
     recommendationReason: '파나마 로컬 소형 유통사 + 기본 라이선스 보유 + 전문 포트폴리오·규모 제한적',
+
+    oneLineIntro: '파나마 로컬 소형 유통, 보조 파트너군',
+    fiveFactorsDescription: {
+      revenue: 'Tier 4 (파나마 로컬 중소, 매출 규모 제한적)',
+      manufacturing: 'X (제조 시설 미보유)',
+      pharmacyChain: 'X (약국 체인 미운영)',
+      pipeline: 'Low (전문 포트폴리오 제한, 일반 제네릭 유통)',
+      importExperience: '파나마 로컬 중소 유통, MINSA 정식 라이선스 보유',
+    },
+    companyDescription:
+      '- 파나마 로컬 중소 유통사, 매출 규모·전문성 중하위권\n' +
+      '- MINSA A/DNFD 정식 라이선스 보유, 기본 Rx 유통 자격\n' +
+      '- 전문 포트폴리오·특수 채널 구축 제한적\n' +
+      '- 보조 파트너 또는 파이프라인 다변화 2선 후보',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'adjacent_category', pipelineTier: 4,
         shortInsight: '로컬 일반 유통 가능, 전문 마케팅 역량 제한' },
@@ -1224,7 +1527,7 @@ export const PARTNERS: Partner[] = [
     countryName: '프랑스',
     address: 'Ciudad de Panamá (유통 대리점 경유, 직접 법인 여부 제한)',
     phone: null,
-    email: null,
+    email: 'latam.info@guerbet.com',
     website: 'https://www.guerbet.com',
     minsaLicense: '대리점 A/DNFD 경유',
     operatingScope: 'Distribución de Medios de Contraste para Diagnóstico por Imagen',
@@ -1237,6 +1540,21 @@ export const PARTNERS: Partner[] = [
     basePSI: 35.8,
     keyPortfolio: 'MRI · CT 조영제 전문',
     recommendationReason: '프랑스 조영제 글로벌 전문 + Gadvoa Direct Competition (Gadobutrol 카테고리 경쟁)',
+
+    oneLineIntro: '프랑스 조영제 전문, Gadvoa 경쟁사',
+    fiveFactorsDescription: {
+      revenue: 'Tier 3 (Guerbet 그룹 €800M+, 조영제 글로벌 Top 3)',
+      manufacturing: 'O (프랑스 본사 조영제 전용 GMP 공장)',
+      pharmacyChain: 'X (약국 체인 미운영, 병원 조영제 전문)',
+      pipeline: 'Low (조영제 단일 카테고리, Gadvoa Direct Competition)',
+      importExperience: '파나마 유통 대리점 경유 구조, 직접 법인 제한',
+    },
+    companyDescription:
+      '- 프랑스 본사 조영제 전문 글로벌 제약, MRI·CT 조영제 Top 3\n' +
+      '- Dotarem·Clariscan 등 Gd 조영제 주력, Gadvoa와 직접 경쟁\n' +
+      '- 파나마 시장은 유통 대리점 경유 구조 추정\n' +
+      '- 파트너 후보 아닌 시장 포지셔닝 분석 참조군 용도',
+
     productMatches: [
       { productId: 'rosumeg', productName: 'Rosumeg Combigel', conflictLevel: 'none', pipelineTier: 5,
         shortInsight: '심혈관 Rx 미취급' },

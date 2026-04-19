@@ -1,5 +1,23 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(phase3): 카드·모달·리스트 전면 재설계 — 세션 29 통합 핫픽스)
+
+### Changed
+- `src/lib/phase3/hardcoded-partner-mapper.ts` — `psi_total_default`·`rank` 원본 보존, `hc_display`에 MINSA·v2 텍스트 필드 매핑(재계산 없음).
+- `src/logic/phase3/types.ts` — `PartnerWithPSIHardcodedDisplay`에 `hc_minsa_license` 추가.
+- `src/logic/phase3/psi_calculator.ts` — 동점 시 `hc_catalog_rank` 오름차순 타이브레이크.
+- `src/lib/phase3/country-flag.ts` — `getFlagEmojiFromCountryCode`(ISO2→국기) 추가.
+- `Phase3PartnerCardShell.tsx` — 높이 189px, Top5 골드/6~10 일반, 한줄소개·✉·🌐, `motion.button`+`layoutId`.
+- `Phase3Top10Grid.tsx` — 신규: 5열 그리드(반응형 2·1열), `Phase3GoldGrid`·`Phase3StandardGrid` 제거.
+- `Phase3DetailModal.tsx` — 탭 제거, ㅗ자 3블록(기본정보·5대요소·수식+기업소개)+`Phase3ProductMatchSection`.
+- `Phase3ProductMatchSection.tsx` — 신규: 8제품 매칭(선택 제품 강조).
+- `Phase3Container.tsx` — Top10 단일 그리드, `finally`에서 `setIsExecuting(false)`로 스테퍼 실행 종료 후 제거.
+- `Phase3RankList.tsx` — 11~20 접기/펼치기(기본 펼침).
+- `Phase3PartnerListRow.tsx` — 순위·국가코드·PSI·🌐 정렬.
+
+### Notes
+- 로컬 `npm run build` 성공(2026-04-19).
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): 파트너 매칭 버튼 활성화·명칭·가중치 UX)
 
 ### Changed

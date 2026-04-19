@@ -26,11 +26,26 @@ export function normalizeActiveWeights(
   return normalized;
 }
 
+const ALL_CRITERIA_KEYS: PSICriterionKey[] = ["revenue", "pipeline", "manufacture", "import", "pharmacy"];
+
+function isAllCriteriaChecked(checked: PSICheckedState): boolean {
+  return ALL_CRITERIA_KEYS.every((k) => checked[k]);
+}
+
 export function calculateDynamicPSI(
   partner: PartnerWithPSI,
   checked: PSICheckedState,
 ): DynamicPSIResult {
   const weights = normalizeActiveWeights(checked);
+
+  /** 5개 전부 체크 시 세션 28 확정 총점(psi_total_default)과 동일 — 순위 왜곡 방지 */
+  if (isAllCriteriaChecked(checked)) {
+    return {
+      partner_id: partner.partner_id,
+      dynamic_psi: Math.round(partner.psi_total_default * 100) / 100,
+      normalized_weights: weights,
+    };
+  }
 
   let psi = 0;
   if (weights.revenue !== undefined) {
@@ -69,7 +84,15 @@ export function sortAndExtractTopN(
     };
   });
 
-  enriched.sort((a, b) => b.dynamic_psi - a.dynamic_psi);
+  enriched.sort((a, b) => {
+    const diff = b.dynamic_psi - a.dynamic_psi;
+    if (diff !== 0) {
+      return diff > 0 ? 1 : -1;
+    }
+    const ra = a.hc_display?.hc_catalog_rank ?? 999;
+    const rb = b.hc_display?.hc_catalog_rank ?? 999;
+    return ra - rb;
+  });
 
   return enriched.slice(0, topN);
 }

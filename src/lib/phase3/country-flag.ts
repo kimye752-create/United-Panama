@@ -1,4 +1,30 @@
 /**
+ * ISO 3166-1 alpha-2 코드 → 국기 이모지 (3공정 카드·리스트용)
+ */
+export function getFlagEmojiFromCountryCode(code: string | null | undefined): string {
+  if (code === null || code === undefined || code === "") {
+    return "🌐";
+  }
+  const c = code.toUpperCase();
+  const map: Record<string, string> = {
+    IN: "🇮🇳",
+    IT: "🇮🇹",
+    CA: "🇨🇦",
+    GB: "🇬🇧",
+    PA: "🇵🇦",
+    GT: "🇬🇹",
+    CH: "🇨🇭",
+    CO: "🇨🇴",
+    DE: "🇩🇪",
+    FR: "🇫🇷",
+    US: "🇺🇸",
+    AR: "🇦🇷",
+    MX: "🇲🇽",
+  };
+  return map[c] ?? "🌐";
+}
+
+/**
  * 회사명·유형 문자열에서 국가 힌트를 잡아 플래그 이모지 표시 (간이 휴리스틱)
  */
 export function getCountryFlagEmoji(companyType: string | null, companyName: string): string {

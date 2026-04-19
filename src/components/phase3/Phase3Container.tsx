@@ -14,10 +14,9 @@ import type { Phase3WorkflowStepIndex, PSICheckedState, PSICriterionKey } from "
 import { Phase3DetailModal } from "./Phase3DetailModal";
 import { SelectedProductBanner } from "./SelectedProductBanner";
 import { Phase3ErrorBanner } from "./Phase3ErrorBanner";
-import { Phase3GoldGrid } from "./Phase3GoldGrid";
 import { Phase3RankList } from "./Phase3RankList";
 import { Phase3ReportToolbar } from "./Phase3ReportToolbar";
-import { Phase3StandardGrid } from "./Phase3StandardGrid";
+import { Phase3Top10Grid } from "./Phase3Top10Grid";
 import { Phase3WeightPanel } from "./Phase3WeightPanel";
 import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
 
@@ -115,8 +114,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
     return rankPartnersForDisplay(partners, debouncedChecked, 20);
   }, [partners, debouncedChecked]);
 
-  const gold = useMemo(() => ranked.slice(0, 5), [ranked]);
-  const standard = useMemo(() => ranked.slice(5, 10), [ranked]);
+  const top10 = useMemo(() => ranked.slice(0, 10), [ranked]);
   const rest = useMemo(() => ranked.slice(10, 20), [ranked]);
 
   const modalRankHint = useMemo(() => {
@@ -168,11 +166,11 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "알 수 없는 오류";
       setError(message);
-      setIsExecuting(false);
       setPipelineStep(0);
     } finally {
       clearProgressTimers();
       setLoading(false);
+      setIsExecuting(false);
     }
   }, [productId, reportId]);
 
@@ -294,9 +292,8 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
                   </button>
                 </div>
                 <SelectedProductBanner productSlug={selectedProductSlug} />
-                <Phase3GoldGrid partners={gold} onOpen={setModalPartner} />
-                <Phase3StandardGrid partners={standard} startRank={6} onOpen={setModalPartner} />
-                <Phase3RankList partners={rest} startRank={11} onOpen={setModalPartner} />
+                <Phase3Top10Grid partners={top10} onOpen={setModalPartner} />
+                <Phase3RankList partners={rest} onOpen={setModalPartner} />
               </div>
             </LayoutGroup>
           ) : null}
@@ -306,7 +303,6 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
       <Phase3DetailModal
         open={modalPartner !== null}
         partner={modalPartner}
-        checked={debouncedChecked}
         rankHint={modalRankHint}
         selectedProductSlug={selectedProductSlug}
         onClose={() => {

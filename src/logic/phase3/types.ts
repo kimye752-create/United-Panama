@@ -78,6 +78,23 @@ export interface PartnerPSIRecord {
   psi_version: string;
 }
 
+/** 하드코딩 partners-data 연동 시 UI 전용 (optional) */
+export interface PartnerWithPSIHardcodedDisplay {
+  hc_catalog_rank: number;
+  hc_country_code: string;
+  hc_country_name: string;
+  hc_minsa_license: string;
+  hc_one_line_intro: string;
+  hc_company_description: string;
+  hc_five_factors: {
+    revenue: string;
+    manufacturing: string;
+    pharmacyChain: string;
+    pipeline: string;
+    importExperience: string;
+  };
+}
+
 export interface PartnerWithPSI extends PartnerPSIRecord {
   company_name: string;
   company_type: string | null;
@@ -87,6 +104,8 @@ export interface PartnerWithPSI extends PartnerPSIRecord {
   city: string | null;
   address: string | null;
   business_description: string | null;
+  /** 세션 28 카탈로그 UI 필드 — 없으면 레거시 DB 행 */
+  hc_display?: PartnerWithPSIHardcodedDisplay;
 }
 
 export interface DynamicPSIResult {

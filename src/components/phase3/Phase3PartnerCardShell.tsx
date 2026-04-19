@@ -2,70 +2,111 @@
 
 import { motion } from "framer-motion";
 
-import { getCountryFlagEmoji } from "@/src/lib/phase3/country-flag";
+import { getFlagEmojiFromCountryCode } from "@/src/lib/phase3/country-flag";
 import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
 import { getPartnerWebsiteHref } from "@/src/lib/phase3/website-url";
 
 interface Phase3PartnerCardShellProps {
   partner: PartnerWithDynamicPsi;
-  rank: number;
   tier: "gold" | "standard";
   onOpen: (partner: PartnerWithDynamicPsi) => void;
 }
 
-/** Top 5 골드 / 6~10 일반 카드 공통 래퍼 — layoutId로 리스트와 morphing */
-export function Phase3PartnerCardShell({ partner, rank, tier, onOpen }: Phase3PartnerCardShellProps) {
-  const flag = getCountryFlagEmoji(partner.company_type, partner.company_name);
+/** Top 10 카드 — 골드(1~5)·일반(6~10), 클릭 시 모달 (접점 링크는 전파 차단) */
+export function Phase3PartnerCardShell({ partner, tier, onOpen }: Phase3PartnerCardShellProps) {
   const isGold = tier === "gold";
+  const hc = partner.hc_display;
+  const displayRank = hc !== undefined ? hc.hc_catalog_rank : 1;
+  const flag = getFlagEmojiFromCountryCode(hc?.hc_country_code);
+  const groupShort =
+    partner.company_type !== null && partner.company_type !== ""
+      ? partner.company_type.replace(/\s*\([^)]*\)/u, "").trim()
+      : "";
+  const countryLine = hc !== undefined ? hc.hc_country_name : "";
+  const addressHead =
+    partner.address !== null && partner.address !== "" ? partner.address.split(",")[0]?.trim() ?? "" : "";
+  const intro = hc !== undefined ? hc.hc_one_line_intro : "";
   const websiteHref = getPartnerWebsiteHref(partner.website);
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layoutId={`p3-${partner.id}`}
-      className={`w-full overflow-hidden rounded-[14px] border text-left shadow-sh3 transition hover:brightness-[1.02] ${
-        isGold
-          ? "border-amber-300/80 bg-gradient-to-br from-amber-50 via-white to-amber-50/50 ring-1 ring-amber-200/60"
-          : "border-[#dce4ef] bg-white"
-      }`}
-    >
-      <button
-        type="button"
-        onClick={() => {
-          onOpen(partner);
-        }}
-        className="w-full p-3 text-left"
+      onClick={() => {
+        onOpen(partner);
+      }}
+      className={[
+          "h-[189px] w-full rounded-xl p-3 text-left",
+          "flex flex-col justify-between transition-all",
+          isGold
+            ? "border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-md hover:shadow-lg"
+            : "border border-slate-200 bg-white shadow-sm hover:bg-slate-50/80",
+        ].join(" ")}
       >
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <span className="text-[10px] text-[#8b97aa]">
-              #{String(rank)} · {flag}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-700">#{String(displayRank)}</span>
+            <span className="text-sm" aria-hidden>
+              {flag}
             </span>
-            <h5 className="text-[14px] font-extrabold text-[#1f3e64]">{partner.company_name}</h5>
-            <p className="text-[10px] text-[#6f8299]">{[partner.company_type, partner.city].filter(Boolean).join(" · ")}</p>
+            {isGold ? (
+              <span className="text-sm" aria-hidden>
+                🏅
+              </span>
+            ) : null}
           </div>
-          <div className="text-right">
-            <div className={`text-[22px] font-black ${isGold ? "text-amber-700" : "text-[#1E4E8C]"}`}>
-              {String(partner.dynamic_psi)}
-            </div>
-            <div className="text-[9px] text-[#8b97aa]">동적 PSI</div>
+          <span className="text-xs font-semibold text-amber-700">PSI {String(partner.dynamic_psi)}</span>
+        </div>
+
+        <div className="min-h-0">
+          <div className="line-clamp-1 text-sm font-bold text-slate-900">{partner.company_name}</div>
+          <div className="line-clamp-1 text-xs text-slate-500">
+            {groupShort}
+            {groupShort !== "" && countryLine !== "" ? " · " : ""}
+            {countryLine}
           </div>
         </div>
-      </button>
-      {websiteHref !== null ? (
-        <div className="border-t border-[#e8edf4] px-3 pb-3 pt-2">
-          <a
-            href={websiteHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1E4E8C] transition-colors hover:text-[#163a6b] hover:underline"
-          >
-            🌐 공식 웹사이트 ↗
-          </a>
+
+        <div className="flex items-center gap-1 text-xs text-slate-600">
+          <span aria-hidden>📍</span>
+          <span className="line-clamp-1">{addressHead !== "" ? addressHead : "—"}</span>
         </div>
-      ) : null}
-    </motion.div>
+
+        <div className="flex items-start gap-1 text-xs font-medium text-slate-700">
+          <span className="shrink-0" aria-hidden>
+            💡
+          </span>
+          <span className="line-clamp-1">{intro !== "" ? intro : "—"}</span>
+        </div>
+
+        <div className="flex items-center justify-end gap-2">
+          {partner.email !== null && partner.email !== "" ? (
+            <a
+              href={`mailto:${partner.email}`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-sm text-slate-500 hover:text-blue-600"
+              title={partner.email}
+            >
+              ✉
+            </a>
+          ) : null}
+          {websiteHref !== null ? (
+            <a
+              href={websiteHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-sm text-slate-500 hover:text-blue-600"
+              title={websiteHref}
+            >
+              🌐
+            </a>
+          ) : null}
+        </div>
+    </motion.button>
   );
 }
