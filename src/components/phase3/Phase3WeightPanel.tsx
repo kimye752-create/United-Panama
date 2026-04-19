@@ -25,28 +25,31 @@ export function Phase3WeightPanel({ checked, onToggle, onResetDefaults }: Phase3
   const allChecked = (Object.keys(checked) as PSICriterionKey[]).every((k) => checked[k]);
 
   return (
-    <div className="rounded-[12px] border border-[#dce4ef] bg-[#f7f9fc] p-3">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px] font-bold text-[#1f3e64]">
-          평가 기준 (체크된 항목만 비율 유지하며 재분배)
-        </p>
+    <div className="rounded-[12px] border border-[#dce4ef] bg-[#f7f9fc] p-5">
+      <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-base font-bold leading-snug text-slate-800">
+            기업 평가 기준 (체크된 항목들에 대해 평가 후 추천 순위 배열)
+          </div>
+        </div>
         <button
           type="button"
           onClick={onResetDefaults}
-          className="rounded-[8px] border border-[#cbd5e1] bg-white px-2 py-1 text-[10px] font-semibold text-[#3e5574] hover:bg-[#f1f5f9]"
+          className="shrink-0 rounded-[8px] border border-[#cbd5e1] bg-white px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 hover:text-amber-800"
         >
           {allChecked ? "전체 해제" : "전체 항목 체크"}
         </button>
       </div>
-      <p className="mb-3 text-[10px] leading-relaxed text-[#64748b]">
-        ※ 유나이티드제약 실무자 확정 우선순위 기반 AHP 가중치
-      </p>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+      <div className="mb-3 text-xs text-slate-500">※ 유나이티드제약 AHP 평가 항목</div>
+      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
         {keys.map((key) => (
-          <label key={key} className="flex cursor-pointer items-center gap-2 text-[11px] text-[#2b4568]">
+          <label
+            key={key}
+            className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700"
+          >
             <input
               type="checkbox"
-              className="rounded border-[#cbd5e1]"
+              className="h-5 w-5 shrink-0 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
               checked={checked[key]}
               onChange={() => {
                 onToggle(key);

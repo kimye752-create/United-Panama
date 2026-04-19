@@ -1,5 +1,10 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (feat(phase3): 평가 기준 패널 가독성 강화 + 제목 문구 교체)
+
+### Changed
+- `Phase3WeightPanel.tsx` — 제목을 「기업 평가 기준 (체크된 항목들에 대해 평가 후 추천 순위 배열)」로 교체, `text-base font-bold`; 부제 `text-xs text-slate-500`; 체크 라벨 `text-sm font-medium`; 전체 버튼 `text-xs font-semibold` + amber 톤; 체크박스 `h-5 w-5`; 패널 `p-5`. 체크 로직·가중치·prop 이름 미변경.
+
 ## [Unreleased] - 2026-04-19 (feat(main): 매크로 카드 가독성 개선 + 국가 GDP 단일화 + 뉴스피드 최신순 정렬)
 
 ### Changed
