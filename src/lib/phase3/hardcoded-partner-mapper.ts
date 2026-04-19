@@ -15,7 +15,7 @@ function toConflictLevel(level: string | undefined): ConflictLevel {
 
 /**
  * 하드코딩 20사 레코드 → PartnerWithPSI
- * - basePSI·rank·5대 점수는 재계산 없이 원본 전달 (psi_total_default = basePSI)
+ * - basePSI는 카탈로그의 가중합(매출35%·파이프라인28%·제조20%·수입12%·약국5%)과 일치하도록 유지 (psi_total_default = basePSI)
  * - 선택 제품 매칭 행만 conflict/insight에 반영
  */
 export function mapHardcodedPartnerToWithPSI(

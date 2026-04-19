@@ -123,11 +123,11 @@ export const PRODUCT_META: Record<ProductId, { name: string; category: string }>
 export const PARTNERS: Partner[] = [
 
   // ==========================================================================
-  // 1위 · SEVEN PHARMA (Hetero Labs) · PSI 88.0
+  // 2위 · SEVEN PHARMA (Hetero Labs) · PSI 89.6
   // ==========================================================================
   {
     id: 'seven-pharma',
-    rank: 1,
+    rank: 2,
     partnerName: 'SEVEN PHARMA, S.A.',
     groupName: 'Hetero Labs Limited (인도)',
     countryCode: 'IN',
@@ -144,7 +144,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 100,
     importExperienceScore: 90,
     pharmacyChainScore: 0,
-    basePSI: 88.0,
+    basePSI: 89.6,
     keyPortfolio: 'ARV · Oncology · 심혈관 전라인',
     recommendationReason: '인도 제네릭 글로벌 Top + ARV·Oncology 풍부 + 파나마 ZLC Farmazona 중미 허브 거점',
 
@@ -197,11 +197,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 2위 · MENAFAR (Menarini Group) · PSI 86.6
+  // 1위 · MENAFAR (Menarini Group) · PSI 89.8
   // ==========================================================================
   {
     id: 'menafar',
-    rank: 2,
+    rank: 1,
     partnerName: 'MENAFAR, S.A.',
     groupName: 'Menarini Group (이탈리아)',
     countryCode: 'IT',
@@ -218,7 +218,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 85,
     importExperienceScore: 85,
     pharmacyChainScore: 20,
-    basePSI: 86.6,
+    basePSI: 89.8,
     keyPortfolio: '심혈관 · 호흡기 · 통증 · 소화기 전라인',
     recommendationReason: '그룹 €4.4bn 유럽 Top + 파나마 27년 직접 법인 + 핵심 8개 제품 중 4건 Upgrade 매칭',
 
@@ -272,7 +272,7 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 3위 · APOTEX PANAMÁ · PSI 85.2
+  // 3위 · APOTEX PANAMÁ · PSI 88.3
   // ==========================================================================
   {
     id: 'apotex',
@@ -293,7 +293,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 90,
     importExperienceScore: 80,
     pharmacyChainScore: 10,
-    basePSI: 85.2,
+    basePSI: 88.3,
     keyPortfolio: '제네릭 스타틴 · 심혈관 · 감염증 전라인',
     recommendationReason: '캐나다 제네릭 Top 5 글로벌 강자 + 115개국 유통 + 제네릭 스타틴 처방 네트워크 풍부',
 
@@ -346,7 +346,7 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 4위 · GSK PANAMÁ · PSI 77.85
+  // 4위 · GSK PANAMÁ · PSI 84.5
   // ==========================================================================
   {
     id: 'gsk',
@@ -367,7 +367,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 95,
     importExperienceScore: 75,
     pharmacyChainScore: 10,
-    basePSI: 77.85,
+    basePSI: 84.5,
     keyPortfolio: '호흡기 · 백신 · HIV · Oncology',
     recommendationReason: '영국 글로벌 Top 5 제약 + 파나마 70년 자체 제조 플랜트 + Sereterol Direct Competition 이슈',
 
@@ -420,11 +420,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 5위 · HASETH (C. G. DE HASETH Y CÍA.) · PSI 77.6
+  // 16위 · HASETH (C. G. DE HASETH Y CÍA.) · PSI 59.45
   // ==========================================================================
   {
     id: 'haseth',
-    rank: 5,
+    rank: 16,
     partnerName: 'C. G. DE HASETH Y CÍA., S.A.',
     groupName: null,
     countryCode: 'PA',
@@ -441,7 +441,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 30,
     importExperienceScore: 80,
     pharmacyChainScore: 100,
-    basePSI: 77.6,
+    basePSI: 59.45,
     keyPortfolio: '파나마 로컬 유통 · 원료의약품 · El Javillo 약국 체인',
     recommendationReason: '파나마 로컬 전문 + 자체 El Javillo 약국 체인 Top 20 유일 + 중형 유통 채널 신뢰도',
 
@@ -494,11 +494,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 6위 · UNIPHARM PANAMÁ · PSI 71.0
+  // 13위 · UNIPHARM PANAMÁ · PSI 70.9
   // ==========================================================================
   {
     id: 'unipharm',
-    rank: 6,
+    rank: 13,
     partnerName: 'UNIPHARM PANAMÁ, S.A.',
     groupName: 'Grupo Unipharm (과테말라)',
     countryCode: 'GT',
@@ -515,7 +515,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 60,
     importExperienceScore: 90,
     pharmacyChainScore: 80,
-    basePSI: 71.0,
+    basePSI: 70.9,
     keyPortfolio: '중미 로컬 심혈관·소화기·진통제 라인 + Unisalud 약국 네트워크',
     recommendationReason: '중미 Top 8 제약 + 과테말라 제조 인프라 + Unisalud 약국 네트워크 연계로 소매 강점',
 
@@ -567,11 +567,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 7위 · ROCHE SERVICIOS · PSI 63.8
+  // 6위 · ROCHE SERVICIOS · PSI 75.2
   // ==========================================================================
   {
     id: 'roche',
-    rank: 7,
+    rank: 6,
     partnerName: 'ROCHE SERVICIOS, S.A.',
     groupName: 'F. Hoffmann-La Roche AG (스위스)',
     countryCode: 'CH',
@@ -588,7 +588,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 80,
     importExperienceScore: 85,
     pharmacyChainScore: 0,
-    basePSI: 63.8,
+    basePSI: 75.2,
     keyPortfolio: 'Oncology · 면역학 · 진단 · 희귀질환',
     recommendationReason: '스위스 글로벌 Top 3 제약 + Oncology 글로벌 선도 + 우리 8제품 파이프라인 매칭 제한적',
 
@@ -640,11 +640,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 8위 · TECNOQUÍMICAS PANAMÁ · PSI 62.6
+  // 7위 · TECNOQUÍMICAS PANAMÁ · PSI 74.35
   // ==========================================================================
   {
     id: 'tecnoquimicas',
-    rank: 8,
+    rank: 7,
     partnerName: 'TECNOQUÍMICAS PANAMÁ, S.A.',
     groupName: 'Tecnoquímicas S.A. (콜롬비아)',
     countryCode: 'CO',
@@ -661,7 +661,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 70,
     importExperienceScore: 80,
     pharmacyChainScore: 0,
-    basePSI: 62.6,
+    basePSI: 74.35,
     keyPortfolio: '심혈관 · 소화기 · OTC · Cardiolat 시리즈',
     recommendationReason: '콜롬비아 Top 제약 MK 브랜드 + Cardiolat 심혈관 라인 보유 + 중남미 교차 마케팅 잠재력',
 
@@ -713,11 +713,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 9위 · MEDIPAN · PSI 62.0
+  // 17위 · MEDIPAN · PSI 59.05
   // ==========================================================================
   {
     id: 'medipan',
-    rank: 9,
+    rank: 17,
     partnerName: 'MEDIPAN, S.A.',
     groupName: null,
     countryCode: 'PA',
@@ -734,7 +734,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 40,
     importExperienceScore: 90,
     pharmacyChainScore: 0,
-    basePSI: 62.0,
+    basePSI: 59.05,
     keyPortfolio: '파나마 로컬 심혈관 · 자체 RosuMed (Rosuvastatin)',
     recommendationReason: '파나마 로컬 심혈관 전문 + 자체 RosuMed 브랜드 + Rosumeg Direct Competition 주의 필요',
 
@@ -786,11 +786,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 10위 · BAYER · PSI 58.2
+  // 8위 · BAYER · PSI 73.8
   // ==========================================================================
   {
     id: 'bayer',
-    rank: 10,
+    rank: 8,
     partnerName: 'BAYER, S.A.',
     groupName: 'Bayer AG (독일)',
     countryCode: 'DE',
@@ -807,7 +807,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 80,
     importExperienceScore: 85,
     pharmacyChainScore: 0,
-    basePSI: 58.2,
+    basePSI: 73.8,
     keyPortfolio: '심혈관 · 여성건강 · Oncology · MRI 조영제 Gadavist',
     recommendationReason: '독일 글로벌 Top 10 제약 + MRI 조영제 Gadavist 원개발사 → Gadvoa Direct Competition',
 
@@ -859,11 +859,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 11위 · NOVARTIS LOGISTICS · PSI 56.1
+  // 9위 · NOVARTIS LOGISTICS · PSI 72.2
   // ==========================================================================
   {
     id: 'novartis',
-    rank: 11,
+    rank: 9,
     partnerName: 'NOVARTIS LOGISTICS, S.A.',
     groupName: 'Novartis AG (스위스)',
     countryCode: 'CH',
@@ -880,7 +880,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 75,
     importExperienceScore: 80,
     pharmacyChainScore: 0,
-    basePSI: 56.1,
+    basePSI: 72.2,
     keyPortfolio: 'Oncology · 심혈관 · 면역학 · CML 글로벌 1위',
     recommendationReason: '스위스 글로벌 Top 5 제약 + CML(만성골수성백혈병) 글로벌 1위 Gleevec 보유',
 
@@ -932,7 +932,7 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 12위 (공동) · SANOFI-AVENTIS · PSI 55.4
+  // 12위 · SANOFI-AVENTIS · PSI 71.2
   // ==========================================================================
   {
     id: 'sanofi',
@@ -953,7 +953,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 70,
     importExperienceScore: 80,
     pharmacyChainScore: 0,
-    basePSI: 55.4,
+    basePSI: 71.2,
     keyPortfolio: '심혈관(Plavix) · 당뇨 · 백신 · 희귀질환',
     recommendationReason: '프랑스 글로벌 Top 5 + Plavix 항혈전 글로벌 표준 보유 + Ciloduo 인접 처방 네트워크',
 
@@ -1005,11 +1005,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 12위 (공동) · PFIZER FREE ZONE · PSI 55.4
+  // 10위 · PFIZER FREE ZONE · PSI 71.6
   // ==========================================================================
   {
     id: 'pfizer',
-    rank: 12,
+    rank: 10,
     partnerName: 'PFIZER PRODUCTS PANAMA, S.A. (Free Zone)',
     groupName: 'Pfizer Inc. (미국)',
     countryCode: 'US',
@@ -1026,7 +1026,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 75,
     importExperienceScore: 75,
     pharmacyChainScore: 0,
-    basePSI: 55.4,
+    basePSI: 71.6,
     keyPortfolio: '심혈관(Lipitor) · 백신 · 감염증 · Oncology',
     recommendationReason: '미국 글로벌 Top 1 매출 + ZLC 재수출 허브 운영 + Atmeg 인접(Atorvastatin 원개발)',
 
@@ -1078,7 +1078,7 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 14위 · MSD (Merck & Co.) · PSI 54.0
+  // 14위 · MSD (Merck & Co.) · PSI 69.2
   // ==========================================================================
   {
     id: 'msd',
@@ -1099,7 +1099,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 70,
     importExperienceScore: 75,
     pharmacyChainScore: 0,
-    basePSI: 54.0,
+    basePSI: 69.2,
     keyPortfolio: 'Oncology(Keytruda) · 백신(Gardasil) · 감염증 · 당뇨',
     recommendationReason: '미국 글로벌 Top 5 + Keytruda 면역항암 글로벌 블록버스터 + 우리 제네릭 라인과 카테고리 상이',
 
@@ -1151,11 +1151,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 15위 · BAGÓ PANAMÁ · PSI 52.6
+  // 5위 · BAGÓ PANAMÁ · PSI 75.6
   // ==========================================================================
   {
     id: 'bago',
-    rank: 15,
+    rank: 5,
     partnerName: 'LABORATORIOS BAGÓ DE PANAMÁ, S.A.',
     groupName: 'Laboratorios Bagó (아르헨티나)',
     countryCode: 'AR',
@@ -1172,7 +1172,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 60,
     importExperienceScore: 75,
     pharmacyChainScore: 0,
-    basePSI: 52.6,
+    basePSI: 75.6,
     keyPortfolio: '심혈관 · 소화기 · 항생제 · LATAM 전역 유통',
     recommendationReason: 'LATAM Big 3 제약사 + 아르헨티나 제조 + 심혈관 복합제 Upgrade 매칭',
 
@@ -1224,11 +1224,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 16위 · PISA PANAMÁ · PSI 47.7
+  // 15위 · PISA PANAMÁ · PSI 66.95
   // ==========================================================================
   {
     id: 'pisa',
-    rank: 16,
+    rank: 15,
     partnerName: 'PISA PANAMÁ, S.A.',
     groupName: 'Grupo PiSA Farmacéutica (멕시코)',
     countryCode: 'MX',
@@ -1245,7 +1245,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 60,
     importExperienceScore: 70,
     pharmacyChainScore: 0,
-    basePSI: 47.7,
+    basePSI: 66.95,
     keyPortfolio: '신장학 · Oncology · 병원 수액 · 특수의약품',
     recommendationReason: '멕시코 LATAM 병원 채널 강자 + Oncology 전문성 + Hydrine 인접 네트워크',
 
@@ -1297,11 +1297,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 17위 · BAXTER · PSI 47.0
+  // 11위 · BAXTER · PSI 71.4
   // ==========================================================================
   {
     id: 'baxter',
-    rank: 17,
+    rank: 11,
     partnerName: 'BAXTER DE PANAMÁ, S.A.',
     groupName: 'Baxter International Inc. (미국, 2025 Vantive 분사)',
     countryCode: 'US',
@@ -1318,7 +1318,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 70,
     importExperienceScore: 70,
     pharmacyChainScore: 0,
-    basePSI: 47.0,
+    basePSI: 71.4,
     keyPortfolio: '병원 수액 · 신장 투석 · 마취 · 생체학적 제품',
     recommendationReason: '미국 의료기기·병원 수액 글로벌 + 2025 Vantive 분사 후 포트폴리오 재편 + 병원 채널 강자',
 
@@ -1370,11 +1370,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 18위 · AGENCIAS MOTTA · PSI 46.4
+  // 19위 · AGENCIAS MOTTA · PSI 56.35
   // ==========================================================================
   {
     id: 'agencias-motta',
-    rank: 18,
+    rank: 19,
     partnerName: 'AGENCIAS MOTTA INTERNACIONAL, S.A.',
     groupName: 'Grupo Motta (파나마)',
     countryCode: 'PA',
@@ -1391,7 +1391,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 0,
     importExperienceScore: 80,
     pharmacyChainScore: 60,
-    basePSI: 46.4,
+    basePSI: 56.35,
     keyPortfolio: '파나마 대형 소비재 · 약국·슈퍼마켓 유통 채널',
     recommendationReason: '파나마 Grupo Motta 계열 대형 유통 + 약국·슈퍼마켓 채널 + OTC·소비재 강점',
 
@@ -1447,7 +1447,7 @@ export const PARTNERS: Partner[] = [
   // ==========================================================================
   {
     id: 'sequisa',
-    rank: 19,
+    rank: 20,
     partnerName: 'SEQUISA FARMACÉUTICA, S.A.',
     groupName: null,
     countryCode: 'PA',
@@ -1464,7 +1464,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 0,
     importExperienceScore: 60,
     pharmacyChainScore: 0,
-    basePSI: 36.6,
+    basePSI: 30.3,
     keyPortfolio: '파나마 로컬 소형 유통',
     recommendationReason: '파나마 로컬 소형 유통사 + 기본 라이선스 보유 + 전문 포트폴리오·규모 제한적',
 
@@ -1516,11 +1516,11 @@ export const PARTNERS: Partner[] = [
   },
 
   // ==========================================================================
-  // 20위 · GUERBET · PSI 35.8
+  // 18위 · GUERBET · PSI 58.15
   // ==========================================================================
   {
     id: 'guerbet',
-    rank: 20,
+    rank: 18,
     partnerName: 'GUERBET LATAM (파나마 유통 대리점 경유)',
     groupName: 'Guerbet Group (프랑스)',
     countryCode: 'FR',
@@ -1537,7 +1537,7 @@ export const PARTNERS: Partner[] = [
     manufacturingScore: 50,
     importExperienceScore: 60,
     pharmacyChainScore: 0,
-    basePSI: 35.8,
+    basePSI: 58.15,
     keyPortfolio: 'MRI · CT 조영제 전문',
     recommendationReason: '프랑스 조영제 글로벌 전문 + Gadvoa Direct Competition (Gadobutrol 카테고리 경쟁)',
 

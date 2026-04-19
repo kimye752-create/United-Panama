@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): basePSI 재계산으로 행별 합산과 총점 일치 (STEP15-C))
+
+### Changed
+- `src/lib/phase3/partners-data.ts` — 20개사 `basePSI`를 `PSI_BASIC_WEIGHTS`(revenue 0.35 · pipeline 0.28 · manufacture 0.2 · import 0.12 · pharmacy 0.05)와 동일 공식으로 재계산·소수 둘째 자리 반올림; `rank`를 신규 `basePSI` 내림차순에 맞게 갱신(동점 시 기존 `hc_catalog_rank` 정렬과 정합).
+- `src/lib/phase3/hardcoded-partner-mapper.ts` — 주석만: UI 정렬은 `rankPartnersForDisplay`가 `psi_total_default`(=basePSI) 기준 자동 정렬, 카탈로그 `rank`는 동점 타이브레이크·표시용.
+
+## [Unreleased] - 2026-04-19 (style: 공정 헤더 원형 배지 01/02/03 → 1/2/3 + 글자 13px)
+
+### Changed
+- `components/main-preview/Phase1Section.tsx`, `Phase2Section.tsx` — 접이식 헤더 배지 `01`/`02` → `1`/`2`, `text-[11px]` → `text-[13px]` (h-7 w-7 유지).
+- `src/components/phase3/Phase3Container.tsx` — 배지 `03` → `3`, 동일 폰트 크기 조정.
+
 ## [Unreleased] - 2026-04-19 20:38 KST (feat(phase3): 매출 Tier 정량 구간 재조정 + USD 단위 통일 + 기준표 토글 (STEP15-B))
 
 ### Changed
