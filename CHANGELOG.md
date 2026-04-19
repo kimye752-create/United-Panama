@@ -1,5 +1,16 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): 모달 크기·게이지 중앙·PDF 한글 3가지 통합 핫픽스)
+
+### Changed
+- `Phase3DetailModal.tsx` — 모달 패널 `maxWidth`/`width`/`maxHeight`를 인라인 스타일로 지정(동적 청크에서 Tailwind arbitrary 유실 우회).
+- `Phase3PartnerCard.tsx` — 게이지 120×120 SVG, `<g transform="rotate(-90 60 60)">` + `motion.circle`, 수치·PSI는 `<text>`로 중앙 정렬.
+- `Phase3ReportDocument.tsx` — `fontFamily: "NotoSansKR"`(1·2공정 PDF와 동일, `lib/pdf/pdf-fonts.ts` 등록 폰트).
+- `app/api/panama/phase3/report/pdf/route.tsx` — `import "@/lib/pdf/pdf-fonts"` 선행 로드.
+
+### Notes
+- `modalRank`/테마/8제품 토글/모달 오버레이 fixed+zIndex/Fragment·dynamic·Portal 미변경.
+
 ## [Unreleased] - 2026-04-19 (feat(phase3): 모달 골드/실버 테마 적용 + 8제품 매칭 토글 + modalRank state 추가)
 
 ### Changed

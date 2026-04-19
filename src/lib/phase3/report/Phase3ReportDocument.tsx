@@ -12,7 +12,8 @@ const styles = StyleSheet.create({
     paddingTop: 44,
     paddingBottom: 40,
     paddingHorizontal: 36,
-    fontFamily: "Pretendard",
+    /* 1·2공정 PDF와 동일 — pdf-fonts.ts 에서 등록한 NotoSansKR (한글 글리프) */
+    fontFamily: "NotoSansKR",
     fontSize: 8,
     color: "#1e293b",
   },

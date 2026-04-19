@@ -160,11 +160,14 @@ export function Phase3DetailModal({
       aria-labelledby="phase3-modal-title"
     >
       <div
-        className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl"
+        className="overflow-y-auto rounded-2xl"
         style={{
           background: theme.bodyBg,
           border: `2px solid ${theme.border}`,
           boxShadow: theme.shadow,
+          maxWidth: "800px",
+          width: "100%",
+          maxHeight: "85vh",
         }}
         onClick={(e) => {
           e.stopPropagation();

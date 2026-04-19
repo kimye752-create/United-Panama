@@ -25,8 +25,8 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
   const psiGauge = Math.min(100, Math.max(0, psi));
   const homeCountry = meta.countryName;
   const panamaAddress = formatPanamaAddress(meta.address);
-  const circumference = 213.6;
-  const progress = circumference * (1 - psiGauge / 100);
+  const ringCircumference = 314.16;
+  const strokeDashoffset = ringCircumference * (1 - psiGauge / 100);
   const style = isTop5 ? GOLD_STYLE : SILVER_STYLE;
   const websiteHref = getPartnerWebsiteHref(meta.website);
 
@@ -77,48 +77,46 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
         </div>
 
         <div className="flex min-h-0 flex-1 items-center justify-center">
-          <div className="relative h-[82px] w-[82px]">
-            <svg
-              width="82"
-              height="82"
-              viewBox="0 0 82 82"
-              className="absolute left-0 top-0"
-              style={{ transform: "rotate(-90deg)" }}
-              aria-hidden
-            >
-              <circle cx="41" cy="41" r="34" fill="none" stroke={style.gaugeBg} strokeWidth="7" />
+          <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>
+            <g transform="rotate(-90 60 60)">
+              <circle cx="60" cy="60" r="50" fill="none" stroke={style.gaugeBg} strokeWidth="9" />
               <motion.circle
-                cx="41"
-                cy="41"
-                r="34"
+                cx="60"
+                cy="60"
+                r="50"
                 fill="none"
                 stroke={style.gaugeFill}
-                strokeWidth="7"
-                strokeDasharray={circumference}
+                strokeWidth="9"
+                strokeDasharray={ringCircumference}
                 strokeLinecap="round"
                 initial={false}
-                animate={{ strokeDashoffset: progress }}
+                animate={{ strokeDashoffset }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex flex-col items-center justify-center" style={{ lineHeight: 1 }}>
-                <motion.div
-                  key={psi}
-                  initial={{ opacity: 0.5, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-[24px] font-medium"
-                  style={{ color: style.mainText, lineHeight: 1 }}
-                >
-                  {typeof psi === "number" ? psi.toFixed(1).replace(/\.0$/u, "") : String(psi)}
-                </motion.div>
-                <div className="mt-[3px] text-[9px] font-medium" style={{ color: style.subText, lineHeight: 1 }}>
-                  PSI
-                </div>
-              </div>
-            </div>
-          </div>
+            </g>
+            <text
+              x="60"
+              y="58"
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="30"
+              fontWeight="500"
+              fill={style.mainText}
+            >
+              {typeof psi === "number" ? psi.toFixed(1).replace(/\.0$/u, "") : String(psi)}
+            </text>
+            <text
+              x="60"
+              y="82"
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="10"
+              fontWeight="500"
+              fill={style.subText}
+            >
+              PSI
+            </text>
+          </svg>
         </div>
 
         <div className="mb-[6px] text-[12px] font-medium leading-[1.45]" style={{ color: style.mainText }}>

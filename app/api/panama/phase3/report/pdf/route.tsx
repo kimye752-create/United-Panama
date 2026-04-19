@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 
+import "@/lib/pdf/pdf-fonts";
+
 import { Phase3ReportDocument } from "@/src/lib/phase3/report/Phase3ReportDocument";
 
 export const runtime = "nodejs";
