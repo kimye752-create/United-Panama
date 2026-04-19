@@ -41,7 +41,6 @@ const PIPELINE_STEP_DELAYS_MS = [400, 800, 1200] as const;
 
 /** 3공정 파트너 발굴 UI A단계 — 스테퍼·가중치·계층 카드·모달 */
 export function Phase3Container({ phase1Complete, phase2Complete, reports }: Phase3ContainerProps) {
-  const isActive = phase1Complete && phase2Complete;
   const [expanded, setExpanded] = useState(true);
   const [reportId, setReportId] = useState("");
   const [partners, setPartners] = useState<PartnerWithPSI[]>([]);
@@ -242,12 +241,32 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
           <div>
             <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 · 실행</p>
-            {!isActive ? (
-              <p className="mb-2 rounded-[8px] border border-amber-200 bg-amber-50 px-2.5 py-2 text-[10.5px] leading-snug text-amber-900">
-                ⚠ 1·2공정을 모두 완료하면 전체 진행 맥락이 명확해집니다. 보고서와 품목만 선택되면 아래 버튼으로 파트너 매칭을 실행할 수
-                있습니다.
-              </p>
-            ) : null}
+            <div className="mb-2 space-y-2">
+              {phase1Complete && !phase2Complete ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+                  <div className="mb-1 font-medium text-amber-900">
+                    ✅ 1공정 완료. 지금 파트너 매칭을 실행할 수 있습니다.
+                  </div>
+                  <div className="text-xs text-amber-700">
+                    💡 2공정(FOB가격 역산)까지 완료하면 파트너와 전략적인 가격협의를 할 수 있습니다.
+                  </div>
+                </div>
+              ) : null}
+              {phase1Complete && phase2Complete ? (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm">
+                  <div className="font-medium text-green-900">
+                    ✅ 1·2공정 완료. 전체 맥락이 반영된 파트너 매칭을 실행합니다.
+                  </div>
+                </div>
+              ) : null}
+              {!phase1Complete ? (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                  <div className="text-slate-700">
+                    📋 1공정 보고서와 품목을 선택하면 파트너 매칭을 실행할 수 있습니다.
+                  </div>
+                </div>
+              ) : null}
+            </div>
             <Phase3ReportToolbar
               reports={reports}
               reportId={reportId}

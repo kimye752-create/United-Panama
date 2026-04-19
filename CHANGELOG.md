@@ -1,5 +1,15 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (chore: 지시서 파일명 확장자 중복 제거)
+
+### Changed
+- `CURSOR_지시서_세션29_최종핫픽스.md.md` → `CURSOR_지시서_세션29_최종핫픽스.md` (`git mv`).
+
+## [Unreleased] - 2026-04-19 (feat(phase3): 1·2공정 상태별 3단계 안내 박스)
+
+### Changed
+- `Phase3Container.tsx` — 상단 단일 노란 경고 제거, `phase1Complete`·`phase2Complete`만으로 슬레이트/앰버/녹색 3분기 안내(신규 상태 변수 없음).
+
 ## [Unreleased] - 2026-04-19 (feat(phase3): 세션29 최종 핫픽스 — 모달 포털·카드 1:1.4·토글·PSI 배점)
 
 ### Changed
