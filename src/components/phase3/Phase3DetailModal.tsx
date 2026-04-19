@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
 import type { Partner, ProductId } from "@/src/lib/phase3/partners-data";
@@ -62,21 +62,12 @@ function FactorRow({ icon, label, value }: { icon: string; label: string; value:
   );
 }
 
-/** partners-data 원본 — document.body 포털·SSR mounted 가드·z-[9999] */
+/** partners-data 원본 — document.body 포털·z-[9999] (모달은 Phase3Container에서 dynamic ssr:false) */
 export function Phase3DetailModal({
   partner,
   selectedProductSlug,
   onClose,
 }: Phase3DetailModalProps): ReactElement | null {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => {
-      setMounted(false);
-    };
-  }, []);
-
   useEffect(() => {
     if (partner === null) {
       return;
@@ -98,7 +89,7 @@ export function Phase3DetailModal({
     };
   }, [partner, onClose]);
 
-  if (!mounted || partner === null) {
+  if (partner === null) {
     return null;
   }
 

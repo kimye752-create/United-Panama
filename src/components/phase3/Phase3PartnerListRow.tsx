@@ -29,7 +29,7 @@ export function Phase3PartnerListRow({ partner, currentRank, onRowClick }: Phase
       <motion.button
         type="button"
         layout
-        layoutId={`p3-${partner.id}`}
+        layoutId={`p3-list-${partner.partner_id}`}
         transition={{ layout: { duration: 0.4, ease: "easeOut" } }}
         onClick={() => {
           onRowClick(partner.partner_id);

@@ -1,5 +1,17 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-18 (fix(phase3): 모달 dynamic ssr:false 전환으로 hydration error 해결)
+
+### Changed
+- `Phase3Container.tsx` — `Phase3DetailModal`을 `next/dynamic` + `{ ssr: false }`로 로드(named export를 default로 래핑).
+- `Phase3DetailModal.tsx` — `mounted` 상태·effect 제거(이중 가드로 인한 hydration 불일치 방지), `partner === null`만 early return.
+- `Phase3PartnerCard.tsx` — `layoutId`를 `p3-card-${partner.partner_id}`로 분리, 게이지 중앙 정렬 마크업 조정(`text-[24px]`·`lineHeight: 1` 등).
+- `Phase3PartnerListRow.tsx` — `layoutId`를 `p3-list-${partner.partner_id}`로 분리(카드↔리스트 morph 비활성화).
+
+### Notes
+- `tsconfig.json` paths: `@/*` → `./*` 이므로 `@/src/lib/...`는 프로젝트 루트 기준 `src/lib/...`와 동일하게 해석됨.
+- 로컬 `Remove-Item .next; npm run build` 성공(2026-04-19).
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): STEP8 — 모달 포털·z-index·카드 헤더·게이지)
 
 ### Changed

@@ -1,6 +1,7 @@
 "use client";
 
 import { LayoutGroup } from "framer-motion";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
@@ -11,7 +12,6 @@ import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
 import type { PartnerWithPSI } from "@/src/lib/phase3/types";
 import type { Phase3WorkflowStepIndex, PSICheckedState, PSICriterionKey } from "@/src/lib/phase3/types";
 
-import { Phase3DetailModal } from "./Phase3DetailModal";
 import { SelectedProductBanner } from "./SelectedProductBanner";
 import { Phase3ErrorBanner } from "./Phase3ErrorBanner";
 import { Phase3RankList } from "./Phase3RankList";
@@ -19,6 +19,11 @@ import { Phase3ReportToolbar } from "./Phase3ReportToolbar";
 import { Phase3Top10Grid } from "./Phase3Top10Grid";
 import { Phase3WeightPanel } from "./Phase3WeightPanel";
 import { Phase3WorkflowStepper } from "./Phase3WorkflowStepper";
+
+const Phase3DetailModal = dynamic(
+  () => import("./Phase3DetailModal").then((mod) => ({ default: mod.Phase3DetailModal })),
+  { ssr: false },
+);
 
 interface Phase3ContainerProps {
   /** 1공정 완료 여부 — 3공정 실행 버튼 등 활성화에 사용 */

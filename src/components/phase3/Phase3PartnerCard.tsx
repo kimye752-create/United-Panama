@@ -39,7 +39,7 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
     <motion.button
       type="button"
       layout
-      layoutId={`p3-${partner.id}`}
+      layoutId={`p3-card-${partner.partner_id}`}
       transition={{ layout: { duration: 0.4, ease: "easeOut" } }}
       onClick={onClick}
       className="w-full cursor-pointer rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
@@ -106,19 +106,14 @@ export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3Partn
                 transition={{ duration: 0.4, ease: "easeOut" }}
               />
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <motion.div
-                key={psiRaw}
-                initial={{ opacity: 0.5, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="text-[26px] font-medium leading-none"
-                style={{ color: style.mainText }}
-              >
-                {formatDynamicPsiDisplay(psiRaw)}
-              </motion.div>
-              <div className="mt-[2px] text-[9px] font-medium" style={{ color: style.subText }}>
-                PSI
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center" style={{ lineHeight: 1 }}>
+                <div className="text-[24px] font-medium" style={{ color: style.mainText, lineHeight: 1 }}>
+                  {formatDynamicPsiDisplay(psiRaw)}
+                </div>
+                <div className="mt-[3px] text-[9px] font-medium" style={{ color: style.subText, lineHeight: 1 }}>
+                  PSI
+                </div>
               </div>
             </div>
           </div>
