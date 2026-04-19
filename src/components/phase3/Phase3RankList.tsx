@@ -38,8 +38,13 @@ export function Phase3RankList({ partners, onRowClick }: Phase3RankListProps) {
 
       {isOpen ? (
         <div className="mt-2 space-y-2">
-          {partners.map((p) => (
-            <Phase3PartnerListRow key={p.partner_id} partner={p} onRowClick={onRowClick} />
+          {partners.map((p, index) => (
+            <Phase3PartnerListRow
+              key={p.partner_id}
+              partner={p}
+              currentRank={index + 11}
+              onRowClick={onRowClick}
+            />
           ))}
         </div>
       ) : null}

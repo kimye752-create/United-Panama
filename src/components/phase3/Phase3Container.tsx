@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutGroup } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
@@ -306,8 +307,10 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
                 </button>
               </div>
               <SelectedProductBanner productSlug={selectedProductSlug} />
-              <Phase3Top10Grid partners={top10} onCardClick={openPartnerById} />
-              <Phase3RankList partners={rest} onRowClick={openPartnerById} />
+              <LayoutGroup id="phase3-partner-morph">
+                <Phase3Top10Grid partners={top10} onCardClick={openPartnerById} />
+                <Phase3RankList partners={rest} onRowClick={openPartnerById} />
+              </LayoutGroup>
             </div>
           ) : null}
         </div>

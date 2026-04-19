@@ -1,26 +1,33 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 import type { PartnerWithDynamicPsi } from "@/src/lib/phase3/psi-calculator";
 import { formatPanamaAddress, formatPartnerName } from "@/src/logic/phase3/phase3_partner_card_formatters";
 import { getPartnerWebsiteHref } from "@/src/lib/phase3/website-url";
 
 interface Phase3PartnerCardProps {
   partner: PartnerWithDynamicPsi;
+  /** 동적 정렬 후 화면 순위(1~10) — 카탈로그 rank와 별개 */
+  currentRank: number;
   onClick: () => void;
 }
 
-/** Top10 카드 — 비율 1:1.4, PSI 원형 게이지, 골드/은 단색 테마 */
-export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) {
-  const hc = partner.hc_display;
+/** 동적 PSI 숫자 표기(정수면 소수 제거) */
+function formatDynamicPsiDisplay(psi: number): string {
+  return psi.toFixed(1).replace(/\.0$/u, "");
+}
+
+/** Top10 카드 — LayoutGroup용 layoutId, currentRank 기준 골드/실버 */
+export function Phase3PartnerCard({ partner, currentRank, onClick }: Phase3PartnerCardProps) {
   const meta = partner.partner_meta;
-  if (hc === undefined || meta === undefined) {
+  if (meta === undefined) {
     return null;
   }
 
-  const isTop5 = hc.hc_catalog_rank <= 5;
+  const isTop5 = currentRank <= 5;
   const psiRaw = partner.dynamic_psi;
   const psiGauge = Math.min(100, Math.max(0, psiRaw));
-  const rank = hc.hc_catalog_rank;
   const homeCountry = meta.countryName;
   const panamaAddress = formatPanamaAddress(meta.address);
   const circumference = 213.6;
@@ -29,11 +36,15 @@ export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) 
   const websiteHref = getPartnerWebsiteHref(meta.website);
 
   return (
-    <button
+    <motion.button
       type="button"
+      layout
+      layoutId={`p3-${partner.id}`}
+      transition={{ layout: { duration: 0.4, ease: "easeOut" } }}
       onClick={onClick}
-      className="w-full cursor-pointer rounded-xl text-left transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
+      className="w-full cursor-pointer rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
       style={{ aspectRatio: "1 / 1.4" }}
+      whileHover={{ scale: 1.02 }}
     >
       <div
         className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border-[1.5px] p-[14px]"
@@ -49,11 +60,11 @@ export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) 
             color: style.badgeText,
           }}
         >
-          {isTop5 ? "🏅 TOP5" : `🥈 #${String(rank)}`}
+          {isTop5 ? "🏅 TOP5" : `🥈 #${String(currentRank)}`}
         </div>
 
         <div className="mb-[6px] text-[10px] font-medium" style={{ color: style.subText }}>
-          #{String(rank)} · 본사 {homeCountry}
+          #{String(currentRank)} · 본사 {homeCountry}
         </div>
 
         <div
@@ -77,7 +88,7 @@ export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) 
               aria-hidden
             >
               <circle cx="41" cy="41" r="34" fill="none" stroke={style.gaugeBg} strokeWidth="7" />
-              <circle
+              <motion.circle
                 cx="41"
                 cy="41"
                 r="34"
@@ -85,14 +96,23 @@ export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) 
                 stroke={style.gaugeFill}
                 strokeWidth="7"
                 strokeDasharray={circumference}
-                strokeDashoffset={progress}
                 strokeLinecap="round"
+                initial={false}
+                animate={{ strokeDashoffset: progress }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[26px] font-medium leading-none" style={{ color: style.mainText }}>
-                {String(psiRaw)}
-              </div>
+              <motion.div
+                key={psiRaw}
+                initial={{ opacity: 0.5, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-[26px] font-medium leading-none"
+                style={{ color: style.mainText }}
+              >
+                {formatDynamicPsiDisplay(psiRaw)}
+              </motion.div>
               <div className="mt-[2px] text-[9px] font-medium" style={{ color: style.subText }}>
                 PSI
               </div>
@@ -104,7 +124,7 @@ export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) 
           <div className="mb-[3px]">
             📍 {panamaAddress}
           </div>
-          <div className="text-[11px] font-normal" style={{ color: style.bodyText }}>
+          <div className="line-clamp-1 text-[11px] font-normal" style={{ color: style.bodyText }}>
             {meta.oneLineIntro}
           </div>
         </div>
@@ -146,7 +166,7 @@ export function Phase3PartnerCard({ partner, onClick }: Phase3PartnerCardProps) 
           </div>
         </div>
       </div>
-    </button>
+    </motion.button>
   );
 }
 
@@ -164,14 +184,14 @@ const GOLD_STYLE = {
 } as const;
 
 const SILVER_STYLE = {
-  bg: "#E8E7E1",
-  border: "#888780",
-  badgeBg: "#5F5E5A",
+  bg: "#D3D1C7",
+  border: "#5F5E5A",
+  badgeBg: "#2C2C2A",
   badgeText: "#F1EFE8",
   mainText: "#2C2C2A",
   subText: "#444441",
   bodyText: "#5F5E5A",
-  gaugeBg: "rgba(68, 68, 65, 0.2)",
-  gaugeFill: "#5F5E5A",
-  divider: "rgba(44, 44, 42, 0.3)",
+  gaugeBg: "rgba(44, 44, 42, 0.2)",
+  gaugeFill: "#2C2C2A",
+  divider: "rgba(44, 44, 42, 0.4)",
 } as const;
