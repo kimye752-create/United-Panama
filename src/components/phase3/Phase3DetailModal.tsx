@@ -17,6 +17,11 @@ interface Phase3DetailModalProps {
   onClose: () => void;
 }
 
+/** 파트너 적합 판정 표시용 — Tier 숫자 접두어만 제거 (점수 산출 내역 서술은 그대로 유지) */
+function stripTierPrefix(text: string): string {
+  return text.replace(/^Tier\s+\d+\s*[\(·.]?\s*/i, "").trim();
+}
+
 function InfoRow({
   icon,
   label,
@@ -73,6 +78,7 @@ export function Phase3DetailModal({
 }: Phase3DetailModalProps): ReactElement | null {
   const [isProductMatchOpen, setIsProductMatchOpen] = useState(false);
   const [isTierCriteriaOpen, setIsTierCriteriaOpen] = useState(false);
+  const [isScoreBreakdownOpen, setIsScoreBreakdownOpen] = useState(true);
   const [emailPopupOpen, setEmailPopupOpen] = useState(false);
 
   useEffect(() => {
@@ -173,7 +179,7 @@ export function Phase3DetailModal({
 
   const modalContent = (
     <div
-      className="flex items-center justify-center bg-black/60 p-4"
+      className="flex items-center justify-center bg-black/60 p-3"
       style={{
         position: "fixed",
         top: 0,
@@ -202,7 +208,7 @@ export function Phase3DetailModal({
         }}
       >
         <div
-          className="sticky top-0 z-10 flex items-center justify-between border-b p-4"
+          className="sticky top-0 z-10 flex items-center justify-between border-b p-3"
           style={{
             background: theme.headerBg,
             borderBottomColor: theme.border,
@@ -240,8 +246,8 @@ export function Phase3DetailModal({
         </div>
 
         <div className="grid border-b border-slate-200 max-md:grid-cols-1 md:grid-cols-2">
-          <div className="border-slate-200 p-4 max-md:border-b md:border-r">
-            <h3 className="mb-3 text-sm font-bold text-slate-700">🏢 기본 정보</h3>
+          <div className="border-slate-200 p-3 max-md:border-b md:border-r">
+            <h3 className="mb-2 text-sm font-bold text-slate-700">🏢 기본 정보</h3>
             <div className="space-y-2 text-sm">
               <InfoRow icon="📍" label="소재지" value={partner.address} />
               <div className="flex items-start gap-2">
@@ -275,167 +281,197 @@ export function Phase3DetailModal({
             </div>
           </div>
 
-          <div className="p-4">
-            <h3 className="mb-3 text-sm font-bold text-slate-700">📊 5대 요소 현황</h3>
+          <div className="p-3">
+            <h3 className="mb-2 text-sm font-bold text-slate-700">📊 파트너 적합 판정</h3>
             <div className="space-y-2 text-sm">
-              <FactorRow icon="💰" label="매출규모" value={partner.fiveFactorsDescription.revenue} />
-              <FactorRow icon="🏭" label="제조소 보유" value={partner.fiveFactorsDescription.manufacturing} />
-              <FactorRow icon="💊" label="약국체인 운영" value={partner.fiveFactorsDescription.pharmacyChain} />
-              <FactorRow icon="📦" label="파이프라인" value={partner.fiveFactorsDescription.pipeline} />
-              <FactorRow icon="🌍" label="수입 경험" value={partner.fiveFactorsDescription.importExperience} />
+              <FactorRow icon="💰" label="매출규모" value={stripTierPrefix(partner.fiveFactorsDescription.revenue)} />
+              <FactorRow
+                icon="🏭"
+                label="제조소 보유"
+                value={stripTierPrefix(partner.fiveFactorsDescription.manufacturing)}
+              />
+              <FactorRow
+                icon="💊"
+                label="약국체인 운영"
+                value={stripTierPrefix(partner.fiveFactorsDescription.pharmacyChain)}
+              />
+              <FactorRow icon="📦" label="파이프라인" value={stripTierPrefix(partner.fiveFactorsDescription.pipeline)} />
+              <FactorRow
+                icon="🌍"
+                label="수입 경험"
+                value={stripTierPrefix(partner.fiveFactorsDescription.importExperience)}
+              />
             </div>
           </div>
         </div>
 
-        <div className="border-b border-slate-200 bg-slate-50 p-4">
-          <h3 className="mb-3 text-sm font-bold text-slate-700">📊 PSI 배점</h3>
-
-          <div className="mb-4 rounded border border-slate-200 bg-white p-4 font-mono text-xs">
-            <div className="space-y-1.5">
-              {scores.map((s) => (
-                <div key={s.label} className="space-y-1 border-b border-slate-100 pb-2 last:border-0">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="font-medium text-slate-700">{s.label}</span>
-                    <span className="shrink-0 text-right font-mono text-xs">
-                      <span className="text-slate-900">
-                        {String(s.value)}점 × {(s.weight * 100).toFixed(0)}% ={" "}
-                      </span>
-                      <strong className="text-amber-700">{(s.value * s.weight).toFixed(1)}</strong>
-                    </span>
-                  </div>
-                  <div className="pl-1 text-[11px] text-slate-500">{s.qualitative}</div>
-                </div>
-              ))}
-              <div className="my-2 border-t border-slate-300" />
-              <div className="flex justify-between font-bold text-slate-900">
-                <span>총점 (PSI)</span>
-                <span className="text-base text-amber-700">{String(partner.basePSI)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pb-3">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTierCriteriaOpen(!isTierCriteriaOpen);
-              }}
-              className="flex w-full items-center justify-between rounded-lg border bg-slate-50 p-3 transition-colors hover:bg-slate-100"
-              style={{ borderColor: theme.border }}
-            >
-              <span className="text-sm font-bold text-slate-700">📘 5대 요소 평가 기준</span>
-              <span className="text-xs font-medium text-slate-500">
-                {isTierCriteriaOpen ? "▲ 접기" : "▼ 클릭해서 열기"}
-              </span>
-            </button>
-
-            {isTierCriteriaOpen ? (
-              <div className="mt-3 space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-xs">
-                <div>
-                  <div className="mb-2 font-bold text-slate-800">💰 매출 규모 (35%)</div>
-                  <div className="space-y-1 pl-2 text-slate-600">
-                    <div>
-                      <strong className="text-slate-800">Tier 1: USD 10억+</strong> → 100점 · Hetero, GSK, Pfizer, Roche 등
-                      글로벌 MNC
-                    </div>
-                    <div>
-                      <strong className="text-slate-800">Tier 2: USD 3억 ~ 10억</strong> → 85점 · Tecnoquímicas, PiSA, Guerbet 등
-                      중견
-                    </div>
-                    <div>
-                      <strong className="text-slate-800">Tier 3: USD 5천만 ~ 3억</strong> → 70점 · Unipharm 등 국가별 Top
-                    </div>
-                    <div>
-                      <strong className="text-slate-800">Tier 4: USD 1천만 ~ 5천만</strong> → 55점 · Medipan, Haseth 등 로컬
-                      중견
-                    </div>
-                    <div>
-                      <strong className="text-slate-800">Tier 5: USD 1천만 미만</strong> → 30점 · Sequisa 등 소규모
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 font-bold text-slate-800">💊 파이프라인 (28%)</div>
-                  <div className="space-y-1 pl-2 text-slate-600">
-                    <div>
-                      <strong>High (85~100점)</strong>: 복합제 다수 + ATC 중복 풍부
-                    </div>
-                    <div>
-                      <strong>Mid-High (70~85점)</strong>: 유사 단일제 경험, 인접 카테고리
-                    </div>
-                    <div>
-                      <strong>Mid (55~70점)</strong>: 단일 카테고리 특화
-                    </div>
-                    <div>
-                      <strong>Low (30~50점)</strong>: 겹침 적음
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 font-bold text-slate-800">🏭 제조소 보유 (20%)</div>
-                  <div className="space-y-1 pl-2 text-slate-600">
-                    <div>
-                      <strong>직영 GMP (100점)</strong>: 자체 제조 + GMP 인증
-                    </div>
-                    <div>
-                      <strong>창고 허브 (70점)</strong>: ZLC · 창고 · 재수출
-                    </div>
-                    <div>
-                      <strong>순수 유통 (40점)</strong>: 수입→유통만
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 font-bold text-slate-800">🌐 수입 경험 (12%)</div>
-                  <div className="space-y-1 pl-2 text-slate-600">
-                    <div>
-                      <strong>글로벌+WHO PQ (90~100점)</strong>: 100개국+ 수출
-                    </div>
-                    <div>
-                      <strong>다국가 (70~85점)</strong>: 10~100개국
-                    </div>
-                    <div>
-                      <strong>지역 (50~70점)</strong>: LATAM 또는 인접 권역
-                    </div>
-                    <div>
-                      <strong>내수 (30~50점)</strong>: 파나마 단독
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 font-bold text-slate-800">🏪 약국체인 운영 (5%)</div>
-                  <div className="space-y-1 pl-2 text-slate-600">
-                    <div>
-                      <strong>대형 체인 (80~100점)</strong>: 100개+ 소매점
-                    </div>
-                    <div>
-                      <strong>중형 (50~80점)</strong>: 10~100개
-                    </div>
-                    <div>
-                      <strong>소형 (20~50점)</strong>: 10개 미만
-                    </div>
-                    <div>
-                      <strong>미보유 (0점)</strong>: B2B 전문
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-blue-200 pt-2 text-[10px] italic text-slate-500">
-                  ※ 모든 매출은 USD 환산 기준 (2025년 평균 환율 적용)
-                </div>
-              </div>
-            ) : null}
-          </div>
-
+        <div className="border-b border-slate-200 p-3">
           <h3 className="mb-2 text-sm font-bold text-slate-700">💡 기업 소개</h3>
           <div className="whitespace-pre-line text-sm text-slate-700">{partner.companyDescription}</div>
         </div>
 
-        <div className="p-4">
+        <div className="border-b border-slate-200 px-3 pb-3">
+          <button
+            type="button"
+            onClick={() => {
+              setIsScoreBreakdownOpen(!isScoreBreakdownOpen);
+            }}
+            className="flex w-full items-center justify-between rounded-lg border bg-slate-50 p-3 transition-colors hover:bg-slate-100"
+            style={{ borderColor: theme.border }}
+          >
+            <span className="text-sm font-bold text-slate-700">📊 점수 산출 내역</span>
+            <span className="text-xs font-medium text-slate-500">
+              {isScoreBreakdownOpen ? "▲ 접기" : "▼ 펼치기"}
+            </span>
+          </button>
+
+          {isScoreBreakdownOpen ? (
+            <div className="mt-2">
+              <div className="mb-3 rounded border border-slate-200 bg-white p-3 font-mono text-xs">
+                <div className="space-y-1.5">
+                  {scores.map((s) => (
+                    <div key={s.label} className="space-y-1 border-b border-slate-100 pb-2 last:border-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-slate-900 font-semibold">{s.label}</span>
+                        <span className="shrink-0 text-right font-mono text-xs">
+                          <span className="font-medium text-slate-900">
+                            {String(s.value)}점 × {(s.weight * 100).toFixed(0)}% ={" "}
+                          </span>
+                          <strong className="font-bold text-amber-700">{(s.value * s.weight).toFixed(1)}</strong>
+                        </span>
+                      </div>
+                      <div className="pl-1 text-[11px] font-medium text-slate-700">{s.qualitative}</div>
+                    </div>
+                  ))}
+                  <div className="my-2 border-t border-slate-300" />
+                  <div className="flex justify-between font-bold text-slate-900">
+                    <span>총점 (PSI)</span>
+                    <span className="text-base text-amber-700">{String(partner.basePSI)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="border-b border-slate-200 px-3 pb-3">
+          <button
+            type="button"
+            onClick={() => {
+              setIsTierCriteriaOpen(!isTierCriteriaOpen);
+            }}
+            className="flex w-full items-center justify-between rounded-lg border bg-slate-50 p-3 transition-colors hover:bg-slate-100"
+            style={{ borderColor: theme.border }}
+          >
+            <span className="text-sm font-bold text-slate-700">📘 파트너 판단 기준 - 5개항</span>
+            <span className="text-xs font-medium text-slate-500">
+              {isTierCriteriaOpen ? "▲ 접기" : "▼ 펼치기"}
+            </span>
+          </button>
+
+          {isTierCriteriaOpen ? (
+            <div className="mt-2 space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs">
+              <div>
+                <div className="mb-2 font-bold text-slate-800">💰 매출 규모 (35%)</div>
+                <div className="space-y-1 pl-2 text-slate-600">
+                  <div>
+                    <strong className="text-slate-800">Tier 1: USD 10억+</strong> → 100점 · Hetero, GSK, Pfizer, Roche 등
+                    글로벌 MNC
+                  </div>
+                  <div>
+                    <strong className="text-slate-800">Tier 2: USD 3억 ~ 10억</strong> → 85점 · Tecnoquímicas, PiSA, Guerbet 등
+                    중견
+                  </div>
+                  <div>
+                    <strong className="text-slate-800">Tier 3: USD 5천만 ~ 3억</strong> → 70점 · Unipharm 등 국가별 Top
+                  </div>
+                  <div>
+                    <strong className="text-slate-800">Tier 4: USD 1천만 ~ 5천만</strong> → 55점 · Medipan, Haseth 등 로컬
+                    중견
+                  </div>
+                  <div>
+                    <strong className="text-slate-800">Tier 5: USD 1천만 미만</strong> → 30점 · Sequisa 등 소규모
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 font-bold text-slate-800">💊 파이프라인 (28%)</div>
+                <div className="space-y-1 pl-2 text-slate-600">
+                  <div>
+                    <strong>High (85~100점)</strong>: 복합제 다수 + ATC 중복 풍부
+                  </div>
+                  <div>
+                    <strong>Mid-High (70~85점)</strong>: 유사 단일제 경험, 인접 카테고리
+                  </div>
+                  <div>
+                    <strong>Mid (55~70점)</strong>: 단일 카테고리 특화
+                  </div>
+                  <div>
+                    <strong>Low (30~50점)</strong>: 겹침 적음
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 font-bold text-slate-800">🏭 제조소 보유 (20%)</div>
+                <div className="space-y-1 pl-2 text-slate-600">
+                  <div>
+                    <strong>직영 GMP (100점)</strong>: 자체 제조 + GMP 인증
+                  </div>
+                  <div>
+                    <strong>창고 허브 (70점)</strong>: ZLC · 창고 · 재수출
+                  </div>
+                  <div>
+                    <strong>순수 유통 (40점)</strong>: 수입→유통만
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 font-bold text-slate-800">🌐 수입 경험 (12%)</div>
+                <div className="space-y-1 pl-2 text-slate-600">
+                  <div>
+                    <strong>글로벌+WHO PQ (90~100점)</strong>: 100개국+ 수출
+                  </div>
+                  <div>
+                    <strong>다국가 (70~85점)</strong>: 10~100개국
+                  </div>
+                  <div>
+                    <strong>지역 (50~70점)</strong>: LATAM 또는 인접 권역
+                  </div>
+                  <div>
+                    <strong>내수 (30~50점)</strong>: 파나마 단독
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 font-bold text-slate-800">🏪 약국체인 운영 (5%)</div>
+                <div className="space-y-1 pl-2 text-slate-600">
+                  <div>
+                    <strong>대형 체인 (80~100점)</strong>: 100개+ 소매점
+                  </div>
+                  <div>
+                    <strong>중형 (50~80점)</strong>: 10~100개
+                  </div>
+                  <div>
+                    <strong>소형 (20~50점)</strong>: 10개 미만
+                  </div>
+                  <div>
+                    <strong>미보유 (0점)</strong>: B2B 전문
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-blue-200 pt-2 text-[10px] text-slate-500">
+                ※ 모든 매출은 USD 환산 기준 (2025년 평균 환율 적용)
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="p-3">
           <button
             type="button"
             onClick={() => {
@@ -446,12 +482,12 @@ export function Phase3DetailModal({
           >
             <span className="text-sm font-bold text-slate-700">💊 8제품 매칭 상세</span>
             <span className="text-xs font-medium text-slate-500">
-              {isProductMatchOpen ? "▲ 접기" : "▼ 클릭해서 열기"}
+              {isProductMatchOpen ? "▲ 접기" : "▼ 펼치기"}
             </span>
           </button>
 
           {isProductMatchOpen ? (
-            <div className="mt-3">
+            <div className="mt-2">
               <Phase3ProductMatchSection partner={partner} selectedProductSlug={selectedProductSlug} />
             </div>
           ) : null}

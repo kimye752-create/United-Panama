@@ -97,7 +97,6 @@ export const pdfStyles = StyleSheet.create({
     fontSize: 7,
     color: GRAY_TEXT,
     marginTop: 4,
-    fontStyle: "italic",
   },
   sourceTable: {
     borderWidth: 1,
@@ -176,6 +175,5 @@ export const pdfStyles = StyleSheet.create({
   emptyPaperText: {
     fontSize: 8,
     color: GRAY_TEXT,
-    fontStyle: "italic",
   },
 });

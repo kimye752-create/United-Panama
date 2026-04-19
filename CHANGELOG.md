@@ -1,5 +1,12 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-19 (fix(phase3): PDF italic 에러 해결 + 모달 구조 재정비 + 용어 정리 (STEP15-E))
+
+### Changed
+- `src/lib/phase3/report/Phase3ReportDocument.tsx` — 방법론 페이지 각주 2곳에서 `fontStyle: "italic"` 제거(NotoSansKR 미등록 이탤릭 해소). 레이아웃·문구·섹션 순서는 STEP15-D 유지.
+- `lib/pdf/pdf-styles.ts` — `NotoSansKR` 사용 1공정 PDF(`scopeFootnote`, `emptyPaperText`)에서 `italic` 제거, 동일 폰트 해석 오류 예방.
+- `src/components/phase3/Phase3DetailModal.tsx` — 섹션 순서: 헤더 → 기본정보+파트너 적합 판정 → 기업 소개 → 점수 산출 내역(토글·기본 펼침) → 파트너 판단 기준-5개항(토글·기본 닫힘) → 8제품 매칭 상세; 적합 판정에 `stripTierPrefix`만 적용; 점수 산출 행 타이포 강화; 모달 전반 `p-4`→`p-3` 등 여백 한 단계 축소.
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): 안내 문구 "매칭파트너" 로 구체화)
 
 ### Changed

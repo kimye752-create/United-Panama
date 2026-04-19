@@ -388,7 +388,7 @@ function MethodologyPage(props: { dateStr: string }): ReactElement {
           <Text style={{ fontSize: 9, lineHeight: 1.5 }}>
             PSI = (매출 × 35%) + (파이프라인 × 28%) + (제조소 × 20%) + (수입경험 × 12%) + (약국체인 × 5%)
           </Text>
-          <Text style={{ fontSize: 8, color: "#64748B", marginTop: 4, fontStyle: "italic" }}>
+          <Text style={{ fontSize: 8, color: "#64748B", marginTop: 4 }}>
             ※ 선택 지표만 체크 시 원본 비율 유지하며 자동 비례 재분배
           </Text>
         </View>
@@ -429,7 +429,7 @@ function MethodologyPage(props: { dateStr: string }): ReactElement {
         <Text style={{ fontSize: 8, color: "#64748B", marginTop: 8 }}>
           [출처] MINSA 라이선스 · 기업 공시 · Annual Report · Panjiva · Panadata
         </Text>
-        <Text style={{ fontSize: 8, color: "#64748B", marginTop: 4, fontStyle: "italic" }}>
+        <Text style={{ fontSize: 8, color: "#64748B", marginTop: 4 }}>
           ※ 모든 매출은 USD 환산 기준 (2025년 평균 환율 적용)
         </Text>
       </View>
