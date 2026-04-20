@@ -32,14 +32,14 @@ interface AnalyzeApiResponse {
 function formatReportLabel(item: StoredReportItem): string {
   const date = new Date(item.analyzedAt);
   if (Number.isNaN(date.getTime())) {
-    return `1공정 보고서 · ${item.productBrandName} · 날짜 미상`;
+    return `1단계 시장조사 보고서 · ${item.productBrandName} · 날짜 미상`;
   }
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   const hh = String(date.getHours()).padStart(2, "0");
   const mm = String(date.getMinutes()).padStart(2, "0");
-  return `1공정 보고서 · ${item.productBrandName} · ${y}-${m}-${d} ${hh}:${mm}`;
+  return `1단계 시장조사 보고서 · ${item.productBrandName} · ${y}-${m}-${d} ${hh}:${mm}`;
 }
 
 function formatPriceCell(value: number | null): string {
@@ -88,7 +88,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
 
   const runPhase2 = async () => {
     if (selectedReport === null) {
-      window.alert("먼저 1공정 보고서를 선택해 주세요.");
+      window.alert("먼저 1단계 시장조사 보고서를 선택해 주세요.");
       return;
     }
     setLoading(true);
@@ -131,7 +131,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
         setErrorMessage(
           typeof payload.message === "string" && payload.message.trim() !== ""
             ? payload.message
-            : "해당 보고서는 유효하지 않습니다. 1공정에서 새로 생성해주세요.",
+            : "해당 보고서는 유효하지 않습니다. 1단계 시장조사에서 새로 생성해 주세요.",
         );
         setAnalysisStarted(false);
         setProgressStep(0);
@@ -185,7 +185,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
       onCompleted();
     } catch (error: unknown) {
       window.alert(
-        `2공정 분석 실패: ${
+        `2단계 수출가격 책정 분석 실패: ${
           error instanceof Error ? error.message : "알 수 없는 오류"
         }\n해결 방법: 보고서 선택 상태와 서버 연결을 확인한 뒤 다시 시도해 주세요.`,
       );
@@ -218,11 +218,11 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[11px] font-black text-white">
-            02
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[13px] font-black text-white">
+            2
           </span>
           <div>
-            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">2공정 · 가격 책정 전략</h3>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">2단계 · 수출가격 책정</h3>
             <p className="text-[11px] text-[#7a8ba1]">AI 가격 분석 · 3가지 시나리오 · 가격 책정 전략 PDF</p>
           </div>
         </div>
@@ -231,7 +231,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
       {expanded ? (
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
           <div>
-            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 선택</p>
+            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1단계 시장조사 보고서 선택</p>
             {errorMessage !== null ? (
               <p className="mb-2 text-[11px] font-medium text-[#c0392b]">{errorMessage}</p>
             ) : null}

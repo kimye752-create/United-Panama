@@ -62,6 +62,6 @@ export async function POST(req: Request): Promise<Response> {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: `2공정 보고서 생성 실패: ${message}` }, { status: 500 });
+    return NextResponse.json({ error: `2단계 수출가격 책정 보고서 생성 실패: ${message}` }, { status: 500 });
   }
 }

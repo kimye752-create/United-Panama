@@ -122,7 +122,7 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
     input.emlWho && input.emlPaho
       ? `조달: WHO EML 2023 + PAHO Strategic Fund 이중 등재로 국제 공공조달 트랙 활용 가능.`
       : `조달: WHO EML 미등재로 국제 공공조달 트랙 제한, 민간 약국 채널 우선 진입 필요.`,
-    `유통: 파트너 ${String(input.distributorNames.length)}개사 발굴(${distList}) — 3공정 AHP 엔진⑥ PSI 점수화 예정.`,
+    `유통: 파트너 ${String(input.distributorNames.length)}개사 발굴(${distList}) — 3단계 파트너 조사(AHP 엔진⑥ PSI 점수화) 예정.`,
   ];
 
   const reasoning = reasoningRaw.map((line, idx) => fitBlock3Line(line, idx));
@@ -178,7 +178,7 @@ export function buildFallbackReport(input: FallbackInput): Report1Payload {
 
   const partnersRaw = toTwoLineInsight(
     `발굴된 4개 파트너: Agencias Feduro(both), Agencias Celmar(both), C. G. de Haseth & Cia.(public), Compañía Astur(both).`,
-    "Case 판정 기반 both 채널 3개사 우선 컨택 및 3공정 AHP PSI 적용 가능",
+    "Case 판정 기반 both 채널 3개사 우선 컨택 및 3단계 파트너 조사(AHP·PSI) 적용 가능",
   );
 
   const risksRaw = toTwoLineInsight(
@@ -347,7 +347,7 @@ export function buildFallbackReportV3(input: FallbackInput): Report1PayloadV3 {
     250,
   );
   const block2_distribution = fitV3(
-    `발굴 파트너 ${String(input.distributorNames.length)}개사(${distList})를 기준으로 유통망 후보군을 확보했다. 3공정 AHP 엔진⑥ PSI 점수화와 PanamaCompra 낙찰 이력 대조를 통해 우선 협상 파트너를 좁힐 수 있다.`,
+    `발굴 파트너 ${String(input.distributorNames.length)}개사(${distList})를 기준으로 유통망 후보군을 확보했다. 3단계 파트너 조사(AHP 엔진⑥ PSI 점수화)와 PanamaCompra 낙찰 이력 대조를 통해 우선 협상 파트너를 좁힐 수 있다.`,
     60,
     250,
   );
@@ -379,7 +379,7 @@ export function buildFallbackReportV3(input: FallbackInput): Report1PayloadV3 {
     250,
   );
   const block3_3_partners = fitV3(
-    "Feduro·Celmar·Haseth·Astur 4개사를 기준 파트너군으로 설정한다. 각 회사의 채널 적합성은 3공정 AHP 엔진⑥ PSI 점수와 공공조달 낙찰 이력 교차 검증 결과를 반영해 우선순위를 결정한다.",
+    "Feduro·Celmar·Haseth·Astur 4개사를 기준 파트너군으로 설정한다. 각 회사의 채널 적합성은 3단계 파트너 조사(AHP 엔진⑥ PSI 점수)와 공공조달 낙찰 이력 교차 검증 결과를 반영해 우선순위를 결정한다.",
     60,
     250,
   );

@@ -71,7 +71,7 @@ export function Phase3PartnerDiscovery({
 
   const downloadBuyerList = () => {
     const lines = [
-      "파나마 유망 파트너 리스트 (3공정)",
+      "파나마 유망 파트너 리스트 (3단계 · 파트너 조사)",
       `제품: ${product?.kr_brand_name ?? productId}`,
       `선택 기준: ${Array.from(checkedItems.values()).join(", ")}`,
       "",
@@ -94,7 +94,7 @@ export function Phase3PartnerDiscovery({
   if (!isAnalysisComplete) {
     return (
       <div className="rounded-[10px] border border-[#dce4ef] bg-[#fbfcfe] px-3 py-4 text-[12px] text-[#8a99ad]">
-        파트너 매칭을 실행해 분석을 시작하세요.
+        파트너 조사를 실행해 분석을 시작하세요.
       </div>
     );
   }

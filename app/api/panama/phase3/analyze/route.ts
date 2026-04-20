@@ -176,6 +176,6 @@ export async function POST(req: Request): Promise<Response> {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "알 수 없는 오류";
-    return NextResponse.json({ error: `3공정 분석 실패: ${message}` }, { status: 500 });
+    return NextResponse.json({ error: `3단계 파트너 조사 분석 실패: ${message}` }, { status: 500 });
   }
 }

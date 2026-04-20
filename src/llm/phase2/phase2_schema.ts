@@ -61,7 +61,7 @@ export function parsePhase2Payload(raw: unknown): Phase2ReportPayload | null {
 
 export const PHASE2_TOOL: Tool = {
   name: "generate_phase2_report",
-  description: "파나마 2공정 FOB 역산 결과를 5블록 보고서로 생성한다.",
+  description: "파나마 2단계(수출가격 책정) FOB 역산 결과를 5블록 보고서로 생성한다.",
   input_schema: {
     type: "object",
     properties: {

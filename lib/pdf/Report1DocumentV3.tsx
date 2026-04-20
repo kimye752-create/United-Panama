@@ -109,7 +109,7 @@ export function Report1DocumentV3(props: Report1PdfV3Props) {
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>UPharma Export AI | 파나마 1공정 시장 분석 보고서</Text>
+          <Text style={styles.title}>UPharma Export AI | 파나마 1단계 시장조사 보고서</Text>
           <Text style={styles.subTitle}>파나마 전용 V3 구조 | {collectedAt}</Text>
           <Text style={styles.metaBar}>
             {props.brandName} — {props.innEn} | HS {props.hsCode} | Case {props.caseGrade} |

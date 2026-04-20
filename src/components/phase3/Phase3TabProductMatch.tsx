@@ -96,7 +96,7 @@ export function Phase3TabProductMatch({ partner, selectedProductSlug }: Phase3Ta
             }`}
           >
             {isSelected ? (
-              <div className="mb-1 text-[10px] font-extrabold text-amber-800">📌 1공정 선택 제품</div>
+              <div className="mb-1 text-[10px] font-extrabold text-amber-800">📌 1단계 시장조사 선택 제품</div>
             ) : null}
             <ProductMatchRow match={match} />
           </div>

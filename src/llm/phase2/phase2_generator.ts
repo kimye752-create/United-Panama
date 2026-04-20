@@ -110,7 +110,7 @@ function buildPrompt(input: Phase2GeneratorInput): string {
 async function callModel(model: string, input: Phase2GeneratorInput): Promise<Phase2ReportPayload> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (apiKey === undefined || apiKey.trim() === "") {
-    throw new Error("ANTHROPIC_API_KEY가 없어 2공정 보고서 LLM 생성이 불가능합니다.");
+    throw new Error("ANTHROPIC_API_KEY가 없어 2단계 수출가격 책정 보고서 LLM 생성이 불가능합니다.");
   }
   const client = new Anthropic({ apiKey });
   const response: Message = await client.messages.create({

@@ -171,7 +171,7 @@ export async function POST(req: Request): Promise<Response> {
       return NextResponse.json(
         {
           error: "product_not_found",
-          message: "해당 제품 정보를 찾을 수 없습니다. 1공정 보고서를 다시 생성해 주세요.",
+          message: "해당 제품 정보를 찾을 수 없습니다. 1단계 시장조사 보고서를 다시 생성해 주세요.",
         },
         { status: 404 },
       );
@@ -308,7 +308,7 @@ export async function POST(req: Request): Promise<Response> {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
     return NextResponse.json(
-      { error: `2공정 분석 실패: ${message}` },
+      { error: `2단계 수출가격 책정 분석 실패: ${message}` },
       { status: 500 },
     );
   }

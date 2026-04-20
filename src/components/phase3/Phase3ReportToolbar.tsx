@@ -12,14 +12,14 @@ interface Phase3ReportToolbarProps {
 function formatReportLabel(item: StoredReportItem): string {
   const date = new Date(item.analyzedAt);
   if (Number.isNaN(date.getTime())) {
-    return `1공정 보고서 · ${item.productBrandName} · 날짜 미상`;
+    return `1단계 시장조사 보고서 · ${item.productBrandName} · 날짜 미상`;
   }
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   const hh = String(date.getHours()).padStart(2, "0");
   const mm = String(date.getMinutes()).padStart(2, "0");
-  return `1공정 보고서 · ${item.productBrandName} · ${y}-${m}-${d} ${hh}:${mm}`;
+  return `1단계 시장조사 보고서 · ${item.productBrandName} · ${y}-${m}-${d} ${hh}:${mm}`;
 }
 
 export function Phase3ReportToolbar({

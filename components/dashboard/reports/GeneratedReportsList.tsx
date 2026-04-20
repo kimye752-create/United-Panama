@@ -217,7 +217,7 @@ export function GeneratedReportsList() {
       if (signal.aborted) {
         if (signal.reason === "preview_timeout") {
           setPreviewError(
-            "PDF 생성이 45초를 초과했습니다. 원인: 서버 생성 지연\n해결 방법: 잠시 후 다시 시도하거나 1공정 분석을 재실행해 캐시를 갱신해 주세요.",
+            "PDF 생성이 45초를 초과했습니다. 원인: 서버 생성 지연\n해결 방법: 잠시 후 다시 시도하거나 1단계 시장조사 분석을 재실행해 캐시를 갱신해 주세요.",
           );
           setPreviewLoading(false);
         }
@@ -304,7 +304,7 @@ export function GeneratedReportsList() {
   return (
     <Card
       title="생성된 보고서"
-      subtitle="1공정 분석 완료 시 자동 등록 · PDF 다운로드 · 하단 A4 미리보기"
+      subtitle="1단계 시장조사 분석 완료 시 자동 등록 · PDF 다운로드 · 하단 A4 미리보기"
       rightSlot={
         <button
           type="button"
@@ -319,7 +319,7 @@ export function GeneratedReportsList() {
         <div className="py-8 text-center text-[13px] leading-relaxed text-muted">
           아직 생성된 보고서가 없습니다.
           <br />
-          1공정 분석을 실행하면 여기에 자동으로 등록됩니다.
+          1단계 시장조사 분석을 실행하면 여기에 자동으로 등록됩니다.
         </div>
       ) : (
         <div className="space-y-2">
@@ -330,7 +330,7 @@ export function GeneratedReportsList() {
                 selectedReportId === item.id ? "border-[#9fb6d8]" : "border-[#e2e8f1]"
               }`}
             >
-              <p className="text-[13px] font-extrabold text-[#1f3e64]">1공정 보고서 - {item.brand}</p>
+              <p className="text-[13px] font-extrabold text-[#1f3e64]">1단계 시장조사 보고서 - {item.brand}</p>
               <p className="mt-1 text-[11px] text-[#6f8299]">
                 {item.inn} · {formatDate(item.generatedAt)}
               </p>

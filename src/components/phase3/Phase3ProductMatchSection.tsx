@@ -55,7 +55,7 @@ export function Phase3ProductMatchSection({
             ].join(" ")}
           >
             {isSelected ? (
-              <div className="mb-1 text-xs font-bold text-yellow-700">📌 1공정 선택 제품</div>
+              <div className="mb-1 text-xs font-bold text-yellow-700">📌 1단계 시장조사 선택 제품</div>
             ) : null}
             <div className="flex items-start gap-2">
               <span aria-hidden>{getConflictIcon(match.conflictLevel)}</span>

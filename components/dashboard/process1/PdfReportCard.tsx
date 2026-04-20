@@ -4,7 +4,7 @@ import { Card } from "../shared/Card";
 
 export function PdfReportCard() {
   return (
-    <Card title="PDF 보고서" subtitle="파나마 1공정 시장조사 보고서">
+    <Card title="PDF 보고서" subtitle="파나마 1단계 시장조사 보고서">
       <div className="rounded-[13px] bg-inner p-4">
         <p className="text-[12px] leading-relaxed text-muted">
           현재 대시보드 리뉴얼 단계에서는 PDF 다운로드 버튼을 비활성화하고, 기존 보고서 화면으로

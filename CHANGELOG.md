@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-20 (refactor(ui): 공정 용어 → 단계 용어 전면 교체 (STEP16))
+
+### Changed
+- 메인 프리뷰·대시보드·3단계(phase3) UI, 브라우저 타이틀, API JSON 오류 문구, PDF(1·2·3단계 관련) 제목·부제, `todo_store` 기본 라벨, LLM 보고서 스키마·폴백 문구에서 **「N공정」→「N단계」+ 작업 라벨**(예: 1단계·시장조사, 2단계·수출가격 책정, 3단계·파트너 조사)으로 통일. 변수명·파일명·API 경로·내부 주석은 유지.
+- `src/lib/phase3/partners-data.ts` 파일 헤더 주석만 사용자 친화 표현으로 정리.
+
 ## [Unreleased] - 2026-04-20 (style: 대시보드 Topbar 홈 로고 가로형 합성본 반영)
 
 ### Changed

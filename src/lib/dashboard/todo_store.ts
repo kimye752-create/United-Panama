@@ -14,7 +14,7 @@ const KEY_PREFIX = "pa_upharma_todos_v1_";
 const DEFAULT_TODOS: TodoItem[] = [
   {
     id: "default-p1",
-    label: "1공정 · 시장조사 분석",
+    label: "1단계 · 시장조사 분석",
     badge: "자동",
     checked: false,
     isDefault: true,
@@ -30,7 +30,7 @@ const DEFAULT_TODOS: TodoItem[] = [
   },
   {
     id: "default-p2",
-    label: "2공정 · 수출전략 수립",
+    label: "2단계 · 수출가격 책정",
     badge: "예정",
     checked: false,
     isDefault: true,
@@ -38,7 +38,7 @@ const DEFAULT_TODOS: TodoItem[] = [
   },
   {
     id: "default-p3",
-    label: "3공정 · 바이어 발굴",
+    label: "3단계 · 파트너 조사",
     badge: "예정",
     checked: false,
     isDefault: true,

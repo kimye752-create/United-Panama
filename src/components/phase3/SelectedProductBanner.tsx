@@ -26,7 +26,7 @@ export function SelectedProductBanner({ productSlug }: SelectedProductBannerProp
         📌
       </span>
       <div className="min-w-0 flex flex-col gap-0.5">
-        <div className="text-[10px] font-semibold text-[#64748b]">1공정에서 선택한 제품 기준</div>
+        <div className="text-[10px] font-semibold text-[#64748b]">1단계 시장조사에서 선택한 제품 기준</div>
         <div className="text-[13px] font-extrabold text-[#1e293b]">
           {meta.name}
           <span className="ml-2 text-[11px] font-normal text-[#64748b]">({meta.category})</span>

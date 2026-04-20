@@ -149,7 +149,7 @@ export function Phase2Document(props: Phase2PdfProps): React.ReactElement {
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>UPharma 파나마 2공정 · 가격 책정 전략 보고서</Text>
+          <Text style={styles.title}>UPharma 파나마 2단계 · 수출가격 책정 보고서</Text>
           <Text style={styles.subTitle}>
             {marketLabel} · {props.collectedAt} · Case {props.caseGrade}
           </Text>
@@ -209,7 +209,7 @@ export function Phase2Document(props: Phase2PdfProps): React.ReactElement {
         </View>
 
         <View style={styles.footer}>
-          <Text>UPharma Export AI · 2공정 FOB 역산 · Claude Haiku 서술</Text>
+          <Text>UPharma Export AI · 2단계 FOB 역산 · Claude Haiku 서술</Text>
         </View>
       </Page>
     </Document>

@@ -77,7 +77,7 @@ export async function POST(req: Request): Promise<Response> {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: `3공정 파트너 분석 실패: ${message}` },
+      { error: `3단계 파트너 조사 분석 실패: ${message}` },
       { status: 500 },
     );
   }

@@ -30,7 +30,7 @@ export async function GET(): Promise<Response> {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { reports: [], warning: `2공정 보고서 목록 조회 실패: ${message}` },
+      { reports: [], warning: `2단계 수출가격 책정 보고서 목록 조회 실패: ${message}` },
       { status: 200 },
     );
   }

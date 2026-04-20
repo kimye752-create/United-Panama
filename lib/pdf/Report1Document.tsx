@@ -36,7 +36,7 @@ export function Report1Document(props: Report1PdfProps) {
     <Document>
       <Page size="A4" style={pdfStyles.page}>
         <Text style={pdfStyles.titleBar}>
-          UPharma Export AI | 파나마 1공정 시장 분석 보고서
+          UPharma Export AI | 파나마 1단계 시장조사 보고서
         </Text>
         <Text style={pdfStyles.subTitle}>
           파나마 전용 | {props.collectedAt} | 단일 INN 분석 · 5개 블록 구조

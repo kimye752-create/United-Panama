@@ -459,9 +459,9 @@ export function Phase3ReportDocument({ productIdUuid, generatedAt }: Phase3Repor
         <Text style={pageStyles.coverH1}>파나마 파트너 매칭 보고서</Text>
         <Text style={pageStyles.coverDate}>발행일: {dateStr}</Text>
         {meta !== null ? (
-          <Text style={pageStyles.coverLine}>1공정 선택 제품: {meta.name}</Text>
+          <Text style={pageStyles.coverLine}>1단계 시장조사 선택 제품: {meta.name}</Text>
         ) : (
-          <Text style={pageStyles.coverLine}>1공정 선택 제품: (미지정)</Text>
+          <Text style={pageStyles.coverLine}>1단계 시장조사 선택 제품: (미지정)</Text>
         )}
         <Text style={pageStyles.coverSub}>파나마 Top 20 파트너 종합 평가</Text>
         <Text style={pageStyles.pageNum}>1/{String(TOTAL_PAGES)}</Text>

@@ -257,7 +257,7 @@ export function Phase1Section({ onCompleted, onReportGenerated }: Phase1SectionP
           window.alert(
             `PDF 변환 실패 원인: ${
               error instanceof Error ? error.message : "알 수 없는 오류"
-            }\n해결 방법: 1공정 분석을 다시 실행해 PDF를 재생성해 주세요.`,
+            }\n해결 방법: 1단계 시장조사 분석을 다시 실행해 PDF를 재생성해 주세요.`,
           );
         }
       } else {
@@ -281,7 +281,7 @@ export function Phase1Section({ onCompleted, onReportGenerated }: Phase1SectionP
       onCompleted();
     } catch (error: unknown) {
       window.alert(
-        `1공정 분석 실패: ${
+        `1단계 시장조사 분석 실패: ${
           error instanceof Error ? error.message : "알 수 없는 오류"
         }\n해결 방법: 네트워크 연결과 서버 상태를 확인한 뒤 다시 시도해 주세요.`,
       );
@@ -311,11 +311,11 @@ export function Phase1Section({ onCompleted, onReportGenerated }: Phase1SectionP
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[11px] font-black text-white">
-            01
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E3A5F] text-[13px] font-black text-white">
+            1
           </span>
           <div>
-            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">1공정 · 시장조사</h3>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">1단계 · 시장조사</h3>
             <p className="text-[11px] text-[#7a8ba1]">제품 분석 · Claude AI · PDF 보고서 자동 생성</p>
           </div>
         </div>

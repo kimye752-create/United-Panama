@@ -47,7 +47,7 @@ export function ProgressChecklistCard() {
 
   return (
     <Card
-      title="공정 진행 체크리스트"
+      title="단계 진행 체크리스트"
       subtitle={`진행 ${doneCount}/${todos.length}`}
     >
       <div className="space-y-2">

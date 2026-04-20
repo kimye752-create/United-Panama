@@ -40,7 +40,7 @@ export function buildPhase2ReportText(input: BuildPhase2ReportTextInput): string
   const date = fmtDate(input.generatedAt);
   return [
     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-    "파나마 수출 가격 전략 보고서 (2공정)",
+    "파나마 수출 가격 전략 보고서 (2단계 · 수출가격 책정)",
     `${date} · ${input.productName} · 판정: ${input.caseGrade}`,
     "시장: 공공+민간 이원 분석",
     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",

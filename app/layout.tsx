@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UPharma — 파나마 1공정",
+  title: "UPharma — 파나마 1단계 · 시장조사",
   description: "파나마 의약품 시장 분석",
   icons: {
     icon: "/images/united-favicon.png",

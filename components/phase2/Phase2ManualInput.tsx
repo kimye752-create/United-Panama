@@ -83,7 +83,7 @@ export function Phase2ManualInput() {
         }),
       });
       if (!response.ok) {
-        window.alert("2공정 보고서 생성에 실패했습니다.");
+        window.alert("2단계 수출가격 책정 보고서 생성에 실패했습니다.");
         return;
       }
       const data = (await response.json()) as { report?: Phase2ReportPayload };
@@ -142,18 +142,18 @@ export function Phase2ManualInput() {
             reasonText="현재는 기업 실거래 데이터 미수령 상태로 기본 전략 버퍼(저가진입/기준가/프리미엄)를 적용합니다."
           />
           <Phase2WaterfallBlocks scenario={result.baseline} />
-          <Card title="2공정 보고서 생성" subtitle="계산 결과를 5블록 보고서로 변환합니다.">
+          <Card title="2단계 수출가격 책정 보고서 생성" subtitle="계산 결과를 5블록 보고서로 변환합니다.">
             <button
               type="button"
               onClick={() => void onGenerateReport()}
               disabled={reportLoading}
               className="rounded-[10px] bg-navy px-4 py-2 text-[12px] font-extrabold text-white shadow-sh2 transition-colors hover:bg-navy2 disabled:cursor-not-allowed disabled:bg-navy/40"
             >
-              {reportLoading ? "보고서 생성 중..." : "2공정 보고서 생성"}
+              {reportLoading ? "보고서 생성 중..." : "2단계 보고서 생성"}
             </button>
           </Card>
           {report !== null ? (
-            <Card title="2공정 보고서 결과" subtitle="LLM 5블록 출력">
+            <Card title="2단계 수출가격 책정 보고서 결과" subtitle="LLM 5블록 출력">
               <div className="space-y-2">
                 <section className="rounded-[12px] bg-inner p-3 shadow-sh2">
                   <p className="text-[10px] font-extrabold text-muted">BLOCK 1 · 입력 요약</p>

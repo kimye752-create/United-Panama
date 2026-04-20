@@ -28,7 +28,7 @@ export function Report1V3(props: Report1V3Props) {
                 KOREA UNITED PHARM INC.
               </p>
               <h1 className="mt-1 text-xl font-bold text-slate-900">
-                UPharma Export AI | 파나마 1공정 시장 분석 보고서
+                UPharma Export AI | 파나마 1단계 시장조사 보고서
               </h1>
               <p className="mt-2 text-xs text-slate-500">{collectedDate}</p>
               <p className="mt-2 bg-[#2c3e50] px-3 py-2.5 text-sm leading-snug text-white">

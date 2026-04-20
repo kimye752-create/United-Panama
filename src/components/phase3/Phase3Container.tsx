@@ -154,7 +154,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
 
   const runAnalysis = useCallback(async (): Promise<void> => {
     if (productId === null || reportId === "") {
-      setError("먼저 1공정 보고서를 선택해 주세요.");
+      setError("먼저 1단계 시장조사 보고서를 선택해 주세요.");
       return;
     }
 
@@ -232,7 +232,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
 
   const handleDownloadPhase3Pdf = useCallback(async (): Promise<void> => {
     if (productId === null) {
-      window.alert("1공정 보고서를 선택한 뒤 다시 시도해 주세요.");
+      window.alert("1단계 시장조사 보고서를 선택한 뒤 다시 시도해 주세요.");
       return;
     }
     setPdfLoading(true);
@@ -276,7 +276,7 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
             3
           </span>
           <div>
-            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">파트너 매칭 (PSI)</h3>
+            <h3 className="text-[16px] font-extrabold text-[#1f3e64]">3단계 · 파트너 조사 (PSI)</h3>
           </div>
         </div>
         <span className="text-[14px] text-[#516882]">{expanded ? "▲" : "▼"}</span>
@@ -285,29 +285,29 @@ export function Phase3Container({ phase1Complete, phase2Complete, reports }: Pha
       {expanded ? (
         <div className="space-y-3 border-t border-[#edf1f6] px-4 pb-4 pt-3">
           <div>
-            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1공정 보고서 · 실행</p>
+            <p className="mb-1 text-[10.5px] font-semibold text-[#667b95]">1단계 시장조사 보고서 · 실행</p>
             <div className="mb-2 space-y-2">
               {phase1Complete && !phase2Complete ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
                   <div className="mb-1 font-medium text-amber-900">
-                    ✅ 1공정 완료. 지금 파트너 매칭을 실행할 수 있습니다.
+                    ✅ 1단계 완료. 지금 파트너 조사를 실행할 수 있습니다.
                   </div>
                   <div className="text-xs text-amber-700">
-                    💡 2공정(FOB가격 역산)까지 완료하면 파트너와 전략적인 가격협의를 할 수 있습니다.
+                    💡 2단계(수출가격 책정·FOB 역산)까지 완료하면 파트너와 전략적인 가격협의를 할 수 있습니다.
                   </div>
                 </div>
               ) : null}
               {phase1Complete && phase2Complete ? (
                 <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm">
                   <div className="font-medium text-green-900">
-                    ✅ 1·2공정 완료. 전체 맥락이 반영된 파트너 매칭을 실행합니다.
+                    ✅ 1·2단계 완료. 전체 맥락이 반영된 파트너 조사를 실행합니다.
                   </div>
                 </div>
               ) : null}
               {!phase1Complete ? (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
                   <div className="text-slate-700">
-                    📋 시장조사 분석 후 파트너 매칭을 실행할 수 있습니다. 가격책정 분석까지 완료하면 매칭파트너와 전략적인
+                    📋 시장조사 분석 후 파트너 조사를 실행할 수 있습니다. 가격책정 분석까지 완료하면 매칭파트너와 전략적인
                     가격협의를 할 수 있습니다.
                   </div>
                 </div>
