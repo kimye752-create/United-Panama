@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-20 (style: 대시보드 Topbar 홈 로고 가로형 합성본 반영)
+
+### Changed
+- `public/images/logo.png` — 픽셀 아이콘+한 줄 문구(`한국유나이티드제약(주) 해외 영업·마케팅 대시보드`) 합성 PNG(446×75)로 교체.
+- `components/dashboard/Topbar.tsx` — 좌측 홈 영역을 `/` 링크+단일 `Image`로 구성(기존 작은 아이콘+2줄 텍스트 제거). 반응형 높이 `h-8`~`lg:h-10`, 좁은 화면에서 가로 넘침 방지 `max-w`.
+
 ## [Unreleased] - 2026-04-20 (fix(phase3): 매출규모 서술 포맷 변경 (Tier 접두→끝 괄호) (STEP15-F))
 
 ### Changed
