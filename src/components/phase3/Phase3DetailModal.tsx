@@ -17,9 +17,12 @@ interface Phase3DetailModalProps {
   onClose: () => void;
 }
 
-/** 파트너 적합 판정 표시용 — Tier 숫자 접두어만 제거 (점수 산출 내역 서술은 그대로 유지) */
+/** 파트너 적합 판정 표시용 — 맨 앞·맨 끝 Tier 표기 제거 (점수 산출 내역은 원문 그대로 표시) */
 function stripTierPrefix(text: string): string {
-  return text.replace(/^Tier\s+\d+\s*[\(·.]?\s*/i, "").trim();
+  return text
+    .replace(/^Tier\s+\d+\s*[\(·.]?\s*/i, "") // 맨 앞 Tier N · 또는 Tier N ( 제거
+    .replace(/\s*\(Tier\s+\d+\)\s*$/i, "") // 맨 끝 (Tier N) 제거
+    .trim();
 }
 
 function InfoRow({

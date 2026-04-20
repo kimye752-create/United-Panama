@@ -1,5 +1,11 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-20 (fix(phase3): 매출규모 서술 포맷 변경 (Tier 접두→끝 괄호) (STEP15-F))
+
+### Changed
+- `src/lib/phase3/partners-data.ts` — 20개사 `fiveFactorsDescription.revenue`를 표준 문구대로 「본문 서술 … (Tier N)」 형식으로 교체. `revenueScore`·`basePSI`·다른 4요소 서술은 미변경.
+- `src/components/phase3/Phase3DetailModal.tsx` — 파트너 적합 판정용 `stripTierPrefix`에 문자열 맨 끝 `(Tier N)` 제거 단계 추가(점수 산출 내역은 `qualitative` 원문 그대로).
+
 ## [Unreleased] - 2026-04-19 (fix(phase3): PDF italic 에러 해결 + 모달 구조 재정비 + 용어 정리 (STEP15-E))
 
 ### Changed

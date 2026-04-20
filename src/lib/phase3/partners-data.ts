@@ -49,7 +49,7 @@ export interface ProductMatch {
 
 // 신규 v2 필드: 5대 요소 정성 서술
 export interface FiveFactorsDescription {
-  revenue: string;             // "Tier 1 (Hetero 그룹 $2.5bn)"
+  revenue: string;             // "본문 서술 … (Tier N)" — 점수 산출 내역 표기
   manufacturing: string;       // "O (인도 본사 GMP + 파나마 ZLC 허브)"
   pharmacyChain: string;       // "X (B2B 도매 전문)"
   pipeline: string;            // "High (ARV·Oncology·심혈관 풍부)"
@@ -150,7 +150,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '인도 제네릭 글로벌 Top, 126개국 공급망',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Hetero 그룹 연매출 USD 25억+)',
+      revenue: 'Hetero 그룹 연매출 USD 25억+, 인도 제네릭 글로벌 Top (Tier 1)',
       manufacturing: 'O (인도 본사 GMP · 파나마 ZLC Farmazona 창고 직접 운영)',
       pharmacyChain: 'X (B2B 도매·재수출 전문, 소매 체인 미보유)',
       pipeline: 'High (ARV·Oncology·심혈관 단일제 풍부, 복합제 Upgrade 기회)',
@@ -224,7 +224,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '이탈리아 Top 제약, 파나마 27년 직접 운영',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Menarini 그룹 연매출 USD 47억, 유럽 제약 Top 10)',
+      revenue: 'Menarini 그룹 연매출 USD 47억, 이탈리아 · LATAM 전역 법인 보유 (Tier 1)',
       manufacturing: 'O (이탈리아 본사 · 유럽 4개 GMP 공장)',
       pharmacyChain: 'X (약국 체인 운영 안 함, 도매 유통 중심)',
       pipeline: 'Very High (심혈관·호흡기·통증·소화기 전 라인 + 복합제 4건 Upgrade)',
@@ -299,7 +299,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '캐나다 제네릭 Top 5, 115개국 공급망',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Apotex 그룹 연매출 USD 18억+, 캐나다 제네릭 1위)',
+      revenue: 'Apotex 그룹 연매출 USD 18억, 캐나다 제네릭 글로벌 Top (Tier 1)',
       manufacturing: 'O (캐나다 본사 · 토론토 대형 GMP 공장 · FDA 승인 시설)',
       pharmacyChain: 'X (약국 체인 운영 안 함, 도매 유통)',
       pipeline: 'High (스타틴·심혈관·감염증 제네릭 200종+ 라인업)',
@@ -373,7 +373,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '영국 글로벌 Top 5, 파나마 70년 자체 제조',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (GSK 그룹 연매출 USD 380억+, 글로벌 제약 Top 5)',
+      revenue: 'GSK 그룹 연매출 USD 380억, 영국 글로벌 Top 5 (Tier 1)',
       manufacturing: 'O (파나마 직접 GMP 제조 플랜트 70년 운영, MNC 중 유일)',
       pharmacyChain: 'X (약국 체인 미보유, 병원·도매 중심)',
       pipeline: 'Medium (호흡기·백신·HIV 강점, Sereterol Direct Competition)',
@@ -447,7 +447,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 로컬 45년 유통, El Javillo 약국 52개',
     fiveFactorsDescription: {
-      revenue: 'Tier 4 (파나마 로컬 중형, 추정 USD 3천만 수준, 공시 미비)',
+      revenue: 'Haseth 그룹 연매출 USD 4천만, 파나마 로컬 중견 (Tier 4)',
       manufacturing: 'X (제조 시설 미보유, 수입 유통 중심)',
       pharmacyChain: 'O (자체 El Javillo 약국 체인 52개 지점 · Top 20 유일)',
       pipeline: 'Medium (로컬 일반·OTC 유통 풍부, 전문의약품 확장 중)',
@@ -521,7 +521,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '중미 Top 8 제약, Unisalud 약국 네트워크',
     fiveFactorsDescription: {
-      revenue: 'Tier 3 (중미 Top 8 제약, 그룹 연매출 USD 1억+ 추정)',
+      revenue: 'Unipharm 그룹 연매출 USD 1억+, 파나마 로컬 Top (Tier 3)',
       manufacturing: 'O (과테말라 본사 GMP 공장 + 엘살바도르 생산 시설)',
       pharmacyChain: 'O (Unisalud 약국 네트워크 연계, 파나마 소매 강점)',
       pipeline: 'Medium (중미 로컬 심혈관·소화기·진통제 라인)',
@@ -594,7 +594,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '스위스 글로벌 Top 3, Oncology·진단 선도',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Roche 그룹 연매출 USD 680억+, 글로벌 제약 Top 3)',
+      revenue: 'Roche 그룹 연매출 USD 680억, 스위스 글로벌 Top 3 (Tier 1)',
       manufacturing: 'O (스위스·독일·미국 등 글로벌 GMP 생산 시설)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통 중심)',
       pipeline: 'Low (제네릭 미주력, Hydrine·Gadvoa 일부 Adjacent)',
@@ -667,7 +667,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '콜롬비아 MK 브랜드, 중남미 교차 마케팅',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Tecnoquímicas 그룹 연매출 USD 6억, 콜롬비아 LATAM Top)',
+      revenue: 'Tecnoquímicas 그룹 연매출 USD 6억, 콜롬비아 LATAM Top (Tier 2)',
       manufacturing: 'O (콜롬비아 본사 GMP 공장, MK 브랜드 제조)',
       pharmacyChain: 'X (약국 체인 미운영, 도매 유통 중심)',
       pipeline: 'Medium (Cardiolat 심혈관 + MK 소화기 라인 + Rosumeg·Atmeg 2건 Upgrade)',
@@ -740,7 +740,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 로컬 심혈관 전문, 자체 RosuMed 보유',
     fiveFactorsDescription: {
-      revenue: 'Tier 4 (파나마 로컬 중소, 자체 브랜드 RosuMed 보유, 추정 USD 2천만)',
+      revenue: 'Medipan 그룹 연매출 USD 4천만, 파나마 로컬 중견 (Tier 4)',
       manufacturing: 'X (자체 제조 시설 미보유, 수입 유통)',
       pharmacyChain: 'X (약국 체인 미운영)',
       pipeline: 'Medium (심혈관 전문 + 자체 Rosuvastatin 브랜드)',
@@ -813,7 +813,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '독일 글로벌 Top 10, Gadvoa 원개발사',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Bayer 그룹 연매출 USD 510억+, 글로벌 제약 Top 10)',
+      revenue: 'Bayer 그룹 연매출 USD 500억, 독일 글로벌 Top 10 (Tier 1)',
       manufacturing: 'O (독일·미국 등 글로벌 GMP 공장 + 조영제 전용 시설)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·도매 중심)',
       pipeline: 'Low (Gadavist Direct Competition + Xarelto·Nexavar 강점)',
@@ -886,7 +886,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '스위스 글로벌 Top 5, CML Gleevec 1위',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Novartis 그룹 연매출 USD 500억+, 글로벌 제약 Top 5)',
+      revenue: 'Novartis 그룹 연매출 USD 475억, 스위스 글로벌 Top 5 (Tier 1)',
       manufacturing: 'O (스위스·독일·미국 등 글로벌 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통 중심)',
       pipeline: 'Low (혁신 신약 중심, Hydrine 1건 Adjacent)',
@@ -959,7 +959,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '프랑스 글로벌 Top 5, Plavix 항혈전 표준',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Sanofi 그룹 연매출 USD 460억+, 글로벌 제약 Top 5)',
+      revenue: 'Sanofi 그룹 연매출 USD 480억, 프랑스 글로벌 Top 5 (Tier 1)',
       manufacturing: 'O (프랑스·독일·미국 글로벌 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통)',
       pipeline: 'Low (혁신 신약 중심, Ciloduo 1건 Adjacent)',
@@ -1032,7 +1032,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '미국 매출 Top 1, ZLC 재수출 허브',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Pfizer 그룹 연매출 USD 580억+, 글로벌 제약 매출 Top 1)',
+      revenue: 'Pfizer 그룹 연매출 USD 580억, 미국 글로벌 Top 3 (Tier 1)',
       manufacturing: 'O (미국·유럽 GMP 공장 + ZLC 재수출 거점)',
       pharmacyChain: 'X (약국 체인 미운영)',
       pipeline: 'Low (혁신 신약·백신 중심, Atmeg 1건 Adjacent)',
@@ -1105,7 +1105,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '미국 글로벌 Top 5, Keytruda 면역항암',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (MSD 그룹 연매출 USD 640억+, 글로벌 제약 Top 5)',
+      revenue: 'MSD(Merck) 그룹 연매출 USD 620억, 미국 글로벌 Top 3 (Tier 1)',
       manufacturing: 'O (미국·유럽 등 글로벌 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·전문 유통)',
       pipeline: 'Low (혁신 신약·백신 중심, Hydrine·Atmeg 2건 Adjacent)',
@@ -1178,7 +1178,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: 'LATAM Big 3, 20개국+ 유통망',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Bagó 그룹 연매출 USD 10억+, LATAM Big 3 제약)',
+      revenue: 'Bagó 그룹 연매출 USD 10억+, 아르헨티나 LATAM Big 3 (Tier 1)',
       manufacturing: 'O (아르헨티나 본사 GMP 공장 + 우루과이 생산)',
       pharmacyChain: 'X (약국 체인 미운영, 도매 유통)',
       pipeline: 'Medium (심혈관·소화기·항생제 + Rosumeg·Atmeg Upgrade)',
@@ -1251,7 +1251,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '멕시코 병원 채널 강자, Oncology 전문',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (PiSA 그룹 LATAM 병원 채널, 그룹 연매출 USD 5억 수준)',
+      revenue: 'PiSA 그룹 연매출 USD 8.5억, 멕시코 LATAM 중견 (Tier 2)',
       manufacturing: 'O (멕시코 본사 GMP 공장, 병원 수액 전문 생산)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·특수 채널)',
       pipeline: 'Medium (Oncology·신장학·수액, Hydrine 1건 Upgrade)',
@@ -1324,7 +1324,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '미국 병원 수액·의료기기 글로벌',
     fiveFactorsDescription: {
-      revenue: 'Tier 1 (Baxter 그룹 연매출 USD 150억+, 병원 수액 글로벌 Top)',
+      revenue: 'Baxter 그룹 연매출 USD 150억, 미국 글로벌 의료기기·수액 (Tier 1)',
       manufacturing: 'O (미국·유럽 GMP 공장 + 수액·의료기기 전용 시설)',
       pharmacyChain: 'X (약국 체인 미운영, 병원·의료기관 중심)',
       pipeline: 'Low (수액·의료기기 중심, Gadvoa 1건 Adjacent)',
@@ -1397,7 +1397,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 Grupo Motta, 약국·슈퍼마켓 유통',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Grupo Motta 계열 대형 유통, 파나마 주요 그룹 추정 USD 3억+)',
+      revenue: 'Motta 그룹 연매출 USD 8억, 파나마 유통 대기업 (Tier 2)',
       manufacturing: 'X (제조 시설 미보유, 순수 유통 전문)',
       pharmacyChain: 'O (약국·슈퍼마켓·대형마트 소비재 채널 60점)',
       pipeline: 'Low (소비재·OTC 중심, Rx 복합제 전문성 제한)',
@@ -1470,7 +1470,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '파나마 로컬 소형 유통, 보조 파트너군',
     fiveFactorsDescription: {
-      revenue: 'Tier 5 (파나마 로컬 중소, 매출 규모 USD 1천만 미만 추정)',
+      revenue: 'Sequisa 연매출 USD 900만 추정, 파나마 소규모 (Tier 5)',
       manufacturing: 'X (제조 시설 미보유)',
       pharmacyChain: 'X (약국 체인 미운영)',
       pipeline: 'Low (전문 포트폴리오 제한, 일반 제네릭 유통)',
@@ -1543,7 +1543,7 @@ export const PARTNERS: Partner[] = [
 
     oneLineIntro: '프랑스 조영제 전문, Gadvoa 경쟁사',
     fiveFactorsDescription: {
-      revenue: 'Tier 2 (Guerbet 그룹 연매출 USD 8.6억+, 조영제 글로벌 Top 3)',
+      revenue: 'Guerbet 그룹 연매출 USD 8.6억, 프랑스 조영제 전문 (Tier 2)',
       manufacturing: 'O (프랑스 본사 조영제 전용 GMP 공장)',
       pharmacyChain: 'X (약국 체인 미운영, 병원 조영제 전문)',
       pipeline: 'Low (조영제 단일 카테고리, Gadvoa Direct Competition)',
