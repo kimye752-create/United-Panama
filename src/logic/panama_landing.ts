@@ -191,6 +191,15 @@ function buildStatistaMarketCard(): PanamaLandingMetricCard {
   };
 }
 
+function buildImportDependencyCard(): PanamaLandingMetricCard {
+  return {
+    label: "의약품 국가 수입 의존도",
+    value: "~90%",
+    footer: "KOTRA / ITA (2024)",
+    hasData: true,
+  };
+}
+
 export async function getPanamaLandingMetricCards(): Promise<
   readonly PanamaLandingMetricCard[]
 > {
@@ -272,14 +281,14 @@ export async function getPanamaLandingMetricCards(): Promise<
       // 기존 DB 값은 참고 로그만 유지하고, UI 표시는 Statista 대표 수치로 고정합니다.
       void readYoYFromNotes(marketRow.pa_notes);
     }
-    return [gdpCard, populationCard, marketCard, cagrCard] as const;
+    return [gdpCard, populationCard, marketCard, buildImportDependencyCard()] as const;
   } catch {
     // 외부 DB 연결 실패 시에도 레이아웃이 깨지지 않도록 기본 카드로 반환합니다.
     return [
       buildImfGdpCard(),
       buildFallbackCard("인구"),
       buildStatistaMarketCard(),
-      buildFallbackCard("실질 성장률"),
+      buildImportDependencyCard(),
     ] as const;
   }
 }
