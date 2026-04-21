@@ -11,6 +11,7 @@ export interface ReportFlowProduct {
   name: string;
   ingredient: string;
   category: string;
+  displayLabel?: string;   // 드롭다운 표기 — 지정된 정확한 문구
 }
 
 interface Props {
@@ -153,7 +154,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
               <option value="">품목을 선택하세요</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
-                  [{p.category}] {p.name} · {p.ingredient}
+                  {p.displayLabel ?? `[${p.category}] ${p.name} · ${p.ingredient}`}
                 </option>
               ))}
             </select>

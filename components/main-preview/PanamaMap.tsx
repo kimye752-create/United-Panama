@@ -43,15 +43,16 @@ export function PanamaMap() {
           .addTo(map)
           .bindPopup("Panama City (Panama)");
         // 지도 컨테이너 크기 변경 시 타일 레이어를 다시 맞춰 하단 깨짐을 방지합니다.
+        // disposed 플래그 체크 — 언마운트 후 invalidateSize 호출 방지
         const resizeObserver = new ResizeObserver(() => {
-          map.invalidateSize();
+          if (!disposed) map.invalidateSize();
         });
         resizeObserver.observe(mapRef.current);
         window.setTimeout(() => {
-          map.invalidateSize();
+          if (!disposed) map.invalidateSize();
         }, 0);
         window.setTimeout(() => {
-          map.invalidateSize();
+          if (!disposed) map.invalidateSize();
         }, 180);
         initializedRef.current = true;
         cleanup = () => {
