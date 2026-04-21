@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
 import { getStoredReports } from "@/src/lib/dashboard/reports_store";
 
+import { CombinedReportWorkspace } from "./CombinedReportWorkspace";
 import { Phase1Section } from "./Phase1Section";
 import { Phase2Section } from "./Phase2Section";
 import { Phase3Section } from "./Phase3Section";
@@ -66,6 +67,7 @@ export function MainPreviewSections() {
         }}
       />
       <Phase3Section phase1Complete={phase1Done} phase2Complete={phase2Done} reports={reports} />
+      <CombinedReportWorkspace />
     </section>
   );
 }

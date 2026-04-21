@@ -13,6 +13,9 @@ build/
 coverage/
 .supabase/
 
+# Supabase 로컬 SQL 덤프(용량·민감 데이터 — 필요 시 수동으로만 커밋)
+/backups/*.sql
+
 # 민감 파일
 **/secrets.*
 **/*.secret.*

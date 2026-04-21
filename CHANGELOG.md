@@ -1,5 +1,66 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-21 (feat: Service Role admin 클라이언트 + Storage 권한 강화 — Claude Code CLI)
+
+### Added
+- `lib/supabase/admin.ts` — `createSupabaseAdmin()` 신규. `SUPABASE_SERVICE_ROLE_KEY` 우선 사용, 미설정 시 anon key 폴백.
+- `.env.example` — `SUPABASE_SERVICE_ROLE_KEY` 항목·취득 가이드 추가.
+- `.env.local` — `SUPABASE_SERVICE_ROLE_KEY` 주석 추가 (실제 키는 Supabase 대시보드에서 수동 입력 필요).
+
+### Changed
+- `src/logic/reports/combined_generator.ts` — Storage 업로드를 `createSupabaseAdmin()` 으로 전환(service_role 키 필요).
+- `app/api/panama/report/combined/route.ts` — Storage 다운로드를 `createSupabaseAdmin()` 으로 전환.
+- `app/api/panama/report/[type]/[id]/pdf/route.ts` — 동일.
+
+### Note
+- Storage 버킷 `reports` 정책이 Service Role 전용인 경우, `SUPABASE_SERVICE_ROLE_KEY` 미설정 시 PDF 다운로드 실패 가능. `.env.local` 에 키 추가 필요.
+
+## [Unreleased] - 2026-04-21 (ops: 세션31 Supabase MCP — Storage reports 버킷 + RLS)
+
+### Changed
+- Supabase (MCP): `storage.buckets`에 `reports` 신규 생성(public=false, file_size_limit=52428800, allowed_mime_types=application/pdf). `storage.objects`에 정책 `Service role full access to reports bucket` 생성.
+
+### Note
+- `scripts/logs/session31_snapshot_20260421_1045.json` — Step 2 행 수 집계는 `panama_partner_psi_precomputed` 테이블 미존재로 SQL 실패, 오류 원문만 기록.
+
+## [Unreleased] - 2026-04-21 (feat: Combined Report System 리팩토링 — 지시서 CURSOR_지시서_결합보고서_리팩토링.md)
+
+### Added
+- **DB (Supabase migration 적용됨)**: `panama_report_session`, `reports` 테이블, 인덱스·`can_download_combined` 생성 컬럼·`update_updated_at_column` 트리거. DDL 사본: `scripts/ddl/panama_report_session.sql`, `scripts/ddl/reports_table.sql`.
+- **타입**: `src/types/report_session.ts` — `ReportType`, `ReportSession`, `Report`, `GeneratedReportListItem`.
+- **Supabase 서버 별칭**: `lib/supabase/server.ts` — `createClient` = 기존 `createSupabaseServer`.
+- **로직**: `src/logic/reports/market_generator.ts`, `pricing_generator.ts`, `partner_generator.ts`, `combined_generator.ts`, `serialize_market_analysis.ts`, `render_combined_pdf.ts`.
+- **PDF**: `components/reports/CombinedReportDocument.tsx` — 섹션 제목 「1. 시장조사 분석」「2. 수출가격 전략」「3. 파트너 발굴 및 매칭」·「공정」 표현 미사용.
+- **API**: `POST /api/panama/report/session/init`, `POST .../pricing`, `POST .../partner`, `GET .../session/[sessionId]`, `GET .../session/[sessionId]/list`, `GET .../report/combined?session_id=`, `GET .../report/[type]/[id]/pdf`, `DELETE .../report/delete/[id]`.
+- **UI**: `CombinedReportWorkspace`, `PricingSection`, `MarketSegmentTabs`, `PricingCards`, `PartnerSection`, `ReportListPanel` — 메인 프리뷰 상단에 결합 세션(베타) 블록 추가.
+
+### Changed
+- `components/main-preview/MainPreviewSections.tsx` — `CombinedReportWorkspace` 삽입(기존 1·2·3단계 섹션은 유지).
+
+### Architecture / Safety
+- Next.js 14에서는 `after()` 미사용 — 파트너 API 응답 후 결합본은 `void` 비동기 IIFE로 트리거(서버리스에서 완료 보장은 인프라 의존). 실패 시 `GET /api/panama/report/combined` 즉석 생성으로 폴백.
+- 개별 보고서 행 삭제 API는 동적 라우트 충돌 방지를 위해 **`DELETE /api/panama/report/delete/[id]`** (지시서의 `DELETE .../report/[id]` 와 경로 상이).
+- Supabase Storage **`reports` 버킷**은 대시보드에서 수동 생성·정책 설정 필요(로컬 빌드만으로는 검증 불가).
+
+## [Unreleased] - 2026-04-21 (ops: Supabase 스냅샷 pre-combined-report-refactor)
+
+### Added
+- `backups/row_counts_20260421.txt` — public 테이블별 `COUNT(*)` 기록(MCP). `products`·`panama_pipeline`·`report_cache` 테이블명은 스키마에 없음(유사: `panama_report_cache`).
+- `scripts/backup_supabase_public_dump.ts` — Docker `postgres:16`으로 `pg_dump --schema=public` 로컬 저장용(`.env`에 `DATABASE_URL` 또는 `SUPABASE_DB_PASSWORD` 필요).
+
+### Changed
+- `.env.example` — `SUPABASE_DB_PASSWORD` / `DATABASE_URL` 선택 주석 추가.
+- `.gitignore` — `backups/*.sql` 제외(덤프 파일 실수 커밋 방지).
+
+### Note
+- 로컬 `.sql` 덤프는 저장소에 DB 비밀번호가 없어 **이 환경에서 미생성**. 비밀번호 설정 후 `npx tsx scripts/backup_supabase_public_dump.ts` 재실행. 대시보드 **Create manual backup**은 대시보드에서 수동 수행.
+
+## [Unreleased] - 2026-04-21 12:00 (style(topbar): 로고 합성본 롤백 + 회사명·대시보드명 2줄)
+
+### Changed
+- `public/images/logo.png` — 커밋 `05c2ab6` 이전 픽셀 아이콘 PNG로 복원(가로 한 장 합성 이미지 제거).
+- `components/dashboard/Topbar.tsx` — 좌측 브랜드를 픽셀 로고 + `한국유나이티드제약(주)`(상·작게)·`해외 영업·마케팅 대시보드`(하·강조) 2줄로 구성. 홈 `Link`·파나마 배지는 기존과 동일.
+
 ## [Unreleased] - 2026-04-20 (refactor(ui): 공정 용어 → 단계 용어 전면 교체 (STEP16))
 
 ### Changed
@@ -1975,5 +2036,36 @@
   - `BaseCrawler`를 상속. `fetchHtml(url, extraHeaders?)` 보호 메서드 제공.
   - 요청 전 1,500~3,000ms 랜덤 딜레이 + 5종 User-Agent 랜덤 선택 (Polite Scraping 기법 ⑦ 기초).
   - axios GET → `cheerio.load()` → `CheerioAPI` 반환. 실패 시 한국어 에러 throw.
+
+- **DB 스키마 변경:** 없음.
+
+---
+
+### 변경 시각 (로컬)
+
+- **2026-04-20 17:35** — 크롤링 기능 현황 조사 리포트 문서화
+
+### 변경 내용
+
+- **파일:** `docs/crawling_status_report.md`
+  - 프로젝트 전수 스캔 결과를 기반으로 크롤러 구현 상태(동작 가능/비활성/미구현), 신선도(TTL) 로직, 워크플로우 트리거, 저장 테이블, 외부 의존성, 중단 원인, 복구 난이도를 정리.
+  - 발표 D-5 기준 시연 가능 범위와 권장 데모 경로(환율/ACODECO/선택 재수집) 포함.
+  - 코드 변경 없이 조사/분석 결과만 기록.
+
+- **DB 스키마 변경:** 없음.
+
+---
+
+### 변경 시각 (로컬)
+
+- **2026-04-20 16:22:51 +09:00** — 프로젝트 전체 현황 종합 리포트(1·2·3단계 플로우 + DB 실측 + 크롤러 매트릭스) 작성
+
+### 변경 내용
+
+- **파일:** `docs/project_reality_report_20260420.md`
+  - 1단계/2단계/3단계 각각에 대해 사용자 클릭 지점, API 라우트, 내부 실행 순서(DB 조회·크롤링·LLM·캐시), 렌더링·PDF 경로를 코드 기준으로 정리.
+  - Supabase 실측 데이터(테이블별 행수/최신시각, `panama`의 `pa_source` 분포, 8개 제품 커버리지)를 표로 정리.
+  - 19개 크롤러에 대해 코드 구현 상태/실행 방식/최근 성공 시점/현재 DB 건수를 교차 매트릭스로 정리.
+  - 실시간 크롤링 발생 여부(1단계 분석, 환율/뉴스 새로고침, 2·3단계 실행)를 액션별로 명시하고, 발표 시연 권장 시나리오를 제안.
 
 - **DB 스키마 변경:** 없음.
