@@ -14,11 +14,11 @@ export function Topbar() {
       >
         <div className="flex min-w-0 items-center gap-3">
           <Image
-            src="/images/logo.png"
+            src="/images/united-favicon.png"
             alt=""
-            width={38}
-            height={38}
-            className="h-[38px] w-[38px] flex-shrink-0 object-contain"
+            width={32}
+            height={32}
+            className="h-8 w-8 flex-shrink-0 object-contain"
             priority
             aria-hidden
           />
