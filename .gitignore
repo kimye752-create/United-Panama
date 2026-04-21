@@ -18,6 +18,9 @@ coverage/
 
 # 민감 파일
 **/secrets.*
+
+# MCP 설정 (PAT 토큰 포함 — 절대 커밋 금지)
+.mcp.json
 **/*.secret.*
 
 # 임시
