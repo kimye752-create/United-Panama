@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
   { href: "/", label: "메인 프리뷰" },
-  { href: "/analysis", label: "시장 분석" },
+  { href: "/analysis", label: "시장조사 분석" },
 ] as const;
 
 export function TopbarTabs() {
