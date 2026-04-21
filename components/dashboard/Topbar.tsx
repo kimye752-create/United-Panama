@@ -22,14 +22,9 @@ export function Topbar() {
             priority
             aria-hidden
           />
-          <div className="flex min-w-0 flex-col gap-0.5 leading-[1.2]">
-            <span className="text-[13px] font-medium tracking-[-0.02em] text-slate-600">
-              한국유나이티드제약(주)
-            </span>
-            <span className="text-[15px] font-extrabold tracking-[-0.03em] text-navy">
-              해외 영업·마케팅 대시보드
-            </span>
-          </div>
+          <span className="whitespace-nowrap text-[15px] font-extrabold tracking-[-0.02em] text-navy">
+            한국유나이티드제약(주) 해외 영업·마케팅 대시보드
+          </span>
         </div>
       </Link>
 
