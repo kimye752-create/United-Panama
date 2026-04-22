@@ -22,12 +22,12 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
   };
 }
 
-/** 4개 매크로 카드 공통 — 제목·수치 가독성 (출처 줄은 기존 작은 회색 유지) */
+/** 4개 매크로 카드 공통 — 팀장 사이트 기준: 제목·출처 가운데 정렬 */
 const MACRO_TITLE_CLASS =
-  "text-left text-[13px] font-bold leading-tight text-[#1E293B]";
+  "text-center text-[13px] font-semibold leading-tight text-[#64748b]";
 const MACRO_VALUE_CLASS =
-  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[30px] sm:text-[36px]";
-const MACRO_DETAIL_LINE_CLASS = "text-[15px] font-bold leading-tight text-[#1E3A5F]";
+  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[30px] sm:text-[38px]";
+const MACRO_DETAIL_LINE_CLASS = "text-center text-[15px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
   const normalizedCards = cards.map((card) => normalizeGdpCard(card));
@@ -52,7 +52,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                     ))}
                   </div>
                 </div>
-                <p className="mt-1 w-full text-right text-[11px] leading-tight text-[#8b97aa]">
+                <p className="mt-1 w-full text-center text-[11px] leading-tight text-[#8b97aa]">
                   {card.sourceNote ?? card.footer}
                 </p>
               </>
@@ -61,7 +61,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-0">
                   <p className={MACRO_VALUE_CLASS}>{card.value}</p>
                 </div>
-                <p className="mt-1 w-full text-right text-[11px] leading-tight text-[#8b97aa]">
+                <p className="mt-1 w-full text-center text-[11px] leading-tight text-[#8b97aa]">
                   {card.footer}
                   {card.yoy !== undefined ? ` · ${card.yoy}` : ""}
                 </p>

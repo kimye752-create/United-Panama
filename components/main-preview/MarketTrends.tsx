@@ -125,9 +125,9 @@ export function MarketTrends() {
           ↻ 새로고침
         </button>
       </div>
-      <div className="flex flex-1 flex-col divide-y divide-[#edf0f5]">
+      <div className="flex flex-1 flex-col space-y-4">
         {items.length === 0 && !loading ? (
-          <p className="py-4 text-[13px] text-[#6e7f95]">
+          <p className="text-[13px] text-[#6e7f95]">
             시장 동향 데이터가 준비 중입니다.
           </p>
         ) : (
@@ -145,7 +145,7 @@ export function MarketTrends() {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block py-4 transition-opacity hover:opacity-70"
+                  className="block transition-opacity hover:opacity-70"
                 >
                   {rowContent}
                 </a>
@@ -154,7 +154,6 @@ export function MarketTrends() {
             return (
               <article
                 key={`${item.headline}-${String(index)}`}
-                className="py-4"
               >
                 {rowContent}
               </article>
