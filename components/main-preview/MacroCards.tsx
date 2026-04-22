@@ -33,12 +33,12 @@ export function MacroCards({ cards }: MacroCardsProps) {
   const normalizedCards = cards.map((card) => normalizeGdpCard(card));
 
   return (
-    <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       {normalizedCards.map((card) => {
         return (
           <article
             key={card.label}
-            className="flex min-h-0 flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-6 py-5 shadow-sh2"
+            className="flex min-h-[130px] flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-6 py-6 shadow-sh2"
           >
             <p className={MACRO_TITLE_CLASS}>{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (

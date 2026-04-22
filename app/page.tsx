@@ -14,9 +14,9 @@ export default async function HomePage() {
   const cards = await getPanamaLandingMetricCards();
   return (
     <DashboardShell>
-      <div className="space-y-3.5">
+      <div className="space-y-5">
         <MacroCards cards={cards} />
-        <section className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
+        <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <PanamaMap />
           <MarketTrends />
         </section>
