@@ -49,7 +49,7 @@ export function buildPhase2FallbackReport(input: Phase2FallbackInput): Phase2Rep
       300,
     ),
     block3_scenarios: fit(
-      `공격 시나리오 FOB ${agg.fob.fobUsd.toFixed(2)} USD(CFR ${agg.incoterms.cfrUsd.toFixed(2)}), 기준 시나리오 FOB ${baseline.fob.fobUsd.toFixed(2)} USD(CFR ${baseline.incoterms.cfrUsd.toFixed(2)}), 보수 시나리오 FOB ${cons.fob.fobUsd.toFixed(2)} USD(CFR ${cons.incoterms.cfrUsd.toFixed(2)}). 공격은 협상 상단가, 기준은 일반 계약가, 보수는 마지노선 방어가로 사용합니다.`,
+      `저가 진입 시나리오 FOB ${agg.fob.fobUsd.toFixed(2)} USD(CFR ${agg.incoterms.cfrUsd.toFixed(2)}), 기준 시나리오 FOB ${baseline.fob.fobUsd.toFixed(2)} USD(CFR ${baseline.incoterms.cfrUsd.toFixed(2)}), 프리미엄 시나리오 FOB ${cons.fob.fobUsd.toFixed(2)} USD(CFR ${cons.incoterms.cfrUsd.toFixed(2)}). 저가 진입은 시장 선점 진입가, 기준은 일반 계약가, 프리미엄은 고부가 포지셔닝가로 사용합니다.`,
       30,
       450,
     ),

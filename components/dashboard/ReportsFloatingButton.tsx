@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { GeneratedReportsList } from "./reports/GeneratedReportsList";
+import { SessionReportsList } from "./reports/SessionReportsList";
 
 export function ReportsFloatingButton() {
   const [open, setOpen] = useState(false);
@@ -57,7 +57,7 @@ export function ReportsFloatingButton() {
         <div className="flex items-center justify-between border-b border-[#dde5f0] bg-white px-5 py-4">
           <div>
             <p className="text-[15px] font-extrabold text-navy">보고서 탭</p>
-            <p className="mt-0.5 text-[12px] text-[#7a8fa8]">생성된 분석 보고서 전체 목록</p>
+            <p className="mt-0.5 text-[12px] text-[#7a8fa8]">P1 시장조사 · P2 가격전략 · P3 바이어 · 최종 PDF</p>
           </div>
           <button
             type="button"
@@ -84,7 +84,7 @@ export function ReportsFloatingButton() {
 
         {/* 패널 콘텐츠 */}
         <div className="flex-1 overflow-y-auto p-5">
-          <GeneratedReportsList />
+          <SessionReportsList />
         </div>
       </aside>
     </>

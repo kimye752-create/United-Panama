@@ -12,7 +12,7 @@ const KRW_PER_USD = 1473.1;
 interface ScenarioCard {
   rank: 1 | 2 | 3;
   scenario: Phase2Scenario;
-  label: "공격" | "평균" | "보수";
+  label: "저가 진입" | "기준" | "프리미엄";
   price_pab: number;
   price_usd: number;
   price_krw: number;
@@ -23,9 +23,9 @@ interface ScenarioCard {
 
 interface MarketResult {
   scenarios: {
-    aggressive: ScenarioCard;
-    average: ScenarioCard;
-    conservative: ScenarioCard;
+    agg: ScenarioCard;
+    avg: ScenarioCard;
+    cons: ScenarioCard;
   };
   logic: string;
   formula: string;
@@ -33,15 +33,15 @@ interface MarketResult {
 
 function toRankLabel(scenario: Phase2Scenario): {
   rank: 1 | 2 | 3;
-  label: "공격" | "평균" | "보수";
+  label: "저가 진입" | "기준" | "프리미엄";
 } {
   if (scenario === "agg") {
-    return { rank: 1, label: "공격" };
+    return { rank: 1, label: "저가 진입" };
   }
   if (scenario === "avg") {
-    return { rank: 2, label: "평균" };
+    return { rank: 2, label: "기준" };
   }
-  return { rank: 3, label: "보수" };
+  return { rank: 3, label: "프리미엄" };
 }
 
 function scenarioToCard(row: ScenarioRow): ScenarioCard {
@@ -71,9 +71,9 @@ function toMarketResult(
   }
   return {
     scenarios: {
-      aggressive: byScenario.get("agg") ?? scenarioToCard(scenarios[0] as ScenarioRow),
-      average: byScenario.get("avg") ?? scenarioToCard(scenarios[0] as ScenarioRow),
-      conservative: byScenario.get("cons") ?? scenarioToCard(scenarios[0] as ScenarioRow),
+      agg:  byScenario.get("agg")  ?? scenarioToCard(scenarios[0] as ScenarioRow),
+      avg:  byScenario.get("avg")  ?? scenarioToCard(scenarios[0] as ScenarioRow),
+      cons: byScenario.get("cons") ?? scenarioToCard(scenarios[0] as ScenarioRow),
     },
     logic:
       segment === "public"

@@ -17,6 +17,13 @@ export interface SessionListItem {
   marketCompleted: boolean;
   pricingCompleted: boolean;
   partnerCompleted: boolean;
+  combinedCompleted: boolean;
+  // report IDs (null if not yet generated)
+  marketReportId: string | null;
+  pricingPublicReportId: string | null;
+  pricingPrivateReportId: string | null;
+  partnerReportId: string | null;
+  combinedReportId: string | null;
 }
 
 export async function GET(req: Request): Promise<Response> {
@@ -28,7 +35,7 @@ export async function GET(req: Request): Promise<Response> {
 
     let query = supabase
       .from("panama_report_session")
-      .select("id, product_id, created_at, market_report_id, pricing_completed_at, partner_completed_at")
+      .select("id, product_id, created_at, market_report_id, pricing_public_report_id, pricing_private_report_id, partner_report_id, combined_report_id, pricing_completed_at, partner_completed_at, combined_generated_at")
       .not("market_report_id", "is", null)
       .order("created_at", { ascending: false })
       .limit(30);
@@ -45,14 +52,21 @@ export async function GET(req: Request): Promise<Response> {
 
     const items: SessionListItem[] = (data ?? []).map((row) => {
       const product = findProductById(row.product_id as string);
+      const r = row as Record<string, unknown>;
       return {
-        sessionId: row.id as string,
-        productId: row.product_id as string,
-        productName: product?.kr_brand_name ?? row.product_id as string,
-        createdAt: row.created_at as string,
-        marketCompleted: row.market_report_id !== null,
-        pricingCompleted: row.pricing_completed_at !== null,
-        partnerCompleted: row.partner_completed_at !== null,
+        sessionId: r["id"] as string,
+        productId: r["product_id"] as string,
+        productName: product?.kr_brand_name ?? (r["product_id"] as string),
+        createdAt: r["created_at"] as string,
+        marketCompleted: r["market_report_id"] !== null,
+        pricingCompleted: r["pricing_completed_at"] !== null,
+        partnerCompleted: r["partner_completed_at"] !== null,
+        combinedCompleted: r["combined_generated_at"] !== null,
+        marketReportId: typeof r["market_report_id"] === "string" ? r["market_report_id"] : null,
+        pricingPublicReportId: typeof r["pricing_public_report_id"] === "string" ? r["pricing_public_report_id"] : null,
+        pricingPrivateReportId: typeof r["pricing_private_report_id"] === "string" ? r["pricing_private_report_id"] : null,
+        partnerReportId: typeof r["partner_report_id"] === "string" ? r["partner_report_id"] : null,
+        combinedReportId: typeof r["combined_report_id"] === "string" ? r["combined_report_id"] : null,
       };
     });
 

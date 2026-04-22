@@ -329,13 +329,17 @@ async function saveCache(items: readonly PanamaDashboardNewsItem[]): Promise<voi
 }
 
 // ─── 메인 export ──────────────────────────────────────────────
-export async function fetchPanamaDashboardNews(): Promise<PanamaDashboardNewsPayload> {
+export async function fetchPanamaDashboardNews(
+  forceRefresh = false,
+): Promise<PanamaDashboardNewsPayload> {
   const generatedAt = new Date().toISOString();
 
-  // 1. 캐시 확인 (12시간)
-  const cached = await loadCache();
-  if (cached !== null) {
-    return { items: cached, generated_at: generatedAt, source: "cache" };
+  // 1. 캐시 확인 (12시간) — force=true 이면 캐시 우회
+  if (!forceRefresh) {
+    const cached = await loadCache();
+    if (cached !== null) {
+      return { items: cached, generated_at: generatedAt, source: "cache" };
+    }
   }
 
   // 2. API 키 확인
