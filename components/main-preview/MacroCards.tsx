@@ -24,10 +24,10 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
 
 /** 4개 매크로 카드 공통 — 제목·수치 가독성 (출처 줄은 기존 작은 회색 유지) */
 const MACRO_TITLE_CLASS =
-  "text-left text-[11px] font-bold leading-tight text-[#1E293B]";
+  "text-left text-[13px] font-bold leading-tight text-[#1E293B]";
 const MACRO_VALUE_CLASS =
-  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[22px] sm:text-[26px]";
-const MACRO_DETAIL_LINE_CLASS = "text-[12px] font-bold leading-tight text-[#1E3A5F]";
+  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[30px] sm:text-[36px]";
+const MACRO_DETAIL_LINE_CLASS = "text-[15px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
   const normalizedCards = cards.map((card) => normalizeGdpCard(card));
@@ -38,7 +38,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
         return (
           <article
             key={card.label}
-            className="flex min-h-0 flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-4 py-3 shadow-sh2"
+            className="flex min-h-0 flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-6 py-5 shadow-sh2"
           >
             <p className={MACRO_TITLE_CLASS}>{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (
@@ -52,7 +52,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                     ))}
                   </div>
                 </div>
-                <p className="mt-0.5 w-full text-right text-[9px] leading-tight text-[#8b97aa]">
+                <p className="mt-1 w-full text-right text-[11px] leading-tight text-[#8b97aa]">
                   {card.sourceNote ?? card.footer}
                 </p>
               </>
@@ -61,7 +61,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-0">
                   <p className={MACRO_VALUE_CLASS}>{card.value}</p>
                 </div>
-                <p className="mt-0.5 w-full text-right text-[9px] leading-tight text-[#8b97aa]">
+                <p className="mt-1 w-full text-right text-[11px] leading-tight text-[#8b97aa]">
                   {card.footer}
                   {card.yoy !== undefined ? ` · ${card.yoy}` : ""}
                 </p>
