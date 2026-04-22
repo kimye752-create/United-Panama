@@ -24,21 +24,21 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
 
 /** 4개 매크로 카드 공통 — 제목·수치 가독성 (출처 줄은 기존 작은 회색 유지) */
 const MACRO_TITLE_CLASS =
-  "text-left text-[9.5px] font-bold leading-tight text-[#1E293B]";
+  "text-left text-[11px] font-bold leading-tight text-[#1E293B]";
 const MACRO_VALUE_CLASS =
-  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[19px] sm:text-[21px]";
+  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[22px] sm:text-[26px]";
 const MACRO_DETAIL_LINE_CLASS = "text-[12px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
   const normalizedCards = cards.map((card) => normalizeGdpCard(card));
 
   return (
-    <section className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
+    <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4">
       {normalizedCards.map((card) => {
         return (
           <article
             key={card.label}
-            className="flex min-h-0 flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-2.5 py-1.5 shadow-sh2"
+            className="flex min-h-0 flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-4 py-3 shadow-sh2"
           >
             <p className={MACRO_TITLE_CLASS}>{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (

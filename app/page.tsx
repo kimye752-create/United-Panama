@@ -17,7 +17,7 @@ export default async function HomePage() {
     <DashboardShell>
       <div className="space-y-3.5">
         <MacroCards cards={cards} />
-        <section className="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
+        <section className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
           <PanamaMap />
           <MarketTrends />
         </section>
