@@ -88,10 +88,13 @@ export function MarketTrends() {
   const [items, setItems] = useState<TrendItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/panama/dashboard-news", {
+      const url = force
+        ? "/api/panama/dashboard-news?force=1"
+        : "/api/panama/dashboard-news";
+      const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
       });
@@ -107,7 +110,7 @@ export function MarketTrends() {
   }, []);
 
   useEffect(() => {
-    void load();
+    void load(false);
   }, [load]);
 
   return (
@@ -117,7 +120,7 @@ export function MarketTrends() {
         <button
           type="button"
           onClick={() => {
-            void load();
+            void load(true);
           }}
           disabled={loading}
           className="inline-flex h-[30px] min-w-[76px] items-center justify-center whitespace-nowrap rounded-[9px] border border-[#d8e1ee] bg-white px-2.5 text-[11px] font-bold text-[#1f3e64] hover:bg-[#f4f7fb] disabled:opacity-50"

@@ -11,8 +11,11 @@ type NewsPayload = {
   warning?: string;
 };
 
-async function fetchNews(): Promise<NewsPayload> {
-  const res = await fetch("/api/panama/dashboard-news", {
+async function fetchNews(force = false): Promise<NewsPayload> {
+  const url = force
+    ? "/api/panama/dashboard-news?force=1"
+    : "/api/panama/dashboard-news";
+  const res = await fetch(url, {
     method: "GET",
     cache: "no-store",
   });
@@ -52,12 +55,12 @@ export function MarketNewsCard() {
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     setLoading(true);
     setError(null);
     setWarning(null);
     try {
-      const data = await fetchNews();
+      const data = await fetchNews(force);
       setItems(data.items.length > 0 ? data.items : []);
       if (data.warning !== undefined && data.warning.trim() !== "") {
         setWarning(data.warning);
@@ -72,7 +75,7 @@ export function MarketNewsCard() {
   }, []);
 
   useEffect(() => {
-    void load();
+    void load(false);
   }, [load]);
 
   return (
@@ -82,7 +85,7 @@ export function MarketNewsCard() {
       rightSlot={
         <button
           type="button"
-          onClick={() => void load()}
+          onClick={() => void load(true)}
           disabled={loading}
           className="inline-flex h-[34px] min-w-[92px] items-center justify-center whitespace-nowrap rounded-[10px] border border-navy/15 bg-white px-3 text-[12px] font-extrabold text-navy hover:bg-navy/5 disabled:opacity-50"
         >

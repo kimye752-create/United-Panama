@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { MarketSegmentTabs } from "@/components/main-preview/MarketSegmentTabs";
 import { PricingCards } from "@/components/main-preview/PricingCards";
 import type { SessionListItem } from "@/app/api/panama/report/sessions/route";
 
@@ -11,7 +10,7 @@ export interface ReportFlowProduct {
   name: string;
   ingredient: string;
   category: string;
-  displayLabel?: string;   // 드롭다운 표기 — 지정된 정확한 문구
+  displayLabel?: string;
 }
 
 interface Props {
@@ -19,16 +18,16 @@ interface Props {
   onSessionReady?: (sessionId: string) => void;
 }
 
-/** ISO → "MM. DD. 오전/오후 HH:MM" 포맷 */
+/** ISO → "MM. DD. 오전/오후 HH:MM" */
 function fmtDate(iso: string): string {
   try {
-    const d = new Date(iso);
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const h = d.getHours();
+    const d    = new Date(iso);
+    const mm   = String(d.getMonth() + 1).padStart(2, "0");
+    const dd   = String(d.getDate()).padStart(2, "0");
+    const h    = d.getHours();
     const ampm = h < 12 ? "오전" : "오후";
-    const hh = String(h % 12 || 12).padStart(2, "0");
-    const min = String(d.getMinutes()).padStart(2, "0");
+    const hh   = String(h % 12 || 12).padStart(2, "0");
+    const min  = String(d.getMinutes()).padStart(2, "0");
     return `${mm}. ${dd}. ${ampm} ${hh}:${min}`;
   } catch {
     return iso.slice(0, 10);
@@ -36,49 +35,47 @@ function fmtDate(iso: string): string {
 }
 
 export function PricingSection({ products, onSessionReady }: Props) {
-  // ── 시장조사 섹션 state ──────────────────────────────────────
-  const [selectedProduct, setSelectedProduct] = useState<ReportFlowProduct | null>(null);
-  const [marketLoading, setMarketLoading] = useState(false);
-  const [lastSessionId, setLastSessionId] = useState<string | null>(null);
+  // ── 시장조사 state ────────────────────────────────────────────
+  const [selectedProduct,  setSelectedProduct]  = useState<ReportFlowProduct | null>(null);
+  const [marketLoading,    setMarketLoading]     = useState(false);
+  const [marketDone,       setMarketDone]        = useState(false);
+  const [lastSessionId,    setLastSessionId]     = useState<string | null>(null);
 
   // ── 저장된 보고서 목록 state ──────────────────────────────────
-  const [savedSessions, setSavedSessions] = useState<SessionListItem[]>([]);
-  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [savedSessions,    setSavedSessions]     = useState<SessionListItem[]>([]);
+  const [sessionsLoading,  setSessionsLoading]   = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
 
-  // ── 가격 산출 섹션 state ──────────────────────────────────────
-  const [selectedSegment, setSelectedSegment] = useState<"public" | "private">("private");
-  const [pricingLoading, setPricingLoading] = useState(false);
-  const [pricingData, setPricingData] = useState<{ public: unknown; private: unknown } | null>(null);
+  // ── 가격 산출 state ───────────────────────────────────────────
+  const [selectedSegment, setSelectedSegment]   = useState<"public" | "private">("private");
+  const [pricingLoading,  setPricingLoading]     = useState(false);
+  const [pricingData,     setPricingData]        = useState<{
+    public: unknown; private: unknown
+  } | null>(null);
 
-  // ─── 저장된 세션 목록 조회 ────────────────────────────────────
+  // ── 세션 목록 조회 ────────────────────────────────────────────
   const fetchSessions = useCallback(async (productId?: string) => {
     setSessionsLoading(true);
     try {
-      const qs = productId ? `?productId=${encodeURIComponent(productId)}` : "";
+      const qs  = productId ? `?productId=${encodeURIComponent(productId)}` : "";
       const res = await fetch(`/api/panama/report/sessions${qs}`);
       if (!res.ok) return;
       const data = (await res.json()) as { items?: SessionListItem[] };
       setSavedSessions(data.items ?? []);
-    } catch {
-      /* 무시 */
-    } finally {
-      setSessionsLoading(false);
-    }
+    } catch { /* 무시 */ }
+    finally  { setSessionsLoading(false); }
   }, []);
 
-  // 초기 로딩 (전체 목록)
-  useEffect(() => {
-    void fetchSessions();
-  }, [fetchSessions]);
+  useEffect(() => { void fetchSessions(); }, [fetchSessions]);
 
-  // ─── 시장조사 실행 ────────────────────────────────────────────
+  // ── 시장 조사 실행 ────────────────────────────────────────────
   async function handleRunMarket() {
     if (selectedProduct === null) return;
     setMarketLoading(true);
+    setMarketDone(false);
     setPricingData(null);
     try {
-      const res = await fetch("/api/panama/report/session/init", {
+      const res  = await fetch("/api/panama/report/session/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: selectedProduct.id, country: "panama" }),
@@ -88,23 +85,20 @@ export function PricingSection({ products, onSessionReady }: Props) {
       const ok = data as { sessionId: string };
       setLastSessionId(ok.sessionId);
       setSelectedSessionId(ok.sessionId);
+      setMarketDone(true);
       onSessionReady?.(ok.sessionId);
-      // 목록 갱신
       await fetchSessions(selectedProduct.id);
-    } catch {
-      /* 실패 무시 */
-    } finally {
-      setMarketLoading(false);
-    }
+    } catch { /* 실패 무시 */ }
+    finally  { setMarketLoading(false); }
   }
 
-  // ─── AI 가격 산출 실행 ────────────────────────────────────────
+  // ── AI 가격 산출 ──────────────────────────────────────────────
   async function handleRunPricing() {
     if (selectedSessionId === "") return;
     setPricingLoading(true);
     setPricingData(null);
     try {
-      const res = await fetch("/api/panama/report/pricing", {
+      const res  = await fetch("/api/panama/report/pricing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId: selectedSessionId }),
@@ -113,19 +107,22 @@ export function PricingSection({ products, onSessionReady }: Props) {
       if (!res.ok) throw new Error((data as { detail?: string }).detail ?? "PRICING_FAILED");
       const ok = data as { publicData?: unknown; privateData?: unknown };
       setPricingData({ public: ok.publicData ?? null, private: ok.privateData ?? null });
-    } catch {
-      /* 실패 무시 */
-    } finally {
-      setPricingLoading(false);
-    }
+    } catch { /* 실패 무시 */ }
+    finally  { setPricingLoading(false); }
   }
 
-  const canRunMarket = selectedProduct !== null && !marketLoading;
-  const canRunPricing = selectedSessionId !== "" && !pricingLoading;
+  const canRunMarket   = selectedProduct !== null && !marketLoading;
+  const canRunPricing  = selectedSessionId !== "" && !pricingLoading;
+
+  // 채널 설명
+  const channelDesc =
+    selectedSegment === "public"
+      ? "공공 시장: ALPS 조달청 채널 · 27개 공공기관 통합구매 기준"
+      : "민간 시장: 병원·약국·체인 채널 중심 유통 구조 기준";
 
   return (
     <section className="rounded-xl border border-[#d9e2ef] bg-white shadow-sh2">
-      {/* ── 헤더 ── */}
+      {/* 헤더 */}
       <div className="flex items-center gap-2.5 border-b border-[#edf1f7] px-5 py-3.5">
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
           01
@@ -136,7 +133,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
       </div>
 
       <div className="p-4">
-        {/* ── Part 1: 시장조사 ── */}
+        {/* ── Part 1: 품목 선택 + 시장 조사 ── */}
         <div className="mb-4">
           <div className="flex flex-wrap items-center gap-2">
             {/* 품목 드롭다운 */}
@@ -146,6 +143,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
               onChange={(e) => {
                 const p = products.find((x) => x.id === e.target.value) ?? null;
                 setSelectedProduct(p);
+                setMarketDone(false);
                 setPricingData(null);
                 setLastSessionId(null);
                 if (p !== null) void fetchSessions(p.id);
@@ -174,15 +172,20 @@ export function PricingSection({ products, onSessionReady }: Props) {
             </button>
           </div>
 
-          {/* 신약 직접 분석 링크 */}
+          {/* 시장조사 완료 배너 */}
+          {marketDone && selectedProduct !== null && (
+            <div className="mt-2 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] font-semibold text-emerald-800">
+              ✅ {selectedProduct.name} 분석 완료 — 가격 분석을 진행하세요.
+            </div>
+          )}
+
+          {/* 신약 직접 분석 */}
           <p className="mt-1.5 text-[12px] text-[#7a8fa8]">
             <span className="mr-1 opacity-60">·</span>
             <button
               type="button"
               className="underline-offset-2 hover:underline"
-              onClick={() => {
-                // TODO: 신약 직접 분석 모달
-              }}
+              onClick={() => { /* TODO: 신약 직접 분석 모달 */ }}
             >
               신약 직접 분석
             </button>
@@ -192,20 +195,19 @@ export function PricingSection({ products, onSessionReady }: Props) {
         {/* 구분선 */}
         <div className="mb-4 border-t border-dashed border-[#e8eef5]" />
 
-        {/* ── Part 2: 저장된 보고서 선택 + 가격 산출 ── */}
+        {/* ── Part 2: 저장된 보고서 + 가격 산출 ── */}
         <div>
           <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
             품목 선택
           </p>
 
-          {/* 저장된 분석 보고서 드롭다운 */}
+          {/* 저장된 세션 드롭다운 */}
           <select
             className="w-full rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm focus:outline-none focus:ring-2 focus:ring-navy/30"
             value={selectedSessionId}
             onChange={(e) => {
               setSelectedSessionId(e.target.value);
               setPricingData(null);
-              // PartnerSection에 세션 공유
               if (e.target.value !== "") onSessionReady?.(e.target.value);
             }}
           >
@@ -229,7 +231,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
                   ? "bg-navy text-white"
                   : "border border-[#d9e2ef] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
               }`}
-              onClick={() => { setSelectedSegment("public"); setPricingData(null); }}
+              onClick={() => { setSelectedSegment("public"); }}
             >
               공공 시장
             </button>
@@ -240,7 +242,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
                   ? "bg-navy text-white"
                   : "border border-[#d9e2ef] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
               }`}
-              onClick={() => { setSelectedSegment("private"); setPricingData(null); }}
+              onClick={() => { setSelectedSegment("private"); }}
             >
               민간 시장
             </button>
@@ -258,19 +260,25 @@ export function PricingSection({ products, onSessionReady }: Props) {
               )}
             </button>
           </div>
+
+          {/* 채널 설명 */}
+          <p className="mt-1.5 text-[12px] text-[#7a8fa8]">{channelDesc}</p>
+
+          {/* 로딩 인디케이터 */}
+          {pricingLoading && (
+            <div className="mt-2 flex items-center gap-2 text-[12px] text-[#7a8fa8]">
+              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#d9e2ef] border-t-navy" />
+              {selectedSegment === "public" ? "공공" : "민간"} 시장 분석 중…
+            </div>
+          )}
         </div>
 
         {/* ── 가격 결과 ── */}
         {pricingData !== null && (
-          <>
-            <MarketSegmentTabs
-              selected={selectedSegment}
-              onSelect={(seg) => { setSelectedSegment(seg); }}
-            />
-            <PricingCards
-              data={selectedSegment === "public" ? pricingData.public : pricingData.private}
-            />
-          </>
+          <PricingCards
+            segment={selectedSegment}
+            data={selectedSegment === "public" ? pricingData.public : pricingData.private}
+          />
         )}
       </div>
     </section>

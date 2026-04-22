@@ -52,10 +52,9 @@ export function AnalysisWorkspace() {
     <div className="space-y-3.5">
       {/* 안내 배너 */}
       <div className="rounded-lg border border-[#e8eef5] bg-[#f8fafc] px-4 py-2.5 text-xs text-[#4a5a6f]">
-        <strong className="text-[#273f60]">시장조사 분석</strong>
-        {" — "}품목 선택 후 <strong className="text-[#273f60]">▶ 시장 조사</strong>를 실행하세요.
+        품목 선택 후 <strong className="text-[#273f60]">▶ 시장 조사</strong>를 실행하세요.
         이후 저장된 보고서를 선택하여 <strong className="text-[#273f60]">AI 가격 산출</strong> →{" "}
-        <strong className="text-[#273f60]">바이어 발굴</strong> 순으로 진행하면
+        <strong className="text-[#273f60]">바이어 발굴</strong> 순으로 분석이 진행됩니다.
         우하단 <strong className="text-[#273f60]">보고서 탭</strong>에서 최종 PDF를 다운로드할 수 있습니다.
         {sessionId !== null && (
           <span className="ml-2 font-mono text-[11px] text-navy">

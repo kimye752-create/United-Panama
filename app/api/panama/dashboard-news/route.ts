@@ -8,9 +8,11 @@ import { fetchPanamaDashboardNews } from "@/src/logic/fetch_panama_dashboard_new
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(req: Request): Promise<NextResponse> {
   try {
-    const payload = await fetchPanamaDashboardNews();
+    const url = new URL(req.url);
+    const force = url.searchParams.get("force") === "1";
+    const payload = await fetchPanamaDashboardNews(force);
     return NextResponse.json(payload);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);

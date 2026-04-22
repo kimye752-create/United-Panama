@@ -44,21 +44,29 @@ export async function generatePartnerReport(
         product.who_inn_en,
         product.atc4_code,
       );
+      // PSI 복합 점수: 매출 35% + 파이프라인 28% + GMP 20% + 수입이력 12% + 약국체인 5%
+      const psiScore =
+        scores.revenue       * 0.35 +
+        scores.pipeline      * 0.28 +
+        scores.gmp           * 0.20 +
+        scores.import        * 0.12 +
+        scores.pharmacy_chain * 0.05;
       return {
         ...candidate,
-        score_revenue: scores.revenue,
-        score_pipeline: scores.pipeline,
-        score_gmp: scores.gmp,
-        score_import: scores.import,
+        score_revenue:       scores.revenue,
+        score_pipeline:      scores.pipeline,
+        score_gmp:           scores.gmp,
+        score_import:        scores.import,
         score_pharmacy_chain: scores.pharmacy_chain,
-        score_total_default: scores.revenue,
+        psi_score:           Math.round(psiScore * 10) / 10,
+        score_total_default: psiScore,
       };
     });
 
     const top10 = [...scored]
       .sort(
         (a, b) =>
-          (b.score_revenue ?? 0) - (a.score_revenue ?? 0) ||
+          (b.score_total_default ?? 0) - (a.score_total_default ?? 0) ||
           a.company_name.localeCompare(b.company_name),
       )
       .slice(0, 10);
