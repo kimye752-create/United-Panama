@@ -111,16 +111,16 @@ export function MarketTrends() {
   }, [load]);
 
   return (
-    <section className="flex h-full min-h-[480px] flex-col rounded-[16px] border border-[#e3e9f2] bg-white p-5 shadow-sh2">
+    <section className="flex h-full min-h-[500px] flex-col rounded-[16px] border border-[#e3e9f2] bg-white p-5 shadow-sh2">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h3 className="text-[16px] font-extrabold text-[#1f3e64]">파나마 의약품 시장 주요 동향</h3>
+        <h3 className="text-[15px] font-bold text-[#1f3e64]">파나마 의약품 시장 주요 동향</h3>
         <button
           type="button"
           onClick={() => {
             void load();
           }}
           disabled={loading}
-          className="inline-flex h-[32px] min-w-[84px] items-center justify-center whitespace-nowrap rounded-[9px] border border-[#d8e1ee] bg-white px-3 text-[12px] font-bold text-[#1f3e64] hover:bg-[#f4f7fb] disabled:opacity-50"
+          className="inline-flex h-[30px] min-w-[80px] items-center justify-center whitespace-nowrap rounded-[8px] border border-[#d8e1ee] bg-white px-3 text-[12px] font-normal text-[#1f3e64] hover:bg-[#f4f7fb] disabled:opacity-50"
         >
           ↻ 새로고침
         </button>
@@ -134,8 +134,8 @@ export function MarketTrends() {
           items.map((item, index) => {
             const rowContent = (
               <>
-                <p className="text-[14px] font-bold leading-snug text-[#1f3e64]">{item.headline}</p>
-                <p className="mt-1 text-[12px] text-[#7d8da2]">{item.meta_line}</p>
+                <p className="text-[14px] font-semibold leading-snug text-[#1f3e64]">{item.headline}</p>
+                <p className="mt-1 text-[12px] font-normal text-[#94a3b8]">{item.meta_line}</p>
               </>
             );
             if (item.url !== undefined) {

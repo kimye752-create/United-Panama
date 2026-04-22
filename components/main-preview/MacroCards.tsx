@@ -22,12 +22,12 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
   };
 }
 
-/** 4개 매크로 카드 공통 — 팀장 사이트 기준: 제목·출처 가운데 정렬 */
+/** 4개 매크로 카드 공통 — 팀장 사이트 기준: 얇고 컴팩트 */
 const MACRO_TITLE_CLASS =
-  "text-center text-[12px] font-medium leading-tight text-[#94a3b8]";
+  "text-center text-[12px] font-normal leading-tight text-[#94a3b8]";
 const MACRO_VALUE_CLASS =
-  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[34px] sm:text-[44px]";
-const MACRO_DETAIL_LINE_CLASS = "text-center text-[17px] font-bold leading-tight text-[#1E3A5F]";
+  "text-center font-bold leading-[1.2] tracking-[-0.02em] text-[#1E3A5F] text-[26px] sm:text-[30px]";
+const MACRO_DETAIL_LINE_CLASS = "text-center text-[14px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
   const normalizedCards = cards.map((card) => normalizeGdpCard(card));
@@ -38,7 +38,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
         return (
           <article
             key={card.label}
-            className="flex min-h-[130px] flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-6 py-6 shadow-sh2"
+            className="flex flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-5 py-4 shadow-sh2"
           >
             <p className={MACRO_TITLE_CLASS}>{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (
@@ -52,7 +52,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                     ))}
                   </div>
                 </div>
-                <p className="mt-1 w-full text-center text-[11px] leading-tight text-[#8b97aa]">
+                <p className="mt-1.5 w-full text-center text-[11px] font-normal leading-tight text-[#94a3b8]">
                   {card.sourceNote ?? card.footer}
                 </p>
               </>
@@ -61,7 +61,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-0">
                   <p className={MACRO_VALUE_CLASS}>{card.value}</p>
                 </div>
-                <p className="mt-1 w-full text-center text-[11px] leading-tight text-[#8b97aa]">
+                <p className="mt-1.5 w-full text-center text-[11px] font-normal leading-tight text-[#94a3b8]">
                   {card.footer}
                   {card.yoy !== undefined ? ` · ${card.yoy}` : ""}
                 </p>
