@@ -125,7 +125,7 @@ export function MarketTrends() {
           ↻ 새로고침
         </button>
       </div>
-      <div className="flex flex-1 flex-col space-y-4">
+      <div className="flex flex-1 flex-col space-y-6">
         {items.length === 0 && !loading ? (
           <p className="text-[13px] text-[#6e7f95]">
             시장 동향 데이터가 준비 중입니다.

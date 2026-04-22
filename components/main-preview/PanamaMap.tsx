@@ -75,7 +75,7 @@ export function PanamaMap() {
     <section className="flex h-full min-h-[480px] flex-col rounded-[16px] border border-[#e3e9f2] bg-white p-5 shadow-sh2">
       <h3 className="mb-3 text-[16px] font-extrabold text-[#1f3e64]">파나마 위치</h3>
       <div className="flex-1 overflow-hidden rounded-[12px] border border-[#dde5f0]">
-        <div ref={mapRef} className="h-full min-h-[420px] w-full" />
+        <div ref={mapRef} className="h-full min-h-[440px] w-full" />
       </div>
     </section>
   );
