@@ -24,7 +24,7 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
 
 /** 4개 매크로 카드 공통 — 팀장 사이트 기준: 제목·출처 가운데 정렬 */
 const MACRO_TITLE_CLASS =
-  "text-center text-[13px] font-semibold leading-tight text-[#64748b]";
+  "text-center text-[13px] font-medium leading-tight text-[#94a3b8]";
 const MACRO_VALUE_CLASS =
   "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[30px] sm:text-[38px]";
 const MACRO_DETAIL_LINE_CLASS = "text-center text-[15px] font-bold leading-tight text-[#1E3A5F]";

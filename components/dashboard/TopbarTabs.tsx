@@ -19,13 +19,13 @@ export function TopbarTabs() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`relative inline-flex h-[42px] select-none items-center px-4 text-[13.5px] font-bold leading-none tracking-[-0.01em] transition-colors duration-200 ${
-              isActive ? "font-extrabold text-navy" : "text-[#7a8fa8] hover:text-navy"
+            className={`relative inline-flex h-[46px] select-none items-center px-5 text-[15px] leading-none tracking-[-0.01em] transition-colors duration-200 ${
+              isActive ? "font-bold text-navy" : "font-medium text-[#7a8fa8] hover:text-navy"
             }`}
           >
             {tab.label}
             {isActive ? (
-              <span className="absolute bottom-0 left-1/2 h-[2px] w-4/5 -translate-x-1/2 rounded-t-[2px] bg-navy" />
+              <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-[2px] bg-navy" />
             ) : null}
           </Link>
         );
