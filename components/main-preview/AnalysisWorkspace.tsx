@@ -64,8 +64,8 @@ export function AnalysisWorkspace() {
         )}
       </div>
 
-      {/* 2열 메인 패널 */}
-      <div className="grid gap-3.5 lg:grid-cols-2">
+      {/* 2열 메인 패널 — 01(40%) : 02(60%) */}
+      <div className="grid gap-3.5 lg:grid-cols-[2fr_3fr]">
         {/* 01 수출가격 전략 */}
         <PricingSection
           products={products}
