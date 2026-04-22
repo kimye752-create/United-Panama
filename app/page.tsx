@@ -2,7 +2,6 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import dynamic from "next/dynamic";
 
 import { MacroCards } from "@/components/main-preview/MacroCards";
-import { MainPreviewSections } from "@/components/main-preview/MainPreviewSections";
 import { MarketTrends } from "@/components/main-preview/MarketTrends";
 import { getPanamaLandingMetricCards } from "@/src/logic/panama_landing";
 
@@ -21,7 +20,6 @@ export default async function HomePage() {
           <PanamaMap />
           <MarketTrends />
         </section>
-        <MainPreviewSections />
       </div>
     </DashboardShell>
   );

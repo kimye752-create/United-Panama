@@ -36,7 +36,10 @@ function formatUsd(value: number): string {
 }
 
 function formatUsdMillions(value: number): string {
-  return `$${(value / 1_000_000).toFixed(2)}M`;
+  const n = value / 1_000_000;
+  const s = n.toFixed(1);
+  // 소수점 첫째 자리가 0이면 정수로만 표기
+  return `$${s.endsWith(".0") ? String(Math.round(n)) : s}M`;
 }
 
 function formatPopulation(value: number): string {
@@ -186,7 +189,16 @@ function buildStatistaMarketCard(): PanamaLandingMetricCard {
     label: "의약품 시장 규모",
     value: formatUsdMillions(STATISTA_PHARMA_MARKET_USD_2024),
     footer: "2024 · Statista",
-    yoy: "US$ 496.00m",
+    yoy: "US$ 496M",
+    hasData: true,
+  };
+}
+
+function buildImportDependencyCard(): PanamaLandingMetricCard {
+  return {
+    label: "의약품 국가 수입 의존도",
+    value: "~90%",
+    footer: "KOTRA / ITA (2024)",
     hasData: true,
   };
 }
@@ -272,14 +284,14 @@ export async function getPanamaLandingMetricCards(): Promise<
       // 기존 DB 값은 참고 로그만 유지하고, UI 표시는 Statista 대표 수치로 고정합니다.
       void readYoYFromNotes(marketRow.pa_notes);
     }
-    return [gdpCard, populationCard, marketCard, cagrCard] as const;
+    return [gdpCard, populationCard, marketCard, buildImportDependencyCard()] as const;
   } catch {
     // 외부 DB 연결 실패 시에도 레이아웃이 깨지지 않도록 기본 카드로 반환합니다.
     return [
       buildImfGdpCard(),
       buildFallbackCard("인구"),
       buildStatistaMarketCard(),
-      buildFallbackCard("실질 성장률"),
+      buildImportDependencyCard(),
     ] as const;
   }
 }
