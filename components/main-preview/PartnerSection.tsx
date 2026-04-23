@@ -194,7 +194,7 @@ export function PartnerSection({ sessionId }: Props) {
   }
 
   return (
-    <section className="rounded-xl border border-[#d9e2ef] bg-white shadow-sh2">
+    <section className="rounded-[20px] bg-white shadow-sh">
       {/* 헤더 */}
       <div className="flex items-center gap-2.5 border-b border-[#edf1f7] px-5 py-3.5">
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">

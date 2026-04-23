@@ -474,7 +474,7 @@ export function P2PricingDocument({
               FOB 역산 계산 근거
             </Text>
             <Text style={S.bodyText}>{str(pubPhase2["block2_fob_calculation"])}</Text>
-            {str(pubPhase2["block4_incoterms"], "") !== "" && (
+            {pubPhase2["block4_incoterms"] != null && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   Incoterms 순산 (FOB → CFR → CIF → DDP)
@@ -482,7 +482,7 @@ export function P2PricingDocument({
                 <Text style={S.bodyText}>{str(pubPhase2["block4_incoterms"])}</Text>
               </View>
             )}
-            {str(pubPhase2["block5_risk_and_recommendation"], "") !== "" && (
+            {pubPhase2["block5_risk_and_recommendation"] != null && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   리스크 및 권고
@@ -510,7 +510,7 @@ export function P2PricingDocument({
               FOB 역산 계산 근거
             </Text>
             <Text style={S.bodyText}>{str(privPhase2["block2_fob_calculation"])}</Text>
-            {str(privPhase2["block4_incoterms"], "") !== "" && (
+            {privPhase2["block4_incoterms"] != null && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   Incoterms 순산
@@ -518,7 +518,7 @@ export function P2PricingDocument({
                 <Text style={S.bodyText}>{str(privPhase2["block4_incoterms"])}</Text>
               </View>
             )}
-            {str(privPhase2["block5_risk_and_recommendation"], "") !== "" && (
+            {privPhase2["block5_risk_and_recommendation"] != null && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   리스크 및 권고

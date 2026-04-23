@@ -3,15 +3,27 @@ import type { ReactNode } from "react";
 import { ReportsFloatingButton } from "./ReportsFloatingButton";
 import { Topbar } from "./Topbar";
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+interface Props {
+  children: ReactNode;
+  /** 분석탭 전용 — 탑바 아래 전체 높이, 내부 스크롤 */
+  fullHeight?: boolean;
+}
+
+export function DashboardShell({ children, fullHeight = false }: Props) {
   return (
-    <div className="min-h-screen w-full bg-shell font-pretendard">
+    <div className="h-screen w-full overflow-hidden bg-shell font-pretendard">
       <Topbar />
-      <main className="pb-8 pt-4">
-        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+      {fullHeight ? (
+        <main className="h-[calc(100vh-66px)] overflow-hidden">
           {children}
-        </div>
-      </main>
+        </main>
+      ) : (
+        <main className="h-[calc(100vh-66px)] overflow-y-auto pb-8 pt-5">
+          <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-7 lg:px-10">
+            {children}
+          </div>
+        </main>
+      )}
       {/* 우하단 보고서 탭 플로팅 버튼 */}
       <ReportsFloatingButton />
     </div>

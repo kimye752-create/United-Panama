@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 
 import { PartnerSection } from "@/components/main-preview/PartnerSection";
 import { PricingSection, type ReportFlowProduct } from "@/components/main-preview/PricingSection";
-import { ReportListPanel } from "@/components/reports/ReportListPanel";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 /**
@@ -31,7 +30,7 @@ const PRODUCT_DISPLAY_LABELS: Record<string, string> = {
 };
 
 /**
- * 시장 분석 탭 — 01·02 2열 + 우측 생성 보고서 목록(SG 레퍼런스와 동일 구조)
+ * 시장 분석 탭 — 수출가격 전략(01) + 바이어 발굴(02) 2열 레이아웃
  * Phase1(시장 조사)은 세션 초기화 시 자동 실행됨. 별도 UI 없음.
  */
 export function AnalysisWorkspace() {
@@ -50,18 +49,33 @@ export function AnalysisWorkspace() {
   );
 
   return (
-    <div className="space-y-3.5">
-      <div className="grid gap-3.5 lg:grid-cols-[1fr_280px]">
-        <div className="grid gap-3.5 lg:grid-cols-2">
-          <PricingSection
-            products={products}
-            onSessionReady={(sid) => {
-              setSessionId(sid);
-            }}
-          />
-          <PartnerSection sessionId={sessionId} />
+    <div className="grid h-full gap-5 lg:grid-cols-[1fr_1.45fr]">
+      {/* 01 수출가격 전략 — 독립 스크롤 */}
+      <div className="flex flex-col gap-4 overflow-y-auto px-5 py-5">
+        {/* 안내 배너 */}
+        <div className="rounded-[12px] bg-inner px-4 py-2.5 text-xs text-muted">
+          품목 선택 후 <strong className="text-text">▶ 시장 조사</strong>를 실행하세요.
+          이후 저장된 보고서를 선택하여 <strong className="text-text">AI 가격 산출</strong> →{" "}
+          <strong className="text-text">바이어 발굴</strong> 순으로 진행하면
+          우하단 <strong className="text-text">보고서 탭</strong>에서 최종 PDF를 다운로드할 수 있습니다.
+          {sessionId !== null && (
+            <span className="ml-2 font-mono text-[11px] text-navy">
+              session={sessionId.slice(0, 8)}…
+            </span>
+          )}
         </div>
-        <ReportListPanel sessionId={sessionId} />
+
+        <PricingSection
+          products={products}
+          onSessionReady={(sid) => {
+            setSessionId(sid);
+          }}
+        />
+      </div>
+
+      {/* 02 바이어 발굴 — 독립 스크롤 */}
+      <div className="overflow-y-auto px-0 py-5 pr-5">
+        <PartnerSection sessionId={sessionId} />
       </div>
     </div>
   );

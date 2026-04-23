@@ -5,7 +5,7 @@ import { TopbarTabs } from "./TopbarTabs";
 
 export function Topbar() {
   return (
-    <header className="flex items-center justify-between gap-3.5 bg-white px-6 py-0 shadow-[0_1px_0_0_rgba(0,0,0,0.07)]">
+    <header className="flex h-[66px] items-center justify-between gap-3.5 bg-white px-6 shadow-[0_1px_0_0_rgba(0,0,0,0.07)]">
       {/* 좌측: 로고 + 회사명 */}
       <Link
         href="/"
