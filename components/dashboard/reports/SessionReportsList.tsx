@@ -166,6 +166,13 @@ export function SessionReportsList({ variant = "page" }: Props) {
     return () => { window.removeEventListener("panama:reports:clearAll", handler); };
   }, [sessions]);
 
+  // 외부 강제 갱신 이벤트 — 바이어 발굴 완료 직후 등
+  useEffect(() => {
+    const handler = () => { void fetchSessions(); };
+    window.addEventListener("panama:reports:refresh", handler);
+    return () => { window.removeEventListener("panama:reports:refresh", handler); };
+  }, [fetchSessions]);
+
   async function handleGenerateFinal(session: SessionListItem) {
     setGeneratingId(session.sessionId);
     try {
