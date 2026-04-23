@@ -196,16 +196,6 @@ export function PricingSection({ products, onSessionReady }: Props) {
             </div>
           )}
 
-          {/* 신약 직접 분석 */}
-          <p className="mt-1.5 text-[12px] text-[#7a8fa8]">
-            <button
-              type="button"
-              className="underline-offset-2 hover:underline"
-              onClick={() => { /* TODO: 신약 직접 분석 모달 */ }}
-            >
-              ► 신약 직접 분석
-            </button>
-          </p>
         </div>
 
         {/* 구분선 */}
