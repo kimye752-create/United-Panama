@@ -55,6 +55,12 @@ export interface Phase2GeneratorInput {
   sourceProductId: string;
   productName: string;
   inn: string;
+  /** 제형 (Tab., Soft Cap., Inhaler DPI 등) */
+  formulation?: string;
+  /** 독점 기술 (CombiGel, BILDAS, Activair DPI 등) */
+  patentTech?: string | null;
+  /** 복합제 여부 */
+  isCombinationDrug?: boolean;
   market: Phase2MarketSegment;
   referencePricePab: number;
   baselineFormula: string;
@@ -85,25 +91,39 @@ function buildPrompt(input: Phase2GeneratorInput): string {
   const baseline = input.scenarios.find((s) => s.scenario === "avg") ?? input.scenarios[0];
   const agg = input.scenarios.find((s) => s.scenario === "agg") ?? baseline;
   const cons = input.scenarios.find((s) => s.scenario === "cons") ?? baseline;
-  const logicName = input.market === "public" ? "Logic A" : "Logic B";
-  const marketLabel = input.market === "public" ? "공공 시장" : "민간 시장";
+  const logicName = input.market === "public" ? "Logic A (공공조달 역산)" : "Logic B (민간 마진 역산)";
+  const marketLabel = input.market === "public" ? "공공 시장 (CSS/PanamaCompra)" : "민간 시장 (약국·도매 체인)";
+
+  const productDetail = [
+    `- 제품명: ${input.productName} (${input.inn})`,
+    input.formulation ? `- 제형: ${input.formulation}` : null,
+    input.isCombinationDrug ? `- 복합제: 2성분 이상 (DNFD 심사 기간 가산 요인)` : null,
+    input.patentTech
+      ? `- 독점 기술: ${input.patentTech} (경쟁사 동일 기술 없음 — 프리미엄 포지셔닝 근거)`
+      : `- 독점 기술: 없음 (일반 제형)`,
+  ].filter(Boolean).join("\n");
+
   return `
-[입력]
-- 제품: ${input.productName} (${input.inn})
-- 시장: ${marketLabel}
-- 참조가: ${input.referencePricePab.toFixed(2)} PAB
+[제품 정보]
+${productDetail}
+
+[시장 및 가격]
+- 타겟 시장: ${marketLabel}
+- 참조가: USD ${input.referencePricePab.toFixed(2)} (PAB 1:1 USD 등가)
 - 적용 로직: ${logicName}
-- 기준 수식: ${input.baselineFormula}
+- 기준 FOB 역산 수식: ${input.baselineFormula}
 
-[시나리오 수치]
-- 저가진입(agg): FOB ${agg.fob.fobUsd.toFixed(2)}, FOB천장 ${agg.fob.fobCeilingUsd.toFixed(2)}, 배수 ${agg.fob.strategyMultiplier.toFixed(2)}x, CFR ${agg.incoterms.cfrUsd.toFixed(2)}, CIF ${agg.incoterms.cifUsd.toFixed(2)}, DDP ${agg.incoterms.ddpUsd.toFixed(2)}
-- 기준가(avg): FOB ${baseline.fob.fobUsd.toFixed(2)}, FOB천장 ${baseline.fob.fobCeilingUsd.toFixed(2)}, 배수 ${baseline.fob.strategyMultiplier.toFixed(2)}x, CFR ${baseline.incoterms.cfrUsd.toFixed(2)}, CIF ${baseline.incoterms.cifUsd.toFixed(2)}, DDP ${baseline.incoterms.ddpUsd.toFixed(2)}
-- 프리미엄(cons): FOB ${cons.fob.fobUsd.toFixed(2)}, FOB천장 ${cons.fob.fobCeilingUsd.toFixed(2)}, 배수 ${cons.fob.strategyMultiplier.toFixed(2)}x, CFR ${cons.incoterms.cfrUsd.toFixed(2)}, CIF ${cons.incoterms.cifUsd.toFixed(2)}, DDP ${cons.incoterms.ddpUsd.toFixed(2)}
+[시나리오 수치 — 반드시 이 값 그대로 인용]
+- 저가 진입 / Penetration (agg): FOB USD ${agg.fob.fobUsd.toFixed(4)}, FOB천장 ${agg.fob.fobCeilingUsd.toFixed(4)}, 배수 ${agg.fob.strategyMultiplier.toFixed(2)}x | CFR ${agg.incoterms.cfrUsd.toFixed(4)}, CIF ${agg.incoterms.cifUsd.toFixed(4)}, DDP ${agg.incoterms.ddpUsd.toFixed(4)}
+- 기준가   / Reference   (avg): FOB USD ${baseline.fob.fobUsd.toFixed(4)}, FOB천장 ${baseline.fob.fobCeilingUsd.toFixed(4)}, 배수 ${baseline.fob.strategyMultiplier.toFixed(2)}x | CFR ${baseline.incoterms.cfrUsd.toFixed(4)}, CIF ${baseline.incoterms.cifUsd.toFixed(4)}, DDP ${baseline.incoterms.ddpUsd.toFixed(4)}
+- 프리미엄  / Premium    (cons): FOB USD ${cons.fob.fobUsd.toFixed(4)}, FOB천장 ${cons.fob.fobCeilingUsd.toFixed(4)}, 배수 ${cons.fob.strategyMultiplier.toFixed(2)}x | CFR ${cons.incoterms.cfrUsd.toFixed(4)}, CIF ${cons.incoterms.cifUsd.toFixed(4)}, DDP ${cons.incoterms.ddpUsd.toFixed(4)}
 
-[출력 제약]
-- block1~5는 도구 스키마 길이 제한을 지킬 것
-- block3에는 공격/기준/보수 각각의 산정 이유를 반드시 포함할 것
-- block5에서 권고 수출가를 기준(avg) FOB로 명시할 것
+[출력 지침]
+- block1: 시장·제품 개요 (파나마 콜론 FTZ·CSS·수입의존도 + 제품 차별화 포인트 포함)
+- block2: FOB 역산 경로 (FTA 0%·ITBMS 0% 필수 언급, 경쟁사 평균가 참조)
+- block3: 저가진입/기준가/프리미엄 각각 FOB 수치 인용 + 수입상 마진 영향 포함
+- block4: FOB→CFR→CIF→DDP 순산 요약
+- block5: DNFD 리스크 + 경쟁 포지셔닝 + 3단계 마진 전략 단계 + 권고 수출가(avg FOB) 최종 제시
 `.trim();
 }
 
@@ -115,7 +135,7 @@ async function callModel(model: string, input: Phase2GeneratorInput): Promise<Ph
   const client = new Anthropic({ apiKey });
   const response: Message = await client.messages.create({
     model,
-    max_tokens: 1800,
+    max_tokens: 2400,
     temperature: 0,
     system: PHASE2_SYSTEM_CONTEXT,
     tools: [PHASE2_TOOL],

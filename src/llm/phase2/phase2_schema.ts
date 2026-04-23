@@ -35,19 +35,19 @@ export function parsePhase2Payload(raw: unknown): Phase2ReportPayload | null {
   ) {
     return null;
   }
-  if (!isInRange(b1, 150)) {
+  if (!isInRange(b1, 300)) {
     return null;
   }
-  if (!isInRange(b2, 300)) {
+  if (!isInRange(b2, 500)) {
     return null;
   }
-  if (!isInRange(b3, 450)) {
+  if (!isInRange(b3, 600)) {
     return null;
   }
-  if (!isInRange(b4, 200)) {
+  if (!isInRange(b4, 300)) {
     return null;
   }
-  if (!isInRange(b5, 300)) {
+  if (!isInRange(b5, 500)) {
     return null;
   }
   return {
@@ -68,32 +68,32 @@ export const PHASE2_TOOL: Tool = {
       block1_input_summary: {
         type: "string",
         minLength: 30,
-        maxLength: 150,
-        description: "입력 요약: 시장/INN/참조가를 한 문단으로 요약",
+        maxLength: 300,
+        description: "시장·제품 개요: 파나마 콜론 FTZ·CSS 공공시장·수입 의존도 맥락 + 제품 INN·제형·독점기술 차별화 포인트 + 참조가 요약. 격식체(-합니다) 사용.",
       },
       block2_fob_calculation: {
         type: "string",
         minLength: 30,
-        maxLength: 300,
-        description: "Logic A/B 분기와 FOB 역산 수식 설명",
+        maxLength: 500,
+        description: "FOB 역산 경로: 한-중미 FTA 관세 0%(2021.3 발효), 의약품 ITBMS 면세 0% 포함. Logic A(공공)/B(민간) 수식 단계 명시. 경쟁사 평균가를 핵심 참조점으로 언급. DNFD 등록 여부 맥락 포함.",
       },
       block3_scenarios: {
         type: "string",
         minLength: 30,
-        maxLength: 450,
-        description: "공격/기준/보수 3시나리오 값과 각 시나리오의 산정 이유",
+        maxLength: 600,
+        description: "3시나리오 서술: 저가 진입(agg FOB) / 기준가(avg FOB) / 프리미엄(cons FOB). 각 시나리오에 산정 근거·수입상 마진 영향 반드시 포함. 격식체 사용.",
       },
       block4_incoterms: {
         type: "string",
         minLength: 30,
-        maxLength: 200,
-        description: "FOB→CFR→CIF→DDP 순산 결과 요약",
+        maxLength: 300,
+        description: "인코텀즈 순산: FOB→CFR→CIF→DDP 결과 요약. USD 기준 표기.",
       },
       block5_risk_and_recommendation: {
         type: "string",
         minLength: 30,
-        maxLength: 300,
-        description: "리스크 요약 + 권고 수출가 최종 판정",
+        maxLength: 500,
+        description: "리스크·경쟁·권고: DNFD 적체 리스크, 다국적사·중남미 로컬 경쟁 서술. 자사 독점기술/복합제 포지셔닝. 3단계 마진 전략 현재 단계 명시. 권고 수출가(avg FOB) 최종 제시.",
       },
     },
     required: [
