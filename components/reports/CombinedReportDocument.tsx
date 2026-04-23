@@ -1329,7 +1329,7 @@ function PartnerReportSection({
 // ─── Cover Page ───────────────────────────────────────────────────────────────
 
 function CoverPage({
-  product,
+  product: _product,
   country,
   generatedAt,
 }: {
@@ -1338,53 +1338,35 @@ function CoverPage({
   generatedAt: Date;
 }) {
   const dateStr = generatedAt.toISOString().slice(0, 10);
-  const countryName = country === "panama" ? "파나마(Panama)" : country.toUpperCase();
+  const countryName = country === "panama" ? "파나마" : country.toUpperCase();
 
+  // SG 팀장 양식 정합 — 심플 표지 (큰 제목 + 회사명 + 날짜 + 하단 안내)
+  // 변경 이유: 사용자 요청 — 목차·HS CODE·제품명 섹션 제거하고 팀장 양식처럼 단순화
   return (
     <Page size="A4" style={S.page}>
       <DocFooter />
 
-      {/* 로고 텍스트 */}
-      <Text style={{ fontSize: 10, color: C_GRAY, marginTop: 10 }}>한국유나이티드제약(주)</Text>
+      {/* 상단 여백 */}
+      <View style={{ marginTop: 220 }} />
 
-      {/* 제목 */}
-      <Text style={S.coverTitle}>
-        {countryName} 수출 통합 보고서
+      {/* 메인 제목 (가운데 정렬, 큰 글씨) */}
+      <Text style={{ fontSize: 26, fontWeight: "bold", color: C_NAVY, textAlign: "center", marginBottom: 40 }}>
+        {countryName} 진출 전략 보고서
       </Text>
-      <Text style={S.coverSub}>{product.name}</Text>
-      <Text style={S.coverMeta}>{product.ingredient}</Text>
-      <Text style={S.coverMeta}>HS CODE: 3004.90  |  {countryName}  |  {dateStr}</Text>
 
-      <View style={S.coverDivider} />
+      {/* 회사명 (가운데) */}
+      <Text style={{ fontSize: 14, color: C_NAVY, textAlign: "center", marginBottom: 16 }}>
+        한국유나이티드제약
+      </Text>
 
-      {/* 목차 */}
-      <Text style={{ fontSize: 11, fontWeight: "bold", color: C_NAVY, marginBottom: 10 }}>목 차</Text>
-      {[
-        "I.    파나마 수출 가격 전략 보고서",
-        "        1. 파나마 거시 시장",
-        "        2. 단가 (시장 기준가)",
-        "        3. 거래처 참고 가격",
-        "        4. 가격 시나리오 (공공 / 민간)",
-        "",
-        "II.   파나마 바이어 후보 리스트",
-        "        1. 바이어 후보 리스트 (전체)",
-        "        2. 우선 접촉 바이어 상세 정보 (상위 3개사)",
-        "",
-        "III.  파나마 시장보고서",
-        "        1. 의료 거시환경 파악",
-        "        2. 무역/규제 환경",
-        "        3. 참고 가격",
-        "        4. 리스크 / 조건",
-        "        5. 근거 및 출처",
-      ].map((line, i) => (
-        <Text key={i} style={{ fontSize: 9, color: line === "" ? C_GRAY : line.startsWith("  ") ? C_BODY : C_NAVY, fontWeight: line.startsWith("I") ? "bold" : "normal", marginBottom: line === "" ? 4 : 2 }}>
-          {line || " "}
-        </Text>
-      ))}
+      {/* 날짜 (가운데) */}
+      <Text style={{ fontSize: 11, color: C_GRAY, textAlign: "center", marginBottom: 200 }}>
+        {dateStr}
+      </Text>
 
-      <Text style={{ ...S.disclaimer, marginTop: 32 }}>
-        기밀 — 내부용. 본 보고서는 AI 분석 및 공개 데이터에 기반한 내부 참고용 자료입니다.{"\n"}
-        최종 의사결정 전 담당자 검토 및 현지 실사가 필요합니다.
+      {/* 하단 구성 안내 (가운데) — 팀장 양식 */}
+      <Text style={{ fontSize: 10, color: C_GRAY, textAlign: "center" }}>
+        수출가격 전략 - 바이어 후보 리스트 - 시장분석
       </Text>
     </Page>
   );

@@ -1,5 +1,69 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (보고서 탭 플로팅 팝오버 + 표지 팀장 양식 정합)
+
+### 변경 배경
+SG 팀장 사이트 스크린샷(보고서 탭 팝오버) 및 5종 DOCX 양식 대조 결과:
+- 보고서 탭이 "화면 전체를 덮는 슬라이드 패널"로 UX가 어긋남 → 팀장 양식은 우하단 380px **플로팅 팝오버 카드**
+- 최종 PDF 표지가 "목차·HS CODE 포함 풍부형" → 팀장 양식은 **제목·회사명·날짜·하단 안내만** (심플형)
+
+### Changed
+
+#### ① 보고서 탭 UI 전면 재작성 — 우측 슬라이드 패널 → 플로팅 팝오버
+- `components/dashboard/ReportsFloatingButton.tsx`
+  - 제거: `max-w-[560px]` 풀 높이 슬라이드 + 검정 반투명 오버레이 + `translate-x-full` 애니메이션
+  - 추가: 버튼 바로 위에 뜨는 `w-[380px] max-h-[70vh]` 팝오버 카드 (`bottom-[72px] right-6`)
+  - 추가: 외부 클릭 / ESC 키로 닫기 (useRef 기반 영역 판정)
+  - 추가: "모두 지우기" 버튼 → `panama:reports:clearAll` 커스텀 이벤트 발송
+  - 제거: 검정 오버레이 (뒷배경을 가리지 않도록)
+- `components/dashboard/reports/SessionReportsList.tsx`
+  - Props 추가: `variant: "popover" | "page"` (기본 "page")
+  - 신규 `flattenSessions()`: 세션 단위 → 개별 보고서 카드 단위로 평탄화 (시장/가격(공공)/가격(민간)/바이어/최종 각각 1카드)
+  - popover 모드: 팀장 양식 (제목 + `[시장]`/`[가격]`/`[바이어]`/`[최종]` amber 태그 + PDF 버튼 + × 숨기기)
+  - 시장조사 카드에 `조건부` 뱃지 자동 표시 (팀장 양식 일치)
+  - `hiddenKeys` state로 개별 카드 × 클릭 시 즉시 숨김 (DB 삭제 X, 로컬만)
+  - "최종 보고서 생성 가능" 세션을 amber 점선 버튼으로 하단 표시
+
+#### ② 최종보고서 PDF 표지 — 팀장 양식 심플화
+- `components/reports/CombinedReportDocument.tsx` `CoverPage()`
+  - 제거: 제품명·성분·HS CODE·본문 상단 로고 텍스트
+  - 제거: 17라인 목차 (3장 구성)
+  - 제거: 표지 구분선(`coverDivider`)·disclaimer
+  - 추가: 가운데 정렬 큰 제목 `{국가} 진출 전략 보고서` (fontSize 26)
+  - 추가: 가운데 회사명 `한국유나이티드제약` (fontSize 14)
+  - 추가: 가운데 날짜 (fontSize 11)
+  - 추가: 하단 구성 안내 `수출가격 전략 - 바이어 후보 리스트 - 시장분석` (fontSize 10)
+
+### 분석 결과 (사용자 요청 — 팀장 사이트 vs 우리 사이트 차이점 도출)
+
+**A. 보고서 탭 UI** ✅ 수정 완료
+- 우측 슬라이드 패널(560px 폭) → 우하단 플로팅 팝오버(380px 폭)로 변경
+- 검정 오버레이 제거
+- 세션 단위 카드 → 개별 보고서 단위 카드로 분리 (팀장 양식 일치)
+- 태그 색상 amber 통일 (기존 파랑/보라/회색 분산)
+
+**B. DOCX 보고서 양식 정합** (이번 커밋엔 표지만 반영, 나머지는 사용자 선택에 따라 대기)
+- B1. 표지 ✅ 심플화 (목차·HS CODE 제거)
+- B2. 시장보고서 — 5섹션 구조 이미 일치 (유지)
+- B3. 수출가격 전략 — FOB 역산식 이미 반영, 3통화(USD/PAB/KRW) 병기는 사용자 미선택으로 대기
+- B4. 바이어 리스트 — Top 10 상세 현재 구조 유지 (사용자 미선택)
+- B5. 최종보고서 순서 — 표지 → 가격 → 바이어 → 시장 (팀장 양식과 이미 일치)
+
+**C. 글꼴/색상**
+- 본문 Noto Sans KR 동일
+- 헤더 `#1B3A6B` (C_NAVY) 동일
+- 태그 color amber로 통일 (수정 완료)
+
+### 바이어 검색 로직 확인 (사용자 질문 응답)
+- **현재 바이어 서칭은 크롤링이 아닌 DB 조회 + LLM 보강** 구조
+  1. Supabase `panama_partner_candidates` 테이블(66건 기적재) 조회
+  2. `global_mnc_filter.ts`의 `filterOutGlobalMnc()` 적용 → 로컬/LATAM 중견 48건 유지
+  3. Claude Haiku LLM으로 기업별 메타(GMP·수입이력·치료영역) 보강
+  4. PSI 점수 계산 → Top 10 → 제품 연관성 LLM 생성
+- **실시간 크롤링(Playwright)은 아직 없음** (도입은 별도 대규모 작업으로 분리 권장)
+
+---
+
 ## [Unreleased] - 2026-04-23 (SG 팀장 UI 정합 + 글로벌 MNC 제외 필터)
 
 ### 변경 배경
