@@ -1,0 +1,15 @@
+diff --git a/node_modules/@react-pdf/render/lib/index.js b/node_modules/@react-pdf/render/lib/index.js
+index 763fd3c..7ea691d 100644
+--- a/node_modules/@react-pdf/render/lib/index.js
++++ b/node_modules/@react-pdf/render/lib/index.js
+@@ -1495,6 +1495,10 @@ const KAPPA = 4.0 * ((Math.sqrt(2) - 1.0) / 3.0);
+ const clipBorderTop = (ctx, layout, style, rtr, rtl) => {
+     const { top, left, width, height } = layout;
+     const { borderTopWidth, borderRightWidth, borderLeftWidth } = style;
++    // PATCH: diagnose bad layout values causing pdfkit overflow
++    if (!Number.isFinite(left) || !Number.isFinite(top) || !Number.isFinite(width) || !Number.isFinite(height) || !Number.isFinite(rtl) || !Number.isFinite(rtr) || Math.abs(left) > 1e20 || Math.abs(top) > 1e20 || Math.abs(width) > 1e20 || Math.abs(height) > 1e20 || Math.abs(rtl) > 1e20 || Math.abs(rtr) > 1e20) {
++        console.error("[BORDER-DIAG] clipBorderTop bad layout:", JSON.stringify({ top, left, width, height, rtl, rtr, borderTopWidth, borderRightWidth, borderLeftWidth }));
++    }
+     // Clip outer top border edge
+     ctx.moveTo(left + rtl, top);
+     ctx.lineTo(left + width - rtr, top);
