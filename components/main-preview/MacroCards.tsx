@@ -34,7 +34,7 @@ const MACRO_VALUE_STYLE: React.CSSProperties = {
   fontWeight: 900,
 };
 const MACRO_VALUE_CLASS =
-  "text-center leading-[1.2] tracking-[-0.035em] text-[#1E3A5F] text-[32px] sm:text-[38px]";
+  "text-center leading-[1.2] tracking-[-0.035em] text-[#1E3A5F] text-[24px] sm:text-[28px]";
 const MACRO_DETAIL_LINE_CLASS = "text-center text-[14px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
