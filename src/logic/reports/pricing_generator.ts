@@ -152,11 +152,22 @@ async function runOneSegment(
   }
 
   const competitorPrices = await fetchCompetitorPrices(input.productId);
-  const defaultPab =
-    competitorPrices.publicProcurement.avg !== null &&
-    Number.isFinite(competitorPrices.publicProcurement.avg)
-      ? competitorPrices.publicProcurement.avg
-      : 19.8;
+
+  // 세그먼트별 참조가 선택: 공공은 publicProcurement, 민간은 privateRetail
+  const segmentChannel =
+    segment === "public"
+      ? competitorPrices.publicProcurement
+      : competitorPrices.privateRetail;
+  const segmentAvg = segmentChannel.avg;
+
+  // 실측 데이터 없으면 FOB 역산 불가 — 19.8 PAB 하드코딩 fallback 제거
+  // (참조가 조작으로 가짜 수출가가 UI에 표시되는 문제 방지)
+  if (segmentAvg === null || !Number.isFinite(segmentAvg)) {
+    throw new Error(
+      `PRICING_DATA_UNAVAILABLE: ${segment === "public" ? "공공조달" : "민간소매"} 가격 데이터가 수집되지 않아 FOB 역산을 수행할 수 없습니다. (product_id=${input.productId})`,
+    );
+  }
+  const defaultPab = segmentAvg;
 
   const commonInput = {
     finalPricePab: defaultPab,
