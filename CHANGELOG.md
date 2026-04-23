@@ -1,5 +1,62 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (보고서 양식 텍스트 템플릿 기준 전면 정렬)
+
+### 변경 배경
+사용자 제공 텍스트 템플릿 3종(`시장보고서.txt` / `수출가격전략.txt` / `바이어분석보고서.txt`)에 맞춰
+`CombinedReportDocument.tsx` 구조 전면 정렬 (한글 고딕체는 NotoSansKR로 유지)
+
+### Changed
+- `components/reports/CombinedReportDocument.tsx`
+
+  **바이어 분석 보고서**
+  - 섹션 제목: "파나마 바이어 후보 리스트" → "파나마 바이어 분석 보고서"
+  - Section 1 테이블 컬럼: `# | 업체명 | 국가/지역 | 치료영역 | 이메일` → `# | 기업명 | 주력상품 | 이메일`
+  - 주력상품 우선순위: CPHI 카테고리 > 첫 번째 등록제품 > 치료영역
+  - 필터링 조건 문구 추가 (원료의약품/다국적/오리지널 제약사 제외, 완제품 유통 우선)
+  - Section 2 퍼컴퍼니: PSI 점수 막대 제거, 연락처 KV → "기본 정보" 테이블 (주소|연락처|설립연도|홈페이지|파이프라인) 변환
+  - 출처 문구: "Panama 파트너 DB / AI 분석" → "Perplexity 분석"
+
+  **시장보고서 Section 5**
+  - 5-0 AI 전략 권고 제거
+  - 5-1: "활용 DB/기관" (이전) → **"퍼플렉시티 추천 논문"** 테이블 (No. | 논문 제목 및 출처 | 한국어 요약)
+    - 데이터 없으면 No.1~3 행에 `—` 공란 처리
+  - 5-2: "수집 데이터 현황" 통합 → **"사용된 DB/기관"** 불릿 목록
+  - 어려운 영어 용어 괄호 한국어 설명 추가 (PanamaCompra, ACODECO, MINSA, WHO EML 등)
+
+  **수출가격 전략 Section 3**
+  - 채널 요약 테이블 + CompetitorKVBlocks → **경쟁사 제품 테이블** (업체명|제품명|성분함량|시장가)
+  - 경쟁사 데이터 없을 시 채널 요약 테이블 폴백 유지
+  - 가격에 KRW 환산 병기 (`PAB XX / KRW XX원`)
+
+## [Unreleased] - 2026-04-23 (SG 팀장 양식 분석 후 CombinedReportDocument 동기화 2차)
+
+### 분석
+- `SG_00_표지.docx` / `SG_01_시장보고서_Sereterol.docx` / `SG_02_수출가격전략_Gadvoa.docx`
+  `SG_03_바이어리스트.docx` / `SG_최종보고서(2-3-1 합친버전).docx` DOCX 원본 확인 완료
+- SG vs 파나마 구조 비교: 보고서 순서·섹션 타이틀 일치 확인
+- 차이점 3가지 도출: ①파이프라인 레이블 ②3개 통화 병기 ③Perplexity 검색결과 섹션
+
+### Changed
+- `components/reports/CombinedReportDocument.tsx`
+  - 바이어 추천이유 ② 레이블 `"치료 영역"` → `"파이프라인"` (SG 양식 ② 항목 명칭 일치)
+  - 가격보고서 "기준 가격" KV: `PAB XX` → `PAB XX / USD XX / KRW XX원` (SG 3개 통화 병기 형식)
+  - 거래처 참고 가격 표 평균가 열: `PAB XX` → `PAB XX / KRW XX원` (동일 이유)
+  - 표 헤더 "평균가" → "평균가 (PAB / KRW)" 로 명시
+
+### 잔여 차이 (데이터 파이프라인 작업 필요)
+- SG 시장보고서 5-1: Perplexity 검색 결과 URL 3개 표시 섹션 → 현재 Panama는 DB 출처 목록으로 대체
+  (market_generator 결과에 Perplexity URL 저장 로직 추가 필요)
+
+## [Unreleased] - 2026-04-23 (CombinedReportDocument 팀장 구조 동기화)
+
+### Changed
+- `components/reports/CombinedReportDocument.tsx`
+  - ScenarioTable 폴백 레이블 `"기준"` → `"기준가"` (2곳, PricingCards UI와 동기화)
+  - 파트너 보고서 추천이유 레이블 `"GMP 인증"` → `"제조소 보유"`, `"수입 이력"` → `"수입 경험"` (PartnerSection UI와 동기화)
+  - 기업개요 텍스트 `GMP 인증 {gmp}` → `제조소 보유 {gmp}`
+  - PSI 점수 막대 레이블 `"GMP(20%)"` → `"제조소(20%)"`, `"수입이력(12%)"` → `"수입경험(12%)"`
+
 ## [Unreleased] - 2026-04-23 (PricingCards SG 버전 통일 — 레이블·통화 표시 정리)
 
 ### Changed
