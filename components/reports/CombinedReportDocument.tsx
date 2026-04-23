@@ -372,6 +372,40 @@ function Divider() {
   return <View style={S.sectionDivider} />;
 }
 
+/**
+ * LLM 텍스트 내 "▸ 소제목: 내용" 패턴을 파싱해 SectionH2 + body로 분리 렌더링.
+ * ▸ 마커가 없으면 단일 Text 블록으로 출력.
+ */
+function LLMTextBlock({ text, style }: { text: string; style?: Record<string, unknown> }) {
+  // "▸ " 로 분리 (공백 없는 경우도 처리)
+  const parts = text.split(/(?=▸\s)/g).filter(Boolean);
+  if (parts.length <= 1) {
+    // 마커 없음 — 그냥 단일 단락
+    return <Text style={{ ...S.body, ...style }}>{text}</Text>;
+  }
+  return (
+    <>
+      {parts.map((part, i) => {
+        const stripped = part.replace(/^▸\s*/, "").trim();
+        // "소제목: 내용" 형태로 분리
+        const colonIdx = stripped.indexOf(":");
+        if (colonIdx > 0 && colonIdx < 30) {
+          const heading = stripped.slice(0, colonIdx).trim();
+          const body    = stripped.slice(colonIdx + 1).trim();
+          return (
+            <View key={i} style={{ marginTop: i > 0 ? 4 : 0 }}>
+              <Text style={S.sectionH2}>▸ {heading}</Text>
+              {body !== "" && <Text style={{ ...S.body, marginTop: 2, ...style }}>{body}</Text>}
+            </View>
+          );
+        }
+        // 콜론 없음 — 전체를 body로
+        return <Text key={i} style={{ ...S.body, marginTop: i > 0 ? 4 : 0, ...style }}>{stripped}</Text>;
+      })}
+    </>
+  );
+}
+
 // ─── Competitor KV block (DOCX 스타일: 제품명 헤더 + 성분·채널·가격 KV) ─────────
 
 function CompetitorKVBlocks({
@@ -769,7 +803,7 @@ function MarketReportSection({
       {/* 2. 무역/규제 환경 */}
       <SectionH1 n="2" title="무역/규제 환경" />
       {llmB2 !== "" ? (
-        <Text style={S.body}>{llmB2}</Text>
+        <LLMTextBlock text={llmB2} />
       ) : (
         <>
           <SectionH2 title="MINSA 등록 현황" />
@@ -832,7 +866,7 @@ function MarketReportSection({
         />
       )}
       {llmB3 !== "" && (
-        <Text style={{ ...S.body, marginTop: 4 }}>{llmB3}</Text>
+        <LLMTextBlock text={llmB3} style={{ marginTop: 4 }} />
       )}
 
       <Divider />
@@ -840,7 +874,7 @@ function MarketReportSection({
       {/* 4. 리스크 / 조건 */}
       <SectionH1 n="4" title="리스크 / 조건" />
       {llmB4 !== "" ? (
-        <Text style={S.body}>{llmB4}</Text>
+        <LLMTextBlock text={llmB4} />
       ) : (
         <>
           <SectionH2 title="규제 심사 소요 기간" />

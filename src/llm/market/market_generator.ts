@@ -74,17 +74,22 @@ const MARKET_SYSTEM = `
    - 수입 의존도: ~90%
 3) EML 등재 현황(WHO/PAHO/MINSA)은 입력 데이터 그대로 반영.
 4) 가격 데이터가 없으면 "데이터 미수집" 또는 "수집 대기 중"으로 명시.
-5) 마크다운 헤더(##, **) 금지. 순수 텍스트만 출력.
+5) 마크다운 헤더(##, **) 금지. 서브섹션 구분은 반드시 "▸ 소제목:" 형식 사용.
 6) 각 블록은 독립 문단으로 완결되어야 함.
 
-[block2_regulatory_path 작성 기준 — MINSA 신청 절차 구체화 필수]
-block2는 반드시 아래 항목을 모두 포함하여 단계적으로 서술한다:
-① MINSA DNFD(Departamento Nacional de Farmacia y Drogas) 신규 등록 절차:
-   - 신청서 제출 → ② 서류 심사(GMP 증명서, CoA, SPC/SmPC, 원산지 증명, 신청 수수료 등) → ③ 이화학·미생물 시험 → ④ 위원회 심의 → ⑤ 등록번호(RN) 발급. 통상 심사 기간 12~18개월.
-② MAH(Marketing Authorization Holder) 요건: 파나마 현지 MAH 지정 필수, 또는 현지 법인/파트너를 통한 위임 등록 가능.
-③ 공공채널: ALPS(Sistema de Compras Públicas) 입찰 자격 — MINSA 등록 후 포뮬러리(Formulario Nacional) 등재 신청, CSS(Caja de Seguro Social) 별도 등재 필요.
-④ 민간채널: 약국 체인(Arrocha, Rey, Farmacias Metro) 납품은 도매상(Distribuidora 등) 경유.
-⑤ 한-파나마 FTA(2021.3 발효): HS 3004 관세율 0%, ITBMS(부가세) 의약품 면세.
+[block2_regulatory_path 작성 형식 — 반드시 아래 3개 서브섹션 "▸" 마커로 구분]
+▸ MINSA/DNFD 등록 현황: 신청서 제출 → 서류 심사(GMP 증명서, CoA, SPC, 원산지 증명) → 이화학·미생물 시험 → 위원회 심의 → 등록번호(RN) 발급. 통상 12~18개월. MAH는 현지 파트너 위임 가능. WLA 인증 시 Law 419(2024.02 발효) 패스트트랙 적용.
+▸ 진입 채널 권고: 공공채널(ALPS 입찰)은 MINSA 등록 후 Formulario Nacional 등재 + CSS 별도 포뮬러리 신청 필요. 민간채널은 도매상(Distribuidora) 경유 약국 체인(Arrocha, Rey, Metro) 납품.
+▸ 관세 및 무역: 한-파나마 FTA(2021.3 발효) HS 3004 관세 0%, ITBMS(부가세) 의약품 면세. 파나마시티 항구(Balboa) CIF 조건 통관.
+
+[block3_price_context 작성 형식 — 반드시 아래 형식으로 경쟁사 가격 나열]
+▸ 참조 시장가: 수집된 PanamaCompra·ACODECO 가격 데이터를 "제품명: PAB XX.XX (출처)" 형식으로 2~3건 나열. 데이터 없으면 "수집 대기 중" 명시.
+▸ 전략 제안: 경쟁사 대비 포지셔닝 방향 1문장 (예: "Tier 1 대비 15~20% 할인 포지셔닝으로 초기 공공 채널 진입 권고").
+
+[block4_risk_factors 작성 형식 — 반드시 아래 3개 서브섹션 "▸" 마커로 구분]
+▸ 규제 심사 소요 기간: MINSA 신규 등록 통상 12~18개월, 행정 지연 시 24개월 이상 가능.
+▸ 경쟁 강도: 동일 성분 기진입 경쟁사 수·주요 업체명·가격 수준 기술.
+▸ 포뮬러리 등재: CSS/MINSA 포뮬러리 등재 요건, EML 미등재 성분의 조달 입찰 제한 가능성.
 `.trim();
 
 function buildMarketPrompt(input: MarketLLMInput): string {
@@ -164,11 +169,11 @@ function buildFallback(input: MarketLLMInput): MarketAnalysisPayload {
     block1_macro_overview:
       `파나마는 인구 약 435만 명(World Bank 2024), 1인당 GDP USD 19,445로 중미 최고 소득 국가다. 의약품 시장 규모는 USD 496M(Statista 2024), 수입 의존도 약 90%. ${input.productName}(${input.inn})의 EML 등재 현황: ${emlStatus}.`.slice(0, 200),
     block2_regulatory_path:
-      `MINSA DNFD(Departamento Nacional de Farmacia y Drogas) 신규 등록 절차: ① 신청서·GMP 증명서·CoA·SPC·원산지 증명 제출 → ② 이화학·미생물 시험 → ③ 위원회 심의 → ④ 등록번호(RN) 발급. 통상 심사 기간 12~18개월(기등록 INN 성분은 서류 간소화로 단축 가능). MAH는 파나마 현지 파트너를 통한 위임 등록 가능. 공공채널: MINSA 등록 후 Formulario Nacional 등재 + ALPS 입찰 참여, CSS별도 포뮬러리 신청 필요. 민간채널: 도매상(Distribuidora) 경유 약국 체인(Arrocha, Rey, Metro) 납품. 한-파나마 FTA(2021.3 발효): HS 3004 관세 0%, ITBMS 의약품 면세.`.slice(0, 450),
+      `▸ MINSA/DNFD 등록 현황: 신청서·GMP 증명서·CoA·SPC·원산지 증명 제출 → 이화학·미생물 시험 → 위원회 심의 → 등록번호(RN) 발급. 통상 12~18개월(WLA 인증 시 Law 419 패스트트랙 단축 가능). MAH는 현지 파트너 위임 등록 가능. ▸ 진입 채널 권고: 공공채널(ALPS) — MINSA 등록 후 Formulario Nacional 등재 + CSS 포뮬러리 별도 신청 필요. 민간채널 — 도매상(Distribuidora) 경유 약국 체인(Arrocha, Rey, Metro) 납품. ▸ 관세 및 무역: 한-파나마 FTA(2021.3 발효) HS 3004 관세 0%, ITBMS 의약품 면세. Balboa 항구 CIF 조건 통관.`.slice(0, 450),
     block3_price_context:
-      `PanamaCompra 수집 ${input.publicProcurementCount}건(평균 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(2)}` : "미집계"}), ACODECO/CABAMED 민간 소매 ${input.privateRetailCount}건(평균 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "미집계"}). 판정 Case ${input.caseGrade}: ${input.caseRationale} 수집 데이터를 기준 참조가로 활용한다.`.slice(0, 250),
+      `▸ 참조 시장가: PanamaCompra 수집 ${input.publicProcurementCount}건(공공 평균 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(2)}` : "미집계"}), ACODECO/CABAMED 민간 ${input.privateRetailCount}건(소매 평균 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "미집계"}). 판정 Case ${input.caseGrade}: ${input.caseRationale} ▸ 전략 제안: 수집 데이터 기준 Tier 2 경쟁사 대비 10~15% 할인 포지셔닝으로 공공 채널 초기 진입 권고.`.slice(0, 250),
     block4_risk_factors:
-      `MINSA 신규 등록 심사 12~18개월 소요, 행정 지연 시 24개월 이상 가능. 다국적 제네릭(Bayer, Sandoz 등) 기진입 시장으로 경쟁 강도 높음. CSS/MINSA 포뮬러리 등재 요건 충족 필요. EML 미등재 성분의 경우 조달 입찰 자격 제한 가능성 있음.`.slice(0, 200),
+      `▸ 규제 심사 소요 기간: MINSA 신규 등록 통상 12~18개월, 행정 지연 시 24개월 이상 가능. ▸ 경쟁 강도: 동일 INN 성분 다국적 제네릭(Bayer, Sandoz, Genfar 등) 기진입 시장으로 경쟁 강도 높음. ▸ 포뮬러리 등재: CSS/MINSA 포뮬러리 등재 요건 충족 필요. EML 미등재 성분의 경우 공공 조달 입찰 자격 제한 가능성 있음.`.slice(0, 200),
     block5_action_recommendation:
       `단기: ALPS 공공 입찰 전 MINSA 등록 + 포뮬러리 등재 신청 병행. 중기: 약국 체인 파트너(PSI 기준 상위 3개사)와 민간 유통 계약 체결. 권고 진입 채널: 공공(ALPS) 우선, 민간 병행. Case ${input.caseGrade} 판정 기준으로 가격 경쟁력 확보 전략 수립.`.slice(0, 200),
   };
