@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "app/api/panama/report/combined/route.ts": {
+      "includeFiles": "public/fonts/**"
+    },
+    "app/api/panama/report/partner/route.ts": {
+      "includeFiles": "public/fonts/**"
+    },
+    "app/api/panama/report/pricing/route.ts": {
+      "includeFiles": "public/fonts/**"
+    },
+    "app/api/panama/report/[type]/[id]/pdf/route.ts": {
+      "includeFiles": "public/fonts/**"
+    }
+  }
+}
