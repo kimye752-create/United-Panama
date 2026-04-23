@@ -78,6 +78,7 @@ export async function POST(req: Request): Promise<Response> {
     /* Vercel 서버리스는 응답 반환 후 함수가 즉시 종료되어 background task 가 끊긴다.
        → 통합 보고서 생성도 동기로 실행한 뒤 응답한다. (maxDuration=300s 여유 충분) */
     let combinedReportId: string | null = null;
+    let combinedError: string | null = null;
     try {
       const combinedReport = await generateCombinedReport(sessionId);
       combinedReportId = combinedReport.id;
@@ -90,12 +91,15 @@ export async function POST(req: Request): Promise<Response> {
         .eq("id", sessionId);
     } catch (combErr) {
       /* 통합 실패해도 파트너 결과는 반환 — 사용자는 /report/combined GET 으로 재시도 가능 */
-      console.error("[partner] combined report 생성 실패:", combErr);
+      combinedError =
+        combErr instanceof Error ? combErr.message : String(combErr);
+      console.error("[partner] combined report 생성 실패:", combinedError);
     }
 
     return NextResponse.json({
       partnerReportId: partnerReport.id,
       combinedReportId,
+      combinedError,
       partnerData: partnerReport.report_data,
     });
   } catch (err: unknown) {
