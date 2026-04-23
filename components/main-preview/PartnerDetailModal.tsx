@@ -62,7 +62,7 @@ function parseReasons(text: string): { icon: string; label: string; body: string
       });
     }
   }
-  return result.length > 0 ? result : [{ icon: "📌", label: "추천 이유", body: text }];
+  return result.length > 0 ? result : [{ icon: "📌", label: "적합성 평가", body: text }];
 }
 
 export function PartnerDetailModal({ rank, partner: p, onClose, productInn, productName }: Props) {
@@ -114,10 +114,10 @@ export function PartnerDetailModal({ rank, partner: p, onClose, productInn, prod
             <p className="text-[13px] leading-relaxed text-[#4a5a6f]">{overview}</p>
           </div>
 
-          {/* ── 2. 추천 이유 (5가지 기준) ── */}
+          {/* ── 2. 적합성 평가 (5가지 기준) ── */}
           {reasons.length > 0 && (
             <div>
-              <SectionTitle>추천 이유</SectionTitle>
+              <SectionTitle>적합성 평가</SectionTitle>
               <ol className="space-y-2">
                 {reasons.map((r, i) => (
                   <li key={i} className="flex gap-2 text-[13px]">
