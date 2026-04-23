@@ -44,6 +44,8 @@ export function AnalysisWorkspace() {
         ingredient: p.who_inn_en,
         category: p.therapeutic_area,
         displayLabel: PRODUCT_DISPLAY_LABELS[p.product_id] ?? `${p.kr_brand_name} · ${p.who_inn_en}`,
+        pack_size: p.pack_size,
+        unit_type_kr: p.unit_type_kr,
       })),
     [],
   );

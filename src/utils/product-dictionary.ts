@@ -16,6 +16,10 @@ export interface ProductMaster {
   hs_code: string;
   therapeutic_area: string;
   formulation: string;
+  /** 팩당 단위 수 (예: 30캡슐) — 가격 표시 및 환산에 사용 */
+  pack_size?: number;
+  /** 단위 이름 한국어 (캡슐/정/앰플 …) */
+  unit_type_kr?: string;
   patent_tech?: string;
   panama_target: boolean;
   panama_search_keywords: string[];
@@ -113,6 +117,8 @@ export const TARGET_PRODUCTS: readonly ProductMaster[] = [
     hs_code: "3004.90",
     therapeutic_area: "순환기 (고지혈증)",
     formulation: "Soft Cap.",
+    pack_size: 30,
+    unit_type_kr: "캡슐",
     patent_tech: "CombiGel",
     panama_target: true,
     panama_search_keywords: [

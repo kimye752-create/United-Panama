@@ -20,6 +20,8 @@ export function CombinedReportWorkspace() {
         name: p.kr_brand_name,
         ingredient: p.who_inn_en,
         category: p.therapeutic_area,
+        pack_size: p.pack_size,
+        unit_type_kr: p.unit_type_kr,
       })),
     [],
   );

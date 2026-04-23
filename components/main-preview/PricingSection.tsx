@@ -11,6 +11,10 @@ export interface ReportFlowProduct {
   ingredient: string;
   category: string;
   displayLabel?: string;
+  /** 팩당 단위 수 (예: 30) */
+  pack_size?: number;
+  /** 단위 이름 한국어 (캡슐/정 …) */
+  unit_type_kr?: string;
 }
 
 interface Props {
@@ -288,6 +292,9 @@ export function PricingSection({ products, onSessionReady }: Props) {
           <PricingCards
             segment={selectedSegment}
             data={selectedSegment === "public" ? pricingData.public : pricingData.private}
+            unitTypeKr={selectedProduct?.unit_type_kr}
+            packSize={selectedProduct?.pack_size}
+            productName={selectedProduct?.name}
           />
         )}
       </div>

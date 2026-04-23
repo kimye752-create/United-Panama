@@ -37,9 +37,16 @@ function fmtKrw(krw: number): string {
 interface Props {
   segment: Segment;
   data: unknown;
+  /** 단위 이름 한국어 (캡슐/정 …) — 없으면 "단위" */
+  unitTypeKr?: string;
+  /** 팩당 단위 수 — 있으면 팩 환산가 표시 */
+  packSize?: number;
+  /** 제품명 — 팩 안내 문구용 */
+  productName?: string;
 }
 
-export function PricingCards({ segment, data }: Props) {
+export function PricingCards({ segment, data, unitTypeKr, packSize, productName }: Props) {
+  const unit = unitTypeKr ?? "단위";
   const [editModal, setEditModal] = useState<Scenario | null>(null);
 
   if (data === null || typeof data !== "object") {
@@ -82,16 +89,23 @@ export function PricingCards({ segment, data }: Props) {
                 {label}
               </p>
 
-              {/* USD 주 가격 */}
+              {/* USD 주 가격 — 단위당 */}
               <p className="mt-1.5 text-[22px] font-extrabold leading-none text-navy">
                 {card.price_usd !== null ? card.price_usd.toFixed(2) : "—"}
               </p>
-              <p className="text-[11px] font-semibold text-[#7a8fa8]">USD</p>
+              <p className="text-[11px] font-semibold text-[#7a8fa8]">USD / {unit}</p>
 
               {/* KRW 환산 (SG의 SGD에 해당) */}
               {card.price_krw !== null && (
                 <p className="mt-1 text-[11px] text-[#9aafc5]">
-                  {fmtKrw(card.price_krw)}
+                  {fmtKrw(card.price_krw)} / {unit}
+                </p>
+              )}
+
+              {/* 팩 환산가 — pack_size 있을 때 */}
+              {packSize !== undefined && packSize > 0 && card.price_usd !== null && (
+                <p className="mt-1.5 border-t border-dashed border-[#e5ecf5] pt-1.5 text-[11px] font-semibold text-[#4a5a6f]">
+                  팩({packSize}{unit}) ≈ USD {(card.price_usd * packSize).toFixed(2)}
                 </p>
               )}
 
@@ -103,6 +117,16 @@ export function PricingCards({ segment, data }: Props) {
           );
         })}
       </div>
+
+      {/* 단위/팩 안내 */}
+      {packSize !== undefined && packSize > 0 && (
+        <p className="mt-2 text-[11px] text-[#6b7a8f]">
+          ※ 상기 가격은 <span className="font-semibold text-[#273f60]">{unit} 1개 단가</span> 기준입니다.
+          {productName !== undefined && productName !== "" ? ` ${productName} 은(는) ` : " 본 제품은 "}
+          팩당 <span className="font-semibold text-[#273f60]">{packSize}{unit}</span>로 구성되며,
+          실제 거래가는 팩 단위로 환산한 금액이 기준이 됩니다.
+        </p>
+      )}
 
       {/* 면책 */}
       <p className="mt-3 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
