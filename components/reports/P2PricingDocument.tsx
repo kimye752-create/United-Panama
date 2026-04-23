@@ -239,9 +239,9 @@ function UnitPriceTable({ marketResult }: { marketResult: Record<string, unknown
   }
 
   const rows = [
-    { key: "aggressive", label: "저가진입", desc: "시장 점유율 확보 인하 전략" },
-    { key: "average",    label: "기준가",   desc: "시장 허용 FOB 균형 전략" },
-    { key: "conservative", label: "프리미엄", desc: "기술 프리미엄 반영 전략" },
+    { key: "agg",  label: "저가진입", desc: "시장 점유율 확보 인하 전략" },
+    { key: "avg",  label: "기준가",   desc: "시장 허용 FOB 균형 전략" },
+    { key: "cons", label: "프리미엄", desc: "기술 프리미엄 반영 전략" },
   ] as const;
 
   return (
@@ -335,9 +335,9 @@ function ScenarioCards({
   const formula = str(marketResult["formula"]);
 
   const scenarioDefs = [
-    { key: "aggressive",   label: "저가진입",  color: "#16a34a" },
-    { key: "average",      label: "기준가",    color: NAVY },
-    { key: "conservative", label: "프리미엄",  color: "#9333ea" },
+    { key: "agg",  label: "저가진입",  color: "#16a34a" },
+    { key: "avg",  label: "기준가",    color: NAVY },
+    { key: "cons", label: "프리미엄",  color: "#9333ea" },
   ] as const;
 
   return (

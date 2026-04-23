@@ -49,6 +49,7 @@ const TAG_COLOR: Record<FlatReportCard["tag"], string> = {
 function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
   const out: FlatReportCard[] = [];
   for (const s of sessions) {
+    // ── 최종 통합 보고서 (combined) — 세션 기반 URL로 의미 있는 파일명 유지
     if (s.combinedReportId !== null) {
       out.push({
         key: `combined-${s.combinedReportId}`,
@@ -65,6 +66,8 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         reportType: "combined",
       });
     }
+
+    // ── 바이어 발굴 보고서 (partner) — 개별 PDF 온디맨드
     if (s.partnerReportId !== null) {
       out.push({
         key: `partner-${s.partnerReportId}`,
@@ -81,12 +84,15 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         reportType: "partner",
       });
     }
+
+    // ── 수출가격 전략 보고서 (공공 + 민간 통합 한 장) — 공공 ID로 온디맨드 렌더
+    //    pricing_private 는 별도 카드 없이 pricing_public PDF 에 함께 포함됨
     if (s.pricingPublicReportId !== null) {
       out.push({
-        key: `pricing-public-${s.pricingPublicReportId}`,
+        key: `pricing-${s.pricingPublicReportId}`,
         sessionId: s.sessionId,
         productName: s.productName,
-        kindLabel: "수출가격 전략 (공공)",
+        kindLabel: "수출가격 전략 보고서",
         subtitle: s.productName,
         createdAt: s.createdAt,
         tag: "가격",
@@ -97,22 +103,8 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         reportType: "pricing_public",
       });
     }
-    if (s.pricingPrivateReportId !== null) {
-      out.push({
-        key: `pricing-private-${s.pricingPrivateReportId}`,
-        sessionId: s.sessionId,
-        productName: s.productName,
-        kindLabel: "수출가격 전략 (민간)",
-        subtitle: s.productName,
-        createdAt: s.createdAt,
-        tag: "가격",
-        tagColor: TAG_COLOR["가격"],
-        caseBadge: null,
-        pdfHref: `/api/panama/report/pricing_private/${s.pricingPrivateReportId}/pdf`,
-        reportId: s.pricingPrivateReportId,
-        reportType: "pricing_private",
-      });
-    }
+
+    // ── 시장조사 보고서 (market) — 개별 PDF 온디맨드
     if (s.marketReportId !== null) {
       out.push({
         key: `market-${s.marketReportId}`,
@@ -229,7 +221,7 @@ export function SessionReportsList({ variant = "page" }: Props) {
         {flatCards.map((card) => (
           <article
             key={card.key}
-            className="rounded-xl border border-[#eef2f7] bg-white p-3 transition-colors hover:border-[#d9e2ef]"
+            className="rounded-[16px] bg-white p-3 shadow-sh2 transition-shadow hover:shadow-sh"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
@@ -310,7 +302,7 @@ export function SessionReportsList({ variant = "page" }: Props) {
         return (
           <article
             key={s.sessionId}
-            className="rounded-xl border border-[#d9e2ef] bg-white p-4 shadow-sm"
+            className="rounded-[20px] bg-white p-4 shadow-sh"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -333,41 +325,14 @@ export function SessionReportsList({ variant = "page" }: Props) {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {s.marketReportId !== null && (
-                <a
-                  href={`/api/panama/report/market/${s.marketReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 시장조사
-                </a>
+              {s.marketCompleted && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">✓ 시장조사</span>
               )}
-              {s.pricingPublicReportId !== null && (
-                <a
-                  href={`/api/panama/report/pricing_public/${s.pricingPublicReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 가격(공공)
-                </a>
+              {s.pricingCompleted && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">✓ 가격전략</span>
               )}
-              {s.pricingPrivateReportId !== null && (
-                <a
-                  href={`/api/panama/report/pricing_private/${s.pricingPrivateReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 가격(민간)
-                </a>
-              )}
-              {s.partnerReportId !== null && (
-                <a
-                  href={`/api/panama/report/partner/${s.partnerReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 바이어
-                </a>
+              {s.partnerCompleted && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">✓ 바이어</span>
               )}
             </div>
 

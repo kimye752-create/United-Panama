@@ -59,7 +59,7 @@ export function ReportListPanel({ sessionId }: Props) {
   }
 
   return (
-    <aside className="rounded-xl border border-[#d9e2ef] bg-white p-4 shadow-sh2">
+    <aside className="rounded-[20px] bg-white p-4 shadow-sh">
       <header className="mb-3 flex items-center justify-between gap-2">
         <h3 className="text-sm font-extrabold text-[#273f60]">생성된 보고서</h3>
       </header>

@@ -30,8 +30,8 @@ const PRODUCT_DISPLAY_LABELS: Record<string, string> = {
 };
 
 /**
- * 시장 분석 탭 — 팀장 SG 레퍼런스 구조: 컬럼 자체가 카드
- * 수출가격 전략(01) + 바이어 발굴(02) · 헤더 고정, 바디 독립 스크롤
+ * 시장 분석 탭 — 01·02 2열 + 우측 생성 보고서 목록(SG 레퍼런스와 동일 구조)
+ * Phase1(시장 조사)은 세션 초기화 시 자동 실행됨. 별도 UI 없음.
  */
 export function AnalysisWorkspace() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -49,21 +49,14 @@ export function AnalysisWorkspace() {
   );
 
   return (
-    <div className="grid h-full gap-4 p-4 lg:grid-cols-[1fr_1.45fr]">
-      {/* 01 수출가격 전략 — 컬럼이 카드 */}
-      <div className="flex flex-col overflow-hidden rounded-[20px] bg-white shadow-sh">
-        <PricingSection
-          products={products}
-          onSessionReady={(sid) => {
-            setSessionId(sid);
-          }}
-        />
-      </div>
-
-      {/* 02 바이어 발굴 — 컬럼이 카드 */}
-      <div className="flex flex-col overflow-hidden rounded-[20px] bg-white shadow-sh">
-        <PartnerSection sessionId={sessionId} />
-      </div>
+    <div className="grid gap-3.5 lg:grid-cols-2">
+      <PricingSection
+        products={products}
+        onSessionReady={(sid) => {
+          setSessionId(sid);
+        }}
+      />
+      <PartnerSection sessionId={sessionId} />
     </div>
   );
 }

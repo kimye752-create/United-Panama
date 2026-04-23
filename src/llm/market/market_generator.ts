@@ -1,60 +1,69 @@
 /**
- * 시장조사 보고서 — Anthropic Haiku LLM 분석 (5블록)
- * DB 데이터(가격·EML·PanamaCompra) 기반으로 실제 인사이트 생성
+ * 시장조사 보고서 — Anthropic Haiku LLM 분석
+ * SG_01_시장보고서_Sereterol.docx 양식 기준 5섹션 구조
+ * DB 데이터(가격·EML·PanamaCompra·치료영역통계) 기반 실제 인사이트 생성
  */
 import Anthropic from "@anthropic-ai/sdk";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages/messages.js";
 
-// ─── 스키마 ───────────────────────────────────────────────────
+// ─── 스키마 ─────────────────────────────────────────────────────────────────
 export interface MarketAnalysisPayload {
-  block1_macro_overview: string;       // 파나마 거시환경 + EML 현황 요약 (50-200자)
-  block2_regulatory_path: string;      // MINSA 등록 + 진입채널 (50-250자)
-  block3_price_context: string;        // 수집 가격 데이터 해석 + 경쟁 현황 (50-250자)
-  block4_risk_factors: string;         // 규제/경쟁/조달 리스크 (50-200자)
-  block5_action_recommendation: string; // 진출 전략 권고 (50-200자)
+  /** 섹션 1 본문: 거시환경 서술 단락 (시장 개요 + EML 현황) */
+  block1_market_narrative: string;
+  /** 섹션 1 치료영역: 유병률·흡입제·치료영역 시장 특이사항 */
+  block1_therapeutic_context: string;
+  /** 섹션 2: 규제/무역 환경 (▸ 3개 서브섹션 포함) */
+  block2_regulatory_path: string;
+  /** 섹션 3 본문: 가격 맥락 분석 */
+  block3_price_narrative: string;
+  /** 섹션 4: 리스크·조건 (▸ 3개 서브섹션 포함) */
+  block4_risk_factors: string;
+  /** 섹션 4 하단 권고: 진출 전략 핵심 행동 */
+  block5_action_recommendation: string;
 }
 
 const MARKET_TOOL: Tool = {
   name: "generate_market_analysis",
-  description: "파나마 시장조사 보고서 5블록을 생성한다.",
+  description: "파나마 시장조사 보고서를 SG_01 docx 양식에 맞춰 6블록으로 생성한다.",
   input_schema: {
     type: "object",
     properties: {
-      block1_macro_overview: {
+      block1_market_narrative: {
         type: "string",
-        minLength: 50,
-        maxLength: 200,
-        description: "파나마 거시환경(인구·GDP·시장규모) + EML 등재 현황 요약",
+        description:
+          "파나마 의약품 시장 개요 서술 단락 (2~4문장). 거시환경·의료 인프라 수준·해당 제품 성분의 시장 내 위치(EML 등재 여부 포함)를 자연스럽게 서술. 수치는 입력 데이터만 사용.",
+      },
+      block1_therapeutic_context: {
+        type: "string",
+        description:
+          "해당 치료영역의 파나마 현지 유병률·시장 특이사항 1~2문장. 예: '파나마 성인 천식 유병률 약 X%, ICS/LABA 복합제 처방 비중 증가 추세.' 수치가 없으면 정성적으로 서술.",
       },
       block2_regulatory_path: {
         type: "string",
-        minLength: 80,
-        maxLength: 450,
-        description: "MINSA DNFD 신규 등록 신청 단계별 절차(신청서·서류·심사기간·MAH 요건), 공공(ALPS/CSS) 및 민간(약국체인) 진입채널, 한-파나마 FTA 관세 혜택, 포뮬러리 등재 조건 포함",
+        description:
+          "반드시 아래 3개 ▸ 서브섹션으로 구성. 각 서브섹션은 1~3문장.\n▸ MINSA/DNFD 등록 현황: 신청 절차·서류·심사기간·MAH 요건·패스트트랙 조건 서술.\n▸ 진입 채널 권고: 공공(ALPS/CSS/포뮬러리)·민간(약국체인) 채널 구체적으로 서술.\n▸ 관세 및 무역: 한-파나마 FTA 관세율·ITBMS 면세·통관 조건 서술.",
       },
-      block3_price_context: {
+      block3_price_narrative: {
         type: "string",
-        minLength: 50,
-        maxLength: 250,
-        description: "수집된 PanamaCompra·ACODECO 가격 데이터 해석 및 경쟁사 포지셔닝",
+        description:
+          "수집된 경쟁가격 데이터 해석 및 포지셔닝 전략 서술 단락 (2~3문장). '▸ 전략 제안:' 문구로 마지막에 1문장 가격 포지셔닝 방향 제시.",
       },
       block4_risk_factors: {
         type: "string",
-        minLength: 50,
-        maxLength: 200,
-        description: "MINSA 심사 지연, 경쟁 강도, 포뮬러리 등재 요건 등 주요 리스크",
+        description:
+          "반드시 아래 3개 ▸ 서브섹션으로 구성.\n▸ 규제 심사 소요 기간: MINSA 심사 기간 및 지연 리스크.\n▸ 경쟁 강도: 동일 성분 경쟁사 현황·처방 전환 난이도.\n▸ 포뮬러리 등재: CSS/MINSA 등재 요건·미등재 시 입찰 제한.",
       },
       block5_action_recommendation: {
         type: "string",
-        minLength: 50,
-        maxLength: 200,
-        description: "우선 진입 채널, 권고 전략, 단기/중기 실행 방향 제시",
+        description:
+          "단기·중기 핵심 실행 방향 2~3문장. '단기:' '중기:' 구분 사용. 구체적 채널명·기관명 포함.",
       },
     },
     required: [
-      "block1_macro_overview",
+      "block1_market_narrative",
+      "block1_therapeutic_context",
       "block2_regulatory_path",
-      "block3_price_context",
+      "block3_price_narrative",
       "block4_risk_factors",
       "block5_action_recommendation",
     ],
@@ -62,65 +71,146 @@ const MARKET_TOOL: Tool = {
 };
 
 const MARKET_SYSTEM = `
-당신은 한국유나이티드제약 파나마 시장 전문 컨설턴트다.
-출력은 반드시 generate_market_analysis 도구로만 생성한다.
+당신은 한국유나이티드제약의 파나마 수출 전문 애널리스트입니다.
+출력은 반드시 generate_market_analysis 도구로만 생성합니다.
+회사 표기는 '한국유나이티드제약'만 사용합니다 (UPharma 등 기타 표기 금지).
+문체는 반드시 격식체('-합니다', '-습니다', '-됩니다')로 작성합니다.
 
-[핵심 규칙]
-1) 입력 데이터에 있는 수치만 사용. 없는 숫자 임의 생성 금지.
-2) 파나마 의약품 시장 고정 수치 (참조용):
+【데이터 원칙 — 최우선】
+1. 입력 데이터에 있는 수치·코드·브랜드명만 사용합니다. 없는 숫자·기관명·가격을 임의 생성하지 않습니다.
+2. 값이 없으면 '미확보' 또는 '별도 검증 필요'로 명시합니다. 수치를 추정·창작하지 않습니다.
+3. 파나마 의약품 시장 고정 참조 수치 (아래 값만 사용):
    - 인구: 4,351,267명 (2024, World Bank)
    - 1인당 GDP: USD 19,445 (2024, IMF)
    - 의약품 시장 규모: USD 496M (2024, Statista)
    - 수입 의존도: ~90%
-3) EML 등재 현황(WHO/PAHO/MINSA)은 입력 데이터 그대로 반영.
-4) 가격 데이터가 없으면 "데이터 미수집" 또는 "수집 대기 중"으로 명시.
-5) 마크다운 헤더(##, **) 금지. 순수 텍스트만 출력.
-6) 각 블록은 독립 문단으로 완결되어야 함.
+4. EML 등재 현황(WHO/PAHO/MINSA)은 입력 데이터 그대로 반영합니다.
+5. 가격 데이터가 없으면 '데이터 미수집' 또는 '수집 대기 중'으로 명시합니다.
 
-[block2_regulatory_path 작성 기준 — MINSA 신청 절차 구체화 필수]
-block2는 반드시 아래 항목을 모두 포함하여 단계적으로 서술한다:
-① MINSA DNFD(Departamento Nacional de Farmacia y Drogas) 신규 등록 절차:
-   - 신청서 제출 → ② 서류 심사(GMP 증명서, CoA, SPC/SmPC, 원산지 증명, 신청 수수료 등) → ③ 이화학·미생물 시험 → ④ 위원회 심의 → ⑤ 등록번호(RN) 발급. 통상 심사 기간 12~18개월.
-② MAH(Marketing Authorization Holder) 요건: 파나마 현지 MAH 지정 필수, 또는 현지 법인/파트너를 통한 위임 등록 가능.
-③ 공공채널: ALPS(Sistema de Compras Públicas) 입찰 자격 — MINSA 등록 후 포뮬러리(Formulario Nacional) 등재 신청, CSS(Caja de Seguro Social) 별도 등재 필요.
-④ 민간채널: 약국 체인(Arrocha, Rey, Farmacias Metro) 납품은 도매상(Distribuidora 등) 경유.
-⑤ 한-파나마 FTA(2021.3 발효): HS 3004 관세율 0%, ITBMS(부가세) 의약품 면세.
+【양식 규칙】
+6. 마크다운 헤더(##, **), 백틱, 링크 문법을 사용하지 않습니다.
+7. 서브섹션은 반드시 '▸ 소제목:' 형식을 사용합니다.
+8. 각 블록은 독립 문단으로 완결합니다.
+9. block2, block4는 반드시 ▸ 3개 서브섹션으로 구성합니다 (지정된 형식 준수).
+
+【제품 특성 반영】
+10. 제형(formulation)은 block2 MINSA 등록 분류 근거로 반드시 언급합니다.
+11. 독점 기술(patentTech)이 있으면 block3 가격 포지셔닝 및 block4 리스크 섹션에서 차별화 근거로 명시합니다.
+12. 복합제(2성분 이상)는 MINSA 심사 기간 가산 요인으로 서술합니다.
+13. HS 코드는 block2 관세/무역 서브섹션에서 한-파나마 FTA 세율 적용 근거로 활용합니다.
+
+【약어 풀이 — 최초 1회 원칙】
+14. MINSA·CSS·PanamaCompra·DNFD·ALPS 등 각 약어는 보고서 전체 기준 최초 1회만
+    '약어 (스페인어 풀네임 · 한글 설명)' 형식으로 풀어 씁니다.
+    예: 'MINSA (Ministerio de Salud · 파나마 보건부)', 'CSS (Caja de Seguro Social · 사회보장청)'.
+    이후에는 약어만 사용하고 문단마다 중복 풀이하지 않습니다.
+
+【중립·사실 서술】
+15. 크롤 데이터에 없는 규제 결론·사업 적합성을 단정하지 않습니다.
+16. '반드시 필요', '시장성 없음' 같은 확정적 사업 판단 문구를 사용하지 않습니다.
+17. 조달 입찰 요건·동등성 시험 요구는 '개별 심의 대상'임을 명시합니다.
 `.trim();
 
 function buildMarketPrompt(input: MarketLLMInput): string {
   const emlLine = `WHO EML: ${input.emlWho ? "등재" : "미등재"}, PAHO: ${input.emlPaho ? "등재" : "미등재"}, MINSA: ${input.emlMinsa ? "등재" : "미등재"}`;
+
   const priceSection =
     input.publicProcurementCount > 0 || input.privateRetailCount > 0
-      ? `PanamaCompra 가격 수집: ${input.publicProcurementCount}건 (평균 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(2)}` : "—"}), ACODECO/CABAMED: ${input.privateRetailCount}건 (평균 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "—"})`
-      : "가격 데이터: 현재 미수집 상태";
+      ? [
+          `PanamaCompra 공공조달: ${input.publicProcurementCount}건 (평균 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(4)}` : "—"})`,
+          `ACODECO/CABAMED 민간: ${input.privateRetailCount}건 (평균 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "—"})`,
+        ].join("\n")
+      : "가격 데이터: 현재 미수집 상태 — 수집 대기 중";
+
+  const competitorSection =
+    input.competitorProducts.length > 0
+      ? input.competitorProducts
+          .slice(0, 5)
+          .map(
+            (p) =>
+              `  - ${p.pa_product_name_local ?? p.pa_ingredient_inn}: PAB ${p.pa_price_local ?? "?"} (${p.pa_source}, ${p.market_segment})`,
+          )
+          .join("\n")
+      : "  경쟁사 개별 제품 가격: 데이터 미수집";
+
+  const therSection = input.therapeuticStats
+    ? [
+        input.therapeuticStats["prevalence_pct"] !== null
+          ? `유병률: ${String(input.therapeuticStats["prevalence_pct"])}%`
+          : null,
+        input.therapeuticStats["market_size_usd"] !== null
+          ? `치료영역 시장: USD ${String(input.therapeuticStats["market_size_usd"])}M`
+          : null,
+        input.therapeuticStats["summary_ko"]
+          ? String(input.therapeuticStats["summary_ko"])
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" | ")
+    : "치료영역 통계: 별도 수집 필요";
+
+  const productDetail = [
+    `- 제품명: ${input.productName} (${input.inn})`,
+    `- 치료 영역: ${input.therapeuticArea}`,
+    `- ATC 코드: ${input.atc4Code}`,
+    `- 제형: ${input.formulation}`,
+    `- 복합제 여부: ${input.isCombinationDrug ? "복합제 (2성분 이상)" : "단일 성분"}`,
+    `- HS 코드: ${input.hsCode}`,
+    input.patentTech !== null
+      ? `- 독점 기술: ${input.patentTech} (자사 특허 제형 — 경쟁사 동일 기술 없음)`
+      : `- 독점 기술: 없음 (일반 제형)`,
+  ].join("\n");
 
   return `
 [제품 정보]
-- 제품명: ${input.productName} (${input.inn})
-- 치료 영역: ${input.therapeuticArea}
-- ATC 코드: ${input.atc4Code}
+${productDetail}
 
 [EML 등재 현황]
 ${emlLine}
 
-[가격 데이터 현황]
+[가격 데이터]
 ${priceSection}
+
+[경쟁사 제품]
+${competitorSection}
+
+[치료영역 통계]
+${therSection}
 
 [조달 현황]
 - PanamaCompra 입찰 건수: ${input.publicProcurementCount}건
 - 민간 소매가 표본 수: ${input.privateRetailCount}건
 - 판정: Case ${input.caseGrade} — ${input.caseRationale}
 
-위 데이터를 기반으로 파나마 시장 분석 5블록 보고서를 생성하라.
+위 데이터를 기반으로 파나마 시장 분석 보고서를 생성하라.
 `.trim();
 }
 
-// ─── 입력 타입 ────────────────────────────────────────────────
+// ─── 입력 타입 ───────────────────────────────────────────────────────────────
+export interface CompetitorProductRow {
+  pa_source: string | null;
+  pa_product_name_local: string | null;
+  pa_ingredient_inn: string | null;
+  pa_price_local: number | null;
+  pa_currency_unit: string | null;
+  pa_package_unit: string | null;
+  pa_price_type: string | null;
+  market_segment: string | null;
+}
+
 export interface MarketLLMInput {
   productName: string;
   inn: string;
   therapeuticArea: string;
   atc4Code: string;
+  /** 제형 (Cap., Tab. CR, Inhaler DPI, Soft Cap., Pouch 등) */
+  formulation: string;
+  /** 특허/독점 기술명 (CombiGel, BILDAS, Activair DPI, Seamless Pouch 등) */
+  patentTech: string | null;
+  /** 복합제 여부 */
+  isCombinationDrug: boolean;
+  /** HS 코드 (관세 분석용) */
+  hsCode: string;
   emlWho: boolean;
   emlPaho: boolean;
   emlMinsa: boolean;
@@ -130,51 +220,55 @@ export interface MarketLLMInput {
   privAvg: number | null;
   caseGrade: string;
   caseRationale: string;
+  competitorProducts: CompetitorProductRow[];
+  therapeuticStats: Record<string, unknown> | null;
 }
 
-// ─── 페이로드 파싱 ────────────────────────────────────────────
+// ─── 페이로드 파싱 ───────────────────────────────────────────────────────────
 function parseMarketPayload(raw: unknown): MarketAnalysisPayload | null {
   if (raw === null || typeof raw !== "object" || Array.isArray(raw)) return null;
   const r = raw as Record<string, unknown>;
-  const b1 = r["block1_macro_overview"];
-  const b2 = r["block2_regulatory_path"];
-  const b3 = r["block3_price_context"];
-  const b4 = r["block4_risk_factors"];
-  const b5 = r["block5_action_recommendation"];
-  if (
-    typeof b1 !== "string" || b1.length < 30 ||
-    typeof b2 !== "string" || b2.length < 30 ||
-    typeof b3 !== "string" || b3.length < 30 ||
-    typeof b4 !== "string" || b4.length < 30 ||
-    typeof b5 !== "string" || b5.length < 30
-  ) return null;
+  const fields = [
+    "block1_market_narrative",
+    "block1_therapeutic_context",
+    "block2_regulatory_path",
+    "block3_price_narrative",
+    "block4_risk_factors",
+    "block5_action_recommendation",
+  ] as const;
+  for (const f of fields) {
+    if (typeof r[f] !== "string" || (r[f] as string).length < 20) return null;
+  }
   return {
-    block1_macro_overview: b1,
-    block2_regulatory_path: b2,
-    block3_price_context: b3,
-    block4_risk_factors: b4,
-    block5_action_recommendation: b5,
+    block1_market_narrative:     r["block1_market_narrative"] as string,
+    block1_therapeutic_context:  r["block1_therapeutic_context"] as string,
+    block2_regulatory_path:      r["block2_regulatory_path"] as string,
+    block3_price_narrative:      r["block3_price_narrative"] as string,
+    block4_risk_factors:         r["block4_risk_factors"] as string,
+    block5_action_recommendation: r["block5_action_recommendation"] as string,
   };
 }
 
-// ─── 폴백 ──────────────────────────────────────────────────────
+// ─── 폴백 ───────────────────────────────────────────────────────────────────
 function buildFallback(input: MarketLLMInput): MarketAnalysisPayload {
   const emlStatus = `WHO ${input.emlWho ? "등재" : "미등재"}, PAHO ${input.emlPaho ? "등재" : "미등재"}, MINSA ${input.emlMinsa ? "등재" : "미등재"}`;
   return {
-    block1_macro_overview:
-      `파나마는 인구 약 435만 명(World Bank 2024), 1인당 GDP USD 19,445로 중미 최고 소득 국가다. 의약품 시장 규모는 USD 496M(Statista 2024), 수입 의존도 약 90%. ${input.productName}(${input.inn})의 EML 등재 현황: ${emlStatus}.`.slice(0, 200),
+    block1_market_narrative:
+      `파나마는 인구 약 435만 명(World Bank 2024), 1인당 GDP USD 19,445로 중미 최고 소득 국가다. 의약품 시장 규모는 USD 496M(Statista 2024), 수입 의존도 약 90%로 한국산 수입의약품 진출에 유리한 환경이다. ${input.productName}(${input.inn})의 EML 등재 현황: ${emlStatus}.`,
+    block1_therapeutic_context:
+      `${input.therapeuticArea} 치료 영역은 파나마 내 만성질환 관리 수요 증가와 함께 지속적인 성장세를 보이고 있다. 의약품 수입 의존도가 높아 한국산 고품질 개량신약에 대한 수요가 기대된다.`,
     block2_regulatory_path:
-      `MINSA DNFD(Departamento Nacional de Farmacia y Drogas) 신규 등록 절차: ① 신청서·GMP 증명서·CoA·SPC·원산지 증명 제출 → ② 이화학·미생물 시험 → ③ 위원회 심의 → ④ 등록번호(RN) 발급. 통상 심사 기간 12~18개월(기등록 INN 성분은 서류 간소화로 단축 가능). MAH는 파나마 현지 파트너를 통한 위임 등록 가능. 공공채널: MINSA 등록 후 Formulario Nacional 등재 + ALPS 입찰 참여, CSS별도 포뮬러리 신청 필요. 민간채널: 도매상(Distribuidora) 경유 약국 체인(Arrocha, Rey, Metro) 납품. 한-파나마 FTA(2021.3 발효): HS 3004 관세 0%, ITBMS 의약품 면세.`.slice(0, 450),
-    block3_price_context:
-      `PanamaCompra 수집 ${input.publicProcurementCount}건(평균 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(2)}` : "미집계"}), ACODECO/CABAMED 민간 소매 ${input.privateRetailCount}건(평균 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "미집계"}). 판정 Case ${input.caseGrade}: ${input.caseRationale} 수집 데이터를 기준 참조가로 활용한다.`.slice(0, 250),
+      `▸ MINSA/DNFD 등록 현황: 신청서·GMP 증명서·CoA·SPC·원산지 증명 제출 → 이화학·미생물 시험 → 위원회 심의 → 등록번호(RN) 발급. 통상 12~18개월(WLA 인증 시 Law 419 패스트트랙 단축 가능). MAH는 현지 파트너 위임 등록 가능.\n▸ 진입 채널 권고: 공공채널(ALPS) — MINSA 등록 후 Formulario Nacional 등재 + CSS 포뮬러리 별도 신청 필요. 민간채널 — 도매상(Distribuidora) 경유 약국 체인(Arrocha, Rey, Metro) 납품.\n▸ 관세 및 무역: 한-파나마 FTA(2021.3 발효) HS 3004 관세 0%, ITBMS 의약품 면세. Balboa 항구 CIF 조건 통관.`,
+    block3_price_narrative:
+      `파나마 현지 ${input.therapeuticArea} 제품 공공조달 평균가는 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(4)}` : "수집 대기 중"}(PanamaCompra ${input.publicProcurementCount}건), 민간 소매가는 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "수집 대기 중"}(ACODECO/CABAMED ${input.privateRetailCount}건) 수준이다. 판정 Case ${input.caseGrade}: ${input.caseRationale}\n▸ 전략 제안: Tier 2 경쟁사 대비 10~15% 할인 포지셔닝으로 공공 채널 초기 진입 권고.`,
     block4_risk_factors:
-      `MINSA 신규 등록 심사 12~18개월 소요, 행정 지연 시 24개월 이상 가능. 다국적 제네릭(Bayer, Sandoz 등) 기진입 시장으로 경쟁 강도 높음. CSS/MINSA 포뮬러리 등재 요건 충족 필요. EML 미등재 성분의 경우 조달 입찰 자격 제한 가능성 있음.`.slice(0, 200),
+      `▸ 규제 심사 소요 기간: MINSA 신규 등록 통상 12~18개월, 행정 지연 시 24개월 이상 가능. 사전 자문(Pre-submission) 통해 서류 보완 최소화 권장.\n▸ 경쟁 강도: 동일 INN 성분 다국적 제네릭(Bayer, Sandoz, Genfar 등) 기진입 시장으로 경쟁 강도 높음. 처방 기반 시장 내 신규 진입자의 처방 전환이 핵심 과제.\n▸ 포뮬러리 등재: CSS/MINSA 포뮬러리 등재 요건 충족 필요. EML 미등재 성분의 경우 공공 조달 입찰 자격 제한 가능성 있음.`,
     block5_action_recommendation:
-      `단기: ALPS 공공 입찰 전 MINSA 등록 + 포뮬러리 등재 신청 병행. 중기: 약국 체인 파트너(PSI 기준 상위 3개사)와 민간 유통 계약 체결. 권고 진입 채널: 공공(ALPS) 우선, 민간 병행. Case ${input.caseGrade} 판정 기준으로 가격 경쟁력 확보 전략 수립.`.slice(0, 200),
+      `단기: ALPS 공공 입찰 전 MINSA 등록 + Formulario Nacional 등재 신청 병행. 중기: 약국 체인 파트너(Arrocha, Rey, Metro)와 민간 유통 계약 체결. Case ${input.caseGrade} 판정 기준으로 가격 경쟁력 확보 전략 수립.`,
   };
 }
 
-// ─── 메인 export ──────────────────────────────────────────────
+// ─── 메인 export ─────────────────────────────────────────────────────────────
 export interface MarketLLMResult {
   payload: MarketAnalysisPayload;
   source: "haiku" | "fallback";
@@ -189,10 +283,10 @@ export async function generateMarketAnalysisLLM(
   }
 
   try {
-    const client = new Anthropic({ apiKey });
+    const client = new Anthropic({ apiKey: apiKey.trim() });
     const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1600,
+      model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001",
+      max_tokens: 2400,
       temperature: 0,
       system: MARKET_SYSTEM,
       tools: [MARKET_TOOL],

@@ -47,8 +47,9 @@ export function PricingSection({ products, onSessionReady }: Props) {
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
 
   // ── 가격 산출 state ───────────────────────────────────────────
-  const [selectedSegment, setSelectedSegment]   = useState<"public" | "private">("private");
+  const [selectedSegment, setSelectedSegment]   = useState<"public" | "private">("public");
   const [pricingLoading,  setPricingLoading]     = useState(false);
+  const [pricingError,    setPricingError]       = useState<string | null>(null);
   const [pricingData,     setPricingData]        = useState<{
     public: unknown; private: unknown
   } | null>(null);
@@ -97,6 +98,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
     if (selectedSessionId === "") return;
     setPricingLoading(true);
     setPricingData(null);
+    setPricingError(null);
     try {
       const res  = await fetch("/api/panama/report/pricing", {
         method: "POST",
@@ -104,45 +106,40 @@ export function PricingSection({ products, onSessionReady }: Props) {
         body: JSON.stringify({ sessionId: selectedSessionId }),
       });
       const data: unknown = await res.json();
-      if (!res.ok) throw new Error((data as { detail?: string }).detail ?? "PRICING_FAILED");
+      if (!res.ok) {
+        const d = data as { detail?: string; error?: string };
+        throw new Error(d.detail ?? d.error ?? "PRICING_FAILED");
+      }
       const ok = data as { publicData?: unknown; privateData?: unknown };
       setPricingData({ public: ok.publicData ?? null, private: ok.privateData ?? null });
-    } catch { /* 실패 무시 */ }
+    } catch (e) {
+      setPricingError(e instanceof Error ? e.message : "알 수 없는 오류");
+    }
     finally  { setPricingLoading(false); }
   }
 
   const canRunMarket   = selectedProduct !== null && !marketLoading;
   const canRunPricing  = selectedSessionId !== "" && !pricingLoading;
 
-  // 채널 설명
-  const channelDesc =
-    selectedSegment === "public"
-      ? "공공 시장: ALPS 조달청 채널 · 27개 공공기관 통합구매 기준"
-      : "민간 시장: 병원·약국·체인 채널 중심 유통 구조 기준";
-
   return (
-    <div className="flex h-full flex-col">
-      {/* ── 헤더 (고정) ── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-[rgba(23,63,120,0.06)] px-5 py-3.5">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
-            01
-          </span>
-          <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#1a2e4a]">
-            수출가격 전략
-          </h2>
-        </div>
+    <section className="rounded-[20px] bg-white shadow-sh">
+      {/* 헤더 */}
+      <div className="flex items-center gap-2.5 border-b border-[#edf1f7] px-5 py-3.5">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
+          01
+        </span>
+        <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#1a2e4a]">
+          수출가격 전략
+        </h2>
       </div>
 
-      {/* ── 바디 (독립 스크롤) ── */}
-      <div className="flex-1 overflow-y-auto p-4">
-
-        {/* ── 셀렉터 카드 1: 품목 선택 + 시장 조사 ── */}
-        <div className="mb-3.5 rounded-[14px] bg-white p-3 shadow-[0_2px_10px_rgba(23,63,120,0.07)]">
+      <div className="p-4">
+        {/* ── Part 1: 품목 선택 + 시장 조사 ── */}
+        <div className="mb-4">
           <div className="flex flex-wrap items-center gap-2">
             {/* 품목 드롭다운 */}
             <select
-              className="min-w-0 flex-1 rounded-lg border border-[rgba(23,63,120,0.15)] bg-white px-3 py-2 text-[13px] text-[#273f60] focus:outline-none focus:ring-2 focus:ring-navy/30"
+              className="min-w-0 flex-1 rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm focus:outline-none focus:ring-2 focus:ring-navy/30"
               value={selectedProduct?.id ?? ""}
               onChange={(e) => {
                 const p = products.find((x) => x.id === e.target.value) ?? null;
@@ -176,14 +173,6 @@ export function PricingSection({ products, onSessionReady }: Props) {
             </button>
           </div>
 
-          {/* 로딩 인디케이터 */}
-          {marketLoading && (
-            <div className="mt-2 flex items-center gap-2 text-[12px] text-[#7a8fa8]">
-              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#d9e2ef] border-t-navy" />
-              시장 조사 분석 중…
-            </div>
-          )}
-
           {/* 시장조사 완료 배너 */}
           {marketDone && selectedProduct !== null && (
             <div className="mt-2 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] font-semibold text-emerald-800">
@@ -192,27 +181,29 @@ export function PricingSection({ products, onSessionReady }: Props) {
           )}
 
           {/* 신약 직접 분석 */}
-          <p className="mt-2 text-[12px] text-[#7a8fa8]">
-            <span className="mr-1 opacity-60">▸</span>
+          <p className="mt-1.5 text-[12px] text-[#7a8fa8]">
             <button
               type="button"
-              className="underline-offset-2 hover:text-navy hover:underline"
+              className="underline-offset-2 hover:underline"
               onClick={() => { /* TODO: 신약 직접 분석 모달 */ }}
             >
-              신약 직접 분석
+              ► 신약 직접 분석
             </button>
           </p>
         </div>
 
-        {/* ── 셀렉터 카드 2: 저장된 보고서 + 가격 산출 ── */}
-        <div className="rounded-[14px] bg-white p-3 shadow-[0_2px_10px_rgba(23,63,120,0.07)]">
-          <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
-            보고서 선택
+        {/* 구분선 */}
+        <div className="mb-4 border-t border-dashed border-[#e8eef5]" />
+
+        {/* ── Part 2: 저장된 보고서 + 가격 산출 ── */}
+        <div>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
+            품목 선택
           </p>
 
           {/* 저장된 세션 드롭다운 */}
           <select
-            className="w-full rounded-lg border border-[rgba(23,63,120,0.15)] bg-white px-3 py-2 text-[13px] text-[#273f60] focus:outline-none focus:ring-2 focus:ring-navy/30"
+            className="w-full rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm focus:outline-none focus:ring-2 focus:ring-navy/30"
             value={selectedSessionId}
             onChange={(e) => {
               setSelectedSessionId(e.target.value);
@@ -233,30 +224,28 @@ export function PricingSection({ products, onSessionReady }: Props) {
 
           {/* 공공/민간 탭 + AI 가격 산출 */}
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <div className="flex gap-1.5">
-              <button
-                type="button"
-                className={`rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-colors ${
-                  selectedSegment === "public"
-                    ? "bg-navy text-white"
-                    : "border border-[rgba(23,63,120,0.15)] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
-                }`}
-                onClick={() => { setSelectedSegment("public"); }}
-              >
-                공공 시장
-              </button>
-              <button
-                type="button"
-                className={`rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-colors ${
-                  selectedSegment === "private"
-                    ? "bg-navy text-white"
-                    : "border border-[rgba(23,63,120,0.15)] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
-                }`}
-                onClick={() => { setSelectedSegment("private"); }}
-              >
-                민간 시장
-              </button>
-            </div>
+            <button
+              type="button"
+              className={`rounded-lg px-4 py-2 text-[13px] font-semibold transition-colors ${
+                selectedSegment === "public"
+                  ? "bg-navy text-white"
+                  : "border border-[#d9e2ef] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
+              }`}
+              onClick={() => { setSelectedSegment("public"); }}
+            >
+              공공 시장
+            </button>
+            <button
+              type="button"
+              className={`rounded-lg px-4 py-2 text-[13px] font-semibold transition-colors ${
+                selectedSegment === "private"
+                  ? "bg-navy text-white"
+                  : "border border-[#d9e2ef] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
+              }`}
+              onClick={() => { setSelectedSegment("private"); }}
+            >
+              민간 시장
+            </button>
 
             <button
               type="button"
@@ -272,8 +261,12 @@ export function PricingSection({ products, onSessionReady }: Props) {
             </button>
           </div>
 
-          {/* 채널 설명 */}
-          <p className="mt-1.5 text-[12px] text-[#7a8fa8]">{channelDesc}</p>
+          {/* 에러 메시지 */}
+          {pricingError !== null && (
+            <p className="mt-1.5 text-[12px] text-red-600">
+              <span className="font-semibold">실행 실패:</span> {pricingError}
+            </p>
+          )}
 
           {/* 로딩 인디케이터 */}
           {pricingLoading && (
@@ -284,16 +277,14 @@ export function PricingSection({ products, onSessionReady }: Props) {
           )}
         </div>
 
-        {/* ── 가격 결과 (3열 카드) ── */}
+        {/* ── 가격 결과 ── */}
         {pricingData !== null && (
-          <div className="mt-3.5">
-            <PricingCards
-              segment={selectedSegment}
-              data={selectedSegment === "public" ? pricingData.public : pricingData.private}
-            />
-          </div>
+          <PricingCards
+            segment={selectedSegment}
+            data={selectedSegment === "public" ? pricingData.public : pricingData.private}
+          />
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -5,36 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { PartnerDetailModal } from "@/components/main-preview/PartnerDetailModal";
 import type { PartnerCandidate } from "@/src/types/phase3_partner";
 import type { SessionListItem } from "@/app/api/panama/report/sessions/route";
+import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 interface Props {
   sessionId: string | null;
-}
-
-type Criterion = "revenue" | "pipeline" | "gmp" | "import" | "pharmacy_chain";
-
-const CRITERIA: { key: Criterion; label: string; circled: string; weight: number }[] = [
-  { key: "revenue",        label: "매출 규모",      circled: "①", weight: 0.35 },
-  { key: "pipeline",       label: "파이프라인",     circled: "②", weight: 0.28 },
-  { key: "gmp",            label: "제조소 보유",    circled: "③", weight: 0.20 },
-  { key: "import",         label: "수입 경험",      circled: "④", weight: 0.12 },
-  { key: "pharmacy_chain", label: "약국 체인 운영", circled: "⑤", weight: 0.05 },
-];
-
-function calcPsi(partner: PartnerCandidate, active: Set<Criterion>): number {
-  let score = 0;
-  let totalWeight = 0;
-  for (const c of CRITERIA) {
-    if (!active.has(c.key)) continue;
-    const v =
-      c.key === "revenue"        ? (partner.score_revenue        ?? 0)
-      : c.key === "pipeline"     ? (partner.score_pipeline       ?? 0)
-      : c.key === "gmp"          ? (partner.score_gmp            ?? 0)
-      : c.key === "import"       ? (partner.score_import         ?? 0)
-      :                            (partner.score_pharmacy_chain ?? 0);
-    score       += v * c.weight;
-    totalWeight += c.weight;
-  }
-  return totalWeight > 0 ? score / totalWeight : 0;
 }
 
 /** ISO → "MM. DD. 오전/오후 HH:MM" */
@@ -53,37 +27,29 @@ function fmtDate(iso: string): string {
   }
 }
 
-function SkeletonRow({ n }: { n: number }) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-[#edf1f7] px-4 py-3">
-      <span className="w-5 shrink-0 text-[13px] font-bold text-[#c4cdd8]">{n}</span>
-      <div className="flex-1 space-y-1.5">
-        <div className="h-3 w-3/5 animate-pulse rounded bg-[#e8eef5]" />
-        <div className="h-2.5 w-2/5 animate-pulse rounded bg-[#f0f4f9]" />
-      </div>
-      <div className="h-5 w-16 animate-pulse rounded-full bg-[#e8eef5]" />
-    </div>
-  );
+/** 주력상품 요약 — registered_products 최대 2개 또는 therapeutic_areas[0] */
+function mainProductSummary(p: PartnerCandidate): string {
+  if (p.registered_products && p.registered_products.length > 0) {
+    return p.registered_products.slice(0, 2).join(", ");
+  }
+  if (p.therapeutic_areas && p.therapeutic_areas.length > 0) {
+    return p.therapeutic_areas[0];
+  }
+  return "—";
 }
 
 export function PartnerSection({ sessionId }: Props) {
-  const [sessions,           setSessions]          = useState<SessionListItem[]>([]);
-  const [sessionsLoading,    setSessionsLoading]   = useState(false);
-  const [selectedSessionId,  setSelectedSessionId] = useState<string>("");
+  const [sessions,          setSessions]         = useState<SessionListItem[]>([]);
+  const [sessionsLoading,   setSessionsLoading]  = useState(false);
+  const [selectedSessionId, setSelectedSessionId] = useState<string>("");
 
-  const [loading,   setLoading]   = useState(false);
-  const [partners,  setPartners]  = useState<PartnerCandidate[] | null>(null);
-
-  const [activeCriteria, setActiveCriteria] = useState<Set<Criterion>>(
-    new Set<Criterion>(["revenue", "pipeline", "gmp", "import", "pharmacy_chain"]),
-  );
+  const [loading,  setLoading]  = useState(false);
+  const [partners, setPartners] = useState<PartnerCandidate[] | null>(null);
 
   const [detailPartner, setDetailPartner] = useState<{
     rank: number; partner: PartnerCandidate;
   } | null>(null);
 
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const [pdfError,   setPdfError]   = useState<string | null>(null);
 
   // ── 세션 목록 조회 ─────────────────────────────────────────────
   const fetchSessions = useCallback(async () => {
@@ -99,7 +65,6 @@ export function PartnerSection({ sessionId }: Props) {
 
   useEffect(() => { void fetchSessions(); }, [fetchSessions]);
 
-  // PricingSection에서 sessionId 전달되면 자동 선택
   useEffect(() => {
     if (sessionId === null) return;
     void fetchSessions().then(() => {
@@ -117,121 +82,44 @@ export function PartnerSection({ sessionId }: Props) {
       const res  = await fetch("/api/panama/report/partner", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: selectedSessionId,
-          weightedCriteria: Object.fromEntries(
-            CRITERIA.filter((c) => activeCriteria.has(c.key)).map((c) => [c.key, c.weight]),
-          ),
-        }),
+        body: JSON.stringify({ sessionId: selectedSessionId, weightedCriteria: {} }),
       });
       const data: unknown = await res.json();
       if (!res.ok) throw new Error((data as { detail?: string }).detail ?? "PARTNER_FAILED");
-      const ok    = data as { partnerData?: { top10?: unknown[] } };
-      const top10 = (ok.partnerData?.top10 ?? []) as PartnerCandidate[];
-      setPartners(top10);
+      const ok = data as { partnerData?: { partners?: unknown[]; top10?: unknown[] } };
+      // partners 우선, 없으면 top10 하위호환
+      const list = (ok.partnerData?.partners ?? ok.partnerData?.top10 ?? []) as PartnerCandidate[];
+      setPartners(list);
       await fetchSessions();
     } catch { /* 실패 무시 */ }
     finally  { setLoading(false); }
   }
 
-  // ── 기준 토글 ──────────────────────────────────────────────────
-  function toggleCriterion(key: Criterion) {
-    setActiveCriteria((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        if (next.size > 1) next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
-  }
-
-  // ── 정렬 ───────────────────────────────────────────────────────
-  const sortedPartners =
-    partners !== null
-      ? [...partners].sort(
-          (a, b) => calcPsi(b, activeCriteria) - calcPsi(a, activeCriteria),
-        )
-      : null;
-
   const canRun = selectedSessionId !== "" && !loading;
 
-  // ── 최종 통합 PDF 다운로드 ─────────────────────────────────────
-  async function handleDownloadCombinedPdf() {
-    if (selectedSessionId === "") return;
-    setPdfLoading(true);
-    setPdfError(null);
-    try {
-      const res = await fetch(
-        `/api/panama/report/combined?session_id=${encodeURIComponent(selectedSessionId)}`,
-      );
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string; missing?: string[] };
-        if (err.error === "INCOMPLETE_SESSION" && Array.isArray(err.missing)) {
-          const labels: Record<string, string> = {
-            market: "시장조사", pricing: "가격 분석", partner: "바이어 발굴",
-          };
-          const names = err.missing.map((k) => labels[k] ?? k).join(", ");
-          throw new Error(`${names} 단계가 완료되지 않았습니다.`);
-        }
-        throw new Error(`PDF 생성 실패 (HTTP ${res.status})`);
-      }
-      const blob     = await res.blob();
-      const url      = URL.createObjectURL(blob);
-      const anchor   = document.createElement("a");
-      anchor.href    = url;
-      anchor.download = `파나마_통합보고서_${selectedSessionId.slice(0, 8)}.pdf`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      setPdfError(e instanceof Error ? e.message : "알 수 없는 오류");
-    } finally {
-      setPdfLoading(false);
-    }
-  }
-
-  const hasResults = !loading && sortedPartners !== null;
+  // 선택 세션의 품목 INN 조회
+  const selectedSession = sessions.find((s) => s.sessionId === selectedSessionId) ?? null;
+  const selectedProduct = selectedSession !== null
+    ? (TARGET_PRODUCTS.find((p) => p.product_id === selectedSession.productId) ?? null)
+    : null;
 
   return (
-    <div className="flex h-full flex-col">
-      {/* ── 헤더 (고정) ── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-[rgba(23,63,120,0.06)] px-5 py-3.5">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
-            02
-          </span>
-          <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#1a2e4a]">
-            바이어 발굴
-          </h2>
-        </div>
-
-        {/* 최종 보고서 다운로드 버튼 (결과 있을 때 헤더에 노출) */}
-        {hasResults && (
-          <button
-            type="button"
-            disabled={pdfLoading}
-            onClick={() => { void handleDownloadCombinedPdf(); }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-navy px-4 py-1.5 text-[12px] font-extrabold text-white shadow-sm transition-opacity hover:opacity-80 disabled:opacity-40"
-          >
-            {pdfLoading ? (
-              <><span className="animate-spin">⟳</span> 생성 중...</>
-            ) : (
-              <>↓ 최종 보고서</>
-            )}
-          </button>
-        )}
+    <section className="rounded-[20px] bg-white shadow-sh">
+      {/* 헤더 */}
+      <div className="flex items-center gap-2.5 border-b border-[#edf1f7] px-5 py-3.5">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
+          02
+        </span>
+        <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#1a2e4a]">
+          바이어 발굴
+        </h2>
       </div>
 
-      {/* ── 바디 (독립 스크롤) ── */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {/* ── 셀렉터 카드: 보고서 선택 + 실행 ── */}
-        <div className="mb-3.5 rounded-[14px] bg-white p-3 shadow-[0_2px_10px_rgba(23,63,120,0.07)]">
+      <div className="p-4">
+        {/* 드롭다운 + 실행 버튼 */}
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="min-w-0 flex-1 rounded-lg border border-[rgba(23,63,120,0.15)] bg-white px-3 py-2 text-[13px] text-[#273f60] focus:outline-none focus:ring-2 focus:ring-navy/30"
+            className="min-w-0 flex-1 rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm focus:outline-none focus:ring-2 focus:ring-navy/30"
             value={selectedSessionId}
             onChange={(e) => {
               setSelectedSessionId(e.target.value);
@@ -256,156 +144,95 @@ export function PartnerSection({ sessionId }: Props) {
             onClick={() => { void handleRunPartner(); }}
           >
             {loading ? (
-              <><span className="animate-spin">⟳</span> 발굴 중</>
+              <><span className="animate-spin">⟳</span> 발굴 중...</>
             ) : (
               <>▶ 바이어 발굴</>
             )}
           </button>
         </div>
 
-        {/* 로딩 인디케이터 */}
+        {/* 로딩 */}
         {loading && (
           <div className="mt-2 flex items-center gap-2 text-[12px] text-[#7a8fa8]">
             <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#d9e2ef] border-t-navy" />
-            바이어 발굴 중…
-          </div>
-        )}
-        </div>{/* /셀렉터 카드 */}
-
-        {/* ── 평가 기준 체크박스 (로딩 중이거나 결과 있을 때) ── */}
-        {(loading || sortedPartners !== null) && (
-          <div className="mb-3 rounded-[10px] border border-[rgba(23,63,120,0.12)] bg-white px-3 py-2.5">
-            <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#9aafc5]">
-                평가 기준
-                <span className="ml-1.5 font-normal normal-case text-[#b0bcc9]">(체크 항목으로 순위 재정렬)</span>
-              </span>
-              <button
-                type="button"
-                className="text-[11px] text-[#7a8fa8] underline underline-offset-1 hover:text-navy"
-                onClick={() => {
-                  const allActive = CRITERIA.every((c) => activeCriteria.has(c.key));
-                  if (allActive) {
-                    setActiveCriteria(new Set<Criterion>(["revenue"]));
-                  } else {
-                    setActiveCriteria(new Set<Criterion>(CRITERIA.map((c) => c.key)));
-                  }
-                }}
-              >
-                {CRITERIA.every((c) => activeCriteria.has(c.key)) ? "전체 해제" : "전체 선택"}
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-              {CRITERIA.map((c) => {
-                const active = activeCriteria.has(c.key);
-                return (
-                  <label
-                    key={c.key}
-                    className="flex cursor-pointer items-center gap-1 text-[12px] text-[#4a5a6f] select-none"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={active}
-                      onChange={() => { toggleCriterion(c.key); }}
-                      className="h-3.5 w-3.5 accent-navy"
-                    />
-                    <span className="font-semibold text-navy">{c.circled}</span>
-                    {c.label}
-                  </label>
-                );
-              })}
-            </div>
+            Perplexity 웹 검색으로 기업 정보 수집 중…
           </div>
         )}
 
-        {/* Top N 타이틀 */}
-        {hasResults && sortedPartners !== null && sortedPartners.length > 0 && (
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
-            Top {sortedPartners.length}
-          </p>
+        {/* ── 컬럼 헤더 ── */}
+        {(loading || (partners !== null && partners.length > 0)) && (
+          <div className="mt-2 grid grid-cols-[24px_1fr_1fr_90px] gap-x-2 border-b border-[#e8eef5] pb-1 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
+            <span>#</span>
+            <span>기업명</span>
+            <span>주력상품</span>
+            <span>이메일</span>
+          </div>
         )}
 
         {/* ── 스켈레톤 ── */}
         {loading && (
-          <div className="space-y-2">
+          <div className="space-y-0">
             {Array.from({ length: 8 }, (_, i) => (
-              <SkeletonRow key={i} n={i + 1} />
+              <div key={i} className={`grid grid-cols-[24px_1fr_1fr_90px] gap-x-2 py-2.5 ${i > 0 ? "border-t border-[#f0f4f9]" : ""}`}>
+                <span className="text-[12px] text-[#c4cdd8]">{i + 1}</span>
+                <div className="h-3 w-4/5 animate-pulse rounded bg-[#e8eef5]" />
+                <div className="h-3 w-3/5 animate-pulse rounded bg-[#e8eef5]" />
+                <div className="h-3 w-full animate-pulse rounded bg-[#e8eef5]" />
+              </div>
             ))}
           </div>
         )}
 
         {/* ── 바이어 목록 ── */}
-        {!loading && sortedPartners !== null && (
-          <div className="space-y-1.5">
-            {sortedPartners.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-[#7a8fa8]">
-                조건에 맞는 바이어가 없습니다.
-              </p>
-            ) : (
-              sortedPartners.map((partner, idx) => {
-                const psi = calcPsi(partner, activeCriteria);
-                return (
-                  <button
-                    type="button"
-                    key={partner.id}
-                    className="flex w-full items-center gap-3 rounded-lg border border-[rgba(23,63,120,0.1)] bg-white px-4 py-3 text-left transition-all hover:border-navy/30 hover:bg-[#f7fafc] hover:shadow-sm"
-                    onClick={() => { setDetailPartner({ rank: idx + 1, partner }); }}
-                  >
-                    <span className="w-5 shrink-0 text-[13px] font-extrabold text-navy">
-                      {idx + 1}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-extrabold text-navy">
-                        {partner.company_name}
-                      </p>
-                      <p className="mt-0.5 truncate text-[11px] text-[#7a8fa8]">
-                        {partner.address ?? "Panama City"}
-                        {partner.therapeutic_areas && partner.therapeutic_areas.length > 0
-                          ? " · " + partner.therapeutic_areas.slice(0, 2).join(", ")
-                          : ""}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-0.5">
-                      <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[11px] font-extrabold text-navy">
-                        PSI {psi.toFixed(1)}
-                      </span>
-                      {partner.email !== null && (
-                        <span className="max-w-[120px] truncate text-[10px] text-[#aab5c4]">
-                          {partner.email}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })
-            )}
+        {!loading && partners !== null && partners.length > 0 && (
+          <div>
+            {partners.map((partner, idx) => {
+              const isEven = idx % 2 === 1;
+              return (
+                <button
+                  type="button"
+                  key={partner.id}
+                  className={`grid w-full grid-cols-[24px_1fr_1fr_90px] gap-x-2 py-2.5 text-left transition-colors hover:bg-[#f7fafc] ${
+                    idx > 0 ? "border-t border-[#f0f4f9]" : ""
+                  }`}
+                  onClick={() => { setDetailPartner({ rank: idx + 1, partner }); }}
+                >
+                  <span className="text-[12px] font-bold text-[#c4cdd8]">{idx + 1}</span>
+                  <p className={`truncate text-[13px] ${
+                    isEven ? "font-extrabold text-navy" : "font-semibold text-[#1a2e4a]"
+                  }`}>
+                    {partner.company_name}
+                  </p>
+                  <p className="truncate text-[12px] text-[#6b7a8f]">
+                    {mainProductSummary(partner)}
+                  </p>
+                  <p className="truncate text-[11px] text-[#9aafc5]">
+                    {partner.email ?? "—"}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         )}
 
         {/* ── 빈 상태 ── */}
-        {!loading && sortedPartners === null && (
-          <p className="mt-2 rounded-lg border border-dashed border-[rgba(23,63,120,0.15)] py-8 text-center text-[13px] text-[#7a8fa8]">
-            보고서 선택 후 ▶ 바이어 발굴을 실행하세요.
+        {!loading && partners !== null && partners.length === 0 && (
+          <p className="py-5 text-center text-[13px] text-[#7a8fa8]">
+            조건에 맞는 바이어가 없습니다.
           </p>
-        )}
-
-        {/* 에러 메시지 (PDF 생성 실패) */}
-        {pdfError !== null && (
-          <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
-            <span className="mt-0.5 shrink-0">⚠</span>
-            <span>{pdfError}</span>
-          </div>
         )}
       </div>
 
-      {/* 기업 상세 모달 */}
+      {/* 상세 모달 */}
       {detailPartner !== null && (
         <PartnerDetailModal
           rank={detailPartner.rank}
           partner={detailPartner.partner}
           onClose={() => { setDetailPartner(null); }}
+          productInn={selectedProduct?.who_inn_en ?? null}
+          productName={selectedProduct?.kr_brand_name ?? null}
         />
       )}
-    </div>
+    </section>
   );
 }

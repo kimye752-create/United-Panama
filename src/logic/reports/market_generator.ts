@@ -145,6 +145,10 @@ export async function generateMarketReport(
       inn:                     analysis.product.who_inn_en,
       therapeuticArea:         analysis.product.therapeutic_area,
       atc4Code:                analysis.product.atc4_code,
+      formulation:             analysis.product.formulation,
+      patentTech:              analysis.product.patent_tech ?? null,
+      isCombinationDrug:       analysis.product.is_combination_drug ?? false,
+      hsCode:                  analysis.product.hs_code,
       emlWho:                  analysis.emlWho,
       emlPaho:                 analysis.emlPaho,
       emlMinsa:                analysis.emlMinsa,
@@ -156,6 +160,8 @@ export async function generateMarketReport(
       caseRationale:           String(
         (analysis.judgment as unknown as Record<string, unknown>)["rationale"] ?? ""
       ),
+      competitorProducts:      competitorProductRows as import("@/src/llm/market/market_generator").CompetitorProductRow[],
+      therapeuticStats:        therStats as Record<string, unknown> | null,
     });
 
     // 7. report_data 합산

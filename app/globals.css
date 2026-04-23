@@ -1,11 +1,47 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 
+/* NanumGothic — 로컬 TTF 직접 로드 (Google Fonts 의존 제거, 800 weight 확실히 보장) */
+@font-face {
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothic-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothic-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothic-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --navy:   #173f78;
+  --shell:  #f8f5f0;
+  --inner:  #f4f6fa;
+  --orange: #f0a13a;
+  --green:  #2d9870;
+  --muted:  #6b7d96;
+  --card-radius: 20px;
+  --card-shadow: 0 6px 20px rgba(23,63,120,.08);
+}
+
 body {
-  font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", system-ui, sans-serif;
+  background-color: var(--shell);
+  color: #1e2d45;
 }
 
 /* Report1 웹 A4 2장 — 인쇄 시 페이지 분리(다른 페이지 article에는 영향 없도록 스코프) */

@@ -73,41 +73,40 @@ export async function GET(req: Request): Promise<Response> {
     }
 
     const s = session as Record<string, unknown>;
-    const combinedId = s["combined_report_id"];
-    const canDl = s["can_download_combined"] === true;
-
-    if (typeof combinedId === "string" && combinedId !== "") {
-      return await streamCombinedPdfByReportId(combinedId);
-    }
-
-    if (canDl) {
-      const combinedReport = await generateCombinedReport(sessionId);
-      await supabase
-        .from("panama_report_session")
-        .update({
-          combined_report_id: combinedReport.id,
-          combined_generated_at: new Date().toISOString(),
-        })
-        .eq("id", sessionId);
-
-      return await streamCombinedPdfByReportId(combinedReport.id);
-    }
-
+    // ── 미완료 단계 확인 ────────────────────────────────────────────
     const missing: string[] = [];
-    if (s["market_completed_at"] === null) {
-      missing.push("market");
-    }
-    if (s["pricing_completed_at"] === null) {
-      missing.push("pricing");
-    }
-    if (s["partner_completed_at"] === null) {
-      missing.push("partner");
+    if (s["market_completed_at"] === null)   missing.push("market");
+    if (s["pricing_completed_at"] === null)  missing.push("pricing");
+    if (s["partner_completed_at"] === null)  missing.push("partner");
+
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { error: "INCOMPLETE_SESSION", missing },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json(
-      { error: "INCOMPLETE_SESSION", missing },
-      { status: 400 },
-    );
+    // ── 기존 combined_report_id → PDF 스트리밍 시도 ─────────────────
+    const combinedId = s["combined_report_id"];
+    if (typeof combinedId === "string" && combinedId !== "") {
+      try {
+        return await streamCombinedPdfByReportId(combinedId);
+      } catch {
+        // PDF_NOT_FOUND 등 — 아래에서 재생성
+      }
+    }
+
+    // ── 모든 단계 완료됐으므로 즉석 생성 ────────────────────────────
+    const combinedReport = await generateCombinedReport(sessionId);
+    await supabase
+      .from("panama_report_session")
+      .update({
+        combined_report_id: combinedReport.id,
+        combined_generated_at: new Date().toISOString(),
+      })
+      .eq("id", sessionId);
+
+    return await streamCombinedPdfByReportId(combinedReport.id);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "UNKNOWN_ERROR";
     return NextResponse.json(

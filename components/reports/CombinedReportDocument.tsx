@@ -372,6 +372,40 @@ function Divider() {
   return <View style={S.sectionDivider} />;
 }
 
+/**
+ * LLM 텍스트 내 "▸ 소제목: 내용" 패턴을 파싱해 SectionH2 + body로 분리 렌더링.
+ * ▸ 마커가 없으면 단일 Text 블록으로 출력.
+ */
+function LLMTextBlock({ text, style }: { text: string; style?: Record<string, unknown> }) {
+  // "▸ " 로 분리 (공백 없는 경우도 처리)
+  const parts = text.split(/(?=▸\s)/g).filter(Boolean);
+  if (parts.length <= 1) {
+    // 마커 없음 — 그냥 단일 단락
+    return <Text style={{ ...S.body, ...style }}>{text}</Text>;
+  }
+  return (
+    <>
+      {parts.map((part, i) => {
+        const stripped = part.replace(/^▸\s*/, "").trim();
+        // "소제목: 내용" 형태로 분리
+        const colonIdx = stripped.indexOf(":");
+        if (colonIdx > 0 && colonIdx < 30) {
+          const heading = stripped.slice(0, colonIdx).trim();
+          const body    = stripped.slice(colonIdx + 1).trim();
+          return (
+            <View key={i} style={{ marginTop: i > 0 ? 4 : 0 }}>
+              <Text style={S.sectionH2}>▸ {heading}</Text>
+              {body !== "" && <Text style={{ ...S.body, marginTop: 2, ...style }}>{body}</Text>}
+            </View>
+          );
+        }
+        // 콜론 없음 — 전체를 body로
+        return <Text key={i} style={{ ...S.body, marginTop: i > 0 ? 4 : 0, ...style }}>{stripped}</Text>;
+      })}
+    </>
+  );
+}
+
 // ─── Competitor KV block (DOCX 스타일: 제품명 헤더 + 성분·채널·가격 KV) ─────────
 
 function CompetitorKVBlocks({
@@ -769,7 +803,7 @@ function MarketReportSection({
       {/* 2. 무역/규제 환경 */}
       <SectionH1 n="2" title="무역/규제 환경" />
       {llmB2 !== "" ? (
-        <Text style={S.body}>{llmB2}</Text>
+        <LLMTextBlock text={llmB2} />
       ) : (
         <>
           <SectionH2 title="MINSA 등록 현황" />
@@ -832,7 +866,7 @@ function MarketReportSection({
         />
       )}
       {llmB3 !== "" && (
-        <Text style={{ ...S.body, marginTop: 4 }}>{llmB3}</Text>
+        <LLMTextBlock text={llmB3} style={{ marginTop: 4 }} />
       )}
 
       <Divider />
@@ -840,7 +874,7 @@ function MarketReportSection({
       {/* 4. 리스크 / 조건 */}
       <SectionH1 n="4" title="리스크 / 조건" />
       {llmB4 !== "" ? (
-        <Text style={S.body}>{llmB4}</Text>
+        <LLMTextBlock text={llmB4} />
       ) : (
         <>
           <SectionH2 title="규제 심사 소요 기간" />
@@ -1150,21 +1184,52 @@ function PartnerReportSection({
   partnerReport: Report;
 }) {
   const pData = partnerReport.report_data ?? {};
-  const top10 = Array.isArray(pData["top10"]) ? (pData["top10"] as Array<Record<string, unknown>>) : [];
+  // partners 필드 우선, top10은 하위호환
+  const top10 = Array.isArray(pData["partners"])
+    ? (pData["partners"] as Array<Record<string, unknown>>)
+    : Array.isArray(pData["top10"])
+    ? (pData["top10"] as Array<Record<string, unknown>>)
+    : [];
 
   const dateStr = generatedAt.toISOString().slice(0, 10);
-
-  const CIRCLED = ["①", "②", "③", "④", "⑤"];
-
-  function scoreLabel(n: unknown): string {
-    const v = safeNum(n);
-    if (v === null) return "—";
-    return v.toFixed(1);
-  }
 
   function taStr(ta: unknown): string {
     if (Array.isArray(ta) && ta.length > 0) return (ta as string[]).join(", ");
     return "—";
+  }
+
+  /** 주력상품 요약: 등록제품 우선 → 치료영역 → CPHI 카테고리 순 */
+  function mainProductSummary(p: Record<string, unknown>): string {
+    const regP = Array.isArray(p["registered_products"]) && (p["registered_products"] as string[]).length > 0
+      ? (p["registered_products"] as string[]).slice(0, 2).join(", ")
+      : null;
+    if (regP) return regP;
+    const ta = Array.isArray(p["therapeutic_areas"]) && (p["therapeutic_areas"] as string[]).length > 0
+      ? (p["therapeutic_areas"] as string[])[0]
+      : null;
+    if (ta) return ta;
+    return safeStr(p["cphi_category"], "—");
+  }
+
+  /**
+   * LLM 추천 이유 파싱: "① [파이프라인] ...\n② [수입이력] ..." 형식
+   * ①②③④⑤ 앞에서 split → 각 세그먼트에서 번호+라벨+내용 추출
+   */
+  function parseReasonLines(text: string): Array<{ num: string; label: string; content: string }> {
+    // ①②③④⑤ 앞에서 분리 (lookahead)
+    const segments = text.split(/(?=[①②③④⑤])/);
+    const results: Array<{ num: string; label: string; content: string }> = [];
+    for (const seg of segments) {
+      const m = seg.match(/^([①②③④⑤])\s*\[([^\]]+)\]\s*([\s\S]+)/);
+      if (m) {
+        results.push({ num: m[1], label: m[2].trim(), content: m[3].trim() });
+      } else if (seg.trim().length > 0) {
+        results.push({ num: "", label: "", content: seg.trim() });
+      }
+    }
+    if (results.length > 0) return results;
+    // fallback: 줄 단위 반환
+    return text.split(/\n/).filter(Boolean).map((l) => ({ num: "", label: "", content: l.trim() }));
   }
 
   return (
@@ -1194,13 +1259,7 @@ function PartnerReportSection({
           </View>
           {top10.map((p, i) => {
             const name  = safeStr(p["company_name"]);
-            const cphiC = safeStr(p["cphi_category"], "");
-            const regP  = Array.isArray(p["registered_products"])
-              ? (p["registered_products"] as string[])[0] ?? ""
-              : safeStr(p["registered_products"], "");
-            const taVal = taStr(p["therapeutic_areas"]);
-            // 주력상품: CPHI 카테고리 > 첫 번째 등록제품 > 치료영역 순 우선
-            const mainProduct = cphiC !== "" ? cphiC : regP !== "" ? regP : taVal !== "" ? taVal : "—";
+            const mainProduct = mainProductSummary(p);
             const email = safeStr(p["email"], "—");
             return (
               <View key={i} style={i % 2 === 0 ? S.tblRow : S.tblRowAlt}>
@@ -1238,7 +1297,8 @@ function PartnerReportSection({
           : safeStr(p["registered_products"], "");
         const cphiCat  = safeStr(p["cphi_category"], "");
         // 파이프라인: 등록제품 우선, 없으면 치료영역
-        const pipeline = regProds !== "" ? regProds : ta !== "" ? ta : "—";
+        const pipeline = regProds !== "" ? regProds : ta !== "—" ? ta : "—";
+        const mainProductDisplay = mainProductSummary(p);
 
         return (
           <View key={i} wrap={false}>
@@ -1247,42 +1307,42 @@ function PartnerReportSection({
             {/* 기업 개요 */}
             <SectionH2 title="기업 개요" />
             <Text style={S.body}>
-              {name}은(는) {addr}에 소재한 의약품 유통 기업입니다.
+              {name}은(는) {addr}에 소재한 의약품 유통·판매 기업입니다.
               {revUsd !== null ? ` 연매출 USD ${(revUsd / 1_000_000).toFixed(1)}M,` : ""}
               {empCnt !== null ? ` 임직원 ${empCnt}명,` : ""}
-              {" "}제조소 보유 {gmp}, MAH 역량 {mah}.
-              주요 치료 영역: {ta !== "" ? ta : "—"}.
+              {ta !== "" ? ` 주력 치료 영역: ${ta}.` : ""}
+              {impHist === "Yes" ? " 의약품 수입 이력 보유." : ""}
+              {mah === "Yes" ? " MAH 역량 보유." : ""}
             </Text>
-            {/* 제품 연관성 이유 */}
+
+            {/* 추천 이유: LLM 생성 5가지 기준 */}
+            <SectionH2 title="추천 이유" />
             {(() => {
               const relevance = safeStr(p["product_relevance_reason"], "");
-              return relevance !== "" ? (
-                <View style={{
-                  marginTop: 4,
-                  marginBottom: 4,
-                  paddingHorizontal: 8,
-                  paddingVertical: 5,
-                  backgroundColor: "#EFF6FF",
-                  borderLeftWidth: 3,
-                  borderLeftColor: "#2563EB",
-                }}>
-                  <Text style={{ fontSize: 8, color: "#1E40AF", fontWeight: "bold", marginBottom: 2 }}>
-                    ▶ 제품 연관성
-                  </Text>
-                  <Text style={{ ...S.body, fontSize: 8, color: "#1E3A8A" }}>
-                    {relevance}
-                  </Text>
+              if (relevance === "") {
+                // 폴백: 데이터 기반 간략 표시
+                return (
+                  <>
+                    <CircledItem num="①" label="파이프라인"  content={pipeline !== "—" ? `${pipeline} 취급 — ${product.name} 계열과 연관성` : "정보 수집 필요"} />
+                    <CircledItem num="②" label="수입 이력"   content={impHist === "Yes" ? "의약품 수입 이력 확인됨" : "추가 확인 필요"} />
+                    <CircledItem num="③" label="유통 채널"   content={p["pharmacy_chain_operator"] === true ? "약국 체인 운영으로 소매 채널 확보" : "현지 의약품 유통 채널 보유"} />
+                    <CircledItem num="④" label="MAH 역량"    content={mah === "Yes" ? "위생등록 대행(MAH) 역량 보유" : "등록 역량 추가 확인 필요"} />
+                    <CircledItem num="⑤" label="기업 안정성" content={revUsd !== null ? `연매출 USD ${(revUsd / 1_000_000).toFixed(1)}M 규모의 안정적 사업체` : "파나마 현지 꾸준히 운영 중"} />
+                  </>
+                );
+              }
+              // LLM 생성: ①[파이프라인] ... 형식 파싱
+              const reasonLines = parseReasonLines(relevance);
+              return (
+                <View style={{ paddingLeft: 4 }}>
+                  {reasonLines.map((r, li) => (
+                    r.num !== ""
+                      ? <CircledItem key={li} num={r.num} label={r.label} content={r.content} />
+                      : <Text key={li} style={{ ...S.body, marginBottom: 3 }}>{r.content}</Text>
+                  ))}
                 </View>
-              ) : null;
+              );
             })()}
-
-            {/* 추천 이유: 5가지 기준 */}
-            <SectionH2 title="추천 이유" />
-            <CircledItem num="①" label="매출 규모"    content={revUsd !== null ? `USD ${(revUsd / 1_000_000).toFixed(1)}M` : "—"} />
-            <CircledItem num="②" label="파이프라인"   content={pipeline} />
-            <CircledItem num="③" label="제조소 보유"  content={gmp} />
-            <CircledItem num="④" label="수입 경험"    content={impHist} />
-            <CircledItem num="⑤" label="공공조달 낙찰" content={pubWins !== null ? `${pubWins}건` : "—"} />
 
             {/* 기본 정보 (주소 | 연락처 | 설립연도 | 홈페이지 | 파이프라인) */}
             <SectionH2 title="기본 정보" />
@@ -1317,7 +1377,7 @@ function PartnerReportSection({
               />
             )}
 
-            <Text style={S.sourceNote}>출처: Perplexity 분석</Text>
+            <Text style={S.sourceNote}>출처: Claude AI 분석 (web_search 기반) · DB 수집 데이터</Text>
             {i < top10.length - 1 && <Divider />}
           </View>
         );

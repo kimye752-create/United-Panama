@@ -42,7 +42,7 @@ export function PartnerCard({
   onToggleExpand,
 }: PartnerCardProps) {
   return (
-    <article className="rounded-[12px] border border-[#dce4ef] bg-white p-3">
+    <article className="rounded-[16px] bg-white p-3 shadow-sh2">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] font-bold text-[#1f3e64]">

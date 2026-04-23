@@ -66,7 +66,7 @@ export function ReportsFloatingButton() {
       {open ? (
         <div
           ref={popoverRef}
-          className="fixed bottom-[72px] right-6 z-50 flex max-h-[70vh] w-[380px] flex-col overflow-hidden rounded-2xl border border-[#d9e2ef] bg-white shadow-[0_12px_32px_rgba(39,63,96,0.18)]"
+          className="fixed bottom-[72px] right-6 z-50 flex max-h-[70vh] w-[380px] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_12px_32px_rgba(39,63,96,0.18)]"
           role="dialog"
           aria-label="생성된 보고서"
         >
