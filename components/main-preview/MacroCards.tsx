@@ -11,9 +11,10 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
   }
   return {
     ...card,
-    // 국가 GDP만 표시 (1인당 GDP는 비노출 — 복원 시 아래 주석 참고)
-    label: "국가 GDP",
-    value: "US$ 87.6 Billion",
+    // 1인당 GDP 표시 (사용자 요청 — SG 팀장 대시보드와 동일 기준)
+    // 기존 국가 GDP는 주석 보존: label "국가 GDP" / value "US$ 87.6 Billion"
+    label: "1인당 GDP",
+    value: "US$ 19,445",
     // label: "국가GDP/1인당GDP",
     // value: "US$ 87.6 Billion / $19,445",
     footer: "출처: IMF (2024)",

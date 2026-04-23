@@ -1,5 +1,26 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (메인페이지 GDP 카드 — 국가 GDP → 1인당 GDP)
+
+### 변경 배경
+사용자 요청 — 메인 프리뷰 상단 4개 매크로 카드 중 GDP 카드를 "국가 GDP (US$ 87.6 Billion)"에서 "1인당 GDP (US$ 19,445)"로 교체. SG 팀장 대시보드(1인당 GDP US$ 88,447)와 동일한 기준으로 정렬.
+
+### Changed
+- `components/main-preview/MacroCards.tsx` `normalizeGdpCard()`
+  - `label: "국가 GDP"` → `"1인당 GDP"`
+  - `value: "US$ 87.6 Billion"` → `"US$ 19,445"`
+  - 주석에 기존 국가 GDP 값 보존 (복원 시 즉시 되돌릴 수 있도록)
+- `src/logic/panama_landing.ts` `buildImfGdpCard()`
+  - `label: "국가GDP/1인당GDP"` → `"1인당 GDP"`
+  - `value: "US$ 87.6 Billion / $19,445"` → `"US$ 19,445"`
+  - 출처 `IMF (2024)` 유지
+
+### 근거
+- IMF WEO 2024 — 파나마 1인당 명목 GDP USD 19,445
+- World Bank 2024 — USD 19,161.2 (대체 출처, `round1_macro.json`에 기 적재)
+
+---
+
 ## [Unreleased] - 2026-04-23 (보고서 탭 플로팅 팝오버 + 표지 팀장 양식 정합)
 
 ### 변경 배경

@@ -178,9 +178,11 @@ function buildFallbackCard(label: string): PanamaLandingMetricCard {
 }
 
 function buildImfGdpCard(): PanamaLandingMetricCard {
+  // 사용자 요청 — 4개 메인 카드 중 GDP는 "1인당 GDP"만 표기
+  // 기존 값 참고: 국가 GDP "US$ 87.6 Billion" · 국가/1인당 병기 "US$ 87.6 Billion / $19,445"
   return {
-    label: "국가GDP/1인당GDP",
-    value: "US$ 87.6 Billion / $19,445",
+    label: "1인당 GDP",
+    value: "US$ 19,445",
     footer: "출처: IMF (2024)",
     hasData: true,
   };
