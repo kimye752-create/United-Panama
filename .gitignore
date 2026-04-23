@@ -44,3 +44,4 @@ docs/handoffs/
 # 실수로 생성된 중첩 프로젝트 폴더 차단
 United_Panama/
 _docx_analysis/
+data/raw/
