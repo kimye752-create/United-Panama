@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 
 import { PartnerSection } from "@/components/main-preview/PartnerSection";
 import { PricingSection, type ReportFlowProduct } from "@/components/main-preview/PricingSection";
-import { ReportListPanel } from "@/components/reports/ReportListPanel";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 /**
@@ -50,19 +49,14 @@ export function AnalysisWorkspace() {
   );
 
   return (
-    <div className="space-y-3.5">
-      <div className="grid gap-3.5 lg:grid-cols-[1fr_280px]">
-        <div className="grid gap-3.5 lg:grid-cols-2">
-          <PricingSection
-            products={products}
-            onSessionReady={(sid) => {
-              setSessionId(sid);
-            }}
-          />
-          <PartnerSection sessionId={sessionId} />
-        </div>
-        <ReportListPanel sessionId={sessionId} />
-      </div>
+    <div className="grid gap-3.5 lg:grid-cols-2">
+      <PricingSection
+        products={products}
+        onSessionReady={(sid) => {
+          setSessionId(sid);
+        }}
+      />
+      <PartnerSection sessionId={sessionId} />
     </div>
   );
 }

@@ -47,8 +47,9 @@ export function PricingSection({ products, onSessionReady }: Props) {
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
 
   // ── 가격 산출 state ───────────────────────────────────────────
-  const [selectedSegment, setSelectedSegment]   = useState<"public" | "private">("private");
+  const [selectedSegment, setSelectedSegment]   = useState<"public" | "private">("public");
   const [pricingLoading,  setPricingLoading]     = useState(false);
+  const [pricingError,    setPricingError]       = useState<string | null>(null);
   const [pricingData,     setPricingData]        = useState<{
     public: unknown; private: unknown
   } | null>(null);
@@ -97,6 +98,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
     if (selectedSessionId === "") return;
     setPricingLoading(true);
     setPricingData(null);
+    setPricingError(null);
     try {
       const res  = await fetch("/api/panama/report/pricing", {
         method: "POST",
@@ -104,10 +106,15 @@ export function PricingSection({ products, onSessionReady }: Props) {
         body: JSON.stringify({ sessionId: selectedSessionId }),
       });
       const data: unknown = await res.json();
-      if (!res.ok) throw new Error((data as { detail?: string }).detail ?? "PRICING_FAILED");
+      if (!res.ok) {
+        const d = data as { detail?: string; error?: string };
+        throw new Error(d.detail ?? d.error ?? "PRICING_FAILED");
+      }
       const ok = data as { publicData?: unknown; privateData?: unknown };
       setPricingData({ public: ok.publicData ?? null, private: ok.privateData ?? null });
-    } catch { /* 실패 무시 */ }
+    } catch (e) {
+      setPricingError(e instanceof Error ? e.message : "알 수 없는 오류");
+    }
     finally  { setPricingLoading(false); }
   }
 
@@ -263,6 +270,13 @@ export function PricingSection({ products, onSessionReady }: Props) {
 
           {/* 채널 설명 */}
           <p className="mt-1.5 text-[12px] text-[#7a8fa8]">{channelDesc}</p>
+
+          {/* 에러 메시지 */}
+          {pricingError !== null && (
+            <p className="mt-1.5 text-[12px] text-red-600">
+              <span className="font-semibold">실행 실패:</span> {pricingError}
+            </p>
+          )}
 
           {/* 로딩 인디케이터 */}
           {pricingLoading && (

@@ -1,4 +1,5 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { lookupByNormalizedName } from "@/src/data/pharmchoices_static";
 import type { PartnerCandidate } from "@/src/types/phase3_partner";
 
 import { filterOutGlobalMnc } from "./global_mnc_filter";
@@ -159,6 +160,29 @@ function normalizeCandidate(row: Record<string, unknown>): PartnerCandidate | nu
   };
 }
 
+/**
+ * PharmChoices 정적 데이터를 후보에 병합한다.
+ * DB에 null로 저장된 연락처·역량 필드를 정적 데이터로 채운다.
+ */
+function mergePharmChoicesStatic(candidate: PartnerCandidate): PartnerCandidate {
+  const entry = lookupByNormalizedName(candidate.company_name_normalized);
+  if (entry === null) return candidate;
+  return {
+    ...candidate,
+    phone:                   candidate.phone                   ?? entry.phone,
+    email:                   candidate.email                   ?? entry.email,
+    website:                 candidate.website                 ?? entry.website,
+    address:                 candidate.address                 ?? entry.address,
+    import_history:          candidate.import_history          ?? entry.import_history,
+    gmp_certified:           candidate.gmp_certified           ?? entry.gmp_certified,
+    mah_capable:             candidate.mah_capable             ?? entry.mah_capable,
+    pharmacy_chain_operator: candidate.pharmacy_chain_operator ?? entry.pharmacy_chain_operator,
+    import_history_detail:   candidate.import_history_detail   ?? entry.import_history_detail,
+    public_procurement_wins: candidate.public_procurement_wins ?? entry.public_procurement_wins,
+    therapeutic_areas:       candidate.therapeutic_areas       ?? entry.therapeutic_areas,
+  };
+}
+
 export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]> {
   try {
     const sb = createSupabaseServer();
@@ -168,7 +192,7 @@ export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]
       .order("updated_at", { ascending: false })
       .limit(300);
     if (error !== null || data === null) {
-      return filterOutGlobalMnc([...FALLBACK_PARTNERS]);
+      return filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic));
     }
     const out: PartnerCandidate[] = [];
     for (const row of data as Record<string, unknown>[]) {
@@ -178,12 +202,12 @@ export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]
       }
     }
     if (out.length === 0) {
-      return filterOutGlobalMnc([...FALLBACK_PARTNERS]);
+      return filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic));
     }
-    // 글로벌 MNC(Big Pharma) 제외 — 파나마 로컬 + LATAM 중견만 유지
-    return filterOutGlobalMnc(out);
+    // PharmChoices 정적 데이터 병합 후 글로벌 MNC 제외
+    return filterOutGlobalMnc(out.map(mergePharmChoicesStatic));
   } catch {
-    return filterOutGlobalMnc([...FALLBACK_PARTNERS]);
+    return filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic));
   }
 }
 

@@ -18,7 +18,7 @@ interface LlmOutputBase {
   product_id: string;
   country:    string;
   llm_model:  string;
-  llm_source: "haiku" | "fallback" | "cache";
+  llm_source: "haiku" | "fallback" | "cache" | "perplexity";
 }
 
 // ─── P1 원천 데이터 (DB·크롤링 실측값) ──────────────────────────────────────
