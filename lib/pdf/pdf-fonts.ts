@@ -1,42 +1,40 @@
 /**
- * PDF 폰트 등록 — 로컬은 파일시스템, Vercel 서버리스에서는 HTTP fetch 기반으로 로드.
+ * PDF 폰트 등록 — Vercel Deployment Protection(401) 우회 + 서버리스 번들 비포함 우회.
  *
- * 배경:
- *   Vercel 서버리스 번들은 public/ 파일을 기본 포함하지 않고, outputFileTracingIncludes
- *   가 경우에 따라 동작하지 않아 @react-pdf/renderer 가 NanumGothic/NotoSansKR 을
- *   찾지 못하고 Helvetica 로 폴백 → 한글 mojibake 발생.
+ * 전략: public/fonts/ 에서 파일을 읽어 base64 data URL 로 변환 후 Font.register src 로 전달.
+ *   - HTTP fetch 불필요 → Deployment Protection 영향 없음
+ *   - fontkit 가 data URL 지원 → Buffer/경로 이슈 모두 회피
  *
- *   반면 public/ 은 Vercel CDN 으로 항상 서빙되므로 VERCEL_URL 기반 절대 URL 로
- *   Font.register 하면 번들 여부와 무관하게 폰트를 로드할 수 있다.
- *
- * 규칙:
- *   - VERCEL_URL 있으면 URL(https://…/fonts/...) 사용
- *   - 없으면(로컬 dev) 파일시스템 경로 사용
+ * 번들에 폰트가 포함되려면 next.config.mjs 의 outputFileTracingIncludes 가 필요.
+ * 만약 파일을 못 찾으면 명시적 로그로 Vercel 로그에 원인 남김 (Helvetica 폴백).
  */
 import fs from "node:fs";
 import path from "node:path";
 
 import { Font } from "@react-pdf/renderer";
 
-function resolveFontSrc(filename: string): string | null {
-  const vercelUrl = process.env.VERCEL_URL;
-  if (typeof vercelUrl === "string" && vercelUrl !== "") {
-    return `https://${vercelUrl}/fonts/${filename}`;
-  }
+const FONT_DIR = path.join(process.cwd(), "public", "fonts");
 
-  // 로컬 dev: 파일시스템 경로
-  const full = path.join(process.cwd(), "public", "fonts", filename);
-  if (!fs.existsSync(full)) {
-    console.error(`[pdf-fonts] 파일 없음 (로컬): ${full}`);
+function loadAsDataUrl(filename: string, mime = "font/ttf"): string | null {
+  const full = path.join(FONT_DIR, filename);
+  try {
+    if (!fs.existsSync(full)) {
+      console.error(`[pdf-fonts] 파일 없음: ${full}`);
+      return null;
+    }
+    const buf = fs.readFileSync(full);
+    return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[pdf-fonts] 읽기 실패 ${full}: ${msg}`);
     return null;
   }
-  return full;
 }
 
 try {
-  // ── Pretendard ────────────────────────────────────────────────────────────
-  const preReg  = resolveFontSrc("Pretendard-Regular.ttf");
-  const preBold = resolveFontSrc("Pretendard-Bold.ttf");
+  // ── Pretendard (UI 범용) ──────────────────────────────────────────────────
+  const preReg  = loadAsDataUrl("Pretendard-Regular.ttf");
+  const preBold = loadAsDataUrl("Pretendard-Bold.ttf");
   if (preReg !== null && preBold !== null) {
     Font.register({
       family: "Pretendard",
@@ -47,23 +45,10 @@ try {
     });
   }
 
-  // ── NotoSansKR (통합 보고서 기본 폰트) ───────────────────────────────────
-  const notoReg  = resolveFontSrc("NotoSansCJKkr-Regular.otf");
-  const notoBold = resolveFontSrc("NotoSansCJKkr-Bold.otf");
-  if (notoReg !== null && notoBold !== null) {
-    Font.register({
-      family: "NotoSansKR",
-      fonts: [
-        { src: notoReg,  fontWeight: "normal" },
-        { src: notoBold, fontWeight: "bold" },
-      ],
-    });
-  }
-
-  // ── NanumGothic (시장·가격·바이어 개별 보고서) ──────────────────────────
-  const nanReg   = resolveFontSrc("NanumGothic-Regular.ttf");
-  const nanBold  = resolveFontSrc("NanumGothic-Bold.ttf");
-  const nanExtra = resolveFontSrc("NanumGothic-ExtraBold.ttf");
+  // ── NanumGothic (모든 PDF 보고서 공통 폰트) ───────────────────────────────
+  const nanReg   = loadAsDataUrl("NanumGothic-Regular.ttf");
+  const nanBold  = loadAsDataUrl("NanumGothic-Bold.ttf");
+  const nanExtra = loadAsDataUrl("NanumGothic-ExtraBold.ttf");
   if (nanReg !== null && nanBold !== null) {
     const fonts: Array<{ src: string; fontWeight: "normal" | "bold" | 800 }> = [
       { src: nanReg,  fontWeight: "normal" },

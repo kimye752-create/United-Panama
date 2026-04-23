@@ -11,9 +11,11 @@ const nextConfig = {
   // (Next 15 에서 top-level 로 승격됨)
   experimental: {
     outputFileTracingIncludes: {
-      "/api/panama/report/**": ["./public/fonts/**"],
-      "/api/panama/report/combined": ["./public/fonts/**"],
-      "/api/panama/report/*/*/pdf": ["./public/fonts/**"],
+      "/api/**/*":                           ["./public/fonts/**/*"],
+      "/api/panama/report/combined/**/*":    ["./public/fonts/**/*"],
+      "/api/panama/report/partner/**/*":     ["./public/fonts/**/*"],
+      "/api/panama/report/pricing/**/*":     ["./public/fonts/**/*"],
+      "/api/panama/report/*/*/pdf/**/*":     ["./public/fonts/**/*"],
     },
   },
 };
