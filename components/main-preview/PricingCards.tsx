@@ -54,6 +54,20 @@ export function PricingCards({ segment, data, unitTypeKr, packSize, productName 
   }
 
   const root = data as Record<string, unknown>;
+
+  // 실측 데이터 미수집 — 허위 숫자 노출 방지를 위해 조용히 공란 표시
+  if (root["dataUnavailable"] === true) {
+    const channelLabel = segment === "public" ? "공공조달(PanamaCompra)" : "민간소매(ACODECO)";
+    return (
+      <div className="mt-3 rounded-xl border border-dashed border-[#d9e2ef] bg-[#f8fafc] px-4 py-6 text-center text-sm text-[#6b7a8f]">
+        <div className="font-semibold text-[#1a2e4a]">가격 분석 공란</div>
+        <div className="mt-1 text-[12px]">
+          {channelLabel} 가격 데이터가 수집되지 않아 FOB 역산을 수행하지 않았습니다.
+        </div>
+      </div>
+    );
+  }
+
   const mr   = root["marketResult"];
   if (!mr || typeof mr !== "object" || Array.isArray(mr)) {
     return <p className="mt-2 text-sm text-[#6b7a8f]">시나리오 구조를 찾을 수 없습니다.</p>;

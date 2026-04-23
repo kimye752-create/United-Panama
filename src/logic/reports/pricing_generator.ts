@@ -160,12 +160,43 @@ async function runOneSegment(
       : competitorPrices.privateRetail;
   const segmentAvg = segmentChannel.avg;
 
-  // 실측 데이터 없으면 FOB 역산 불가 — 19.8 PAB 하드코딩 fallback 제거
-  // (참조가 조작으로 가짜 수출가가 UI에 표시되는 문제 방지)
+  // 실측 데이터 없으면 FOB 역산 불가 — 허위 숫자 노출 방지를 위해
+  // 가격 카드 없이 "데이터 미수집" 마커만 담은 리포트를 저장하고 조용히 반환.
+  // (에러 throw 시 Promise.all로 반대 세그먼트까지 실패하므로 graceful하게 처리)
   if (segmentAvg === null || !Number.isFinite(segmentAvg)) {
-    throw new Error(
-      `PRICING_DATA_UNAVAILABLE: ${segment === "public" ? "공공조달" : "민간소매"} 가격 데이터가 수집되지 않아 FOB 역산을 수행할 수 없습니다. (product_id=${input.productId})`,
-    );
+    const { data: emptyRow, error: emptyErr } = await supabase
+      .from("reports")
+      .insert({
+        session_id: input.sessionId,
+        type: segment === "public" ? "pricing_public" : "pricing_private",
+        report_data: {
+          dataUnavailable: true,
+          reason: "no_price_data_collected",
+          segment,
+          competitorPrices,
+          marketReportId: input.marketReportId,
+        },
+        metadata: {
+          llmSource: "skipped",
+          modelUsed: "none",
+          segment,
+          dataUnavailable: true,
+        },
+      })
+      .select("id")
+      .single();
+    if (emptyErr !== null) {
+      throw new Error(
+        `수출가격 보고서(${segment}, data-unavailable) 저장 실패: ${emptyErr.message}`,
+      );
+    }
+    if (emptyRow === null || typeof emptyRow.id !== "string") {
+      throw new Error(`수출가격 보고서(${segment}, data-unavailable) id 누락`);
+    }
+    return {
+      id: emptyRow.id,
+      report_data: { dataUnavailable: true, segment },
+    };
   }
   const defaultPab = segmentAvg;
 
