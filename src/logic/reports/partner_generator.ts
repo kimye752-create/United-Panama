@@ -21,8 +21,10 @@ export interface GeneratePartnerResult {
   report_data: Record<string, unknown>;
 }
 
-// 실시간 보강 최대 기업 수 (크롤 후 신규 + 미보강 기업)
-const ENRICH_LIMIT = 20;
+// 실시간 보강 최대 기업 수
+// 라이브 파이프라인은 한 번도 보강 안 된 신규 기업만, 소수만 처리
+// 대부분 기업은 배치 스크립트(enrich_partners_claude.ts)가 사전 보강
+const ENRICH_LIMIT = 5;
 
 // 추천할 기업 수
 const RECOMMEND_COUNT = 10;
@@ -156,31 +158,31 @@ export async function generatePartnerReport(
     // ② DB에서 전체 후보 조회 (PharmChoices 정적 데이터 병합 + MNC/API 필터)
     const allCandidates = await fetchPartnerCandidatesFromDB();
 
-    // ③ 미보강/연락처 누락 기업 Claude web_search 심층 보강
-    //    아래 조건 모두 충족해야 스킵:
-    //      - collected_secondary_at 있음 (한 번 이상 보강됨)
-    //      - therapeutic_areas 있음 (치료영역 확보)
-    //      - revenue_usd 있음 (매출 확보)
-    //      - email 또는 website 중 하나 이상 있음 (연락처 확보)
+    // ③ 신규 기업만 Claude web_search 심층 보강
+    //    - collected_secondary_at 없는 기업 = 한 번도 보강 시도 안 한 신규
+    //    - 이미 시도된 기업(수집 결과 null이라도)은 배치 스크립트에 맡김
+    //    - 최대 ENRICH_LIMIT(5)개만 처리하여 응답 지연 최소화
     const toEnrich = allCandidates
-      .filter(
-        (c) =>
-          !(
-            c.collected_secondary_at !== null &&
-            c.therapeutic_areas !== null &&
-            c.revenue_usd !== null &&
-            (c.email !== null || c.website !== null)
-          ),
-      )
+      .filter((c) => c.collected_secondary_at === null)
       .slice(0, ENRICH_LIMIT);
 
+    // Rate-limit 방지: 최대 3개 동시 실행, 배치 간 1초 대기
+    // (web_search 동시 20개 → 429 즉시 실패)
     const enrichedMap = new Map<string, PartnerCandidate>();
-    await Promise.all(
-      toEnrich.map(async (candidate) => {
-        const enriched = await enrichCandidateWithLLM(candidate);
-        enrichedMap.set(candidate.id, enriched);
-      }),
-    );
+    const CONCURRENCY = 3;
+    for (let i = 0; i < toEnrich.length; i += CONCURRENCY) {
+      const batch = toEnrich.slice(i, i + CONCURRENCY);
+      await Promise.all(
+        batch.map(async (candidate) => {
+          const enriched = await enrichCandidateWithLLM(candidate);
+          enrichedMap.set(candidate.id, enriched);
+        }),
+      );
+      // 배치 간 1초 대기 (rate-limit 완화)
+      if (i + CONCURRENCY < toEnrich.length) {
+        await new Promise<void>((res) => setTimeout(res, 1000));
+      }
+    }
 
     // 보강 결과를 DB에 저장 (다음 실행 시 재활용)
     const supabaseForEnrich = createSupabaseServer();

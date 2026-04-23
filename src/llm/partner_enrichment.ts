@@ -195,7 +195,11 @@ export async function enrichCandidateWithLLM(
       registered_products:     combined                                          ?? candidate.registered_products,
       collected_secondary_at:  new Date().toISOString(),
     };
-  } catch {
+  } catch (err) {
+    console.error(
+      `[enrichCandidateWithLLM] ${candidate.company_name} 실패:`,
+      err instanceof Error ? err.message : String(err),
+    );
     return candidate;
   }
 }
