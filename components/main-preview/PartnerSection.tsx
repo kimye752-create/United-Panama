@@ -115,7 +115,7 @@ export function PartnerSection({ sessionId }: Props) {
         </h2>
       </div>
 
-      <div className="p-4">
+      <div className="p-5">
         {/* 드롭다운 + 실행 버튼 */}
         <div className="flex flex-wrap items-center gap-2">
           <select
