@@ -468,13 +468,13 @@ export function P2PricingDocument({
         <Text style={S.sectionTitle}>4. 가격 시나리오 — 공공시장</Text>
         <ScenarioCards marketResult={pubMarket} segment="public" />
 
-        {pubPhase2 && (
+        {pubPhase2 !== null && (
           <View style={{ marginTop: 10 }}>
             <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 4 }]}>
               FOB 역산 계산 근거
             </Text>
             <Text style={S.bodyText}>{str(pubPhase2["block2_fob_calculation"])}</Text>
-            {pubPhase2["block4_incoterms"] && (
+            {str(pubPhase2["block4_incoterms"], "") !== "" && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   Incoterms 순산 (FOB → CFR → CIF → DDP)
@@ -482,7 +482,7 @@ export function P2PricingDocument({
                 <Text style={S.bodyText}>{str(pubPhase2["block4_incoterms"])}</Text>
               </View>
             )}
-            {pubPhase2["block5_risk_and_recommendation"] && (
+            {str(pubPhase2["block5_risk_and_recommendation"], "") !== "" && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   리스크 및 권고
@@ -504,13 +504,13 @@ export function P2PricingDocument({
         <Text style={S.sectionTitle}>4. 가격 시나리오 — 민간시장</Text>
         <ScenarioCards marketResult={privMarket} segment="private" />
 
-        {privPhase2 && (
+        {privPhase2 !== null && (
           <View style={{ marginTop: 10 }}>
             <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 4 }]}>
               FOB 역산 계산 근거
             </Text>
             <Text style={S.bodyText}>{str(privPhase2["block2_fob_calculation"])}</Text>
-            {privPhase2["block4_incoterms"] && (
+            {str(privPhase2["block4_incoterms"], "") !== "" && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   Incoterms 순산
@@ -518,7 +518,7 @@ export function P2PricingDocument({
                 <Text style={S.bodyText}>{str(privPhase2["block4_incoterms"])}</Text>
               </View>
             )}
-            {privPhase2["block5_risk_and_recommendation"] && (
+            {str(privPhase2["block5_risk_and_recommendation"], "") !== "" && (
               <View style={{ marginTop: 6 }}>
                 <Text style={[S.bodyText, { fontWeight: "bold", color: NAVY, marginBottom: 2 }]}>
                   리스크 및 권고

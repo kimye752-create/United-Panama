@@ -1,5 +1,36 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (main 병합 충돌 해결 + P2PricingDocument 빌드 오류 수정)
+
+### 변경 배경
+프로덕션 미반영 원인 조사 결과, 변경사항이 `feat/combined-report-system`에만 존재했고 `main`과 이력이 분기되어 있었습니다.  
+추가로 `main` 이력 병합 과정에서 `components/reports/P2PricingDocument.tsx` 타입 오류(`TS2769`, line 472/508)가 재현되어 빌드가 차단되었습니다.
+
+### 오류 원인 및 해결
+- 원인:
+  - `P2PricingDocument.tsx`에서 `Record<string, unknown>` 필드(`block4_incoterms`, `block5_risk_and_recommendation`)를 JSX 조건식에 직접 사용
+  - React-PDF `Text/View` children 타입(`ReactNode`)에 `unknown`이 유입되어 `No overload matches this call` 발생
+- 해결:
+  - `components/reports/P2PricingDocument.tsx`
+    - `pubPhase2 && (...)` → `pubPhase2 !== null && (...)`
+    - `privPhase2 && (...)` → `privPhase2 !== null && (...)`
+    - `pubPhase2["..."] && (...)` / `privPhase2["..."] && (...)`
+      → `str(pubPhase2["..."], "") !== "" && (...)` / `str(privPhase2["..."], "") !== "" && (...)`
+  - 타입 안전한 문자열 판정으로 `unknown`을 직접 렌더링 경로에서 제거
+
+### 병합/검증 결과
+- `origin/main` 병합 중 충돌 파일 2개:
+  - `components/main-preview/AnalysisWorkspace.tsx`
+  - `components/reports/CombinedReportDocument.tsx`
+- 충돌은 최신 feature 구현 기준으로 정리 후 merge commit 생성:
+  - `merge: resolve origin/main conflicts keeping feature report/UI implementation`
+- 검증:
+  - `npx tsc --noEmit` 통과
+  - `npm run build` 통과
+  - 기존 새벽 오류(`P2PricingDocument.tsx:472`) 재현되지 않음
+
+---
+
 ## [Unreleased] - 2026-04-23 (메인페이지 GDP 카드 — 국가 GDP → 1인당 GDP)
 
 ### 변경 배경
