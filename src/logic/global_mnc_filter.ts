@@ -112,3 +112,108 @@ export function filterOutGlobalMnc<T extends { company_name: string; cphi_catego
     (c) => !isGlobalMnc(c.company_name) && !isApiOrDeviceCompany(c.company_name, c.cphi_category),
   );
 }
+
+// ─── 파나마 현지 기업 판정 ────────────────────────────────────────────
+// 주소/웹사이트/source_primary 중 하나라도 파나마를 가리키면 "현지"로 분류.
+// enrichment 비용은 파나마 현지 기업에만 지출한다.
+
+/** 파나마 현지를 가리키는 텍스트 키워드 (대소문자 무시) */
+const PANAMA_LOCAL_KEYWORDS: readonly string[] = [
+  "panama",
+  "panamá",
+  "panama city",
+  "ciudad de panamá",
+  "colón",
+  "colon free zone",
+  "zona libre",
+  "zlc",
+  "david, chiriquí",
+  "chiriquí",
+];
+
+/** source_primary 필드가 파나마 전용 소스인 경우 */
+const PANAMA_LOCAL_SOURCES: readonly string[] = [
+  "pharmchoices",
+  "dnb_panama",
+  "dnfd",
+  "minsa",
+  "acodeco",
+  "cabamed",
+  "panamacompra",
+];
+
+/** 명백한 타국 LATAM 키워드 — 주소에 포함되면 "현지 아님"으로 강제 제외 */
+const NON_PANAMA_LATAM_KEYWORDS: readonly string[] = [
+  "bogotá", "bogota", "medellín", "medellin", "colombia",
+  "méxico", "mexico city", "guadalajara",
+  "buenos aires", "argentina",
+  "são paulo", "sao paulo", "rio de janeiro", "brasil", "brazil",
+  "santiago, chile", "chile,",
+  "lima, peru", "lima, perú",
+  "quito", "ecuador",
+  "caracas", "venezuela",
+  "san josé, costa rica", "costa rica,",
+  "guatemala city", "guatemala,",
+  "tegucigalpa", "honduras",
+  "managua", "nicaragua",
+  "san salvador", "el salvador",
+];
+
+/**
+ * 주어진 후보가 파나마 현지 기업인지 판정한다.
+ * - 주소에 타국 LATAM 키워드가 있으면 즉시 false
+ * - 주소에 파나마 키워드가 있으면 true
+ * - 주소 없으면 source_primary가 파나마 소스인지로 판정
+ */
+export function isPanamaLocal<
+  T extends {
+    company_name?: string;
+    address?: string | null;
+    website?: string | null;
+    source_primary?: string | null;
+  },
+>(c: T): boolean {
+  const addr = (c.address ?? "").toLowerCase();
+  const site = (c.website ?? "").toLowerCase();
+  const src  = (c.source_primary ?? "").toLowerCase();
+  const name = (c.company_name ?? "").toLowerCase();
+
+  // 타국 LATAM 주소는 즉시 제외
+  if (addr !== "" && NON_PANAMA_LATAM_KEYWORDS.some((kw) => addr.includes(kw))) {
+    return false;
+  }
+
+  // 주소에 파나마 표기 존재
+  if (addr !== "" && PANAMA_LOCAL_KEYWORDS.some((kw) => addr.includes(kw))) {
+    return true;
+  }
+
+  // 도메인이 .pa
+  if (site.endsWith(".pa") || site.includes(".pa/") || site.includes(".com.pa")) {
+    return true;
+  }
+
+  // 회사명 자체에 Panama 포함
+  if (name.includes("panama") || name.includes("panamá")) {
+    return true;
+  }
+
+  // 주소 없으면 source로 판정
+  if (addr === "" && PANAMA_LOCAL_SOURCES.some((kw) => src.includes(kw))) {
+    return true;
+  }
+
+  return false;
+}
+
+/** 후보 배열에서 파나마 현지 기업만 반환 */
+export function filterPanamaLocal<
+  T extends {
+    company_name?: string;
+    address?: string | null;
+    website?: string | null;
+    source_primary?: string | null;
+  },
+>(candidates: readonly T[]): T[] {
+  return candidates.filter(isPanamaLocal);
+}

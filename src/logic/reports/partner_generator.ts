@@ -5,6 +5,7 @@ import {
   generateRecommendationReasons,
 } from "@/src/llm/partner_enrichment";
 import { fetchPartnerCandidatesFromDB } from "@/src/logic/partner_search";
+import { isPanamaLocal } from "@/src/logic/global_mnc_filter";
 import { findProductById } from "@/src/utils/product-dictionary";
 import { saveLlmOutput } from "@/src/lib/llm-output-logger";
 import type { PartnerCandidate } from "@/src/types/phase3_partner";
@@ -160,10 +161,12 @@ export async function generatePartnerReport(
 
     // ③ 신규 기업만 Claude web_search 심층 보강
     //    - collected_secondary_at 없는 기업 = 한 번도 보강 시도 안 한 신규
+    //    - 파나마 현지 기업만 — 타국 LATAM/MNC 후보는 enrichment 비용 지출 안 함
     //    - 이미 시도된 기업(수집 결과 null이라도)은 배치 스크립트에 맡김
     //    - 최대 ENRICH_LIMIT(5)개만 처리하여 응답 지연 최소화
     const toEnrich = allCandidates
       .filter((c) => c.collected_secondary_at === null)
+      .filter(isPanamaLocal)
       .slice(0, ENRICH_LIMIT);
 
     // Rate-limit 방지: 최대 3개 동시 실행, 배치 간 1초 대기
