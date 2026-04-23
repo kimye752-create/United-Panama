@@ -156,15 +156,20 @@ export async function generatePartnerReport(
     // ② DB에서 전체 후보 조회 (PharmChoices 정적 데이터 병합 + MNC/API 필터)
     const allCandidates = await fetchPartnerCandidatesFromDB();
 
-    // ③ 미보강 기업 Claude web_search 심층 보강
-    //    collected_secondary_at + therapeutic_areas + revenue_usd 모두 있으면 스킵
+    // ③ 미보강/연락처 누락 기업 Claude web_search 심층 보강
+    //    아래 조건 모두 충족해야 스킵:
+    //      - collected_secondary_at 있음 (한 번 이상 보강됨)
+    //      - therapeutic_areas 있음 (치료영역 확보)
+    //      - revenue_usd 있음 (매출 확보)
+    //      - email 또는 website 중 하나 이상 있음 (연락처 확보)
     const toEnrich = allCandidates
       .filter(
         (c) =>
           !(
             c.collected_secondary_at !== null &&
             c.therapeutic_areas !== null &&
-            c.revenue_usd !== null
+            c.revenue_usd !== null &&
+            (c.email !== null || c.website !== null)
           ),
       )
       .slice(0, ENRICH_LIMIT);
@@ -174,6 +179,41 @@ export async function generatePartnerReport(
       toEnrich.map(async (candidate) => {
         const enriched = await enrichCandidateWithLLM(candidate);
         enrichedMap.set(candidate.id, enriched);
+      }),
+    );
+
+    // 보강 결과를 DB에 저장 (다음 실행 시 재활용)
+    const supabaseForEnrich = createSupabaseServer();
+    await Promise.allSettled(
+      Array.from(enrichedMap.entries()).map(async ([candidateId, enriched]) => {
+        const orig = allCandidates.find((c) => c.id === candidateId);
+        if (!orig) return;
+        const patch: Record<string, unknown> = {
+          collected_secondary_at: enriched.collected_secondary_at,
+        };
+        // 연락처 — 기존 값 없을 때만 업데이트
+        if (enriched.email   !== null && orig.email   === null) patch["email"]   = enriched.email;
+        if (enriched.website !== null && orig.website === null) patch["website"] = enriched.website;
+        if (enriched.phone   !== null && orig.phone   === null) patch["phone"]   = enriched.phone;
+        // 정량 데이터 — LLM 값이 있으면 업데이트
+        if (enriched.revenue_usd             !== null) patch["revenue_usd"]             = enriched.revenue_usd;
+        if (enriched.employee_count          !== null) patch["employee_count"]           = enriched.employee_count;
+        if (enriched.founded_year            !== null) patch["founded_year"]             = enriched.founded_year;
+        if (enriched.therapeutic_areas       !== null) patch["therapeutic_areas"]        = enriched.therapeutic_areas;
+        if (enriched.registered_products     !== null) patch["registered_products"]      = enriched.registered_products;
+        if (enriched.gmp_certified           !== null) patch["gmp_certified"]            = enriched.gmp_certified;
+        if (enriched.import_history          !== null) patch["import_history"]           = enriched.import_history;
+        if (enriched.import_history_detail   !== null) patch["import_history_detail"]    = enriched.import_history_detail;
+        if (enriched.public_procurement_wins !== null) patch["public_procurement_wins"]  = enriched.public_procurement_wins;
+        if (enriched.pharmacy_chain_operator !== null) patch["pharmacy_chain_operator"]  = enriched.pharmacy_chain_operator;
+        if (enriched.mah_capable             !== null) patch["mah_capable"]              = enriched.mah_capable;
+        if (enriched.korea_partnership       !== null) patch["korea_partnership"]        = enriched.korea_partnership;
+        if (enriched.korea_partnership_detail !== null) patch["korea_partnership_detail"] = enriched.korea_partnership_detail;
+        if (enriched.source_secondary        !== null) patch["source_secondary"]         = enriched.source_secondary;
+        await supabaseForEnrich
+          .from("panama_partner_candidates")
+          .update(patch)
+          .eq("id", candidateId);
       }),
     );
 

@@ -92,6 +92,7 @@ export async function enrichCandidateWithLLM(
 
   const websiteHint = candidate.website ? `웹사이트: ${candidate.website}\n` : "";
   const addressHint = candidate.address ? `주소: ${candidate.address}\n` : "";
+  const emailHint   = candidate.email   ? `이메일(기존): ${candidate.email}\n`   : "";
 
   const client = new Anthropic({ apiKey: apiKey.trim() });
 
@@ -110,8 +111,12 @@ export async function enrichCandidateWithLLM(
                 `아래 JSON 형식으로만 응답하세요 (설명 없이 JSON 객체만).\n` +
                 websiteHint +
                 addressHint +
+                emailHint +
                 "확인되지 않은 값은 null:\n" +
                 "{\n" +
+                '  "email": <string|null>,\n' +
+                '  "website": <string|null>,\n' +
+                '  "phone": <string|null>,\n' +
                 '  "revenue_usd": <number|null>,\n' +
                 '  "employee_count": <number|null>,\n' +
                 '  "founded_year": <number|null>,\n' +
@@ -128,6 +133,9 @@ export async function enrichCandidateWithLLM(
                 '  "korea_partnership_detail": <string|null>,\n' +
                 '  "source_urls": <string[]>\n' +
                 "}\n" +
+                "- email: 기업 공식 연락처 이메일 (홈페이지·LinkedIn·디렉토리에서 확인)\n" +
+                "- website: 기업 공식 홈페이지 URL\n" +
+                "- phone: 기업 대표 전화번호\n" +
                 "- main_products: 파나마에서 판매·유통하는 완제 의약품 브랜드명 최대 5개\n" +
                 "- pipeline: 취급/등록 중인 주요 성분(INN) 또는 제품명 최대 5개\n" +
                 "- therapeutic_areas: 영문 치료 영역명 (예: Cardiology, Oncology, Respiratory)\n" +
@@ -159,8 +167,18 @@ export async function enrichCandidateWithLLM(
           )
         : null;
 
+    // 연락처: 기존 값이 없을 때만 채움 (수동 입력 데이터 보호)
+    const llmEmail   = toStringOrNull(parsed["email"]);
+    const llmWebsite = toStringOrNull(parsed["website"]);
+    const llmPhone   = toStringOrNull(parsed["phone"]);
+
     return {
       ...candidate,
+      // 연락처 — 기존 값 없을 때만 LLM 값 사용
+      email:                   candidate.email   ?? llmEmail,
+      website:                 candidate.website ?? llmWebsite,
+      phone:                   candidate.phone   ?? llmPhone,
+      // 정량 데이터 — LLM 값 우선 (최신 정보)
       revenue_usd:             toNumberOrNull(parsed["revenue_usd"])            ?? candidate.revenue_usd,
       employee_count:          toNumberOrNull(parsed["employee_count"])          ?? candidate.employee_count,
       founded_year:            toNumberOrNull(parsed["founded_year"])            ?? candidate.founded_year,

@@ -72,6 +72,9 @@ interface DBCandidate {
 }
 
 interface EnrichedData {
+  email: string | null;
+  website: string | null;
+  phone: string | null;
   revenue_usd: number | null;
   employee_count: number | null;
   founded_year: number | null;
@@ -144,6 +147,7 @@ async function enrichWithClaude(
 ): Promise<EnrichedData | null> {
   const websiteHint = company.website ? `웹사이트: ${company.website}\n` : "";
   const addressHint = company.address ? `주소: ${company.address}\n` : "";
+  const emailHint   = company.email   ? `이메일(기존): ${company.email}\n`   : "";
 
   try {
     const response = await client.beta.messages.create(
@@ -159,8 +163,12 @@ async function enrichWithClaude(
               `아래 JSON 형식으로만 응답하세요 (설명 없이 JSON 객체만).\n` +
               websiteHint +
               addressHint +
+              emailHint +
               "확인되지 않은 값은 반드시 null:\n" +
               "{\n" +
+              '  "email": <string|null>,\n' +
+              '  "website": <string|null>,\n' +
+              '  "phone": <string|null>,\n' +
               '  "revenue_usd": <number|null>,\n' +
               '  "employee_count": <number|null>,\n' +
               '  "founded_year": <number|null>,\n' +
@@ -177,6 +185,9 @@ async function enrichWithClaude(
               '  "korea_partnership_detail": <string|null>,\n' +
               '  "source_urls": <string[]>\n' +
               "}\n" +
+              "- email: 기업 공식 연락처 이메일 (홈페이지·LinkedIn·디렉토리에서 확인)\n" +
+              "- website: 기업 공식 홈페이지 URL\n" +
+              "- phone: 기업 대표 전화번호\n" +
               "- main_products: 파나마에서 판매·유통하는 완제 의약품 브랜드명 최대 5개\n" +
               "- pipeline: 취급/등록 중인 주요 성분(INN) 또는 제품명 최대 5개\n" +
               "- therapeutic_areas: 영문 치료 영역명 (Cardiology, Oncology, Respiratory 등)\n" +
@@ -198,6 +209,9 @@ async function enrichWithClaude(
     }
 
     return {
+      email:                   toStrOrNull(parsed["email"]),
+      website:                 toStrOrNull(parsed["website"]),
+      phone:                   toStrOrNull(parsed["phone"]),
       revenue_usd:             toNumOrNull(parsed["revenue_usd"]),
       employee_count:          toNumOrNull(parsed["employee_count"]),
       founded_year:            toNumOrNull(parsed["founded_year"]),
@@ -249,8 +263,17 @@ async function main(): Promise<void> {
   // 수집 대상 선정
   const needsEnrichment = candidates.filter((c) => {
     if (isForce) return true;
-    // 이미 두 핵심 필드가 모두 있으면 스킵
-    return !(c.collected_secondary_at && c.therapeutic_areas && c.revenue_usd);
+    // 아래 조건 모두 충족해야 스킵:
+    //   - 보강 이력 있음
+    //   - 치료영역 확보
+    //   - 매출 확보
+    //   - 이메일 또는 웹사이트 중 하나 이상 확보
+    return !(
+      c.collected_secondary_at &&
+      c.therapeutic_areas &&
+      c.revenue_usd &&
+      (c.email || c.website)
+    );
   });
   const alreadyDone = candidates.length - needsEnrichment.length;
   const toEnrich = needsEnrichment.slice(0, limit);
@@ -299,7 +322,12 @@ async function main(): Promise<void> {
         updated_at: new Date().toISOString(),
       };
 
-      // null이 아닌 필드만 업데이트 (기존 데이터 덮어쓰지 않음)
+      // 연락처 — 기존 값 없을 때만 채움 (수동 입력 데이터 보호)
+      if (enriched.email   !== null && !company.email)   updatePayload["email"]   = enriched.email;
+      if (enriched.website !== null && !company.website) updatePayload["website"] = enriched.website;
+      if (enriched.phone   !== null && !company.phone)   updatePayload["phone"]   = enriched.phone;
+
+      // null이 아닌 필드만 업데이트
       if (enriched.revenue_usd            !== null) updatePayload["revenue_usd"]             = enriched.revenue_usd;
       if (enriched.employee_count         !== null) updatePayload["employee_count"]           = enriched.employee_count;
       if (enriched.founded_year           !== null) updatePayload["founded_year"]             = enriched.founded_year;
