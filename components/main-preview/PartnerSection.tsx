@@ -15,8 +15,8 @@ type Criterion = "revenue" | "pipeline" | "gmp" | "import" | "pharmacy_chain";
 const CRITERIA: { key: Criterion; label: string; circled: string; weight: number }[] = [
   { key: "revenue",        label: "매출 규모",      circled: "①", weight: 0.35 },
   { key: "pipeline",       label: "파이프라인",     circled: "②", weight: 0.28 },
-  { key: "gmp",            label: "GMP 인증",       circled: "③", weight: 0.20 },
-  { key: "import",         label: "수입 이력",      circled: "④", weight: 0.12 },
+  { key: "gmp",            label: "제조소 보유",    circled: "③", weight: 0.20 },
+  { key: "import",         label: "수입 경험",      circled: "④", weight: 0.12 },
   { key: "pharmacy_chain", label: "약국 체인 운영", circled: "⑤", weight: 0.05 },
 ];
 
@@ -81,6 +81,9 @@ export function PartnerSection({ sessionId }: Props) {
   const [detailPartner, setDetailPartner] = useState<{
     rank: number; partner: PartnerCandidate;
   } | null>(null);
+
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError,   setPdfError]   = useState<string | null>(null);
 
   // ── 세션 목록 조회 ─────────────────────────────────────────────
   const fetchSessions = useCallback(async () => {
@@ -153,6 +156,42 @@ export function PartnerSection({ sessionId }: Props) {
       : null;
 
   const canRun = selectedSessionId !== "" && !loading;
+
+  // ── 최종 통합 PDF 다운로드 ─────────────────────────────────────
+  async function handleDownloadCombinedPdf() {
+    if (selectedSessionId === "") return;
+    setPdfLoading(true);
+    setPdfError(null);
+    try {
+      const res = await fetch(
+        `/api/panama/report/combined?session_id=${encodeURIComponent(selectedSessionId)}`,
+      );
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string; missing?: string[] };
+        if (err.error === "INCOMPLETE_SESSION" && Array.isArray(err.missing)) {
+          const labels: Record<string, string> = {
+            market: "시장조사", pricing: "가격 분석", partner: "바이어 발굴",
+          };
+          const names = err.missing.map((k) => labels[k] ?? k).join(", ");
+          throw new Error(`${names} 단계가 완료되지 않았습니다.`);
+        }
+        throw new Error(`PDF 생성 실패 (HTTP ${res.status})`);
+      }
+      const blob     = await res.blob();
+      const url      = URL.createObjectURL(blob);
+      const anchor   = document.createElement("a");
+      anchor.href    = url;
+      anchor.download = `파나마_통합보고서_${selectedSessionId.slice(0, 8)}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setPdfError(e instanceof Error ? e.message : "알 수 없는 오류");
+    } finally {
+      setPdfLoading(false);
+    }
+  }
 
   return (
     <section className="rounded-xl border border-[#d9e2ef] bg-white shadow-sh2">
@@ -317,6 +356,50 @@ export function PartnerSection({ sessionId }: Props) {
           <p className="mt-4 rounded-lg border border-dashed border-[#d9e2ef] py-6 text-center text-[13px] text-[#7a8fa8]">
             품목 선택 후 ▶ 바이어 발굴을 실행하세요.
           </p>
+        )}
+
+        {/* ── 최종 통합 보고서 PDF 다운로드 ── */}
+        {!loading && sortedPartners !== null && (
+          <div className="mt-4 border-t border-dashed border-[#d9e2ef] pt-4">
+            {/* 완료 체크 뱃지 */}
+            <div className="mb-2.5 flex items-center gap-2">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[9px] text-white font-bold">✓</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                시장조사 · 가격분석 · 바이어발굴 3단계 완료
+              </span>
+            </div>
+
+            <button
+              type="button"
+              disabled={pdfLoading}
+              onClick={() => { void handleDownloadCombinedPdf(); }}
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#1B3A6B] px-5 py-3.5 text-[14px] font-extrabold text-white shadow-md transition-all hover:bg-[#16305a] hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
+            >
+              {pdfLoading ? (
+                <>
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  PDF 생성 중… (최대 60초 소요)
+                </>
+              ) : (
+                <>
+                  <span className="text-[18px] leading-none">📄</span>
+                  최종 통합 보고서 PDF 다운로드
+                </>
+              )}
+            </button>
+
+            {/* 에러 메시지 */}
+            {pdfError !== null && (
+              <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
+                <span className="mt-0.5 shrink-0">⚠</span>
+                <span>{pdfError}</span>
+              </div>
+            )}
+
+            <p className="mt-1.5 text-center text-[11px] text-[#9aafc5]">
+              시장보고서 · 가격전략 · 바이어리스트 3종 통합 A4 PDF
+            </p>
+          </div>
         )}
       </div>
 

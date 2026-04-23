@@ -56,8 +56,8 @@ export function ReportsFloatingButton() {
         {/* 패널 헤더 */}
         <div className="flex items-center justify-between border-b border-[#dde5f0] bg-white px-5 py-4">
           <div>
-            <p className="text-[15px] font-extrabold text-navy">보고서 탭</p>
-            <p className="mt-0.5 text-[12px] text-[#7a8fa8]">P1 시장조사 · P2 가격전략 · P3 바이어 · 최종 PDF</p>
+            <p className="text-[15px] font-extrabold text-navy">생성된 보고서</p>
+            <p className="mt-0.5 text-[12px] text-[#7a8fa8]">시장조사 · 수출가격 전략 · 바이어 발굴 · 최종 PDF</p>
           </div>
           <button
             type="button"

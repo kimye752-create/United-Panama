@@ -1,5 +1,31 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (UI 통일 + 뉴스 품질 개선 + 분석 기준 레이블 수정)
+
+### Changed
+- `app/layout.tsx` — 전역 타이틀 "UPharma — 파나마 1단계 · 시장조사" → "한국유나이티드제약(주) 해외 영업·마케팅 대시보드" (구버전 표현 제거)
+- `app/reports/page.tsx` — 구형 `GeneratedReportsList`(sessionStorage 기반) 사용 페이지를 `/analysis`로 리다이렉트 전환 (신형 세션 API 기반 UI와 통일)
+- `components/dashboard/ReportsFloatingButton.tsx` — 패널 헤더 서브타이틀 "P1 시장조사 · P2 가격전략 · P3 바이어 · 최종 PDF" → "시장조사 · 수출가격 전략 · 바이어 발굴 · 최종 PDF" (01/02 블록 명칭과 통일)
+- `components/main-preview/PartnerSection.tsx` — 파트너 평가 기준 ③ "GMP 인증" → "제조소 보유", ④ "수입 이력" → "수입 경험" (핸드오프 스펙 세션27 2-6항 기준 정렬)
+
+### Improved
+- `src/logic/fetch_panama_dashboard_news.ts`
+  - Perplexity 프롬프트 강화: 2026년 파나마 의약품 뉴스 우선 수집, La Prensa·MINSA·PanamaCompra 등 현지 출처 명시
+  - `search_recency_filter` → `"month"` (최근 1개월 우선), 결과 4건 미만 시 `"year"`로 자동 재시도 (2단계 패칭)
+  - `max_tokens` 2500 → 3000 (더 많은 기사 수집)
+  - FALLBACK_NEWS 업데이트: 2026년 항목 4개 추가 (MINSA 필수의약품 개정·CSS 조달 입찰·약가 인하법 1년·한-파나마 FTA 5주년)
+
+## [Unreleased] - 2026-04-23 09:25 (SG 레퍼런스 정렬 계획 실행 + Claude 앱 작업분 백필 요약)
+
+- **Claude 앱 일괄 작업(이전 미기록)**: SG형 결합 PDF·메인 프리뷰 UI, `fetch_panama_dashboard_news`/크롤 보강, `CombinedReportDocument`·`PartnerSection`·가격 카드, `market_generator` 연동·ACODECO PDF 스크립트 등 — 상세는 동일 날짜 이전 커밋·워킹트리 diff 참고.
+- `src/logic/reports/market_generator.ts` — 치료영역 통계 `await collectTherapeuticStats` 후 재조회.
+- `components/main-preview/AnalysisWorkspace.tsx` — `ReportListPanel` 우측 열.
+- `components/dashboard/dashboardTabConfig.ts` — 탭 정의 단일화; `TopbarTabs`·`TabNavigation`이 동일 소스 사용(전자 2탭·후자 메인+분석+보고서 3탭).
+- `components/main-preview/MainPreviewSections.tsx` — 미사용 레거시 스텁(복원은 git 히스토리).
+- `scripts/ddl/panama_therapeutic_stats.sql`, `scripts/ddl/panama_paper_citations.sql` — SG 파이프라인 보조 테이블 DDL 사본.
+- `scripts/verify_sg_schema.ts`, `npm run verify:sg-schema` — 위 3테이블 + `llm_outputs` 존재·SELECT 검증(로컬 실행 시 OK 확인됨).
+- `.gitignore` — `.claude/`, `scripts/logs/`, `backups/*.txt` 제외.
+
 ## [Unreleased] - 2026-04-21 (feat: Service Role admin 클라이언트 + Storage 권한 강화 — Claude Code CLI)
 
 ### Added
