@@ -193,23 +193,45 @@ export function PartnerSection({ sessionId }: Props) {
     }
   }
 
+  const hasResults = !loading && sortedPartners !== null;
+
   return (
-    <section className="rounded-[20px] bg-white shadow-sh">
-      {/* 헤더 */}
-      <div className="flex items-center gap-2.5 border-b border-[#edf1f7] px-5 py-3.5">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
-          02
-        </span>
-        <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#1a2e4a]">
-          바이어 발굴
-        </h2>
+    <div className="flex h-full flex-col">
+      {/* ── 헤더 (고정) ── */}
+      <div className="flex shrink-0 items-center justify-between border-b border-[rgba(23,63,120,0.06)] px-5 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-extrabold text-white">
+            02
+          </span>
+          <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#1a2e4a]">
+            바이어 발굴
+          </h2>
+        </div>
+
+        {/* 최종 보고서 다운로드 버튼 (결과 있을 때 헤더에 노출) */}
+        {hasResults && (
+          <button
+            type="button"
+            disabled={pdfLoading}
+            onClick={() => { void handleDownloadCombinedPdf(); }}
+            className="inline-flex items-center gap-1.5 rounded-full bg-navy px-4 py-1.5 text-[12px] font-extrabold text-white shadow-sm transition-opacity hover:opacity-80 disabled:opacity-40"
+          >
+            {pdfLoading ? (
+              <><span className="animate-spin">⟳</span> 생성 중...</>
+            ) : (
+              <>↓ 최종 보고서</>
+            )}
+          </button>
+        )}
       </div>
 
-      <div className="p-4">
-        {/* 드롭다운 + 실행 버튼 */}
+      {/* ── 바디 (독립 스크롤) ── */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* ── 셀렉터 카드: 보고서 선택 + 실행 ── */}
+        <div className="mb-3.5 rounded-[14px] bg-white p-3 shadow-[0_2px_10px_rgba(23,63,120,0.07)]">
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="min-w-0 flex-1 rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm focus:outline-none focus:ring-2 focus:ring-navy/30"
+            className="min-w-0 flex-1 rounded-lg border border-[rgba(23,63,120,0.15)] bg-white px-3 py-2 text-[13px] text-[#273f60] focus:outline-none focus:ring-2 focus:ring-navy/30"
             value={selectedSessionId}
             onChange={(e) => {
               setSelectedSessionId(e.target.value);
@@ -234,27 +256,29 @@ export function PartnerSection({ sessionId }: Props) {
             onClick={() => { void handleRunPartner(); }}
           >
             {loading ? (
-              <><span className="animate-spin">⟳</span> 바이어 발굴</>
+              <><span className="animate-spin">⟳</span> 발굴 중</>
             ) : (
               <>▶ 바이어 발굴</>
             )}
           </button>
         </div>
 
-        {/* 로딩 인디케이터 텍스트 */}
+        {/* 로딩 인디케이터 */}
         {loading && (
           <div className="mt-2 flex items-center gap-2 text-[12px] text-[#7a8fa8]">
             <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#d9e2ef] border-t-navy" />
             바이어 발굴 중…
           </div>
         )}
+        </div>{/* /셀렉터 카드 */}
 
         {/* ── 평가 기준 체크박스 (로딩 중이거나 결과 있을 때) ── */}
         {(loading || sortedPartners !== null) && (
-          <div className="mt-3 rounded-lg border border-[#edf1f7] bg-[#f8fafc] px-3 py-2.5">
+          <div className="mb-3 rounded-[10px] border border-[rgba(23,63,120,0.12)] bg-white px-3 py-2.5">
             <div className="mb-1.5 flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#9aafc5]">
                 평가 기준
+                <span className="ml-1.5 font-normal normal-case text-[#b0bcc9]">(체크 항목으로 순위 재정렬)</span>
               </span>
               <button
                 type="button"
@@ -294,9 +318,16 @@ export function PartnerSection({ sessionId }: Props) {
           </div>
         )}
 
+        {/* Top N 타이틀 */}
+        {hasResults && sortedPartners !== null && sortedPartners.length > 0 && (
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
+            Top {sortedPartners.length}
+          </p>
+        )}
+
         {/* ── 스켈레톤 ── */}
         {loading && (
-          <div className="mt-3 space-y-2">
+          <div className="space-y-2">
             {Array.from({ length: 8 }, (_, i) => (
               <SkeletonRow key={i} n={i + 1} />
             ))}
@@ -305,7 +336,7 @@ export function PartnerSection({ sessionId }: Props) {
 
         {/* ── 바이어 목록 ── */}
         {!loading && sortedPartners !== null && (
-          <div className="mt-3 space-y-1.5">
+          <div className="space-y-1.5">
             {sortedPartners.length === 0 ? (
               <p className="py-6 text-center text-[13px] text-[#7a8fa8]">
                 조건에 맞는 바이어가 없습니다.
@@ -317,7 +348,7 @@ export function PartnerSection({ sessionId }: Props) {
                   <button
                     type="button"
                     key={partner.id}
-                    className="flex w-full items-center gap-3 rounded-lg border border-[#edf1f7] bg-white px-4 py-3 text-left transition-all hover:border-navy/30 hover:bg-[#f7fafc] hover:shadow-sm"
+                    className="flex w-full items-center gap-3 rounded-lg border border-[rgba(23,63,120,0.1)] bg-white px-4 py-3 text-left transition-all hover:border-navy/30 hover:bg-[#f7fafc] hover:shadow-sm"
                     onClick={() => { setDetailPartner({ rank: idx + 1, partner }); }}
                   >
                     <span className="w-5 shrink-0 text-[13px] font-extrabold text-navy">
@@ -353,52 +384,16 @@ export function PartnerSection({ sessionId }: Props) {
 
         {/* ── 빈 상태 ── */}
         {!loading && sortedPartners === null && (
-          <p className="mt-4 rounded-lg border border-dashed border-[#d9e2ef] py-6 text-center text-[13px] text-[#7a8fa8]">
-            품목 선택 후 ▶ 바이어 발굴을 실행하세요.
+          <p className="mt-2 rounded-lg border border-dashed border-[rgba(23,63,120,0.15)] py-8 text-center text-[13px] text-[#7a8fa8]">
+            보고서 선택 후 ▶ 바이어 발굴을 실행하세요.
           </p>
         )}
 
-        {/* ── 최종 통합 보고서 PDF 다운로드 ── */}
-        {!loading && sortedPartners !== null && (
-          <div className="mt-4 border-t border-dashed border-[#d9e2ef] pt-4">
-            {/* 완료 체크 뱃지 */}
-            <div className="mb-2.5 flex items-center gap-2">
-              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[9px] text-white font-bold">✓</span>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
-                시장조사 · 가격분석 · 바이어발굴 3단계 완료
-              </span>
-            </div>
-
-            <button
-              type="button"
-              disabled={pdfLoading}
-              onClick={() => { void handleDownloadCombinedPdf(); }}
-              className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#1B3A6B] px-5 py-3.5 text-[14px] font-extrabold text-white shadow-md transition-all hover:bg-[#16305a] hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
-            >
-              {pdfLoading ? (
-                <>
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  PDF 생성 중… (최대 60초 소요)
-                </>
-              ) : (
-                <>
-                  <span className="text-[18px] leading-none">📄</span>
-                  최종 통합 보고서 PDF 다운로드
-                </>
-              )}
-            </button>
-
-            {/* 에러 메시지 */}
-            {pdfError !== null && (
-              <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
-                <span className="mt-0.5 shrink-0">⚠</span>
-                <span>{pdfError}</span>
-              </div>
-            )}
-
-            <p className="mt-1.5 text-center text-[11px] text-[#9aafc5]">
-              시장보고서 · 가격전략 · 바이어리스트 3종 통합 A4 PDF
-            </p>
+        {/* 에러 메시지 (PDF 생성 실패) */}
+        {pdfError !== null && (
+          <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
+            <span className="mt-0.5 shrink-0">⚠</span>
+            <span>{pdfError}</span>
           </div>
         )}
       </div>
@@ -411,6 +406,6 @@ export function PartnerSection({ sessionId }: Props) {
           onClose={() => { setDetailPartner(null); }}
         />
       )}
-    </section>
+    </div>
   );
 }
