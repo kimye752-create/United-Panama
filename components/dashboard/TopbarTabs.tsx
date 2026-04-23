@@ -16,7 +16,7 @@ export function TopbarTabs() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`relative inline-flex h-[46px] select-none items-center px-5 text-[15px] leading-none tracking-[-0.01em] transition-colors duration-200 ${
+            className={`relative inline-flex h-[66px] select-none items-center px-5 text-[15px] leading-none tracking-[-0.01em] transition-colors duration-200 ${
               isActive ? "font-bold text-navy" : "font-medium text-[#7a8fa8] hover:text-navy"
             }`}
           >

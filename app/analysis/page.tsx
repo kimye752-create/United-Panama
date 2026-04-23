@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function AnalysisPage() {
   return (
-    <DashboardShell>
+    <DashboardShell fullHeight>
       <AnalysisWorkspace />
     </DashboardShell>
   );
