@@ -24,17 +24,17 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
   };
 }
 
-/** 4개 매크로 카드 공통 — 나눔고딕 로컬 폰트 적용 */
-const NANUM = { style: { fontFamily: "'NanumGothic', sans-serif" } } as const;
+/** 4개 매크로 카드 공통 — SG 팀장 사이트 동일: Pretendard 900 */
+const NANUM = { style: { fontFamily: "'Pretendard Variable', Pretendard, sans-serif" } } as const;
 
 const MACRO_TITLE_CLASS =
   "text-center text-[12px] font-normal leading-tight text-[#475569]";
 const MACRO_VALUE_STYLE: React.CSSProperties = {
-  fontFamily: "'NanumGothic', sans-serif",
-  fontWeight: 800,
+  fontFamily: "'Pretendard Variable', Pretendard, sans-serif",
+  fontWeight: 900,
 };
 const MACRO_VALUE_CLASS =
-  "text-center leading-[1.2] tracking-[-0.02em] text-[#1E3A5F] text-[32px] sm:text-[38px]";
+  "text-center leading-[1.2] tracking-[-0.035em] text-[#1E3A5F] text-[32px] sm:text-[38px]";
 const MACRO_DETAIL_LINE_CLASS = "text-center text-[14px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
