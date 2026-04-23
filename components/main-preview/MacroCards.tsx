@@ -31,10 +31,10 @@ const MACRO_TITLE_CLASS =
   "text-center text-[12px] font-normal leading-tight text-[#475569]";
 const MACRO_VALUE_STYLE: React.CSSProperties = {
   fontFamily: "'Nanum Gothic', 'NanumGothic', sans-serif",
-  fontWeight: 700,
+  fontWeight: 800,
 };
 const MACRO_VALUE_CLASS =
-  "text-center leading-[1.2] tracking-[-0.02em] text-[#1E3A5F] text-[26px] sm:text-[30px]";
+  "text-center leading-[1.2] tracking-[-0.02em] text-[#1E3A5F] text-[28px] sm:text-[32px]";
 const MACRO_DETAIL_LINE_CLASS = "text-center text-[14px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {

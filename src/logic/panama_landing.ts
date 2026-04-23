@@ -183,7 +183,7 @@ function buildImfGdpCard(): PanamaLandingMetricCard {
   return {
     label: "1인당 GDP",
     value: "US$ 19,445",
-    footer: "출처: IMF (2024)",
+    footer: "IMF (2024)",
     hasData: true,
   };
 }

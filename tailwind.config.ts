@@ -20,7 +20,7 @@ const config: Config = {
         muted: "#6b7d96",
         card: "#ffffff",
         inner: "#f4f6fa",
-        shell: "#f8f5f0",
+        shell: "#f2f5fa",
       },
       boxShadow: {
         sh: "0 6px 20px rgba(23,63,120,.08)",
