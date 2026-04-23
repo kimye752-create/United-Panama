@@ -224,11 +224,11 @@ function Section1({
   const therContext  = str(rec(analysis?.["marketAnalysis"])?.["block1_therapeutic_context"]);
 
   // 거시 지표 (DB 우선, 없으면 고정값)
-  const population   = str(macroStats?.["population_text"])   || "4,351,267명 (World Bank, 2024)";
-  const gdpPerCapita = str(macroStats?.["gdp_per_capita_text"]) || "USD 19,445 (IMF, 2024)";
-  const marketSize   = str(macroStats?.["pharma_market_text"]) || "USD 496M (Statista, 2024)";
-  const healthExp    = str(macroStats?.["health_exp_text"])    || "GDP 대비 약 7.8% (World Bank, 2022)";
-  const importDep    = str(macroStats?.["import_dep_text"])    || "~90% (KOTRA / ITA, 2024)";
+  const population   = str(macroStats?.["population_text"],   "") || "4,351,267명 (World Bank, 2024)";
+  const gdpPerCapita = str(macroStats?.["gdp_per_capita_text"], "") || "USD 19,445 (IMF, 2024)";
+  const marketSize   = str(macroStats?.["pharma_market_text"], "") || "USD 496M (Statista, 2024)";
+  const healthExp    = str(macroStats?.["health_exp_text"],    "") || "GDP 대비 약 7.8% (World Bank, 2022)";
+  const importDep    = str(macroStats?.["import_dep_text"],    "") || "~90% (KOTRA / ITA, 2024)";
 
   // 치료영역 특이 지표
   const prevalence   = num(therStats?.["prevalence_pct"]);

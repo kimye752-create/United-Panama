@@ -86,18 +86,16 @@ export async function GET(req: Request): Promise<Response> {
       );
     }
 
-    // ── 기존 combined_report_id → PDF 스트리밍 시도 ─────────────────
-    const combinedId = s["combined_report_id"];
-    if (typeof combinedId === "string" && combinedId !== "") {
-      try {
-        return await streamCombinedPdfByReportId(combinedId);
-      } catch {
-        // PDF_NOT_FOUND 등 — 아래에서 재생성
-      }
+    // ── 항상 재생성 (캐시 PDF가 폰트/레이아웃 패치 이전 버전일 수 있음) ──
+    // 기존 combined_report_id가 있으면 참고용으로 로그만 남기고 새로 생성
+    const prevCombinedId = s["combined_report_id"];
+    if (typeof prevCombinedId === "string" && prevCombinedId !== "") {
+      console.info(`[combined] previous combined_report_id=${prevCombinedId} — forcing regenerate`);
     }
 
-    // ── 모든 단계 완료됐으므로 즉석 생성 ────────────────────────────
+    console.info(`[combined] generating for session=${sessionId}`);
     const combinedReport = await generateCombinedReport(sessionId);
+    console.info(`[combined] generated id=${combinedReport.id} path=${combinedReport.pdf_storage_path}`);
     await supabase
       .from("panama_report_session")
       .update({
