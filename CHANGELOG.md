@@ -1,5 +1,46 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (SG 팀장 보고서 품질 3가지 개선)
+
+### 변경 배경
+SG 팀장 보고서(DOCX)와의 품질 비교 후 식별된 3가지 개선사항 동시 구현:
+1. FOB 역산 수식 가시화, 2. 바이어 제품 연관성 LLM 생성, 3. MINSA 규제 경로 구체화
+
+### Changed
+
+#### ① 수출가격 전략 — FOB 역산 수식 시나리오별 강조 표시
+- `src/logic/reports/pricing_generator.ts`
+  - `buildFobFormula()` 헬퍼 함수 추가: 실제 마진 비율(공공/민간 구분)을 반영한 SG 스타일 역산 수식 생성
+    - 공공: `PAB × ÷(1+조달수수료 15%) ÷(1+물류 6.5%) ÷(1+리스크 10%) × 전략배수 → FOB USD`
+    - 민간: `PAB × ÷(1+약국마진 25%) ÷(1+도매마진 20%) ÷(1+물류 6.5%) ÷(1+리스크 2%) × 전략배수 → FOB USD`
+  - `scenarioToCard()`: `calculation` 필드를 새 함수로 교체
+  - `ResolvedMargins` 타입 import 추가
+- `components/reports/CombinedReportDocument.tsx`
+  - 시나리오별 역산 수식을 인라인 텍스트 → 색상 구분 강조 박스(`#F5F7FF` 배경 + 좌측 컬러 보더)로 변경
+
+#### ② 바이어 기업 개요 — 제품 연관성 LLM 생성 및 표시
+- `src/types/phase3_partner.ts`
+  - `PartnerCandidate` 인터페이스에 `product_relevance_reason: string | null` 필드 추가
+- `src/logic/partner_search.ts`
+  - FALLBACK_PARTNERS 2개 객체 및 `normalizeCandidate()` 함수에 `product_relevance_reason: null` 초기화 추가
+- `src/llm/partner_enrichment.ts`
+  - `ProductContext` 인터페이스 추가 (`productName`, `inn`, `therapeuticArea`)
+  - `generateProductRelevanceReason()` 함수 추가: Claude Haiku로 "이 제품과 왜 맞는가" 2~3문장 연관성 이유 생성
+- `src/logic/reports/partner_generator.ts`
+  - `generateProductRelevanceReason` 임포트 추가
+  - top10 확정 후 병렬 LLM 호출로 각 기업에 `product_relevance_reason` 첨부
+- `components/reports/CombinedReportDocument.tsx`
+  - 기업 개요 섹션 하단에 제품 연관성 이유 강조 박스 표시 (`#EFF6FF` 배경 + 청색 좌측 보더)
+
+#### ③ 시장보고서 규제 경로 — MINSA 구체적 신청 절차 강화
+- `src/llm/market/market_generator.ts`
+  - `block2_regulatory_path` 스키마 `maxLength` 250 → 450, `minLength` 50 → 80으로 확장
+  - 시스템 프롬프트에 MINSA 신청 5단계 절차 상세 가이드 추가 (신청서→서류심사→이화학시험→위원회심의→RN발급)
+  - MAH 위임 등록, ALPS/CSS 포뮬러리, 약국 체인 경로, FTA 관세 혜택 구체화
+  - `buildFallback()` block2 텍스트를 단계별 구체 절차로 전면 교체
+
+---
+
 ## [Unreleased] - 2026-04-23 (보고서 양식 텍스트 템플릿 기준 전면 정렬)
 
 ### 변경 배경

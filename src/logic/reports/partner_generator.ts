@@ -1,5 +1,5 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { enrichCandidateWithLLM } from "@/src/llm/partner_enrichment";
+import { enrichCandidateWithLLM, generateProductRelevanceReason } from "@/src/llm/partner_enrichment";
 import { buildPartnerScores } from "@/src/logic/partner_scorer";
 import { fetchPartnerCandidatesFromDB } from "@/src/logic/partner_search";
 import { findProductById } from "@/src/utils/product-dictionary";
@@ -72,8 +72,22 @@ export async function generatePartnerReport(
       )
       .slice(0, 10);
 
+    // top10에 대해 제품 연관성 이유를 LLM으로 생성하여 첨부 (병렬 실행)
+    const productCtx = {
+      productName: product.kr_brand_name,
+      inn: product.who_inn_en,
+      therapeuticArea: product.therapeutic_area,
+    };
+    const relevanceReasons = await Promise.all(
+      top10.map((c) => generateProductRelevanceReason(c, productCtx)),
+    );
+    const top10WithRelevance = top10.map((c, i) => ({
+      ...c,
+      product_relevance_reason: relevanceReasons[i] ?? null,
+    }));
+
     const reportData: Record<string, unknown> = {
-      top10,
+      top10: top10WithRelevance,
       all_candidates_count: scored.length,
       generated_at: new Date().toISOString(),
       country: input.country,

@@ -1,6 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { generatePhase2Report } from "@/src/llm/phase2/phase2_generator";
-import type { Phase2MarketSegment } from "@/src/logic/phase2/margin_policy_resolver";
+import type { Phase2MarketSegment, ResolvedMargins } from "@/src/logic/phase2/margin_policy_resolver";
 import { fetchCompetitorPrices } from "@/src/logic/phase2/competitor_prices";
 import { generatePriceScenarios } from "@/src/logic/phase2/price_scenario_generator";
 import type { ScenarioRow } from "@/src/logic/phase2/price_scenario_generator";
@@ -46,6 +46,41 @@ function toRankLabel(scenario: Phase2Scenario): {
   return { rank: 3, label: "프리미엄" };
 }
 
+/**
+ * 실제 마진 비율을 이용해 SG 팀장 스타일의 역산 수식 문자열을 생성한다.
+ * 예: PAB 95.00 ÷ (1+조달수수료 15%) ÷ (1+물류 6.5%) ÷ (1+리스크 10%) × 0.850 → FOB USD 45.22
+ */
+function buildFobFormula(
+  positioningPricePab: number,
+  fobUsd: number,
+  strategyMultiplier: number,
+  segment: Phase2MarketSegment,
+  margins: ResolvedMargins,
+): string {
+  const pct = (v: number) =>
+    v === Math.round(v * 10) / 10
+      ? `${Math.round(v * 100)}%`
+      : `${(v * 100).toFixed(1)}%`;
+
+  const steps: string[] = [`PAB ${positioningPricePab.toFixed(2)}`];
+
+  if (segment === "public") {
+    if (margins.wholesaleMargin > 0)  steps.push(`÷ (1+조달수수료 ${pct(margins.wholesaleMargin)})`);
+    if (margins.logisticsMargin > 0)  steps.push(`÷ (1+물류 ${pct(margins.logisticsMargin)})`);
+    if (margins.riskMargin > 0)       steps.push(`÷ (1+리스크 ${pct(margins.riskMargin)})`);
+  } else {
+    if (margins.retailMargin > 0)     steps.push(`÷ (1+약국마진 ${pct(margins.retailMargin)})`);
+    if (margins.wholesaleMargin > 0)  steps.push(`÷ (1+도매마진 ${pct(margins.wholesaleMargin)})`);
+    if (margins.logisticsMargin > 0)  steps.push(`÷ (1+물류 ${pct(margins.logisticsMargin)})`);
+    if (margins.riskMargin > 0)       steps.push(`÷ (1+리스크 ${pct(margins.riskMargin)})`);
+  }
+
+  steps.push(`× 전략배수 ${strategyMultiplier.toFixed(3)}`);
+  steps.push(`→ FOB USD ${fobUsd.toFixed(2)}`);
+
+  return steps.join("  ");
+}
+
 function scenarioToCard(row: ScenarioRow): ScenarioCard {
   const { rank, label } = toRankLabel(row.scenario);
   const markdownRate =
@@ -58,7 +93,13 @@ function scenarioToCard(row: ScenarioRow): ScenarioCard {
     price_usd: row.fob.fobUsd,
     price_krw: Math.round(row.fob.fobUsd * KRW_PER_USD),
     basis: row.subtitle,
-    calculation: `${row.fob.fobCeilingUsd.toFixed(2)} × ${row.fob.strategyMultiplier.toFixed(3)} = ${row.fob.fobUsd.toFixed(2)} USD`,
+    calculation: buildFobFormula(
+      row.fob.positioningPricePab,
+      row.fob.fobUsd,
+      row.fob.strategyMultiplier,
+      row.fob.segment,
+      row.fob.margins,
+    ),
     markdown_rate: Number(markdownRate.toFixed(3)),
   };
 }

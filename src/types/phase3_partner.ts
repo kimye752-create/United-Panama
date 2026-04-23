@@ -31,6 +31,7 @@ export interface PartnerCandidate {
   collected_secondary_at: string | null;
   registered_products: string[] | null;
   cphi_category: string | null;
+  product_relevance_reason: string | null;
   score_revenue: number | null;
   score_pipeline: number | null;
   score_gmp: number | null;

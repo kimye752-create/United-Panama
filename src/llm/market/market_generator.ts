@@ -28,9 +28,9 @@ const MARKET_TOOL: Tool = {
       },
       block2_regulatory_path: {
         type: "string",
-        minLength: 50,
-        maxLength: 250,
-        description: "MINSA DNFD 등록 절차, 공공·민간 진입채널, 한-파나마 FTA 관세",
+        minLength: 80,
+        maxLength: 450,
+        description: "MINSA DNFD 신규 등록 신청 단계별 절차(신청서·서류·심사기간·MAH 요건), 공공(ALPS/CSS) 및 민간(약국체인) 진입채널, 한-파나마 FTA 관세 혜택, 포뮬러리 등재 조건 포함",
       },
       block3_price_context: {
         type: "string",
@@ -76,6 +76,15 @@ const MARKET_SYSTEM = `
 4) 가격 데이터가 없으면 "데이터 미수집" 또는 "수집 대기 중"으로 명시.
 5) 마크다운 헤더(##, **) 금지. 순수 텍스트만 출력.
 6) 각 블록은 독립 문단으로 완결되어야 함.
+
+[block2_regulatory_path 작성 기준 — MINSA 신청 절차 구체화 필수]
+block2는 반드시 아래 항목을 모두 포함하여 단계적으로 서술한다:
+① MINSA DNFD(Departamento Nacional de Farmacia y Drogas) 신규 등록 절차:
+   - 신청서 제출 → ② 서류 심사(GMP 증명서, CoA, SPC/SmPC, 원산지 증명, 신청 수수료 등) → ③ 이화학·미생물 시험 → ④ 위원회 심의 → ⑤ 등록번호(RN) 발급. 통상 심사 기간 12~18개월.
+② MAH(Marketing Authorization Holder) 요건: 파나마 현지 MAH 지정 필수, 또는 현지 법인/파트너를 통한 위임 등록 가능.
+③ 공공채널: ALPS(Sistema de Compras Públicas) 입찰 자격 — MINSA 등록 후 포뮬러리(Formulario Nacional) 등재 신청, CSS(Caja de Seguro Social) 별도 등재 필요.
+④ 민간채널: 약국 체인(Arrocha, Rey, Farmacias Metro) 납품은 도매상(Distribuidora 등) 경유.
+⑤ 한-파나마 FTA(2021.3 발효): HS 3004 관세율 0%, ITBMS(부가세) 의약품 면세.
 `.trim();
 
 function buildMarketPrompt(input: MarketLLMInput): string {
@@ -155,7 +164,7 @@ function buildFallback(input: MarketLLMInput): MarketAnalysisPayload {
     block1_macro_overview:
       `파나마는 인구 약 435만 명(World Bank 2024), 1인당 GDP USD 19,445로 중미 최고 소득 국가다. 의약품 시장 규모는 USD 496M(Statista 2024), 수입 의존도 약 90%. ${input.productName}(${input.inn})의 EML 등재 현황: ${emlStatus}.`.slice(0, 200),
     block2_regulatory_path:
-      `MINSA DNFD 사전 등록 필요(통상 12~18개월). 기등록 INN 성분의 경우 서류 간소화 가능. 한-파나마 FTA(2021.3 발효)로 HS 3004 관세 0%, ITBMS 의약품 면세 적용. 공공채널: ALPS 조달시스템 + MAH 등록 필수. 민간채널: 약국 체인(Arrocha, Rey 등) + 전문 도매상.`.slice(0, 250),
+      `MINSA DNFD(Departamento Nacional de Farmacia y Drogas) 신규 등록 절차: ① 신청서·GMP 증명서·CoA·SPC·원산지 증명 제출 → ② 이화학·미생물 시험 → ③ 위원회 심의 → ④ 등록번호(RN) 발급. 통상 심사 기간 12~18개월(기등록 INN 성분은 서류 간소화로 단축 가능). MAH는 파나마 현지 파트너를 통한 위임 등록 가능. 공공채널: MINSA 등록 후 Formulario Nacional 등재 + ALPS 입찰 참여, CSS별도 포뮬러리 신청 필요. 민간채널: 도매상(Distribuidora) 경유 약국 체인(Arrocha, Rey, Metro) 납품. 한-파나마 FTA(2021.3 발효): HS 3004 관세 0%, ITBMS 의약품 면세.`.slice(0, 450),
     block3_price_context:
       `PanamaCompra 수집 ${input.publicProcurementCount}건(평균 ${input.pubAvg !== null ? `PAB ${input.pubAvg.toFixed(2)}` : "미집계"}), ACODECO/CABAMED 민간 소매 ${input.privateRetailCount}건(평균 ${input.privAvg !== null ? `PAB ${input.privAvg.toFixed(2)}` : "미집계"}). 판정 Case ${input.caseGrade}: ${input.caseRationale} 수집 데이터를 기준 참조가로 활용한다.`.slice(0, 250),
     block4_risk_factors:

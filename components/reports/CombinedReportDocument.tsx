@@ -501,20 +501,36 @@ function ScenarioTable({
           );
         })}
       </View>
-      {/* scenario descriptions */}
+      {/* 시나리오별 전략 설명 + FOB 역산 수식 블록 */}
       {rows.map(({ card, labelColor }, ri) => (
-        card.basis !== "—" && (
-          <View key={ri} style={S.bulletRow}>
+        <View key={ri} style={{ marginBottom: 6 }}>
+          {/* 전략 요약 */}
+          <View style={S.bulletRow}>
             <Text style={{ ...S.bulletDot, color: labelColor }}>▸</Text>
             <Text style={S.bulletText}>
               <Text style={{ fontWeight: "bold", color: labelColor }}>
                 {card.label !== "—" ? card.label : ["저가 진입","기준가","프리미엄"][ri]}
               </Text>
-              {"  "}{card.basis}
-              {card.calculation !== "—" ? `  (역산식: ${card.calculation})` : ""}
+              {"  "}{card.basis !== "—" ? card.basis : "—"}
             </Text>
           </View>
-        )
+          {/* FOB 역산 수식 강조 박스 */}
+          {card.calculation !== "—" && (
+            <View style={{
+              marginLeft: 14,
+              marginTop: 2,
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              backgroundColor: "#F5F7FF",
+              borderLeftWidth: 2,
+              borderLeftColor: labelColor,
+            }}>
+              <Text style={{ fontSize: 8, color: "#333", fontFamily: "NotoSansKR" }}>
+                ▶ FOB 역산식:{"  "}{card.calculation}
+              </Text>
+            </View>
+          )}
+        </View>
       ))}
     </>
   );
@@ -1237,6 +1253,28 @@ function PartnerReportSection({
               {" "}제조소 보유 {gmp}, MAH 역량 {mah}.
               주요 치료 영역: {ta !== "" ? ta : "—"}.
             </Text>
+            {/* 제품 연관성 이유 */}
+            {(() => {
+              const relevance = safeStr(p["product_relevance_reason"], "");
+              return relevance !== "" ? (
+                <View style={{
+                  marginTop: 4,
+                  marginBottom: 4,
+                  paddingHorizontal: 8,
+                  paddingVertical: 5,
+                  backgroundColor: "#EFF6FF",
+                  borderLeftWidth: 3,
+                  borderLeftColor: "#2563EB",
+                }}>
+                  <Text style={{ fontSize: 8, color: "#1E40AF", fontWeight: "bold", marginBottom: 2 }}>
+                    ▶ 제품 연관성
+                  </Text>
+                  <Text style={{ ...S.body, fontSize: 8, color: "#1E3A8A" }}>
+                    {relevance}
+                  </Text>
+                </View>
+              ) : null;
+            })()}
 
             {/* 추천 이유: 5가지 기준 */}
             <SectionH2 title="추천 이유" />
