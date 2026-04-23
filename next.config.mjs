@@ -7,8 +7,14 @@ const nextConfig = {
   // 정적 분석할 수 없어 기본적으로 번들에서 빠진다.
   // 이 옵션이 없으면 서버리스 런타임에서 폰트 로딩 실패 → Helvetica 폴백 →
   // 한글 코드포인트가 Latin 글리프로 렌더링 (mojibake).
-  outputFileTracingIncludes: {
-    "/api/panama/report/**/*": ["./public/fonts/**/*"],
+  // Next 14: outputFileTracingIncludes 는 experimental 하위에 있어야 한다.
+  // (Next 15 에서 top-level 로 승격됨)
+  experimental: {
+    outputFileTracingIncludes: {
+      "/api/panama/report/**": ["./public/fonts/**"],
+      "/api/panama/report/combined": ["./public/fonts/**"],
+      "/api/panama/report/*/*/pdf": ["./public/fonts/**"],
+    },
   },
 };
 

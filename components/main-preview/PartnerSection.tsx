@@ -96,6 +96,8 @@ export function PartnerSection({ sessionId }: Props) {
       const list = (ok.partnerData?.partners ?? ok.partnerData?.top10 ?? []) as PartnerCandidate[];
       setPartners(list);
       await fetchSessions();
+      // 플로팅 보고서 탭도 즉시 갱신되도록 이벤트 발송
+      window.dispatchEvent(new CustomEvent("panama:reports:refresh"));
     } catch (e) {
       setErrorMsg(e instanceof Error ? e.message : "알 수 없는 오류");
     }

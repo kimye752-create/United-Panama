@@ -75,26 +75,27 @@ export async function POST(req: Request): Promise<Response> {
       throw new Error(`세션 파트너 단계 갱신 실패: ${upErr.message}`);
     }
 
-    /* Next.js 14: after() 미지원 — 응답 후 결합본은 별도 클라이언트로 백그라운드 실행 */
-    void (async () => {
-      const sb = createClient();
-      try {
-        const combinedReport = await generateCombinedReport(sessionId);
-        await sb
-          .from("panama_report_session")
-          .update({
-            combined_report_id: combinedReport.id,
-            combined_generated_at: new Date().toISOString(),
-          })
-          .eq("id", sessionId);
-      } catch {
-        /* 백그라운드 결합 실패 — 사용자는 /report/combined GET 즉석 생성으로 복구 가능 */
-      }
-    })();
+    /* Vercel 서버리스는 응답 반환 후 함수가 즉시 종료되어 background task 가 끊긴다.
+       → 통합 보고서 생성도 동기로 실행한 뒤 응답한다. (maxDuration=300s 여유 충분) */
+    let combinedReportId: string | null = null;
+    try {
+      const combinedReport = await generateCombinedReport(sessionId);
+      combinedReportId = combinedReport.id;
+      await supabase
+        .from("panama_report_session")
+        .update({
+          combined_report_id: combinedReport.id,
+          combined_generated_at: new Date().toISOString(),
+        })
+        .eq("id", sessionId);
+    } catch (combErr) {
+      /* 통합 실패해도 파트너 결과는 반환 — 사용자는 /report/combined GET 으로 재시도 가능 */
+      console.error("[partner] combined report 생성 실패:", combErr);
+    }
 
     return NextResponse.json({
       partnerReportId: partnerReport.id,
-      combinedReportPending: true,
+      combinedReportId,
       partnerData: partnerReport.report_data,
     });
   } catch (err: unknown) {
