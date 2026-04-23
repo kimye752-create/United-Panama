@@ -29,7 +29,7 @@ const S = StyleSheet.create({
     paddingBottom: 52,
     paddingLeft: 64,
     paddingRight: 64,
-    fontFamily: "NotoSansKR",
+    fontFamily: "NanumGothic",
     fontSize: 9,
     color: C_BODY,
     lineHeight: 1.5,
@@ -559,7 +559,7 @@ function ScenarioTable({
               borderLeftWidth: 2,
               borderLeftColor: labelColor,
             }}>
-              <Text style={{ fontSize: 8, color: "#333", fontFamily: "NotoSansKR" }}>
+              <Text style={{ fontSize: 8, color: "#333", fontFamily: "NanumGothic" }}>
                 ▶ FOB 역산식:{"  "}{card.calculation}
               </Text>
             </View>
