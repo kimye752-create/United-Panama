@@ -195,7 +195,8 @@ export function PartnerSection({ sessionId }: Props) {
           </button>
         </div>
 
-        {/* 기업 평가 기준 + 전체 해제 + 최종 보고서 다운로드 */}
+        {/* 기업 평가 기준 + 전체 해제 + 최종 보고서 다운로드 — 바이어 리스트 도출 후에만 표시 */}
+        {!loading && partners !== null && partners.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-[#e8eef5] bg-[#f9fbfd] px-3 py-2.5">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1.5">
             <span className="shrink-0 text-[12px] font-extrabold text-[#1a2e4a]">
@@ -237,6 +238,7 @@ export function PartnerSection({ sessionId }: Props) {
             )}
           </button>
         </div>
+        )}
 
         {/* 에러 메시지 */}
         {errorMsg !== null && (
