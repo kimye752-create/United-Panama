@@ -8,8 +8,6 @@ interface Props {
   onClose: () => void;
 }
 
-const CIRCLED = ["①", "②", "③", "④", "⑤"];
-
 function dash(v: unknown): string {
   if (v === null || v === undefined || v === "") return "—";
   return String(v);
@@ -22,83 +20,49 @@ function fmtRevenue(usd: number | null): string {
   return `USD ${usd.toLocaleString("en-US")}`;
 }
 
-function fmtTherapeuticAreas(ta: string[] | null): string {
-  if (!ta || ta.length === 0) return "—";
-  return ta.join(", ");
+function fmtList(items: string[] | null): string {
+  if (!items || items.length === 0) return "—";
+  return items.join(", ");
 }
 
+/** 기업 개요 — 실제 DB 필드만 조합하여 할루시네이션 방지 */
 function buildOverview(p: PartnerCandidate): string {
   const parts: string[] = [];
   parts.push(`${p.company_name}은(는) ${p.address ?? "파나마"}에 소재한 의약품 유통 기업입니다.`);
   if (p.revenue_usd !== null)    parts.push(`연매출 ${fmtRevenue(p.revenue_usd)}.`);
   if (p.employee_count !== null) parts.push(`임직원 ${p.employee_count}명.`);
-  if (p.gmp_certified === true)  parts.push("GMP 인증 보유.");
+  if (p.founded_year !== null)   parts.push(`${p.founded_year}년 설립.`);
+  if (p.gmp_certified === true)  parts.push("자체 제조소·GMP 인증 보유.");
   if (p.import_history === true) {
     const detail = p.import_history_detail ? ` (${p.import_history_detail})` : "";
-    parts.push(`의약품 수입 이력 있음${detail}.`);
+    parts.push(`의약품 수입 이력 보유${detail}.`);
   }
   if (p.mah_capable === true)    parts.push("MAH(Marketing Authorization Holder) 역량 보유.");
   if (p.therapeutic_areas && p.therapeutic_areas.length > 0) {
-    parts.push(`주요 치료 영역: ${fmtTherapeuticAreas(p.therapeutic_areas)}.`);
+    parts.push(`주요 치료 영역: ${p.therapeutic_areas.join(", ")}.`);
   }
   return parts.join(" ");
 }
 
-/** PSI 5대 기준을 DB 실제 데이터로 구성 — 할루시네이션 없음 */
-function buildReasons(p: PartnerCandidate): { label: string; value: string }[] {
-  return [
-    {
-      label: "매출 규모",
-      value: fmtRevenue(p.revenue_usd),
-    },
-    {
-      label: "치료 영역 적합성",
-      value: fmtTherapeuticAreas(p.therapeutic_areas),
-    },
-    {
-      label: "GMP / 제조 역량",
-      value: p.gmp_certified === true ? "GMP 인증 보유" : p.gmp_certified === false ? "GMP 인증 미보유" : "확인 필요",
-    },
-    {
-      label: "의약품 수입 이력",
-      value:
-        p.import_history === true
-          ? (p.import_history_detail ?? "수입 이력 있음")
-          : p.import_history === false
-          ? "수입 이력 없음"
-          : "—",
-    },
-    {
-      label: "공공조달 낙찰 실적",
-      value:
-        p.public_procurement_wins !== null
-          ? `${p.public_procurement_wins}건`
-          : "—",
-    },
-  ];
-}
-
-function ScoreBar({ label, score }: { label: string; score: number | null }) {
-  const pct = score !== null ? Math.min(Math.max(score, 0), 100) : 0;
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-28 shrink-0 text-[11px] text-[#6b7a8f]">{label}</span>
-      <div className="flex-1 h-1.5 rounded-full bg-[#e8eef5]">
-        <div
-          className="h-1.5 rounded-full bg-navy transition-all"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className="w-8 text-right text-[11px] font-bold text-navy">
-        {score !== null ? score.toFixed(0) : "—"}
-      </span>
-    </div>
-  );
+/** 카테고리 태그용 요약 (도시 · 사업유형) */
+function buildCategoryTag(p: PartnerCandidate): string {
+  const parts: string[] = [];
+  // 주소에서 도시 추출 (Panama City 등)
+  if (p.address !== null) {
+    const cityMatch = p.address.match(/(Panama City|Ciudad de Panam\u00e1|Colon|Col\u00f3n|Chiriqui|David)/i);
+    if (cityMatch) parts.push(cityMatch[0]);
+  }
+  if (p.therapeutic_areas && p.therapeutic_areas.length > 0) {
+    parts.push(p.therapeutic_areas[0]);
+  } else if (p.cphi_category !== null) {
+    parts.push(p.cphi_category);
+  }
+  return parts.join(" · ");
 }
 
 export function PartnerDetailModal({ rank, partner: p, onClose }: Props) {
   const overview = buildOverview(p);
-  const reasons  = buildReasons(p);
+  const categoryTag = buildCategoryTag(p);
 
   return (
     <div
@@ -119,96 +83,62 @@ export function PartnerDetailModal({ rank, partner: p, onClose }: Props) {
           ×
         </button>
 
-        {/* 헤더 */}
-        <div className="mb-5">
+        {/* 헤더: 순번 + 기업명 */}
+        <div className="mb-3">
           <div className="flex items-baseline gap-3">
-            <span className="text-[22px] font-extrabold text-navy">{rank}</span>
+            <span className="text-[22px] font-extrabold text-[#4a5a6f]">{rank}</span>
             <h2 className="text-[18px] font-extrabold tracking-[-0.02em] text-navy">
               {p.company_name}
             </h2>
           </div>
 
-          {/* 배지 */}
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {p.address !== null && (
-              <span className="rounded-full border border-[#d9e2ef] px-2.5 py-0.5 text-[11px] font-semibold text-[#4a5a6f]">
-                {p.address}
-              </span>
+          {/* 카테고리 태그 + 국가 뱃지 */}
+          <div className="mt-1.5 flex items-center gap-2 text-[11px]">
+            {categoryTag !== "" && (
+              <span className="text-[#6b7a8f]">{categoryTag}</span>
             )}
-            {p.therapeutic_areas?.slice(0, 2).map((ta, i) => (
-              <span
-                key={i}
-                className="rounded-full border border-[#d9e2ef] bg-[#f7fafc] px-2.5 py-0.5 text-[11px] text-[#4a5a6f]"
-              >
-                {ta}
-              </span>
-            ))}
-            <span className="rounded-full bg-navy px-2.5 py-0.5 text-[11px] font-extrabold text-white">
+            <span className="rounded-full bg-[#1e3a8a] px-2 py-0.5 font-bold text-white">
               Panama
             </span>
           </div>
         </div>
 
         <div className="space-y-5">
-          {/* 기업 개요 */}
+          {/* ── 기업 개요 ── */}
           <div>
             <h3 className="mb-1.5 text-[13px] font-extrabold text-navy">기업 개요</h3>
             <p className="text-[13px] leading-relaxed text-[#4a5a6f]">{overview}</p>
           </div>
 
-          {/* 채택 이유 */}
-          <div>
-            <h3 className="mb-2 text-[13px] font-extrabold text-navy">채택 이유</h3>
-            <div className="space-y-1.5">
-              {reasons.map((r, i) => (
-                <div key={i} className="flex gap-2">
-                  <span className="shrink-0 text-[13px] font-bold text-navy">
-                    {CIRCLED[i]}
-                  </span>
-                  <span className="text-[13px] text-[#4a5a6f]">
-                    <strong className="text-[#273f60]">{r.label}</strong>{"  "}{r.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* PSI 점수 */}
-          {(p.score_revenue !== null ||
-            p.score_pipeline !== null ||
-            p.score_gmp !== null ||
-            p.score_import !== null ||
-            p.score_pharmacy_chain !== null) && (
+          {/* ── 채택 이유 (제품 연관성 — LLM 생성) ── */}
+          {p.product_relevance_reason !== null && p.product_relevance_reason !== "" && (
             <div>
-              <h3 className="mb-2 text-[13px] font-extrabold text-navy">
-                PSI 점수 (파트너 적합성 지수)
-              </h3>
-              <div className="space-y-1.5">
-                <ScoreBar label="매출 규모 (35%)"     score={p.score_revenue} />
-                <ScoreBar label="파이프라인 (28%)"    score={p.score_pipeline} />
-                <ScoreBar label="GMP·제조 (20%)"      score={p.score_gmp} />
-                <ScoreBar label="수입 이력 (12%)"     score={p.score_import} />
-                <ScoreBar label="약국 체인 (5%)"      score={p.score_pharmacy_chain} />
-              </div>
+              <h3 className="mb-1.5 text-[13px] font-extrabold text-navy">채택 이유</h3>
+              <p className="text-[13px] leading-relaxed text-[#4a5a6f]">
+                {p.product_relevance_reason}
+              </p>
             </div>
           )}
 
-          {/* 연락처 */}
+          {/* ── 연락처 ── */}
           <div>
             <h3 className="mb-2 text-[13px] font-extrabold text-navy">연락처</h3>
-            <dl className="grid grid-cols-[90px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+            <dl className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
               <dt className="font-semibold text-[#273f60]">주소</dt>
               <dd className="text-[#4a5a6f]">{dash(p.address)}</dd>
 
               <dt className="font-semibold text-[#273f60]">전화</dt>
               <dd className="text-[#4a5a6f]">{dash(p.phone)}</dd>
 
+              <dt className="font-semibold text-[#273f60]">팩스</dt>
+              <dd className="text-[#4a5a6f]">{dash(p.fax)}</dd>
+
               <dt className="font-semibold text-[#273f60]">이메일</dt>
               <dd className="break-all text-[#4a5a6f]">{dash(p.email)}</dd>
 
-              <dt className="font-semibold text-[#273f60]">홈페이지</dt>
+              <dt className="font-semibold text-[#273f60]">웹사이트</dt>
               <dd>
-                {p.website ? (
+                {p.website !== null ? (
                   <a
                     href={p.website}
                     target="_blank"
@@ -222,15 +152,18 @@ export function PartnerDetailModal({ rank, partner: p, onClose }: Props) {
                 )}
               </dd>
 
-              <dt className="font-semibold text-[#273f60]">창립 연도</dt>
-              <dd className="text-[#4a5a6f]">{dash(p.founded_year)}</dd>
+              <dt className="font-semibold text-[#273f60]">부스</dt>
+              <dd className="text-[#4a5a6f]">{dash(p.booth)}</dd>
             </dl>
           </div>
 
-          {/* 기업 규모 */}
+          {/* ── 기업 규모 ── */}
           <div>
             <h3 className="mb-2 text-[13px] font-extrabold text-navy">기업 규모</h3>
-            <dl className="grid grid-cols-[90px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+            <dl className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+              <dt className="font-semibold text-[#273f60]">설립연도</dt>
+              <dd className="text-[#4a5a6f]">{dash(p.founded_year)}</dd>
+
               <dt className="font-semibold text-[#273f60]">연매출</dt>
               <dd className="text-[#4a5a6f]">{fmtRevenue(p.revenue_usd)}</dd>
 
@@ -238,39 +171,110 @@ export function PartnerDetailModal({ rank, partner: p, onClose }: Props) {
               <dd className="text-[#4a5a6f]">
                 {p.employee_count !== null ? `${p.employee_count}명` : "—"}
               </dd>
+
+              <dt className="font-semibold text-[#273f60]">사업 지역</dt>
+              <dd className="text-[#4a5a6f]">{fmtList(p.business_regions)}</dd>
             </dl>
           </div>
 
-          {/* 채널·파트너 적합성 */}
+          {/* ── 역량 · 실적 (SG 양식 분리) ── */}
+          <div>
+            <h3 className="mb-2 text-[13px] font-extrabold text-navy">역량 · 실적</h3>
+            <dl className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+              <dt className="font-semibold text-[#273f60]">수입 이력</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.import_history === true ? (
+                  <span className="text-emerald-600 font-bold">✓ 있음</span>
+                ) : p.import_history === false ? (
+                  <span className="text-[#aab5c4]">✗ 없음</span>
+                ) : "—"}
+                {p.import_history_detail !== null && p.import_history_detail !== "" && (
+                  <span className="ml-2 text-[11px] text-[#7a8fa8]">({p.import_history_detail})</span>
+                )}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">제조소 보유</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.gmp_certified === true ? (
+                  <span className="text-emerald-600 font-bold">✓ 있음 (GMP)</span>
+                ) : p.gmp_certified === false ? (
+                  <span className="text-[#aab5c4]">✗ 없음</span>
+                ) : "—"}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">MAH 역량</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.mah_capable === true ? (
+                  <span className="text-emerald-600 font-bold">✓ 보유</span>
+                ) : p.mah_capable === false ? (
+                  <span className="text-[#aab5c4]">✗ 미보유</span>
+                ) : "—"}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">공공 조달</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.public_procurement_wins !== null
+                  ? `낙찰 ${p.public_procurement_wins}건`
+                  : "—"}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">치료 영역</dt>
+              <dd className="text-[#4a5a6f]">{fmtList(p.therapeutic_areas)}</dd>
+            </dl>
+          </div>
+
+          {/* ── 채널 · 파트너 적합성 (SG 양식 분리) ── */}
           <div>
             <h3 className="mb-2 text-[13px] font-extrabold text-navy">채널 · 파트너 적합성</h3>
-            <div className="grid grid-cols-2 gap-2 text-[13px]">
-              {[
-                { label: "공공 채널",      value: p.public_procurement_wins !== null && p.public_procurement_wins > 0 },
-                { label: "민간 채널",      value: p.pharmacy_chain_operator === true || p.import_history === true },
-                { label: "GMP 인증",       value: p.gmp_certified === true },
-                { label: "MAH 역량",       value: p.mah_capable === true },
-                { label: "한국 파트너십",  value: p.korea_partnership === true },
-                { label: "약국 체인 운영", value: p.pharmacy_chain_operator === true },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex items-center gap-2">
-                  <span
-                    className={`text-[13px] font-bold ${
-                      value ? "text-emerald-600" : "text-[#aab5c4]"
-                    }`}
-                  >
-                    {value ? "✓ 있음" : "✗ 없음 / 미확인"}
-                  </span>
-                  <span className="text-[#6b7a8f]">{label}</span>
-                </div>
-              ))}
-            </div>
+            <dl className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+              <dt className="font-semibold text-[#273f60]">민간 채널</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.import_history === true || p.pharmacy_chain_operator === true ? (
+                  <span className="text-emerald-600 font-bold">✓ 있음</span>
+                ) : (
+                  <span className="text-[#aab5c4]">✗ 없음</span>
+                )}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">약국 체인</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.pharmacy_chain_operator === true ? (
+                  <span className="text-emerald-600 font-bold">✓ 운영</span>
+                ) : (
+                  <span className="text-[#aab5c4]">✗ 미운영</span>
+                )}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">공공 채널</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.public_procurement_wins !== null && p.public_procurement_wins > 0 ? (
+                  <span className="text-emerald-600 font-bold">✓ 이력 있음</span>
+                ) : (
+                  <span className="text-[#aab5c4]">✗ 없음</span>
+                )}
+              </dd>
+
+              <dt className="font-semibold text-[#273f60]">한국 파트너십</dt>
+              <dd className="text-[#4a5a6f]">
+                {p.korea_partnership === true ? (
+                  <span className="text-emerald-600 font-bold">✓ 있음</span>
+                ) : (
+                  <span className="text-[#aab5c4]">✗ 없음</span>
+                )}
+                {p.korea_partnership_detail !== null && p.korea_partnership_detail !== "" && (
+                  <span className="ml-2 text-[11px] text-[#7a8fa8]">({p.korea_partnership_detail})</span>
+                )}
+              </dd>
+            </dl>
           </div>
         </div>
 
         {/* 출처 */}
         <p className="mt-5 text-[11px] text-[#9aafc5]">
-          ※ 출처: {p.source_primary ?? "Panama 파트너 DB"} / PSI 알고리즘 분석
+          출처: {p.source_primary === "pharmchoices" ? "PharmChoices · Perplexity 분석" :
+                 p.source_primary === "dnb_panama"   ? "D&B Panama · Perplexity 분석" :
+                 p.source_primary === "manual_psi_seed" ? "수기 PSI 시드 · Perplexity 분석" :
+                 "Perplexity 분석"}
         </p>
       </div>
     </div>

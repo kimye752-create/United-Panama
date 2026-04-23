@@ -1,5 +1,74 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (SG 팀장 UI 정합 + 글로벌 MNC 제외 필터)
+
+### 변경 배경
+SG 팀장 사이트 스크린샷(가격편집 모달 / 바이어 상세 모달) 비교 결과와 사용자 지시("글로벌 기업은 제거, 파나마 로컬 + LATAM 중견만 추천")에 맞춰 UI·데이터 필터를 정렬.
+
+### 사용자 요청 요약
+1. **가격전략 분석 화면 UI**를 팀장 사이트 양식과 동일하게 보정
+2. **바이어 상세 모달**을 SG 팀장 양식(역량·실적 / 채널·파트너 적합성 분리)으로 재편
+3. **바이어 서칭 로직** 확인 → 현재 Supabase DB 조회 + Claude Haiku LLM 보강 (크롤링 X)
+4. **60개사 바이어 DB 적재 상태** 확인 → 이미 66건 적재 완료 (pharmchoices 42 + dnb_panama 22 + manual 2)
+5. **글로벌 MNC 제외 필터** 적용 → 파나마 로컬 + LATAM 중견만 추천 대상으로 유지
+
+### Added
+
+#### ① 글로벌 MNC 제외 필터 (신규 파일)
+- `src/logic/global_mnc_filter.ts` 신규 생성
+  - `GLOBAL_MNC_KEYWORDS` 리스트: Bayer/Roche/Novartis/Sandoz/Menarini/GSK/AstraZeneca/Mundipharma/Acino/BIAL/Grünenthal/Ferring/Servier/Lundbeck/Sanofi/Boehringer/Pfizer/MSD/AbbVie/Abbott/Organon/Baxter/Apotex/CSL·Takeda·Daiichi·Hetero·Cipla/Guerbet 등 30+ 브랜드 키워드
+  - `isGlobalMnc(companyName)`: 대소문자 무시 부분 일치 판정
+  - `filterOutGlobalMnc<T>()`: 후보 배열에서 글로벌 MNC 제외
+- `src/logic/partner_search.ts`
+  - `fetchPartnerCandidatesFromDB()` 반환 경로 4곳 모두 `filterOutGlobalMnc()` 적용
+  - DB에서 조회한 66건 중 글로벌 MNC 19개 자동 제외 → 파나마 로컬 + LATAM 중견 약 47건만 추천에 사용
+
+#### ② 바이어 상세 모달 SG 팀장 양식 재편
+- `components/main-preview/PartnerDetailModal.tsx` 전면 재작성
+  - 헤더 간소화: 순번(회색) + 기업명(남색) + "도시 · 카테고리 + Panama 뱃지"
+  - **PSI 점수 막대 제거** (SG 양식과 일치, 간결성 확보)
+  - **채택 이유**: `product_relevance_reason` 필드(LLM 생성)를 그대로 서술문으로 표시 (5원 체크리스트 제거)
+  - **연락처** 표: 주소 / 전화 / **팩스 (NEW)** / 이메일 / 웹사이트 / **부스 (NEW)**
+  - **기업 규모** 표: 설립연도 / 연매출 / 임직원 / **사업 지역 (NEW)**
+  - **역량 · 실적** 섹션 신규 분리: 수입 이력 / 제조소 보유 / MAH 역량 / 공공 조달 / 치료 영역
+  - **채널 · 파트너 적합성** 섹션 신규 분리: 민간 채널 / 약국 체인 / 공공 채널 / 한국 파트너십
+  - 출처 문구: source_primary에 따라 "PharmChoices · Perplexity 분석" / "D&B Panama · Perplexity 분석" 구분
+
+#### ③ PartnerCandidate 타입 확장
+- `src/types/phase3_partner.ts`
+  - 신규 필드 3개: `fax: string | null`, `booth: string | null`, `business_regions: string[] | null`
+- `src/logic/partner_search.ts`
+  - FALLBACK_PARTNERS 2개 객체에 `fax: null, booth: null, business_regions: null` 초기화
+  - `normalizeCandidate()` 함수에 `fax` / `booth` / `business_regions` 파싱 추가
+
+### Changed
+
+#### ④ 가격 편집 모달 USD · KRW 동시 표기
+- `components/main-preview/PricingEditModal.tsx`
+  - `usdKrwRate` prop 추가 (기본 1,380 KRW/USD)
+  - 보고서 기준가: `USD XX.XX` → `USD XX.XX ≈ XXX,XXX 원`
+  - 결과 라인: `결과: XX.XX USD` → `결과: XX.XX USD · XXX,XXX 원`
+  - (SG 팀장이 USD·SGD 동시 표기한 것과 동일한 구조, 파나마는 USD·KRW로 표기)
+
+### 진단 (사용자 요청 ③)
+
+#### 현재 바이어 서칭 로직 = DB 조회 + LLM 보강 (크롤링 X)
+1. `PartnerSection.tsx` → `/api/panama/report/partner` POST
+2. 서버: `src/logic/partner_search.ts` → Supabase `panama_partner_candidates` 테이블 조회
+3. `filterOutGlobalMnc()` 로 글로벌 MNC 19개 제외 (NEW)
+4. `src/llm/partner_enrichment.ts` → Claude Haiku가 기업별 메타(치료영역·GMP·수입이력 등) 보강
+5. `src/logic/reports/partner_generator.ts` → PSI 점수 계산 + top10 선정
+6. `generateProductRelevanceReason()` → top10에 대해 제품 연관성 LLM 생성 (병렬)
+
+→ **실시간 크롤링은 아직 없음** (Playwright 도입은 별도 대규모 작업으로 분리 필요)
+
+### 다음 단계 후보
+- (별도 작업) Playwright 실시간 크롤러 도입: MINSA DNFD 공식 PDF + PharmChoices 최신화
+- (별도 작업) panama_partner_candidates 테이블에 fax/booth/business_regions 컬럼 DDL 추가 + 수기 입력
+- (별도 작업) CPHI 2025/2026 부스 리스트 수집 → booth 필드 채움
+
+---
+
 ## [Unreleased] - 2026-04-23 (SG 팀장 보고서 품질 3가지 개선)
 
 ### 변경 배경

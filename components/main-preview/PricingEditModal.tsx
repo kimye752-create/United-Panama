@@ -100,10 +100,12 @@ interface Props {
   segment: "public" | "private";
   /** price_pab — 파나마는 PAB=USD 1:1 */
   basePrice: number;
+  /** USD → KRW 환산용 환율 (기본 1 USD ≈ 1,380 KRW). 필요 시 props로 주입 가능 */
+  usdKrwRate?: number;
   onClose: () => void;
 }
 
-export function PricingEditModal({ scenario, segment, basePrice, onClose }: Props) {
+export function PricingEditModal({ scenario, segment, basePrice, usdKrwRate = 1380, onClose }: Props) {
   const [currentBase, setCurrentBase] = useState(basePrice);
   const [options, setOptions]         = useState<FobOption[]>(() => cloneDefaults(segment, scenario));
 
@@ -112,6 +114,8 @@ export function PricingEditModal({ scenario, segment, basePrice, onClose }: Prop
   const [newValue, setNewValue] = useState("");
 
   const fob          = calcFob(currentBase, options);
+  const fobKrw       = fob * usdKrwRate;
+  const baseKrw      = currentBase * usdKrwRate;
   const segmentLabel = segment === "public" ? "공공 시장" : "민간 시장";
   const scenarioLabel = SCENARIO_LABELS[scenario];
 
@@ -166,11 +170,11 @@ export function PricingEditModal({ scenario, segment, basePrice, onClose }: Prop
           {scenarioLabel} — 역산 · 옵션 편집 [{segmentLabel}]
         </h2>
 
-        {/* 보고서 가격 */}
+        {/* 보고서 가격 — SG 팀장 양식: USD · KRW 동시 표기 (파나마는 PAB=USD 1:1) */}
         <div className="mb-3 flex items-center justify-between">
           <span className="text-[13px] font-semibold text-[#4a5a6f]">보고서 기준가</span>
           <span className="rounded-lg bg-navy px-3 py-1 text-[13px] font-extrabold text-white">
-            USD {currentBase.toFixed(2)}
+            USD {currentBase.toFixed(2)} ≈ {new Intl.NumberFormat("ko-KR").format(Math.round(baseKrw))} 원
           </span>
         </div>
 
@@ -265,7 +269,7 @@ export function PricingEditModal({ scenario, segment, basePrice, onClose }: Prop
             ↺ 되돌리기 (AI 추천)
           </button>
           <p className="text-[14px] font-extrabold text-navy">
-            결과: {fob.toFixed(2)} USD
+            결과: {fob.toFixed(2)} USD · {new Intl.NumberFormat("ko-KR").format(Math.round(fobKrw))} 원
           </p>
         </div>
       </div>

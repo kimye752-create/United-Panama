@@ -38,6 +38,10 @@ export interface PartnerCandidate {
   score_import: number | null;
   score_pharmacy_chain: number | null;
   score_total_default: number | null;
+  // SG 팀장 양식 정합을 위해 추가된 필드 (없으면 null)
+  fax: string | null;                 // 팩스 번호
+  booth: string | null;               // CPHI 등 전시회 부스 번호
+  business_regions: string[] | null;  // 사업 지역 (국가 리스트)
 }
 
 export interface PartnerScores {

@@ -1,6 +1,8 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import type { PartnerCandidate } from "@/src/types/phase3_partner";
 
+import { filterOutGlobalMnc } from "./global_mnc_filter";
+
 const FALLBACK_PARTNERS: PartnerCandidate[] = [
   {
     id: "fallback-1",
@@ -35,6 +37,9 @@ const FALLBACK_PARTNERS: PartnerCandidate[] = [
     score_import: null,
     score_pharmacy_chain: null,
     score_total_default: null,
+    fax: null,
+    booth: null,
+    business_regions: null,
   },
   {
     id: "fallback-2",
@@ -69,6 +74,9 @@ const FALLBACK_PARTNERS: PartnerCandidate[] = [
     score_import: null,
     score_pharmacy_chain: null,
     score_total_default: null,
+    fax: null,
+    booth: null,
+    business_regions: null,
   },
 ];
 
@@ -145,6 +153,9 @@ function normalizeCandidate(row: Record<string, unknown>): PartnerCandidate | nu
     score_import: toNumberOrNull(row["score_import"]),
     score_pharmacy_chain: toNumberOrNull(row["score_pharmacy_chain"]),
     score_total_default: toNumberOrNull(row["score_total_default"]),
+    fax: toStringOrNull(row["fax"]),
+    booth: toStringOrNull(row["booth"]),
+    business_regions: parseTextArray(row["business_regions"]),
   };
 }
 
@@ -157,7 +168,7 @@ export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]
       .order("updated_at", { ascending: false })
       .limit(300);
     if (error !== null || data === null) {
-      return [...FALLBACK_PARTNERS];
+      return filterOutGlobalMnc([...FALLBACK_PARTNERS]);
     }
     const out: PartnerCandidate[] = [];
     for (const row of data as Record<string, unknown>[]) {
@@ -167,11 +178,12 @@ export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]
       }
     }
     if (out.length === 0) {
-      return [...FALLBACK_PARTNERS];
+      return filterOutGlobalMnc([...FALLBACK_PARTNERS]);
     }
-    return out;
+    // 글로벌 MNC(Big Pharma) 제외 — 파나마 로컬 + LATAM 중견만 유지
+    return filterOutGlobalMnc(out);
   } catch {
-    return [...FALLBACK_PARTNERS];
+    return filterOutGlobalMnc([...FALLBACK_PARTNERS]);
   }
 }
 
