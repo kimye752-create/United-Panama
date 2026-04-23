@@ -475,7 +475,7 @@ function ScenarioTable({
         {/* header */}
         <View style={S.tblHdrRow}>
           <Text style={{ ...S.tblHdrCell, width: "18%" }}>시나리오</Text>
-          <Text style={{ ...S.tblHdrCell, width: "30%", textAlign: "right" }}>현지 참고가</Text>
+          <Text style={{ ...S.tblHdrCell, width: "30%", textAlign: "right" }}>현지 참고가 (PAB=USD)</Text>
           <Text style={{ ...S.tblHdrCell, width: "28%", textAlign: "right" }}>FOB 역산 (USD)</Text>
           <Text style={{ ...S.tblHdrCell, width: "24%", textAlign: "right" }}>KRW 환산</Text>
         </View>
@@ -1000,12 +1000,12 @@ function PricingReportSection({
 
       <Divider />
 
-      {/* 2. 단가 — SG 양식: "USD XX / PAB XX / KRW XX" 형식으로 3개 통화 병기 */}
+      {/* 2. 단가 — PAB는 USD와 1:1 고정환율이므로 PAB(USD 1:1 고정환율) / KRW 형식으로 표기 */}
       <SectionH1 n="2" title={`${product.name} 단가 (시장 기준가)`} />
       <KVRow
         label="기준 가격"
         value={basePrice !== null
-          ? `PAB ${basePrice.toFixed(2)}  /  USD ${basePrice.toFixed(2)}  /  KRW ${Math.round(basePrice * KRW_PER_USD).toLocaleString("en-US")}원`
+          ? `PAB ${basePrice.toFixed(2)} (USD 1:1 고정환율)  /  KRW ${Math.round(basePrice * KRW_PER_USD).toLocaleString("en-US")}원`
           : "—"}
       />
       <KVRow label="산정 방식" value={formula} />
@@ -1060,13 +1060,13 @@ function PricingReportSection({
           cols={[
             { label: "채널",    width: "30%" },
             { label: "기준",    width: "26%" },
-            { label: "평균가 (PAB / KRW)", width: "30%", align: "right" },
-            { label: "표본 수", width: "14%", align: "right" },
-          ]}
-          rows={[
-            ["공공조달 (PanamaCompra)", "ALPS 낙찰가 기준",  pubAvg  !== null ? `PAB ${pubAvg.toFixed(2)}  /  KRW ${Math.round(pubAvg  * KRW_PER_USD).toLocaleString("en-US")}원` : "—", pubCnt  > 0 ? `${pubCnt}건`  : "0건"],
-            ["민간 소매 (ACODECO)", "약국 소매가 기준",      privAvg !== null ? `PAB ${privAvg.toFixed(2)}  /  KRW ${Math.round(privAvg * KRW_PER_USD).toLocaleString("en-US")}원` : "—", privCnt > 0 ? `${privCnt}건` : "0건"],
-          ]}
+          { label: "평균가 (PAB=USD / KRW)", width: "30%", align: "right" },
+          { label: "표본 수", width: "14%", align: "right" },
+        ]}
+        rows={[
+          ["공공조달 (PanamaCompra)", "ALPS 낙찰가 기준",  pubAvg  !== null ? `PAB ${pubAvg.toFixed(2)} (=USD)  /  KRW ${Math.round(pubAvg  * KRW_PER_USD).toLocaleString("en-US")}원` : "—", pubCnt  > 0 ? `${pubCnt}건`  : "0건"],
+          ["민간 소매 (ACODECO)", "약국 소매가 기준",      privAvg !== null ? `PAB ${privAvg.toFixed(2)} (=USD)  /  KRW ${Math.round(privAvg * KRW_PER_USD).toLocaleString("en-US")}원` : "—", privCnt > 0 ? `${privCnt}건` : "0건"],
+        ]}
         />
       )}
       {b4 !== "" && (
@@ -1082,7 +1082,7 @@ function PricingReportSection({
       <SectionH1 n="4" title="가격 시나리오" />
       <Text style={{ ...S.body, color: C_GRAY, marginBottom: 4 }}>
         ※ 역산식 공통: FOB(USD) = 현지 참고가(PAB) × (1 − 현지물류/관세율) × (1 − 이익마진)
-        {"  "}[PAB ≡ USD 1:1 고정환율]
+        {"  "}[PAB(발보아, Panamanian Balboa) ≡ USD 1:1 고정환율 — CPI 연동 페깅제]
       </Text>
 
       <SectionH2 title="4-1. 공공 시장 (ALPS 조달청)" />
@@ -1115,7 +1115,8 @@ function PricingReportSection({
 
       <Text style={S.disclaimer}>
         ※ 본 산출 결과는 AI 분석에 기반한 추정치이므로, 최종 의사결정 전 반드시 담당자의 검토 및 확인이 필요합니다.
-        PAB(발보아)는 USD와 1:1 고정환율입니다. KRW 환산: 1 USD = {KRW_PER_USD.toLocaleString("en-US")} 원 (보고서 기준 환율).
+        PAB(발보아, Panamanian Balboa)는 USD와 1:1 고정환율(페깅제)이므로 PAB 가격 = USD 가격입니다.
+        KRW 환산: 1 USD = {KRW_PER_USD.toLocaleString("en-US")}원 (보고서 기준 환율).
       </Text>
     </Page>
   );
