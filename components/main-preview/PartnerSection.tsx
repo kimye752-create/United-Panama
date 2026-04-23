@@ -45,6 +45,7 @@ export function PartnerSection({ sessionId }: Props) {
 
   const [loading,  setLoading]  = useState(false);
   const [partners, setPartners] = useState<PartnerCandidate[] | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [detailPartner, setDetailPartner] = useState<{
     rank: number; partner: PartnerCandidate;
@@ -78,6 +79,7 @@ export function PartnerSection({ sessionId }: Props) {
     if (selectedSessionId === "") return;
     setLoading(true);
     setPartners(null);
+    setErrorMsg(null);
     try {
       const res  = await fetch("/api/panama/report/partner", {
         method: "POST",
@@ -85,14 +87,19 @@ export function PartnerSection({ sessionId }: Props) {
         body: JSON.stringify({ sessionId: selectedSessionId, weightedCriteria: {} }),
       });
       const data: unknown = await res.json();
-      if (!res.ok) throw new Error((data as { detail?: string }).detail ?? "PARTNER_FAILED");
+      if (!res.ok) {
+        const d = data as { detail?: string; error?: string };
+        throw new Error(d.detail ?? d.error ?? `HTTP ${res.status}`);
+      }
       const ok = data as { partnerData?: { partners?: unknown[]; top10?: unknown[] } };
       // partners 우선, 없으면 top10 하위호환
       const list = (ok.partnerData?.partners ?? ok.partnerData?.top10 ?? []) as PartnerCandidate[];
       setPartners(list);
       await fetchSessions();
-    } catch { /* 실패 무시 */ }
-    finally  { setLoading(false); }
+    } catch (e) {
+      setErrorMsg(e instanceof Error ? e.message : "알 수 없는 오류");
+    }
+    finally { setLoading(false); }
   }
 
   const canRun = selectedSessionId !== "" && !loading;
@@ -150,6 +157,13 @@ export function PartnerSection({ sessionId }: Props) {
             )}
           </button>
         </div>
+
+        {/* 에러 메시지 */}
+        {errorMsg !== null && (
+          <p className="mt-2 text-[12px] text-red-600">
+            <span className="font-semibold">실행 실패:</span> {errorMsg}
+          </p>
+        )}
 
         {/* 로딩 */}
         {loading && (

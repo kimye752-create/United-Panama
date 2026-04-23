@@ -40,9 +40,11 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     const s = session as Record<string, unknown>;
-    if (s["market_completed_at"] === null || s["pricing_completed_at"] === null) {
+    // 바이어 발굴은 시장조사만 완료돼 있으면 실행 가능하다.
+    // 가격 산출은 독립 단계이며 바이어 발굴의 전제 조건이 아니다.
+    if (s["market_completed_at"] === null) {
       return NextResponse.json(
-        { error: "PREVIOUS_STEPS_REQUIRED" },
+        { error: "MARKET_ANALYSIS_REQUIRED", detail: "시장 조사를 먼저 실행하세요." },
         { status: 400 },
       );
     }
