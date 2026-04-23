@@ -4,8 +4,21 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --navy:   #173f78;
+  --shell:  #f8f5f0;
+  --inner:  #f4f6fa;
+  --orange: #f0a13a;
+  --green:  #2d9870;
+  --muted:  #6b7d96;
+  --card-radius: 20px;
+  --card-shadow: 0 6px 20px rgba(23,63,120,.08);
+}
+
 body {
-  font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", system-ui, sans-serif;
+  background-color: var(--shell);
+  color: #1e2d45;
 }
 
 /* Report1 웹 A4 2장 — 인쇄 시 페이지 분리(다른 페이지 article에는 영향 없도록 스코프) */

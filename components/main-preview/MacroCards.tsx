@@ -39,7 +39,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
         return (
           <article
             key={card.label}
-            className="flex flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-5 py-4 shadow-sh2"
+            className="flex flex-col rounded-[20px] bg-white px-5 py-4 shadow-sh"
           >
             <p className={MACRO_TITLE_CLASS}>{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (

@@ -49,6 +49,9 @@ const TAG_COLOR: Record<FlatReportCard["tag"], string> = {
 function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
   const out: FlatReportCard[] = [];
   for (const s of sessions) {
+    // PDF href: 항상 combined 경로 사용 (개별 보고서는 pdf_storage_path 없음)
+    const combinedPdfHref = `/api/panama/report/combined?session_id=${s.sessionId}`;
+
     if (s.combinedReportId !== null) {
       out.push({
         key: `combined-${s.combinedReportId}`,
@@ -60,7 +63,7 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "최종",
         tagColor: TAG_COLOR["최종"],
         caseBadge: null,
-        pdfHref: `/api/panama/report/combined?session_id=${s.sessionId}`,
+        pdfHref: combinedPdfHref,
         reportId: s.combinedReportId,
         reportType: "combined",
       });
@@ -76,7 +79,7 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "바이어",
         tagColor: TAG_COLOR["바이어"],
         caseBadge: null,
-        pdfHref: `/api/panama/report/partner/${s.partnerReportId}/pdf`,
+        pdfHref: combinedPdfHref,
         reportId: s.partnerReportId,
         reportType: "partner",
       });
@@ -92,7 +95,7 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "가격",
         tagColor: TAG_COLOR["가격"],
         caseBadge: null,
-        pdfHref: `/api/panama/report/pricing_public/${s.pricingPublicReportId}/pdf`,
+        pdfHref: combinedPdfHref,
         reportId: s.pricingPublicReportId,
         reportType: "pricing_public",
       });
@@ -108,7 +111,7 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "가격",
         tagColor: TAG_COLOR["가격"],
         caseBadge: null,
-        pdfHref: `/api/panama/report/pricing_private/${s.pricingPrivateReportId}/pdf`,
+        pdfHref: combinedPdfHref,
         reportId: s.pricingPrivateReportId,
         reportType: "pricing_private",
       });
@@ -124,7 +127,7 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "시장",
         tagColor: TAG_COLOR["시장"],
         caseBadge: "조건부",
-        pdfHref: `/api/panama/report/market/${s.marketReportId}/pdf`,
+        pdfHref: combinedPdfHref,
         reportId: s.marketReportId,
         reportType: "market",
       });
@@ -229,7 +232,7 @@ export function SessionReportsList({ variant = "page" }: Props) {
         {flatCards.map((card) => (
           <article
             key={card.key}
-            className="rounded-xl border border-[#eef2f7] bg-white p-3 transition-colors hover:border-[#d9e2ef]"
+            className="rounded-[16px] bg-white p-3 shadow-sh2 transition-shadow hover:shadow-sh"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
@@ -310,7 +313,7 @@ export function SessionReportsList({ variant = "page" }: Props) {
         return (
           <article
             key={s.sessionId}
-            className="rounded-xl border border-[#d9e2ef] bg-white p-4 shadow-sm"
+            className="rounded-[20px] bg-white p-4 shadow-sh"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -333,41 +336,14 @@ export function SessionReportsList({ variant = "page" }: Props) {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {s.marketReportId !== null && (
-                <a
-                  href={`/api/panama/report/market/${s.marketReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 시장조사
-                </a>
+              {s.marketCompleted && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">✓ 시장조사</span>
               )}
-              {s.pricingPublicReportId !== null && (
-                <a
-                  href={`/api/panama/report/pricing_public/${s.pricingPublicReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 가격(공공)
-                </a>
+              {s.pricingCompleted && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">✓ 가격전략</span>
               )}
-              {s.pricingPrivateReportId !== null && (
-                <a
-                  href={`/api/panama/report/pricing_private/${s.pricingPrivateReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 가격(민간)
-                </a>
-              )}
-              {s.partnerReportId !== null && (
-                <a
-                  href={`/api/panama/report/partner/${s.partnerReportId}/pdf`}
-                  download
-                  className="rounded-md border border-[#d9e2ef] bg-[#f8fafc] px-2.5 py-1 text-[11px] font-bold text-[#273f60] hover:bg-[#edf3fb]"
-                >
-                  📄 바이어
-                </a>
+              {s.partnerCompleted && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">✓ 바이어</span>
               )}
             </div>
 
