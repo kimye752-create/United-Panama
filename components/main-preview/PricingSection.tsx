@@ -61,6 +61,12 @@ export function PricingSection({ products, onSessionReady }: Props) {
     public: unknown; private: unknown
   } | null>(null);
 
+  // ── 신약 직접 분석 (토글) state ───────────────────────────────
+  const [newDrugOpen,     setNewDrugOpen]     = useState(false);
+  const [newDrugName,     setNewDrugName]     = useState("");
+  const [newDrugInn,      setNewDrugInn]      = useState("");
+  const [newDrugDosage,   setNewDrugDosage]   = useState("");
+
   // ── 세션 목록 조회 ────────────────────────────────────────────
   const fetchSessions = useCallback(async (productId?: string) => {
     setSessionsLoading(true);
@@ -200,6 +206,62 @@ export function PricingSection({ products, onSessionReady }: Props) {
             </div>
           )}
 
+          {/* ── 신약 직접 분석 (토글) ───────────────────────────── */}
+          <button
+            type="button"
+            onClick={() => { setNewDrugOpen((v) => !v); }}
+            className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-[#6b7a8f] hover:text-navy"
+          >
+            <span className="text-[10px]">{newDrugOpen ? "▼" : "▸"}</span>
+            신약 직접 분석
+          </button>
+
+          {newDrugOpen && (
+            <div className="mt-2 space-y-2">
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="text"
+                  value={newDrugName}
+                  onChange={(e) => { setNewDrugName(e.target.value); }}
+                  placeholder="약품명 (예: Nexavar)"
+                  className="min-w-0 rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm placeholder:text-[#9aafc5] focus:outline-none focus:ring-2 focus:ring-navy/30"
+                />
+                <input
+                  type="text"
+                  value={newDrugInn}
+                  onChange={(e) => { setNewDrugInn(e.target.value); }}
+                  placeholder="성분명 (예: sorafenib)"
+                  className="min-w-0 rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm placeholder:text-[#9aafc5] focus:outline-none focus:ring-2 focus:ring-navy/30"
+                />
+                <input
+                  type="text"
+                  value={newDrugDosage}
+                  onChange={(e) => { setNewDrugDosage(e.target.value); }}
+                  placeholder="제형 (예: 200mg tablet)"
+                  className="min-w-0 rounded-lg border border-[#d9e2ef] bg-white px-3 py-2 text-[13px] text-[#273f60] shadow-sm placeholder:text-[#9aafc5] focus:outline-none focus:ring-2 focus:ring-navy/30"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const hasInput =
+                    newDrugName.trim() !== "" ||
+                    newDrugInn.trim() !== "" ||
+                    newDrugDosage.trim() !== "";
+                  if (!hasInput) {
+                    window.alert("약품명, 성분명, 제형 중 최소 1개를 입력해 주세요.");
+                    return;
+                  }
+                  window.alert(
+                    "신약 분석 버튼 클릭은 정상 동작합니다. 현재는 백엔드 연동 준비 단계라 분석 실행은 다음 단계에서 연결됩니다.",
+                  );
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-navy px-5 py-2.5 text-[13px] font-extrabold text-white shadow-sm transition-opacity hover:opacity-90"
+              >
+                ▶ 신약 분석
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 구분선 */}
