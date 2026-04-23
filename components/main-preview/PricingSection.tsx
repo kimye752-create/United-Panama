@@ -46,6 +46,9 @@ export function PricingSection({ products, onSessionReady }: Props) {
   const [sessionsLoading,  setSessionsLoading]   = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
 
+  // ── 시장조사 에러 state ───────────────────────────────────────
+  const [marketError,     setMarketError]        = useState<string | null>(null);
+
   // ── 가격 산출 state ───────────────────────────────────────────
   const [selectedSegment, setSelectedSegment]   = useState<"public" | "private">("public");
   const [pricingLoading,  setPricingLoading]     = useState(false);
@@ -75,6 +78,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
     setMarketLoading(true);
     setMarketDone(false);
     setPricingData(null);
+    setMarketError(null);
     try {
       const res  = await fetch("/api/panama/report/session/init", {
         method: "POST",
@@ -82,15 +86,20 @@ export function PricingSection({ products, onSessionReady }: Props) {
         body: JSON.stringify({ productId: selectedProduct.id, country: "panama" }),
       });
       const data: unknown = await res.json();
-      if (!res.ok) throw new Error((data as { detail?: string }).detail ?? "INIT_FAILED");
+      if (!res.ok) {
+        const d = data as { detail?: string; error?: string };
+        throw new Error(d.detail ?? d.error ?? `HTTP ${res.status}`);
+      }
       const ok = data as { sessionId: string };
       setLastSessionId(ok.sessionId);
       setSelectedSessionId(ok.sessionId);
       setMarketDone(true);
       onSessionReady?.(ok.sessionId);
       await fetchSessions(selectedProduct.id);
-    } catch { /* 실패 무시 */ }
-    finally  { setMarketLoading(false); }
+    } catch (e) {
+      setMarketError(e instanceof Error ? e.message : "알 수 없는 오류");
+    }
+    finally { setMarketLoading(false); }
   }
 
   // ── AI 가격 산출 ──────────────────────────────────────────────
@@ -172,6 +181,13 @@ export function PricingSection({ products, onSessionReady }: Props) {
               )}
             </button>
           </div>
+
+          {/* 시장조사 에러 */}
+          {marketError !== null && (
+            <p className="mt-2 text-[12px] text-red-600">
+              <span className="font-semibold">시장 조사 실패:</span> {marketError}
+            </p>
+          )}
 
           {/* 시장조사 완료 배너 */}
           {marketDone && selectedProduct !== null && (
