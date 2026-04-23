@@ -1,72 +1,36 @@
 /**
- * PDF 폰트 등록 — fs 로 읽어 base64 data URL 로 Font.register.
+ * PDF 폰트 등록 — base64 임베디드 모듈에서 로드.
  *
- *  - 네트워크 fetch 미사용 → Vercel Deployment Protection 401 문제 없음
- *  - vercel.json 의 functions.includeFiles 로 public/fonts/** 강제 번들
- *  - 로딩 상태를 명시적 로그로 기록 → Vercel 로그에서 성공/실패 확인 가능
+ *  - fs.readFileSync / HTTP fetch 모두 미사용 → Vercel 번들 누락 문제 원천 차단
+ *  - lib/pdf/fonts-embedded/nanumgothic.ts 에 base64 상수로 선번들됨
+ *  - Font.register 는 "data:font/ttf;base64,..." data URL 형식 지원
  */
-import fs from "node:fs";
-import path from "node:path";
-
 import { Font } from "@react-pdf/renderer";
 
-const FONT_DIR = path.join(process.cwd(), "public", "fonts");
+import {
+  NANUM_REGULAR_B64,
+  NANUM_BOLD_B64,
+  NANUM_EXTRABOLD_B64,
+} from "@/lib/pdf/fonts-embedded/nanumgothic";
 
-function loadAsDataUrl(filename: string, mime = "font/ttf"): string | null {
-  const full = path.join(FONT_DIR, filename);
-  try {
-    if (!fs.existsSync(full)) {
-      console.error(`[pdf-fonts] ❌ 파일 없음: ${full}`);
-      return null;
-    }
-    const buf = fs.readFileSync(full);
-    if (buf.length === 0) {
-      console.error(`[pdf-fonts] ❌ 빈 파일: ${full}`);
-      return null;
-    }
-    console.info(`[pdf-fonts] ✓ ${filename} (${buf.length} bytes)`);
-    return `data:${mime};base64,${buf.toString("base64")}`;
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error(`[pdf-fonts] ❌ 읽기 실패 ${full}: ${msg}`);
-    return null;
-  }
+function toDataUrl(b64: string): string {
+  return `data:font/ttf;base64,${b64}`;
 }
 
 try {
-  console.info(`[pdf-fonts] FONT_DIR=${FONT_DIR}  cwd=${process.cwd()}`);
+  console.info(
+    `[pdf-fonts] NanumGothic 임베디드 로드 — Regular=${NANUM_REGULAR_B64.length}b64, Bold=${NANUM_BOLD_B64.length}b64, ExtraBold=${NANUM_EXTRABOLD_B64.length}b64`,
+  );
 
-  // ── Pretendard (UI 범용) ──────────────────────────────────────────────────
-  const preReg  = loadAsDataUrl("Pretendard-Regular.ttf");
-  const preBold = loadAsDataUrl("Pretendard-Bold.ttf");
-  if (preReg !== null && preBold !== null) {
-    Font.register({
-      family: "Pretendard",
-      fonts: [
-        { src: preReg,  fontWeight: "normal" },
-        { src: preBold, fontWeight: "bold" },
-      ],
-    });
-    console.info("[pdf-fonts] ✓ Pretendard 등록");
-  }
-
-  // ── NanumGothic (모든 PDF 보고서 공통 폰트) ───────────────────────────────
-  const nanReg   = loadAsDataUrl("NanumGothic-Regular.ttf");
-  const nanBold  = loadAsDataUrl("NanumGothic-Bold.ttf");
-  const nanExtra = loadAsDataUrl("NanumGothic-ExtraBold.ttf");
-  if (nanReg !== null && nanBold !== null) {
-    const fonts: Array<{ src: string; fontWeight: "normal" | "bold" | 800 }> = [
-      { src: nanReg,  fontWeight: "normal" },
-      { src: nanBold, fontWeight: "bold" },
-    ];
-    if (nanExtra !== null) {
-      fonts.push({ src: nanExtra, fontWeight: 800 });
-    }
-    Font.register({ family: "NanumGothic", fonts });
-    console.info(`[pdf-fonts] ✓ NanumGothic 등록 (weights: ${fonts.length})`);
-  } else {
-    console.error("[pdf-fonts] ❌ NanumGothic 핵심 weight 누락 — 한글 mojibake 발생 예정");
-  }
+  Font.register({
+    family: "NanumGothic",
+    fonts: [
+      { src: toDataUrl(NANUM_REGULAR_B64),   fontWeight: "normal" },
+      { src: toDataUrl(NANUM_BOLD_B64),      fontWeight: "bold" },
+      { src: toDataUrl(NANUM_EXTRABOLD_B64), fontWeight: 800 },
+    ],
+  });
+  console.info("[pdf-fonts] ✓ NanumGothic 등록 완료 (3 weights)");
 
   Font.registerHyphenationCallback((word: string) => [word]);
 } catch (error: unknown) {
