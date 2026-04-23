@@ -114,31 +114,31 @@ export function MarketTrends() {
   }, [load]);
 
   return (
-    <section className="rounded-[16px] border border-[#e3e9f2] bg-white p-2.5 shadow-sh2">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-extrabold text-[#1f3e64]">파나마 의약품 시장 주요 동향</h3>
+    <section className="flex h-full min-h-[560px] flex-col rounded-[16px] border border-[#e3e9f2] bg-white p-5 shadow-sh2">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <h3 className="text-[15px] font-bold text-[#1f3e64]">파나마 의약품 시장 주요 동향</h3>
         <button
           type="button"
           onClick={() => {
             void load(true);
           }}
           disabled={loading}
-          className="inline-flex h-[30px] min-w-[76px] items-center justify-center whitespace-nowrap rounded-[9px] border border-[#d8e1ee] bg-white px-2.5 text-[11px] font-bold text-[#1f3e64] hover:bg-[#f4f7fb] disabled:opacity-50"
+          className="inline-flex h-[30px] min-w-[80px] items-center justify-center whitespace-nowrap rounded-[8px] border border-[#d8e1ee] bg-white px-3 text-[12px] font-normal text-[#1f3e64] hover:bg-[#f4f7fb] disabled:opacity-50"
         >
           ↻ 새로고침
         </button>
       </div>
-      <div className="space-y-1.5">
+      <div className="flex flex-1 flex-col space-y-6">
         {items.length === 0 && !loading ? (
-          <p className="rounded-[10px] bg-[#f7f9fc] px-3 py-3 text-[12px] text-[#6e7f95]">
+          <p className="text-[13px] text-[#6e7f95]">
             시장 동향 데이터가 준비 중입니다.
           </p>
         ) : (
           items.map((item, index) => {
             const rowContent = (
               <>
-                <p className="text-[11.5px] font-bold leading-snug text-[#1f3e64]">{item.headline}</p>
-                <p className="mt-0.5 text-[10px] text-[#7d8da2]">{item.meta_line}</p>
+                <p className="text-[14px] font-semibold leading-snug text-[#1f3e64]">{item.headline}</p>
+                <p className="mt-1 text-[12px] font-normal text-[#94a3b8]">{item.meta_line}</p>
               </>
             );
             if (item.url !== undefined) {
@@ -148,7 +148,7 @@ export function MarketTrends() {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-[10px] bg-[#f5f7fb] px-3 py-2 hover:bg-[#eef3fb]"
+                  className="block transition-opacity hover:opacity-70"
                 >
                   {rowContent}
                 </a>
@@ -157,7 +157,6 @@ export function MarketTrends() {
             return (
               <article
                 key={`${item.headline}-${String(index)}`}
-                className="rounded-[10px] bg-[#f5f7fb] px-3 py-2"
               >
                 {rowContent}
               </article>

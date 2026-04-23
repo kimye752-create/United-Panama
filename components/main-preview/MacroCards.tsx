@@ -23,23 +23,23 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
   };
 }
 
-/** 4개 매크로 카드 공통 — 제목·수치 가독성 (출처 줄은 기존 작은 회색 유지) */
+/** 4개 매크로 카드 공통 — 팀장 사이트 기준: 얇고 컴팩트 */
 const MACRO_TITLE_CLASS =
-  "text-left text-[9.5px] font-bold leading-tight text-[#1E293B]";
+  "text-center text-[12px] font-normal leading-tight text-[#475569]";
 const MACRO_VALUE_CLASS =
-  "text-center font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1E3A5F] text-[19px] sm:text-[21px]";
-const MACRO_DETAIL_LINE_CLASS = "text-[12px] font-bold leading-tight text-[#1E3A5F]";
+  "text-center font-bold leading-[1.2] tracking-[-0.02em] text-[#1E3A5F] text-[26px] sm:text-[30px]";
+const MACRO_DETAIL_LINE_CLASS = "text-center text-[14px] font-bold leading-tight text-[#1E3A5F]";
 
 export function MacroCards({ cards }: MacroCardsProps) {
   const normalizedCards = cards.map((card) => normalizeGdpCard(card));
 
   return (
-    <section className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
+    <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       {normalizedCards.map((card) => {
         return (
           <article
             key={card.label}
-            className="flex min-h-0 flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-2.5 py-1.5 shadow-sh2"
+            className="flex flex-col rounded-[12px] border border-[#e4eaf2] bg-white px-5 py-4 shadow-sh2"
           >
             <p className={MACRO_TITLE_CLASS}>{card.label}</p>
             {card.detailLines !== undefined && card.detailLines.length > 0 ? (
@@ -53,7 +53,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                     ))}
                   </div>
                 </div>
-                <p className="mt-0.5 w-full text-right text-[9px] leading-tight text-[#8b97aa]">
+                <p className="mt-1.5 w-full text-center text-[11px] font-normal leading-tight text-[#94a3b8]">
                   {card.sourceNote ?? card.footer}
                 </p>
               </>
@@ -62,7 +62,7 @@ export function MacroCards({ cards }: MacroCardsProps) {
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-0">
                   <p className={MACRO_VALUE_CLASS}>{card.value}</p>
                 </div>
-                <p className="mt-0.5 w-full text-right text-[9px] leading-tight text-[#8b97aa]">
+                <p className="mt-1.5 w-full text-center text-[11px] font-normal leading-tight text-[#94a3b8]">
                   {card.footer}
                   {card.yoy !== undefined ? ` · ${card.yoy}` : ""}
                 </p>
