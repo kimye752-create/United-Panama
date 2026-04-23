@@ -112,7 +112,9 @@ export function PartnerSection({ sessionId }: Props) {
       a.href     = url;
       const sess = sessions.find((s) => s.sessionId === selectedSessionId);
       a.download = `파나마_최종보고서_${sess?.productName ?? "report"}_${selectedSessionId.slice(0, 8)}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (e) {
       setErrorMsg(e instanceof Error ? e.message : "다운로드 실패");
@@ -197,8 +199,8 @@ export function PartnerSection({ sessionId }: Props) {
 
         {/* 기업 평가 기준 + 전체 해제 + 최종 보고서 다운로드 — 바이어 리스트 도출 후에만 표시 */}
         {!loading && partners !== null && partners.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-[#e8eef5] bg-[#f9fbfd] px-3 py-2.5">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1.5">
+        <div className="mt-3 flex items-stretch gap-2">
+          <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-3 gap-y-1 overflow-x-auto rounded-xl border border-[#e8eef5] bg-[#f9fbfd] px-3 py-2.5 whitespace-nowrap">
             <span className="shrink-0 text-[12px] font-extrabold text-[#1a2e4a]">
               기업 평가 기준
               <span className="ml-1 font-normal text-[#6b7a8f]">(체크된 항목들에 대해 평가 후 추천 순위 배열)</span>
@@ -268,7 +270,7 @@ export function PartnerSection({ sessionId }: Props) {
 
         {/* ── 바이어 목록 — 8개 노출 + 9·10위 내부 스크롤 ── */}
         {!loading && partners !== null && partners.length > 0 && (
-          <div className="mt-2 max-h-[360px] space-y-1.5 overflow-y-auto pr-1">
+          <div className="mt-2 max-h-[450px] space-y-1.5 overflow-y-auto pr-1">
             {partners.map((partner, idx) => (
               <button
                 type="button"
