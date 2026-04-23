@@ -1,5 +1,8 @@
 /**
- * 2공정 경쟁사 가격 집계 — 공공조달(panamacompra_v3) / 민간 소매(acodeco_cabamed*)
+ * 2공정 경쟁사 가격 집계
+ * - 공공조달: panamacompra_v3 (CSS/DGCP 낙찰가)
+ * - 소비자 모니터링: acodeco_cabamed*, acodeco_pdf (ACODECO 가격 감시)
+ * - 민간 소매체인: superxtra_vtex (SuperXtra 약국 체인 온라인가)
  */
 import { createSupabaseServer } from "@/lib/supabase-server";
 
@@ -14,6 +17,7 @@ export interface CompetitorPriceChannel {
 export interface CompetitorPricesPayload {
   publicProcurement: CompetitorPriceChannel;
   privateRetail: CompetitorPriceChannel;
+  retailChain: CompetitorPriceChannel;
 }
 
 function toFiniteNumber(value: unknown): number | null {
@@ -66,16 +70,17 @@ export async function fetchCompetitorPrices(productId: string): Promise<Competit
     .map((row) => toFiniteNumber((row as { pa_price_local?: unknown }).pa_price_local))
     .filter((p): p is number => p !== null);
 
+  // ACODECO (CABAMED 리스트 + PDF 가격 모니터링) — 소비자보호청 가격 감시
   const privateRes = await sb
     .from("panama")
     .select("pa_price_local, pa_source")
     .eq("product_id", productId)
-    .like("pa_source", "acodeco_cabamed%")
+    .or("pa_source.like.acodeco_cabamed%,pa_source.eq.acodeco_pdf")
     .not("pa_price_local", "is", null);
 
   if (privateRes.error !== null) {
     throw new Error(
-      `민간 소매 가격 조회 실패: ${privateRes.error.message}. Supabase 연결과 RLS를 확인해 주세요.`,
+      `ACODECO 가격 조회 실패: ${privateRes.error.message}. Supabase 연결과 RLS를 확인해 주세요.`,
     );
   }
 
@@ -83,8 +88,27 @@ export async function fetchCompetitorPrices(productId: string): Promise<Competit
     .map((row) => toFiniteNumber((row as { pa_price_local?: unknown }).pa_price_local))
     .filter((p): p is number => p !== null);
 
+  // SuperXtra VTEX — 파나마 약국 체인 온라인 소매가
+  const retailRes = await sb
+    .from("panama")
+    .select("pa_price_local")
+    .eq("product_id", productId)
+    .eq("pa_source", "superxtra_vtex")
+    .not("pa_price_local", "is", null);
+
+  if (retailRes.error !== null) {
+    throw new Error(
+      `SuperXtra 소매 가격 조회 실패: ${retailRes.error.message}. Supabase 연결과 RLS를 확인해 주세요.`,
+    );
+  }
+
+  const retailPrices = (retailRes.data ?? [])
+    .map((row) => toFiniteNumber((row as { pa_price_local?: unknown }).pa_price_local))
+    .filter((p): p is number => p !== null);
+
   const pubAgg = aggregate(publicPrices);
   const privAgg = aggregate(privatePrices);
+  const retailAgg = aggregate(retailPrices);
 
   return {
     publicProcurement: {
@@ -93,7 +117,11 @@ export async function fetchCompetitorPrices(productId: string): Promise<Competit
     },
     privateRetail: {
       ...privAgg,
-      source: "ACODECO CABAMED",
+      source: "ACODECO CABAMED + PDF 가격 모니터링 (소비자보호청)",
+    },
+    retailChain: {
+      ...retailAgg,
+      source: "SuperXtra 약국 체인 온라인가 (VTEX)",
     },
   };
 }
