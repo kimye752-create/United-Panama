@@ -1,5 +1,21 @@
 # Vibe Coding Log
 
+## [Unreleased] - 2026-04-23 (PricingCards SG 버전 통일 — 레이블·통화 표시 정리)
+
+### Changed
+- `components/main-preview/PricingCards.tsx`
+  - 가운데 시나리오 레이블 "기준" → **"기준가"** (SG 대시보드와 동일)
+  - PAB 표시 제거 (Panama에서 PAB = USD 1:1로 중복)
+  - 카드 면에서 근거(basis) 텍스트 제거 → 편집 모달에서만 확인 (카드 높이 감소, SG 레이아웃과 통일)
+  - KRW 환산 유지 (SG의 SGD 위치에 해당, 색상 `#9aafc5` 통일)
+- `components/main-preview/PricingEditModal.tsx`
+  - 모달 내 시나리오 레이블 "기준" → "기준가"
+  - "보고서 가격: PAB X.XX ≈ X.XX USD" → "보고서 기준가: USD X.XX" (중복 제거)
+  - 결과값 "X.XX USD · X.XX PAB" → "X.XX USD" (PAB 중복 제거)
+- `src/logic/reports/pricing_generator.ts`
+  - `ScenarioCard.label` 타입 `"기준"` → `"기준가"` (TypeScript 리터럴 타입 동기화)
+  - `toRankLabel` 반환 타입 어노테이션 동일 수정
+
 ## [Unreleased] - 2026-04-23 (UI 통일 + 뉴스 품질 개선 + 분석 기준 레이블 수정)
 
 ### Changed

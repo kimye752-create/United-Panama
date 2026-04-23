@@ -91,7 +91,7 @@ const TYPE_LABELS: Record<FobOptionType, string> = {
 
 const SCENARIO_LABELS: Record<"agg" | "avg" | "cons", string> = {
   agg:  "저가 진입",
-  avg:  "기준",
+  avg:  "기준가",
   cons: "프리미엄",
 };
 
@@ -168,13 +168,10 @@ export function PricingEditModal({ scenario, segment, basePrice, onClose }: Prop
 
         {/* 보고서 가격 */}
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-[13px] font-semibold text-[#4a5a6f]">보고서 가격</span>
-          <div className="flex items-center gap-2">
-            <span className="rounded-lg bg-navy px-3 py-1 text-[13px] font-extrabold text-white">
-              PAB {currentBase.toFixed(2)}
-            </span>
-            <span className="text-[12px] text-[#7a8fa8]">≈ {currentBase.toFixed(2)} USD</span>
-          </div>
+          <span className="text-[13px] font-semibold text-[#4a5a6f]">보고서 기준가</span>
+          <span className="rounded-lg bg-navy px-3 py-1 text-[13px] font-extrabold text-white">
+            USD {currentBase.toFixed(2)}
+          </span>
         </div>
 
         {/* 기준가 입력 */}
@@ -268,7 +265,7 @@ export function PricingEditModal({ scenario, segment, basePrice, onClose }: Prop
             ↺ 되돌리기 (AI 추천)
           </button>
           <p className="text-[14px] font-extrabold text-navy">
-            결과: {fob.toFixed(2)} USD · {fob.toFixed(2)} PAB
+            결과: {fob.toFixed(2)} USD
           </p>
         </div>
       </div>

@@ -16,7 +16,7 @@ interface ScenarioCard {
 
 const SCENARIO_KEYS: { key: Scenario; label: string; color: string }[] = [
   { key: "agg",  label: "저가 진입", color: "#C85A00" },
-  { key: "avg",  label: "기준",      color: "#1457A0" },
+  { key: "avg",  label: "기준가",    color: "#1457A0" },
   { key: "cons", label: "프리미엄",  color: "#1A6B35" },
 ];
 
@@ -88,24 +88,10 @@ export function PricingCards({ segment, data }: Props) {
               </p>
               <p className="text-[11px] font-semibold text-[#7a8fa8]">USD</p>
 
-              {/* PAB (참고) */}
-              {card.price_pab !== null && (
-                <p className="mt-1 text-[11px] text-[#9aafc5]">
-                  {card.price_pab.toFixed(2)} PAB
-                </p>
-              )}
-
-              {/* KRW */}
+              {/* KRW 환산 (SG의 SGD에 해당) */}
               {card.price_krw !== null && (
-                <p className="mt-0.5 text-[11px] font-semibold text-[#4a5a6f]">
-                  ≈ {fmtKrw(card.price_krw)}
-                </p>
-              )}
-
-              {/* 근거 */}
-              {card.basis !== "" && (
-                <p className="mt-2 line-clamp-3 text-[10px] leading-relaxed text-[#6b7a8f]">
-                  {card.basis}
+                <p className="mt-1 text-[11px] text-[#9aafc5]">
+                  {fmtKrw(card.price_krw)}
                 </p>
               )}
 

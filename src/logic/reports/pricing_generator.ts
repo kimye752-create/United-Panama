@@ -6,13 +6,15 @@ import { generatePriceScenarios } from "@/src/logic/phase2/price_scenario_genera
 import type { ScenarioRow } from "@/src/logic/phase2/price_scenario_generator";
 import type { Phase2Scenario } from "@/src/logic/phase2/margin_policy_resolver";
 import { findProductById } from "@/src/utils/product-dictionary";
+import { saveLlmOutput } from "@/src/lib/llm-output-logger";
+import type { Phase2ReportPayload } from "@/src/llm/phase2/phase2_schema";
 
 const KRW_PER_USD = 1473.1;
 
 interface ScenarioCard {
   rank: 1 | 2 | 3;
   scenario: Phase2Scenario;
-  label: "저가 진입" | "기준" | "프리미엄";
+  label: "저가 진입" | "기준가" | "프리미엄";
   price_pab: number;
   price_usd: number;
   price_krw: number;
@@ -33,13 +35,13 @@ interface MarketResult {
 
 function toRankLabel(scenario: Phase2Scenario): {
   rank: 1 | 2 | 3;
-  label: "저가 진입" | "기준" | "프리미엄";
+  label: "저가 진입" | "기준가" | "프리미엄";
 } {
   if (scenario === "agg") {
     return { rank: 1, label: "저가 진입" };
   }
   if (scenario === "avg") {
-    return { rank: 2, label: "기준" };
+    return { rank: 2, label: "기준가" };
   }
   return { rank: 3, label: "프리미엄" };
 }
@@ -171,6 +173,26 @@ async function runOneSegment(
   if (data === null || typeof data.id !== "string") {
     throw new Error(`수출가격 보고서(${segment}) id 누락`);
   }
+
+  // llm_outputs 적재 — src_* 컬럼에 원천 실측값 (non-blocking)
+  void saveLlmOutput({
+    domain:         segment === "public" ? "pricing_public" : "pricing_private",
+    session_id:     input.sessionId,
+    report_id:      data.id,
+    product_id:     input.productId,
+    country:        "panama",
+    llm_model:      llm.modelUsed ?? "claude-haiku-4-5-20251001",
+    llm_source:     llm.source as "haiku" | "fallback" | "cache",
+    payload:        llm.payload as Phase2ReportPayload,
+    market_segment: segment,
+    // 원천 실측값 (DB·가격 계산 결과, 재분석 가능)
+    sourceData: {
+      referencePricePab: defaultPab,
+      fobAggUsd:         activeMarket.scenarios.agg.price_usd,
+      fobAvgUsd:         activeMarket.scenarios.avg.price_usd,
+      fobConsUsd:        activeMarket.scenarios.cons.price_usd,
+    },
+  });
 
   return {
     id: data.id,
