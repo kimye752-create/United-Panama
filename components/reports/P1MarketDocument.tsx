@@ -144,6 +144,7 @@ const S = StyleSheet.create({
     bottom: 20,
     left: 45,
     right: 45,
+    height: 18,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
