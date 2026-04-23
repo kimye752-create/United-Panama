@@ -165,14 +165,6 @@ export function PartnerSection({ sessionId }: Props) {
           </p>
         )}
 
-        {/* 로딩 */}
-        {loading && (
-          <div className="mt-2 flex items-center gap-2 text-[12px] text-[#7a8fa8]">
-            <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#d9e2ef] border-t-navy" />
-            Perplexity 웹 검색으로 기업 정보 수집 중…
-          </div>
-        )}
-
         {/* ── 컬럼 헤더 ── */}
         {(loading || (partners !== null && partners.length > 0)) && (
           <div className="mt-2 grid grid-cols-[24px_1fr_1fr_90px] gap-x-2 border-b border-[#e8eef5] pb-1 text-[11px] font-bold uppercase tracking-widest text-[#9aafc5]">
