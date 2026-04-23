@@ -34,7 +34,7 @@ export function PanamaMap() {
         const map = L.map(mapRef.current, {
           center: [PANAMA_CENTER.lat, PANAMA_CENTER.lng],
           zoom: PANAMA_DEFAULT_ZOOM,
-          scrollWheelZoom: false,
+          scrollWheelZoom: true,
         });
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
