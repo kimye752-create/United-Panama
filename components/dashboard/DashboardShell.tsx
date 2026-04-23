@@ -14,7 +14,7 @@ export function DashboardShell({ children, fullHeight = false }: Props) {
     <div className="h-screen w-full overflow-hidden bg-shell font-pretendard">
       <Topbar />
       {fullHeight ? (
-        <main className="h-[calc(100vh-66px)] overflow-hidden px-5 pt-5 sm:px-7 lg:px-10">
+        <main className="h-[calc(100vh-66px)] overflow-hidden px-5 pt-8 sm:px-7 lg:px-10">
           {children}
         </main>
       ) : (
