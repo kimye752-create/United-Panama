@@ -185,6 +185,7 @@ async function runOneSegment(
     referencePricePab: defaultPab,
     baselineFormula: activeMarket.formula,
     scenarios: scenarioRows,
+    competitorPrices,
   });
 
   const payload = llm.payload as unknown as Record<string, unknown>;

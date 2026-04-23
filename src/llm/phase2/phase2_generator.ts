@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { getSupabaseClient } from "@/src/utils/db_connector";
 import type { ScenarioRow } from "@/src/logic/phase2/price_scenario_generator";
 import type { Phase2MarketSegment } from "@/src/logic/phase2/margin_policy_resolver";
+import type { CompetitorPricesPayload } from "@/src/logic/phase2/competitor_prices";
 
 import { buildPhase2FallbackReport } from "./phase2_fallback_template";
 import {
@@ -65,6 +66,8 @@ export interface Phase2GeneratorInput {
   referencePricePab: number;
   baselineFormula: string;
   scenarios: ScenarioRow[];
+  /** DB에서 집계한 경쟁사 가격 (선택) — 프롬프트에 참조 블록으로 주입 */
+  competitorPrices?: CompetitorPricesPayload;
 }
 
 export interface Phase2GeneratorResult {
@@ -94,6 +97,26 @@ function buildPrompt(input: Phase2GeneratorInput): string {
   const logicName = input.market === "public" ? "Logic A (공공조달 역산)" : "Logic B (민간 마진 역산)";
   const marketLabel = input.market === "public" ? "공공 시장 (CSS/PanamaCompra)" : "민간 시장 (약국·도매 체인)";
 
+  const fmtChannel = (
+    label: string,
+    ch: { avg: number | null; min: number | null; max: number | null; count: number; source: string } | undefined,
+  ): string | null => {
+    if (ch === undefined || ch.count === 0 || ch.avg === null) return null;
+    const min = ch.min !== null ? ch.min.toFixed(2) : "-";
+    const max = ch.max !== null ? ch.max.toFixed(2) : "-";
+    return `- ${label}: 평균 PAB ${ch.avg.toFixed(2)} (최저 ${min} / 최고 ${max}, ${ch.count}건) — ${ch.source}`;
+  };
+
+  const competitorBlock = input.competitorPrices
+    ? [
+        fmtChannel("공공조달 낙찰가", input.competitorPrices.publicProcurement),
+        fmtChannel("ACODECO 소비자 모니터링", input.competitorPrices.privateRetail),
+        fmtChannel("SuperXtra 약국 체인 소매가", input.competitorPrices.retailChain),
+      ]
+        .filter((x): x is string => x !== null)
+        .join("\n")
+    : "";
+
   const productDetail = [
     `- 제품명: ${input.productName} (${input.inn})`,
     input.formulation ? `- 제형: ${input.formulation}` : null,
@@ -112,6 +135,7 @@ ${productDetail}
 - 참조가: USD ${input.referencePricePab.toFixed(2)} (PAB 1:1 USD 등가)
 - 적용 로직: ${logicName}
 - 기준 FOB 역산 수식: ${input.baselineFormula}
+${competitorBlock !== "" ? `\n[경쟁사 실측 가격 — DB 크롤링 집계]\n${competitorBlock}\n(이 값들을 block1 시장 개요 + block2 FOB 역산 + block5 권고가 근거로 반드시 인용)` : ""}
 
 [시나리오 수치 — 반드시 이 값 그대로 인용]
 - 저가 진입 / Penetration (agg): FOB USD ${agg.fob.fobUsd.toFixed(4)}, FOB천장 ${agg.fob.fobCeilingUsd.toFixed(4)}, 배수 ${agg.fob.strategyMultiplier.toFixed(2)}x | CFR ${agg.incoterms.cfrUsd.toFixed(4)}, CIF ${agg.incoterms.cifUsd.toFixed(4)}, DDP ${agg.incoterms.ddpUsd.toFixed(4)}

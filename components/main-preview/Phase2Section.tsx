@@ -347,7 +347,7 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
                   </div>
                   <div>
                     <div className="mb-1 text-[12px] font-semibold text-[#3e5574]">
-                      민간 소매 (ACODECO CABAMED)
+                      ACODECO 소비자 모니터링
                     </div>
                     <table className="w-full border-collapse border border-[#dce4ef] text-[11px]">
                       <thead className="bg-[#f4f7fc]">
@@ -387,6 +387,42 @@ export function Phase2Section({ onCompleted, reports, onReportsChanged }: Phase2
                       {competitorPrices.privateRetail.source}
                     </p>
                   </div>
+                  {competitorPrices.retailChain.count > 0 ? (
+                    <div className="mt-3">
+                      <div className="mb-1 text-[12px] font-semibold text-[#3e5574]">
+                        SuperXtra 약국 체인 소매가
+                      </div>
+                      <table className="w-full border-collapse border border-[#dce4ef] text-[11px]">
+                        <thead className="bg-[#f4f7fc]">
+                          <tr>
+                            <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">평균</th>
+                            <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">최고</th>
+                            <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">최저</th>
+                            <th className="border border-[#dce4ef] p-2 text-left font-bold text-[#1f3e64]">건수</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="border border-[#dce4ef] p-2">
+                              {formatPriceCell(competitorPrices.retailChain.avg)}
+                            </td>
+                            <td className="border border-[#dce4ef] p-2">
+                              {formatPriceCell(competitorPrices.retailChain.max)}
+                            </td>
+                            <td className="border border-[#dce4ef] p-2">
+                              {formatPriceCell(competitorPrices.retailChain.min)}
+                            </td>
+                            <td className="border border-[#dce4ef] p-2">
+                              {competitorPrices.retailChain.count}건
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <p className="mt-1 text-[10px] text-[#8b97aa]">
+                        {competitorPrices.retailChain.source}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
               <Phase2ResultTabs result={result} />

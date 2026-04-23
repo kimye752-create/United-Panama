@@ -282,10 +282,12 @@ function CompetitorPriceTable({ competitorPrices }: { competitorPrices: Record<s
 
   const pub = rec(competitorPrices["publicProcurement"]);
   const priv = rec(competitorPrices["privateRetail"]);
+  const retail = rec(competitorPrices["retailChain"]);
 
   const rows = [
     { label: "공공조달 (PanamaCompra)", data: pub },
-    { label: "민간소매 (ACODECO CABAMED)", data: priv },
+    { label: "ACODECO 소비자 모니터링", data: priv },
+    { label: "SuperXtra 약국 체인 소매가", data: retail },
   ];
 
   return (
