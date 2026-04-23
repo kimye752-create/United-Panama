@@ -86,6 +86,11 @@ const MARKET_SYSTEM = `
 5. 마크다운 헤더(##, **) 금지. 서브섹션은 반드시 "▸ 소제목:" 형식.
 6. 각 블록은 독립 문단으로 완결.
 7. block2, block4는 반드시 ▸ 3개 서브섹션으로 구성 (지정된 형식 준수).
+8. 제형(formulation)과 독점 기술(patentTech)이 있으면 반드시 보고서에 반영:
+   - 제형은 규제/통관 섹션에서 MINSA 등록 분류 근거로 활용.
+   - 독점 기술은 가격 포지셔닝 및 리스크 섹션에서 차별화 근거로 명시.
+   - 복합제(2성분)는 MINSA 등록 복잡도·심사 기간 가산 요인으로 서술.
+   - HS 코드는 block2 관세/무역 서브섹션에서 FTA 세율 적용 근거로 활용.
 `.trim();
 
 function buildMarketPrompt(input: MarketLLMInput): string {
@@ -126,11 +131,21 @@ function buildMarketPrompt(input: MarketLLMInput): string {
         .join(" | ")
     : "치료영역 통계: 별도 수집 필요";
 
+  const productDetail = [
+    `- 제품명: ${input.productName} (${input.inn})`,
+    `- 치료 영역: ${input.therapeuticArea}`,
+    `- ATC 코드: ${input.atc4Code}`,
+    `- 제형: ${input.formulation}`,
+    `- 복합제 여부: ${input.isCombinationDrug ? "복합제 (2성분 이상)" : "단일 성분"}`,
+    `- HS 코드: ${input.hsCode}`,
+    input.patentTech !== null
+      ? `- 독점 기술: ${input.patentTech} (자사 특허 제형 — 경쟁사 동일 기술 없음)`
+      : `- 독점 기술: 없음 (일반 제형)`,
+  ].join("\n");
+
   return `
 [제품 정보]
-- 제품명: ${input.productName} (${input.inn})
-- 치료 영역: ${input.therapeuticArea}
-- ATC 코드: ${input.atc4Code}
+${productDetail}
 
 [EML 등재 현황]
 ${emlLine}
@@ -170,6 +185,14 @@ export interface MarketLLMInput {
   inn: string;
   therapeuticArea: string;
   atc4Code: string;
+  /** 제형 (Cap., Tab. CR, Inhaler DPI, Soft Cap., Pouch 등) */
+  formulation: string;
+  /** 특허/독점 기술명 (CombiGel, BILDAS, Activair DPI, Seamless Pouch 등) */
+  patentTech: string | null;
+  /** 복합제 여부 */
+  isCombinationDrug: boolean;
+  /** HS 코드 (관세 분석용) */
+  hsCode: string;
   emlWho: boolean;
   emlPaho: boolean;
   emlMinsa: boolean;
