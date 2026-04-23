@@ -24,13 +24,13 @@ function normalizeGdpCard(card: PanamaLandingMetricCard): PanamaLandingMetricCar
   };
 }
 
-/** 4개 매크로 카드 공통 — 나눔고딕 적용 */
-const NANUM = { style: { fontFamily: "'Nanum Gothic', 'NanumGothic', sans-serif" } } as const;
+/** 4개 매크로 카드 공통 — 나눔고딕 로컬 폰트 적용 */
+const NANUM = { style: { fontFamily: "'NanumGothic', sans-serif" } } as const;
 
 const MACRO_TITLE_CLASS =
   "text-center text-[12px] font-normal leading-tight text-[#475569]";
 const MACRO_VALUE_STYLE: React.CSSProperties = {
-  fontFamily: "'Nanum Gothic', 'NanumGothic', sans-serif",
+  fontFamily: "'NanumGothic', sans-serif",
   fontWeight: 800,
 };
 const MACRO_VALUE_CLASS =
