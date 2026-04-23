@@ -115,7 +115,7 @@ export function PartnerSection({ sessionId }: Props) {
         </h2>
       </div>
 
-      <div className="p-5">
+      <div className="p-6">
         {/* 드롭다운 + 실행 버튼 */}
         <div className="flex flex-wrap items-center gap-2">
           <select
@@ -140,7 +140,7 @@ export function PartnerSection({ sessionId }: Props) {
           <button
             type="button"
             disabled={!canRun}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-navy px-4 py-2 text-[13px] font-extrabold text-white shadow-sm transition-opacity disabled:opacity-40"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-navy px-5 py-2.5 text-[13px] font-extrabold text-white shadow-sm transition-opacity disabled:opacity-40"
             onClick={() => { void handleRunPartner(); }}
           >
             {loading ? (
