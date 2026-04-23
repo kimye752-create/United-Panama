@@ -31,7 +31,7 @@ const MACRO_TITLE_CLASS =
   "text-center text-[12px] font-normal leading-tight text-[#475569]";
 const MACRO_VALUE_STYLE: React.CSSProperties = {
   fontFamily: "'Pretendard Variable', Pretendard, sans-serif",
-  fontWeight: 900,
+  fontWeight: 700,
 };
 const MACRO_VALUE_CLASS =
   "text-center leading-[1.2] tracking-[-0.035em] text-[#1E3A5F] text-[24px] sm:text-[28px]";
