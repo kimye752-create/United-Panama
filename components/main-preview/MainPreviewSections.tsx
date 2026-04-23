@@ -1,74 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import type { StoredReportItem } from "@/src/lib/dashboard/reports_store";
-import { getStoredReports } from "@/src/lib/dashboard/reports_store";
-
-import { CombinedReportWorkspace } from "./CombinedReportWorkspace";
-import { Phase1Section } from "./Phase1Section";
-import { Phase2Section } from "./Phase2Section";
-import { Phase3Section } from "./Phase3Section";
-
-const PHASE1_DONE_KEY = "pa_phase1_done_v1";
-const PHASE2_DONE_KEY = "pa_phase2_done_v1";
-
+/**
+ * 레거시: 1·2·3단계 + 결합 보고서를 한 페이지에 묶던 컴포넌트.
+ * 현재 라우트에서 미사용 — SG 정렬 후 `/`(메인), `/analysis`(시장·가격·바이어), `/reports`(보고서)로 분리됨.
+ * 복원 시 git 히스토리의 본 파일 구현 참조.
+ */
 export function MainPreviewSections() {
-  const [reports, setReports] = useState<StoredReportItem[]>([]);
-
-  const [phase1Done, setPhase1Done] = useState<boolean>(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.sessionStorage.getItem(PHASE1_DONE_KEY) === "true";
-  });
-  const [phase2Done, setPhase2Done] = useState<boolean>(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.sessionStorage.getItem(PHASE2_DONE_KEY) === "true";
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    window.sessionStorage.setItem(PHASE1_DONE_KEY, String(phase1Done));
-  }, [phase1Done]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    window.sessionStorage.setItem(PHASE2_DONE_KEY, String(phase2Done));
-  }, [phase2Done]);
-
-  useEffect(() => {
-    setReports(getStoredReports());
-  }, []);
-
-  return (
-    <section className="space-y-3.5">
-      <Phase1Section
-        onCompleted={() => {
-          setPhase1Done(true);
-        }}
-        onReportGenerated={() => {
-          setReports(getStoredReports());
-        }}
-      />
-      <Phase2Section
-        reports={reports}
-        onReportsChanged={() => {
-          setReports(getStoredReports());
-        }}
-        onCompleted={() => {
-          setPhase2Done(true);
-        }}
-      />
-      <Phase3Section phase1Complete={phase1Done} phase2Complete={phase2Done} reports={reports} />
-      <CombinedReportWorkspace />
-    </section>
-  );
+  return null;
 }
-

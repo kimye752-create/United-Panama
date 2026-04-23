@@ -3,17 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const TABS = [
-  { href: "/", label: "메인 프리뷰" },
-  { href: "/analysis", label: "시장조사 분석" },
-] as const;
+import { DASHBOARD_PRIMARY_TABS } from "@/components/dashboard/dashboardTabConfig";
 
 export function TopbarTabs() {
   const pathname = usePathname();
 
   return (
     <nav className="flex items-center">
-      {TABS.map((tab) => {
+      {DASHBOARD_PRIMARY_TABS.map((tab) => {
         const isActive = pathname === tab.href;
         return (
           <Link

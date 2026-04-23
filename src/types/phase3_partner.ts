@@ -29,6 +29,8 @@ export interface PartnerCandidate {
   korea_partnership_detail: string | null;
   source_secondary: string[] | null;
   collected_secondary_at: string | null;
+  registered_products: string[] | null;
+  cphi_category: string | null;
   score_revenue: number | null;
   score_pipeline: number | null;
   score_gmp: number | null;

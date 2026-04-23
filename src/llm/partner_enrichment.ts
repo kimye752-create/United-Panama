@@ -114,7 +114,12 @@ export async function enrichCandidateWithLLM(
             role: "user",
             content:
               `파나마 제약사 "${candidate.company_name}"의 심층 정보를 JSON 객체 하나로 반환하시오.\n` +
-              "키: revenue_usd, employee_count, founded_year, therapeutic_areas, gmp_certified, import_history, import_history_detail, public_procurement_wins, pharmacy_chain_operator, mah_capable, korea_partnership, korea_partnership_detail, source_urls\n" +
+              "키: revenue_usd, employee_count, founded_year, therapeutic_areas, gmp_certified, " +
+              "import_history, import_history_detail, public_procurement_wins, pharmacy_chain_operator, " +
+              "mah_capable, korea_partnership, korea_partnership_detail, source_urls, " +
+              "registered_products, cphi_category\n" +
+              "registered_products: 파나마(MINSA DNFD)에 등록된 의약품 제품명 배열 (최대 10개, 모르면 null).\n" +
+              "cphi_category: CPHI 또는 국제 전시회에서 분류되는 제약 카테고리 (예: Finished Dosage Forms, API, Generic Pharma, OTC 등, 모르면 null).\n" +
               "모르는 값은 null 또는 빈 배열로 두고 추정하지 마시오.",
           },
         ],
@@ -149,6 +154,9 @@ export async function enrichCandidateWithLLM(
       korea_partnership_detail:
         toStringOrNull(parsed["korea_partnership_detail"]) ?? candidate.korea_partnership_detail,
       source_secondary: toStringArrayOrNull(parsed["source_urls"]) ?? candidate.source_secondary,
+      registered_products:
+        toStringArrayOrNull(parsed["registered_products"]) ?? candidate.registered_products,
+      cphi_category: toStringOrNull(parsed["cphi_category"]) ?? candidate.cphi_category,
       collected_secondary_at: new Date().toISOString(),
     };
   } catch {

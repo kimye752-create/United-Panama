@@ -9,6 +9,13 @@ build/
 .next/
 .vercel/
 .cursor/
+.claude/
+
+# 로컬 실행 로그·스냅샷(커밋 제외)
+scripts/logs/
+
+# 행 수 스냅 등 텍스트 백업( *.sql 은 기존 규칙 유지 )
+backups/*.txt
 *.tsbuildinfo
 coverage/
 .supabase/

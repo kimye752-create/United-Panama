@@ -1,11 +1,14 @@
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 
 import { MacroCards } from "@/components/main-preview/MacroCards";
 import { MarketTrends } from "@/components/main-preview/MarketTrends";
 import { getPanamaLandingMetricCards } from "@/src/logic/panama_landing";
 
-const PanamaMap = dynamic(
+// DB에서 실시간 거시 데이터(인구·GDP 등)를 매 요청마다 조회해야 하므로 정적 렌더링 비활성화
+export const dynamic = "force-dynamic";
+
+const PanamaMap = nextDynamic(
   async () => import("@/components/main-preview/PanamaMap").then((mod) => mod.PanamaMap),
   { ssr: false },
 );

@@ -24,7 +24,10 @@
     "seed:prevalence": "tsx scripts/runners/reseed_prevalence.ts",
     "crawl:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts",
     "test:panamacompra-v3:dry": "tsx scripts/runners/test_panamacompra_v3_dry_run.ts",
-    "test:haiku-direct": "tsx scripts/runners/test_haiku_direct.ts"
+    "test:haiku-direct": "tsx scripts/runners/test_haiku_direct.ts",
+    "preload:acodeco-pdf": "tsx src/crawlers/preload/pa_acodeco_pdf.ts",
+    "preload:acodeco-pdf:dry": "tsx src/crawlers/preload/pa_acodeco_pdf.ts --dry-run",
+    "verify:sg-schema": "tsx scripts/verify_sg_schema.ts"
   },
   "keywords": [],
   "author": "",

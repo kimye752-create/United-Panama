@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { PartnerSection } from "@/components/main-preview/PartnerSection";
 import { PricingSection, type ReportFlowProduct } from "@/components/main-preview/PricingSection";
+import { ReportListPanel } from "@/components/reports/ReportListPanel";
 import { TARGET_PRODUCTS } from "@/src/utils/product-dictionary";
 
 /**
@@ -30,7 +31,7 @@ const PRODUCT_DISPLAY_LABELS: Record<string, string> = {
 };
 
 /**
- * 시장 분석 탭 — 수출가격 전략(01) + 바이어 발굴(02) 2열 레이아웃
+ * 시장 분석 탭 — 01·02 2열 + 우측 생성 보고서 목록(SG 레퍼런스와 동일 구조)
  * Phase1(시장 조사)은 세션 초기화 시 자동 실행됨. 별도 UI 없음.
  */
 export function AnalysisWorkspace() {
@@ -50,31 +51,17 @@ export function AnalysisWorkspace() {
 
   return (
     <div className="space-y-3.5">
-      {/* 안내 배너 */}
-      <div className="rounded-lg border border-[#e8eef5] bg-[#f8fafc] px-4 py-2.5 text-xs text-[#4a5a6f]">
-        품목 선택 후 <strong className="text-[#273f60]">▶ 시장 조사</strong>를 실행하세요.
-        이후 저장된 보고서를 선택하여 <strong className="text-[#273f60]">AI 가격 산출</strong> →{" "}
-        <strong className="text-[#273f60]">바이어 발굴</strong> 순으로 분석이 진행됩니다.
-        우하단 <strong className="text-[#273f60]">보고서 탭</strong>에서 최종 PDF를 다운로드할 수 있습니다.
-        {sessionId !== null && (
-          <span className="ml-2 font-mono text-[11px] text-navy">
-            session={sessionId.slice(0, 8)}…
-          </span>
-        )}
-      </div>
-
-      {/* 2열 메인 패널 */}
-      <div className="grid gap-3.5 lg:grid-cols-2">
-        {/* 01 수출가격 전략 */}
-        <PricingSection
-          products={products}
-          onSessionReady={(sid) => {
-            setSessionId(sid);
-          }}
-        />
-
-        {/* 02 바이어 발굴 */}
-        <PartnerSection sessionId={sessionId} />
+      <div className="grid gap-3.5 lg:grid-cols-[1fr_280px]">
+        <div className="grid gap-3.5 lg:grid-cols-2">
+          <PricingSection
+            products={products}
+            onSessionReady={(sid) => {
+              setSessionId(sid);
+            }}
+          />
+          <PartnerSection sessionId={sessionId} />
+        </div>
+        <ReportListPanel sessionId={sessionId} />
       </div>
     </div>
   );

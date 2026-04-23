@@ -3,16 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const TABS = [
-  { href: "/", label: "메인 프리뷰" },
-  { href: "/reports", label: "보고서" },
-] as const;
+import { DASHBOARD_FULL_TABS } from "@/components/dashboard/dashboardTabConfig";
 
 export function TabNavigation() {
   const pathname = usePathname();
   return (
     <nav className="relative mb-6 flex h-[52px] items-center justify-center border-y border-navy/10">
-      {TABS.map((tab) => {
+      {DASHBOARD_FULL_TABS.map((tab) => {
         const isActive = pathname === tab.href;
         return (
           <Link

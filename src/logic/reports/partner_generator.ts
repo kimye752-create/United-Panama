@@ -3,6 +3,7 @@ import { enrichCandidateWithLLM } from "@/src/llm/partner_enrichment";
 import { buildPartnerScores } from "@/src/logic/partner_scorer";
 import { fetchPartnerCandidatesFromDB } from "@/src/logic/partner_search";
 import { findProductById } from "@/src/utils/product-dictionary";
+import { saveLlmOutput } from "@/src/lib/llm-output-logger";
 
 export interface GeneratePartnerInput {
   sessionId: string;
@@ -97,6 +98,30 @@ export async function generatePartnerReport(
     if (data === null || typeof data.id !== "string") {
       throw new Error("바이어 발굴 보고서 id 누락");
     }
+
+    // llm_outputs 적재 — src_* 컬럼에 원천 집계값 (non-blocking)
+    const top1 = top10[0] as Record<string, unknown> | undefined;
+    void saveLlmOutput({
+      domain:               "partner_enrichment",
+      session_id:           input.sessionId,
+      report_id:            data.id,
+      product_id:           input.productId,
+      country:              input.country,
+      llm_model:            "claude-haiku-4-5-20251011",
+      llm_source:           "haiku",
+      top10:                top10 as Record<string, unknown>[],
+      all_candidates_count: scored.length,
+      // 원천 집계값 (재분석 가능)
+      sourceData: {
+        candidatesTotal: scored.length,
+        top1Score: top1 !== undefined
+          ? (typeof top1["psi_score"] === "number" ? top1["psi_score"] : null)
+          : null,
+        top1Name: top1 !== undefined
+          ? (typeof top1["company_name"] === "string" ? top1["company_name"] : null)
+          : null,
+      },
+    });
 
     return { id: data.id, report_data: reportData };
   } catch (error: unknown) {

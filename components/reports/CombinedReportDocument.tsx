@@ -372,6 +372,51 @@ function Divider() {
   return <View style={S.sectionDivider} />;
 }
 
+// ─── Competitor KV block (DOCX 스타일: 제품명 헤더 + 성분·채널·가격 KV) ─────────
+
+function CompetitorKVBlocks({
+  products,
+  limit = 6,
+  sourceNote,
+}: {
+  products: Array<Record<string, unknown>>;
+  limit?: number;
+  sourceNote?: string;
+}) {
+  const top = products.slice(0, limit);
+  return (
+    <>
+      {top.map((row, i) => {
+        const name    = safeStr(row["pa_product_name_local"]);
+        const inn     = safeStr(row["pa_ingredient_inn"]);
+        const channel = safeStr(row["market_segment"], safeStr(row["pa_price_type"]));
+        const price   = safeNum(row["pa_price_local"]);
+        const unit    = safeStr(row["pa_currency_unit"], "PAB");
+        return (
+          <View key={i} style={{
+            marginBottom: 6, marginLeft: 12,
+            paddingLeft: 8,
+            borderLeftWidth: 1.5, borderLeftColor: "#D9E2EF",
+          }}>
+            <Text style={{ fontSize: 9, fontWeight: "bold", color: C_BODY, marginBottom: 1 }}>
+              {name}
+            </Text>
+            <KVRow label="성분 (INN)"  value={inn} />
+            <KVRow label="시장 채널"   value={channel} />
+            <KVRow label="참고 가격"   value={price !== null ? `${unit} ${price.toFixed(2)}` : "—"} />
+          </View>
+        );
+      })}
+      {products.length > limit && (
+        <Text style={S.sourceNote}>
+          외 {products.length - limit}개 제품 포함
+          {sourceNote ? `  (${sourceNote})` : ""}
+        </Text>
+      )}
+    </>
+  );
+}
+
 // ─── Table helpers ────────────────────────────────────────────────────────────
 
 interface ColDef { label: string; width: string; align?: "left" | "center" | "right" }
@@ -562,6 +607,40 @@ function MarketReportSection({
   const mData = marketReport.report_data ?? {};
   const pData = publicPricingReport.report_data ?? {};
 
+  // 파나마 거시 통계 (panama_macro_stats)
+  const macro         = safeRecord(mData["macroStats"]);
+  const macroPop      = safeNum(macro["population"]);
+  const macroPopSrc   = safeStr(macro["population_source"],         "World Bank 2024");
+  const macroGdpPc    = safeNum(macro["gdp_per_capita_usd"]);
+  const macroGdpTot   = safeNum(macro["gdp_total_usd_billion"]);
+  const macroGdpSrc   = safeStr(macro["gdp_source"],               "IMF 2024");
+  const macroPharma   = safeNum(macro["pharma_market_usd"]);
+  const macroPharmaM  = macroPharma !== null ? macroPharma / 1_000_000 : null;
+  const macroPharmaSrc= safeStr(macro["pharma_market_source"],     "Statista 2024");
+  const macroImportPct= safeNum(macro["import_dependency_pct"]);
+  const macroImportSrc= safeStr(macro["import_dependency_source"], "KOTRA / ITA 2024");
+
+  // 치료영역 통계 (panama_therapeutic_stats)
+  const therStats      = safeRecord(mData["therapeuticStats"]);
+  const healthExpPct   = safeNum(therStats["health_expenditure_pct_gdp"]);
+  const healthExpPc    = safeNum(therStats["health_expenditure_usd_per_capita"]);
+  const prevalencePct  = safeNum(therStats["prevalence_rate_pct"]);
+  const prevalenceSrc  = safeStr(therStats["prevalence_source"], "PAHO/WHO");
+  const prevalenceYr   = safeNum(therStats["prevalence_year"]);
+  const therMarketUsd  = safeNum(therStats["therapeutic_market_usd"]);
+  const therMarketSrc  = safeStr(therStats["therapeutic_market_source"], "IQVIA");
+  const therMarketYr   = safeNum(therStats["therapeutic_market_year"]);
+
+  // 경쟁사 개별 제품 목록
+  const competitorProducts = Array.isArray(mData["competitorProducts"])
+    ? (mData["competitorProducts"] as Array<Record<string, unknown>>)
+    : [];
+
+  // 논문 인용
+  const paperCitations = Array.isArray(mData["paperCitations"])
+    ? (mData["paperCitations"] as Array<Record<string, unknown>>)
+    : [];
+
   // EML
   const emlWho   = mData["emlWho"]   === true;
   const emlPaho  = mData["emlPaho"]  === true;
@@ -611,11 +690,54 @@ function MarketReportSection({
 
       {/* 1. 의료 거시환경 파악 */}
       <SectionH1 n="1" title="의료 거시환경 파악" />
-      <KVRow label="인구"              value="4,351,267명 (2024, World Bank)" />
-      <KVRow label="1인당 GDP"         value="USD 19,445 (2024, IMF)" />
-      <KVRow label="국가 GDP"          value="USD 87.6 Billion (2024, IMF)" />
-      <KVRow label="의약품 시장 규모"  value="USD 496M (2024, Statista)" />
-      <KVRow label="의약품 수입 의존도" value="~90% (KOTRA / ITA, 2024)" />
+      <KVRow
+        label="인구"
+        value={macroPop !== null
+          ? `${macroPop.toLocaleString("en-US")}명 (${macroPopSrc})`
+          : "4,515,577명 (World Bank 2024)"}
+      />
+      <KVRow
+        label="1인당 GDP"
+        value={macroGdpPc !== null
+          ? `USD ${macroGdpPc.toLocaleString("en-US")} (${macroGdpSrc})`
+          : "USD 19,445 (IMF 2024)"}
+      />
+      <KVRow
+        label="국가 GDP"
+        value={macroGdpTot !== null
+          ? `USD ${macroGdpTot.toFixed(1)} Billion (${macroGdpSrc})`
+          : "USD 87.6 Billion (IMF 2024)"}
+      />
+      <KVRow
+        label="의약품 시장 규모"
+        value={macroPharmaM !== null
+          ? `USD ${macroPharmaM.toFixed(1)}M (${macroPharmaSrc})`
+          : "USD 534.5M (Statista 2024)"}
+      />
+      <KVRow
+        label="의약품 수입 의존도"
+        value={macroImportPct !== null
+          ? `~${macroImportPct.toFixed(0)}% (${macroImportSrc})`
+          : "~90% (KOTRA / ITA 2024)"}
+      />
+      {healthExpPct !== null && (
+        <KVRow
+          label="보건지출 (GDP%)"
+          value={`${healthExpPct.toFixed(2)}% GDP (${healthExpPc !== null ? `USD ${healthExpPc.toFixed(0)}/인당, ` : ""}World Bank 2023)`}
+        />
+      )}
+      {prevalencePct !== null && (
+        <KVRow
+          label="치료영역 유병률"
+          value={`${prevalencePct.toFixed(1)}% (${prevalenceSrc}${prevalenceYr !== null ? `, ${prevalenceYr}` : ""})`}
+        />
+      )}
+      {therMarketUsd !== null && (
+        <KVRow
+          label="치료영역 시장 규모"
+          value={`USD ${(therMarketUsd / 1_000_000).toFixed(1)}M (${therMarketSrc}${therMarketYr !== null ? `, ${therMarketYr}` : ""})`}
+        />
+      )}
       <KVRow label="EML 등재 여부" value={`WHO: ${emlWho ? "등재" : "미등재"}  |  PAHO: ${emlPaho ? "등재" : "미등재"}  |  MINSA: ${emlMinsa ? "등재" : "미등재"}`} />
       {panamacompraCount > 0 && (
         <KVRow label="공공조달 이력" value={`${panamacompraCount}건 (PanamaCompra 기록 기준)`} />
@@ -650,20 +772,38 @@ function MarketReportSection({
 
       {/* 3. 참고 가격 */}
       <SectionH1 n="3" title="참고 가격" />
-      {pubCnt > 0 ? (
+      <DataTable
+        cols={[
+          { label: "채널",    width: "30%" },
+          { label: "기준",    width: "30%" },
+          { label: "평균가",  width: "22%", align: "right" },
+          { label: "표본 수", width: "18%", align: "right" },
+        ]}
+        rows={[
+          [
+            "공공조달 (PanamaCompra)",
+            "ALPS 낙찰가 기준",
+            pubAvg !== null ? `PAB ${pubAvg.toFixed(2)}` : "수집 대기",
+            pubCnt > 0 ? `${pubCnt}건` : "0건",
+          ],
+          [
+            "민간 소매 (ACODECO/CABAMED)",
+            "약국 소매가 기준",
+            privAvg !== null ? `PAB ${privAvg.toFixed(2)}` : "수집 대기",
+            privCnt > 0 ? `${privCnt}건` : "0건",
+          ],
+        ]}
+      />
+      {/* 경쟁사 제품 참고가 — DOCX 스타일: 제품명 헤더 + 성분·채널·가격 KV */}
+      {competitorProducts.length > 0 && (
         <>
-          <KVRow label="공공조달 평균가" value={pubAvg !== null ? `PAB ${pubAvg.toFixed(2)} (n=${pubCnt})` : "—"} />
-          {pubMin !== null && pubMax !== null && (
-            <KVRow label="공공조달 범위" value={`PAB ${pubMin.toFixed(2)} ~ ${pubMax.toFixed(2)}`} />
-          )}
+          <SectionH2 title="경쟁사 제품 참고가" />
+          <CompetitorKVBlocks
+            products={competitorProducts}
+            limit={6}
+            sourceNote="ACODECO PDF / PanamaCompra 기준"
+          />
         </>
-      ) : (
-        <KVRow label="공공조달 참고가" value="—" />
-      )}
-      {privCnt > 0 && privAvg !== null ? (
-        <KVRow label="민간 소매 평균가" value={`PAB ${privAvg.toFixed(2)} (n=${privCnt})`} />
-      ) : (
-        <KVRow label="민간 소매 참고가" value="—" />
       )}
       {/* AI 가격 해석 텍스트 */}
       {llmB3 !== "" ? (
@@ -705,8 +845,8 @@ function MarketReportSection({
       <BulletItem text="ACODECO / CABAMED (파나마 소비자보호원 의약품 가격 DB)" />
       <BulletItem text="MINSA / DNFD (보건부 의약품 등록 정보)" />
       <BulletItem text="WHO EML / PAHO Essential Medicines List" />
-      <BulletItem text="World Bank Open Data — 인구·GDP 지표" />
-      <BulletItem text="Statista — Panama Pharmaceutical Market 2024" />
+      <BulletItem text={`World Bank Open Data — 인구·GDP 지표 (${macroPopSrc})`} />
+      <BulletItem text={`${macroPharmaSrc} — Panama Pharmaceutical Market${macroPharmaM !== null ? ` USD ${macroPharmaM.toFixed(1)}M` : ""}`} />
       <BulletItem text="KOTRA 파나마 의약품 시장 동향 보고서 (2024)" />
       {srcAgg.length > 0 && (
         <>
@@ -716,6 +856,32 @@ function MarketReportSection({
               key={i}
               text={`${safeStr(row["pa_source"])} — ${safeNum(row["cnt"]) ?? 0}건`}
             />
+          ))}
+        </>
+      )}
+      {/* 논문 인용 */}
+      {paperCitations.length > 0 && (
+        <>
+          <SectionH2 title="5-3. 참고 문헌 및 규제 문서" />
+          {paperCitations.map((cite, i) => (
+            <View key={i} style={{ marginBottom: 6 }}>
+              <Text style={S.citeLabel}>
+                [{safeNum(cite["citation_no"]) ?? i + 1}] {safeStr(cite["title"])}
+              </Text>
+              <Text style={S.citeBody}>
+                {safeStr(cite["authors"], "")}{safeStr(cite["authors"], "") !== "" ? " — " : ""}
+                {safeStr(cite["journal"])},  {safeNum(cite["year"]) ?? ""}
+                {"  "}[{safeStr(cite["source_org"])}]
+              </Text>
+              {safeStr(cite["summary_ko"], "") !== "" && (
+                <Text style={{ ...S.citeBody, color: C_GRAY }}>
+                  {safeStr(cite["summary_ko"])}
+                </Text>
+              )}
+              {safeStr(cite["url"], "") !== "" && (
+                <Text style={S.citeUrl}>{safeStr(cite["url"])}</Text>
+              )}
+            </View>
           ))}
         </>
       )}
@@ -780,6 +946,17 @@ function PricingReportSection({
   const emlPaho  = mData["emlPaho"]  === true;
   const emlMinsa = mData["emlMinsa"] === true;
 
+  // 파나마 거시 통계 (market report에서 참조)
+  const macroPr        = safeRecord(mData["macroStats"]);
+  const macroPharmaUsdPr = safeNum(macroPr["pharma_market_usd"]);
+  const macroPharmaMPr   = macroPharmaUsdPr !== null ? macroPharmaUsdPr / 1_000_000 : null;
+  const macroPharmaSrcPr = safeStr(macroPr["pharma_market_source"], "Statista 2024");
+
+  // 경쟁사 개별 제품 목록 (market report에서 참조)
+  const competitorProductsPr = Array.isArray(mData["competitorProducts"])
+    ? (mData["competitorProducts"] as Array<Record<string, unknown>>)
+    : [];
+
   const dateStr = generatedAt.toISOString().slice(0, 10);
 
   // 기준 가격 — 공공 평균 우선, 없으면 민간 평균
@@ -799,7 +976,9 @@ function PricingReportSection({
       {/* 1. 파나마 거시 시장 */}
       <SectionH1 n="1" title="파나마 거시 시장" />
       <Text style={S.body}>
-        파나마는 의약품 시장 규모 약 USD 496M(2024, Statista)으로 중미 최대 의약품 유통 허브입니다.
+        파나마는 의약품 시장 규모 약 {macroPharmaMPr !== null
+          ? `USD ${macroPharmaMPr.toFixed(1)}M(${macroPharmaSrcPr})`
+          : "USD 534.5M(2024, Statista)"}으로 중미 최대 의약품 유통 허브입니다.
         수입 의존도 ~90%로 한국 제약사 진출 여건이 양호하며, 공공·민간 채널로 구분됩니다.
         EML 등재: WHO {emlWho ? "○" : "✕"} / PAHO {emlPaho ? "○" : "✕"} / MINSA {emlMinsa ? "○" : "✕"}.
       </Text>
@@ -858,6 +1037,17 @@ function PricingReportSection({
           ],
         ]}
       />
+      {/* 경쟁사 제품 참고가 — DOCX 스타일: 제품명 헤더 + 성분·채널·가격 KV */}
+      {competitorProductsPr.length > 0 && (
+        <>
+          <SectionH2 title="경쟁사 제품 참고가" />
+          <CompetitorKVBlocks
+            products={competitorProductsPr}
+            limit={6}
+            sourceNote="ACODECO PDF / PanamaCompra 기준"
+          />
+        </>
+      )}
       {b4 !== "" && (
         <>
           <SectionH2 title="INCOTERMS 역산 참고" />
@@ -869,6 +1059,10 @@ function PricingReportSection({
 
       {/* 4. 가격 시나리오 */}
       <SectionH1 n="4" title="가격 시나리오" />
+      <Text style={{ ...S.body, color: C_GRAY, marginBottom: 4 }}>
+        ※ 역산식 공통: FOB(USD) = 현지 참고가(PAB) × (1 − 현지물류/관세율) × (1 − 이익마진)
+        {"  "}[PAB ≡ USD 1:1 고정환율]
+      </Text>
 
       <SectionH2 title="4-1. 공공 시장 (ALPS 조달청)" />
       <ScenarioTable scenarios={pubScenarios} />
@@ -1023,11 +1217,18 @@ function PartnerReportSection({
         const scoreImport       = scoreLabel(p["score_import"]);
         const scorePharmChain   = scoreLabel(p["score_pharmacy_chain"]);
 
+        // 등록 제품 + CPHI 카테고리
+        const regProds = Array.isArray(p["registered_products"])
+          ? (p["registered_products"] as string[]).join(", ")
+          : safeStr(p["registered_products"], "");
+        const cphiCat  = safeStr(p["cphi_category"], "");
+
         return (
           <View key={i} wrap={false}>
             <Text style={S.partnerCompanyHeader}>
               {i + 1}. {name}  |  {addr} · {ta}
             </Text>
+            {/* ① 기업 개요 */}
             <SectionH2 title="기업 개요" />
             <Text style={S.body}>
               {name}은(는) {addr}에 소재한 파나마 의약품 유통 기업입니다.
@@ -1036,36 +1237,48 @@ function PartnerReportSection({
               {" "}GMP 인증 {gmp}, MAH 역량 {mah}.
               주요 치료 영역: {ta}.
             </Text>
+
+            {/* ② 추천 이유 */}
             <SectionH2 title="추천 이유" />
             {reasons.map((r, j) => (
               <CircledItem key={j} num={CIRCLED[j] ?? `${j+1}.`} label={r.label} content={r.value} />
             ))}
-            <SectionH2 title="PSI 점수 (파트너 적합성 지수)" />
-            <View style={S.kvRow}>
-              <Text style={S.kvLabel}>매출 (35%)</Text>
-              <Text style={S.kvValue}>{scoreRevenue}</Text>
-            </View>
-            <View style={S.kvRow}>
-              <Text style={S.kvLabel}>파이프라인 (28%)</Text>
-              <Text style={S.kvValue}>{scorePipeline}</Text>
-            </View>
-            <View style={S.kvRow}>
-              <Text style={S.kvLabel}>제조/GMP (20%)</Text>
-              <Text style={S.kvValue}>{scoreGmp}</Text>
-            </View>
-            <View style={S.kvRow}>
-              <Text style={S.kvLabel}>수입이력 (12%)</Text>
-              <Text style={S.kvValue}>{scoreImport}</Text>
-            </View>
-            <View style={S.kvRow}>
-              <Text style={S.kvLabel}>약국 체인 (5%)</Text>
-              <Text style={S.kvValue}>{scorePharmChain}</Text>
-            </View>
+            {/* PSI 점수 요약 — 추천 이유 하단 부가 정보 */}
+            {[scoreRevenue, scorePipeline, scoreGmp, scoreImport, scorePharmChain].some(s => s !== "—") && (
+              <View style={{ flexDirection: "row", paddingLeft: 16, marginTop: 4, marginBottom: 2 }}>
+                {([ ["매출(35%)", scoreRevenue], ["파이프라인(28%)", scorePipeline],
+                    ["GMP(20%)", scoreGmp], ["수입이력(12%)", scoreImport], ["약국체인(5%)", scorePharmChain]
+                ] as [string, string][]).map(([lbl, val], j) => (
+                  val !== "—" && (
+                    <View key={j} style={{ flex: 1, alignItems: "center",
+                      borderWidth: 0.5, borderColor: "#D9E2EF",
+                      paddingVertical: 3, marginRight: 2 }}>
+                      <Text style={{ fontSize: 7, color: C_GRAY }}>{lbl}</Text>
+                      <Text style={{ fontSize: 9, fontWeight: "bold", color: C_NAVY }}>{val}</Text>
+                    </View>
+                  )
+                ))}
+              </View>
+            )}
+
+            {/* ③ 연락처 */}
             <SectionH2 title="연락처" />
-            <KVRow label="주소" value={addr} />
-            <KVRow label="이메일" value={email} />
+            <KVRow label="주소"     value={addr} />
+            <KVRow label="이메일"   value={email} />
             <KVRow label="홈페이지" value={website} />
             <KVRow label="기업 규모" value={revUsd !== null ? `USD ${(revUsd / 1_000_000).toFixed(1)}M` : "—"} />
+
+            {/* ④ 등록 제품 + CPHI 카테고리 (부가 DB 정보) */}
+            {regProds !== "" && (
+              <>
+                <SectionH2 title="등록 제품" />
+                <Text style={{ ...S.body, paddingLeft: 12 }}>{regProds}</Text>
+              </>
+            )}
+            {cphiCat !== "" && (
+              <KVRow label="CPHI 카테고리" value={cphiCat} />
+            )}
+
             <Text style={S.sourceNote}>※ 출처: Panama 파트너 DB / AI 분석</Text>
             {i < 9 && <Divider />}
           </View>

@@ -1,5 +1,6 @@
 /**
  * 서버 전용 Supabase 클라이언트 — anon key만 사용(Service Role 금지).
+ * Next.js Data Cache를 우회하기 위해 global fetch에 cache: 'no-store' 적용.
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
@@ -11,5 +12,10 @@ export function createSupabaseServer(): SupabaseClient {
       "NEXT_PUBLIC_SUPABASE_URL 또는 NEXT_PUBLIC_SUPABASE_ANON_KEY가 비어 있습니다.",
     );
   }
-  return createClient(url, key);
+  return createClient(url, key, {
+    global: {
+      fetch: (input, init) =>
+        fetch(input as RequestInfo, { ...init, cache: "no-store" }),
+    },
+  });
 }
