@@ -161,9 +161,8 @@ const NON_PANAMA_LATAM_KEYWORDS: readonly string[] = [
 
 /**
  * 주어진 후보가 파나마 현지 기업인지 판정한다.
- * - 주소에 타국 LATAM 키워드가 있으면 즉시 false
- * - 주소에 파나마 키워드가 있으면 true
- * - 주소 없으면 source_primary가 파나마 소스인지로 판정
+ * 기본 정책: **포함** (DB는 파나마 소스에서 수집되므로 대부분 현지 기업).
+ * 명시적으로 타국 LATAM 주소/도메인인 경우만 제외.
  */
 export function isPanamaLocal<
   T extends {
@@ -175,35 +174,20 @@ export function isPanamaLocal<
 >(c: T): boolean {
   const addr = (c.address ?? "").toLowerCase();
   const site = (c.website ?? "").toLowerCase();
-  const src  = (c.source_primary ?? "").toLowerCase();
-  const name = (c.company_name ?? "").toLowerCase();
 
-  // 타국 LATAM 주소는 즉시 제외
+  // 주소에 명시적 타국 LATAM 키워드 → 제외
   if (addr !== "" && NON_PANAMA_LATAM_KEYWORDS.some((kw) => addr.includes(kw))) {
     return false;
   }
 
-  // 주소에 파나마 표기 존재
-  if (addr !== "" && PANAMA_LOCAL_KEYWORDS.some((kw) => addr.includes(kw))) {
-    return true;
+  // 도메인 TLD가 타국이면 제외 (.co, .mx, .ar, .br, .cl, .pe, .ec, .ve, .cr, .gt, .hn, .ni, .sv)
+  const NON_PANAMA_TLDS = [".co/", ".mx/", ".ar/", ".br/", ".cl/", ".pe/", ".ec/", ".ve/", ".cr/", ".gt/", ".hn/", ".ni/", ".sv/"];
+  if (NON_PANAMA_TLDS.some((tld) => site.includes(tld))) {
+    return false;
   }
 
-  // 도메인이 .pa
-  if (site.endsWith(".pa") || site.includes(".pa/") || site.includes(".com.pa")) {
-    return true;
-  }
-
-  // 회사명 자체에 Panama 포함
-  if (name.includes("panama") || name.includes("panamá")) {
-    return true;
-  }
-
-  // 주소 없으면 source로 판정
-  if (addr === "" && PANAMA_LOCAL_SOURCES.some((kw) => src.includes(kw))) {
-    return true;
-  }
-
-  return false;
+  // 그 외는 파나마 현지로 간주 (pharmchoices/dnb_panama 등이 이미 파나마 소스)
+  return true;
 }
 
 /** 후보 배열에서 파나마 현지 기업만 반환 */
