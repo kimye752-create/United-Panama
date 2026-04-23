@@ -18,7 +18,7 @@ export function DashboardShell({ children, fullHeight = false }: Props) {
           {children}
         </main>
       ) : (
-        <main className="h-[calc(100vh-66px)] overflow-y-auto pb-8 pt-7">
+        <main className="h-[calc(100vh-66px)] overflow-y-auto pb-8 pt-3">
           <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-7 lg:px-10">
             {children}
           </div>
