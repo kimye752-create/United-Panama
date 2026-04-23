@@ -133,7 +133,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
         </h2>
       </div>
 
-      <div className="p-4">
+      <div className="p-5">
         {/* ── Part 1: 품목 선택 + 시장 조사 ── */}
         <div className="mb-4">
           <div className="flex flex-wrap items-center gap-2">
