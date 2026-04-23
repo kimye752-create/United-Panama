@@ -49,7 +49,7 @@ export function AnalysisWorkspace() {
   );
 
   return (
-    <div className="grid gap-3.5 lg:grid-cols-2">
+    <div className="grid items-start gap-3.5 lg:grid-cols-2">
       <PricingSection
         products={products}
         onSessionReady={(sid) => {

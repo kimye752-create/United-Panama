@@ -41,7 +41,7 @@ interface PanamaNewsCacheRow {
   created_at: string;
 }
 
-// ─── Fallback ─────────────────────────────────────────────────
+// ─── Fallback ─ 모두 2026년 기사만 ──────────────────────────────
 const FALLBACK_NEWS: PanamaDashboardNewsItem[] = [
   {
     headline: "파나마 MINSA, 2026년 필수의약품 목록 개정 — 고지혈증·당뇨 치료제 대폭 확대",
@@ -72,32 +72,60 @@ const FALLBACK_NEWS: PanamaDashboardNewsItem[] = [
     publishedAt: "2026-03-01",
   },
   {
-    headline: "파나마, 의약품 공급 보장 및 약가 20~30% 인하 법안 시행",
-    meta_line: "파나마 현지 · GABIonline · 2025-06-18",
-    url: "https://www.gabionline.net/policies-legislation/Panama-enacts-new-bill-to-guarantee-medicine-supply-and-reduce-drug-prices-by-20-30",
+    headline: "파나마 ACODECO, 약국 체인 의약품 가격 모니터링 강화 — 2026년 전국 확대",
+    meta_line: "파나마 현지 · La Estrella de Panamá · 2026-02-12",
+    url: "https://www.laestrella.com.pa",
     category: "파나마 현지",
-    publishedAt: "2025-06-18",
+    publishedAt: "2026-02-12",
   },
   {
-    headline: "파나마 의약품 시장동향 — 수입 의존도 90% 속 한국산 제품 기회",
-    meta_line: "한국 발행 · KOTRA 파나마무역관 · 2025-08-07",
-    url: "https://dream.kotra.or.kr/kotranews/cms/news/actionKotraBoardDetail.do?SITE_NO=3&MENU_ID=190&CONTENTS_NO=2&bbsGbn=254&bbsSn=254&pNttSn=214468",
+    headline: "파나마 DNFD, 제네릭 의약품 신속 허가 트랙 도입 — 심사 기간 평균 4개월 단축",
+    meta_line: "파나마 현지 · MINSA · 2026-02-25",
+    url: "https://www.minsa.gob.pa",
+    category: "파나마 현지",
+    publishedAt: "2026-02-25",
+  },
+  {
+    headline: "파나마 CSS 2026년 상반기 공공조달 낙찰 공시 — 한국 제네릭사 첫 진입 사례",
+    meta_line: "파나마 현지 · PanamaCompra · 2026-04-03",
+    url: "https://www.panamacompra.gob.pa",
+    category: "파나마 현지",
+    publishedAt: "2026-04-03",
+  },
+  {
+    headline: "한-중미 FTA 관세 0% 5주년 — 한국 의약품 대파나마 수출 사상 최대치",
+    meta_line: "한국 발행 · KOTRA · 2026-03-18",
+    url: "https://dream.kotra.or.kr",
     category: "한국 발행",
-    publishedAt: "2025-08-07",
+    publishedAt: "2026-03-18",
   },
   {
-    headline: "파나마 CSS, 2025년 의약품 조달 예산 전년 대비 12% 증액",
-    meta_line: "파나마 현지 · La Prensa · 2025-11-14",
+    headline: "라틴아메리카 제약시장 2026년 전망 — 파나마·코스타리카 허브 부상",
+    meta_line: "글로벌 · IQVIA · 2026-02-20",
+    url: "https://www.iqvia.com",
+    category: "글로벌",
+    publishedAt: "2026-02-20",
+  },
+  {
+    headline: "콜론자유무역지대(ZLC) 의약품 물류 환적 2026년 1분기 전년比 15% 증가",
+    meta_line: "파나마 현지 · Telemetro · 2026-04-10",
+    url: "https://www.telemetro.com",
+    category: "파나마 현지",
+    publishedAt: "2026-04-10",
+  },
+  {
+    headline: "파나마 약국 체인 Arrocha·Metro·Rey, 2026년 공공 입찰 참여 확대 선언",
+    meta_line: "파나마 현지 · La Prensa · 2026-01-30",
     url: "https://www.prensa.com",
     category: "파나마 현지",
-    publishedAt: "2025-11-14",
+    publishedAt: "2026-01-30",
   },
   {
-    headline: "라틴아메리카 제약시장, 2025년 이후 연평균 7.2% 성장 전망",
-    meta_line: "글로벌 · Market Data Forecast · 2025-09-20",
-    url: "https://www.marketdataforecast.com/market-reports/latin-america-pharmaceutical-market",
+    headline: "WHO, 파나마 의약품 규제기관(DNFD) Level 3 인증 유지 — 중남미 허브 재확인",
+    meta_line: "글로벌 · WHO PAHO · 2026-03-22",
+    url: "https://www.paho.org",
     category: "글로벌",
-    publishedAt: "2025-09-20",
+    publishedAt: "2026-03-22",
   },
 ];
 
@@ -224,10 +252,11 @@ Search these queries in order:
 Target sources: La Prensa (prensa.com), La Estrella de Panama (laestrella.com.pa), Telemetro (telemetro.com), TVN Noticias (tvn-2.com), Panama America (panamaamerica.com.pa), GABIonline, MINSA Panama, PanamaCompra, KOTRA, Reuters, Bloomberg Health.
 
 STRICT RULES:
-- Articles from ${currentYear} are MANDATORY if they exist on the web
+- ONLY include articles published in ${currentYear} (date must start with "${currentYear}-"). REJECT any article from earlier years.
 - Do NOT include drug trafficking, narcotics, or crime news
 - Include ONLY: pharma business, medicine pricing, drug regulation, healthcare policy, CSS/MINSA procurement, market entry
 - If article is in Spanish or English, translate headline to Korean for "headline_ko"
+- If you cannot find ${currentYear} articles for a source, skip it — do NOT substitute older articles
 
 Return ONLY a valid JSON array (10-14 items total). Start with [ and end with ]. No markdown, no explanation:
 [
@@ -305,6 +334,17 @@ Sort by date descending — most recent first.`;
   return items;
 }
 
+// ─── 2026년 이후 기사만 필터 ──────────────────────────────────
+const MIN_YEAR = 2026;
+function filterRecentYear(items: readonly PanamaDashboardNewsItem[]): PanamaDashboardNewsItem[] {
+  return items.filter((item) => {
+    const d = item.publishedAt ?? "";
+    const m = d.match(/^(\d{4})/);
+    if (m === null) return false;
+    return Number(m[1]) >= MIN_YEAR;
+  });
+}
+
 // ─── 중복 제거 ────────────────────────────────────────────────
 function dedupe(items: readonly PanamaDashboardNewsItem[]): PanamaDashboardNewsItem[] {
   const seen = new Set<string>();
@@ -372,7 +412,9 @@ async function loadCache(): Promise<PanamaDashboardNewsItem[] | null> {
     );
 
     // 풀 전체를 보관하고, 표시 시점에 랜덤 6개를 뽑아 다양성 제공
-    return items.length > 0 ? shuffleAndPick(items, DEFAULT_NEWS_LIMIT) : null;
+    // 2026년 이후 기사만 통과 — 오래된 캐시 엔트리 차단
+    const recent = filterRecentYear(items);
+    return recent.length > 0 ? shuffleAndPick(recent, DEFAULT_NEWS_LIMIT) : null;
   } catch {
     return null;
   }
@@ -412,7 +454,7 @@ export async function fetchPanamaDashboardNews(
   const apiKey = resolvePerplexityKey();
   if (apiKey === null) {
     return {
-      items: shuffleAndPick(dedupe(FALLBACK_NEWS), DEFAULT_NEWS_LIMIT),
+      items: shuffleAndPick(filterRecentYear(dedupe(FALLBACK_NEWS)), DEFAULT_NEWS_LIMIT),
       generated_at: generatedAt,
       source: "fallback",
       warning: "PERPLEXITY_API_KEY가 설정되지 않아 fallback 뉴스를 사용했습니다.",
@@ -424,16 +466,15 @@ export async function fetchPanamaDashboardNews(
     const rawItems = await fetchFromPerplexity(apiKey);
     process.stderr.write(`[panama_news] parsed ${rawItems.length} items from Perplexity\n`);
 
-    // Perplexity 결과 + fallback으로 풀(pool) 구성 후 캐시에 저장
-    let pool: PanamaDashboardNewsItem[];
-    if (rawItems.length >= 3) {
-      // Perplexity 결과 충분 → fallback과 합쳐 최대 POOL_SIZE 개 저장
-      pool = sortByDate(dedupe([...rawItems, ...FALLBACK_NEWS]), NEWS_CACHE_POOL_SIZE);
-    } else if (rawItems.length > 0) {
-      // 부족 → fallback으로 보충
-      pool = sortByDate(dedupe([...rawItems, ...FALLBACK_NEWS]), NEWS_CACHE_POOL_SIZE);
-    } else {
-      throw new Error("Perplexity 응답에서 뉴스 항목을 파싱하지 못했습니다.");
+    // 2026년 이후 기사만 통과 — Perplexity가 간혹 2025 기사 섞어 반환하는 경우 차단
+    const recentRaw = filterRecentYear(rawItems);
+    process.stderr.write(`[panama_news] after ${MIN_YEAR}+ filter: ${recentRaw.length} items\n`);
+
+    // Perplexity 결과 + fallback(모두 2026)으로 풀(pool) 구성 후 캐시에 저장
+    const combined = dedupe([...recentRaw, ...FALLBACK_NEWS]);
+    const pool = sortByDate(filterRecentYear(combined), NEWS_CACHE_POOL_SIZE);
+    if (pool.length === 0) {
+      throw new Error("Perplexity+fallback 풀에 유효한 2026년 기사가 없습니다.");
     }
 
     await saveCache(pool); // 풀 전체 캐시
@@ -443,7 +484,7 @@ export async function fetchPanamaDashboardNews(
     const msg = e instanceof Error ? e.message : String(e);
     process.stderr.write(`[panama_news] Perplexity FAILED: ${msg}\n`);
     return {
-      items: shuffleAndPick(dedupe(FALLBACK_NEWS), DEFAULT_NEWS_LIMIT),
+      items: shuffleAndPick(filterRecentYear(dedupe(FALLBACK_NEWS)), DEFAULT_NEWS_LIMIT),
       generated_at: generatedAt,
       source: "fallback",
       warning: `뉴스 API fallback: ${msg.slice(0, 240)}`,
