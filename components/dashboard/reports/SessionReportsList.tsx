@@ -274,6 +274,24 @@ export function SessionReportsList({ variant = "page" }: Props) {
               : `▶ 최종 보고서 생성 (${s.productName})`}
           </button>
         ))}
+
+        {/* 미완료 세션 — 어떤 단계가 남았는지 안내 (최종 보고서 생성 전제 조건) */}
+        {sessions
+          .filter((s) => s.marketCompleted && (!s.pricingCompleted || !s.partnerCompleted) && s.combinedReportId === null)
+          .map((s) => {
+            const missing: string[] = [];
+            if (!s.pricingCompleted) missing.push("가격 분석");
+            if (!s.partnerCompleted) missing.push("바이어 발굴");
+            return (
+              <div
+                key={`pending-${s.sessionId}`}
+                className="w-full rounded-xl border border-dashed border-[#d9e2ef] bg-[#f6f9fc] px-3 py-2 text-[11px] text-[#59708d]"
+              >
+                <span className="font-bold text-navy">{s.productName}</span> — 최종 보고서 생성하려면{" "}
+                <span className="font-semibold text-amber-700">{missing.join(" + ")}</span> 완료 필요
+              </div>
+            );
+          })}
       </div>
     );
   }
