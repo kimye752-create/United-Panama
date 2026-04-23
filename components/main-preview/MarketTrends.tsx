@@ -114,7 +114,7 @@ export function MarketTrends() {
   }, [load]);
 
   return (
-    <section className="flex h-full min-h-[560px] flex-col rounded-[20px] bg-white p-5 shadow-sh">
+    <section className="flex h-full min-h-[480px] flex-col rounded-[20px] bg-white p-5 shadow-sh">
       <div className="mb-4 flex items-center justify-between gap-2">
         <h3 className="text-[15px] font-bold text-[#1f3e64]">파나마 의약품 시장 주요 동향</h3>
         <button
