@@ -57,7 +57,7 @@ const S = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 36,
     paddingVertical: 32,
-    fontFamily: "NotoSansKR",
+    fontFamily: "NanumGothic",
     fontSize: 9,
     color: GRAY_TEXT,
   },

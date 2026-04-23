@@ -9,7 +9,7 @@ const local = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
     padding: 0,
-    fontFamily: "NotoSansKR",
+    fontFamily: "NanumGothic",
   },
   topBar: {
     backgroundColor: NAVY,
@@ -122,7 +122,7 @@ export function CoverDocument({ product, country, generatedAt }: CoverDocumentPr
 
   return (
     <Document title={`${countryLabel} 진출 전략 보고서 — ${product.name}`} language="ko">
-      <Page size="A4" style={{ flexDirection: "column", backgroundColor: "#FFFFFF", fontFamily: "NotoSansKR" }}>
+      <Page size="A4" style={{ flexDirection: "column", backgroundColor: "#FFFFFF", fontFamily: "NanumGothic" }}>
         <View style={local.topBar} />
         <View style={local.body}>
           <View style={local.logoArea}>
