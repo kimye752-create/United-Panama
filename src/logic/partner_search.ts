@@ -2,7 +2,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { lookupByNormalizedName } from "@/src/data/pharmchoices_static";
 import type { PartnerCandidate } from "@/src/types/phase3_partner";
 
-import { filterOutGlobalMnc } from "./global_mnc_filter";
+import { filterOutGlobalMnc, filterPanamaLocal } from "./global_mnc_filter";
 
 const FALLBACK_PARTNERS: PartnerCandidate[] = [
   {
@@ -190,9 +190,9 @@ export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]
       .from("panama_partner_candidates")
       .select("*")
       .order("updated_at", { ascending: false })
-      .limit(300);
+      .limit(100);
     if (error !== null || data === null) {
-      return filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic));
+      return filterPanamaLocal(filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic)));
     }
     const out: PartnerCandidate[] = [];
     for (const row of data as Record<string, unknown>[]) {
@@ -202,12 +202,12 @@ export async function fetchPartnerCandidatesFromDB(): Promise<PartnerCandidate[]
       }
     }
     if (out.length === 0) {
-      return filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic));
+      return filterPanamaLocal(filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic)));
     }
-    // PharmChoices 정적 데이터 병합 후 글로벌 MNC 제외
-    return filterOutGlobalMnc(out.map(mergePharmChoicesStatic));
+    // PharmChoices 정적 데이터 병합 → 글로벌 MNC 제외 → 파나마 현지만
+    return filterPanamaLocal(filterOutGlobalMnc(out.map(mergePharmChoicesStatic)));
   } catch {
-    return filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic));
+    return filterPanamaLocal(filterOutGlobalMnc(FALLBACK_PARTNERS.map(mergePharmChoicesStatic)));
   }
 }
 
