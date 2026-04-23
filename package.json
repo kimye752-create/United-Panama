@@ -27,7 +27,8 @@
     "test:haiku-direct": "tsx scripts/runners/test_haiku_direct.ts",
     "preload:acodeco-pdf": "tsx src/crawlers/preload/pa_acodeco_pdf.ts",
     "preload:acodeco-pdf:dry": "tsx src/crawlers/preload/pa_acodeco_pdf.ts --dry-run",
-    "verify:sg-schema": "tsx scripts/verify_sg_schema.ts"
+    "verify:sg-schema": "tsx scripts/verify_sg_schema.ts",
+    "postinstall": "patch-package"
   },
   "keywords": [],
   "author": "",
@@ -64,6 +65,7 @@
     "autoprefixer": "^10.4.27",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.15",
+    "patch-package": "^8.0.1",
     "pg": "^8.20.0",
     "postcss": "^8.5.9",
     "tailwindcss": "^3.4.17",

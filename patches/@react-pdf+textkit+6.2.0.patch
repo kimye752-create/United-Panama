@@ -1,0 +1,15 @@
+diff --git a/node_modules/@react-pdf/textkit/lib/textkit.js b/node_modules/@react-pdf/textkit/lib/textkit.js
+index fb45369..1445fc9 100644
+--- a/node_modules/@react-pdf/textkit/lib/textkit.js
++++ b/node_modules/@react-pdf/textkit/lib/textkit.js
+@@ -23,9 +23,7 @@ const decomposeUnicode = () => {
+         for (let i = 0; i < attributedString.runs.length; i += 1) {
+             const run = attributedString.runs[i];
+             const rawString = attributedString.string.slice(run.start, run.end);
+-            const runString = isCustomFont(run)
+-                ? rawString.normalize('NFD')
+-                : rawString;
++            const runString = rawString; /* patched: skip NFD to preserve Hangul syllables */
+             const fragmentLength = runString.length;
+             runs.push({
+                 ...run,
