@@ -111,9 +111,9 @@ export async function saveLlmOutput(input: LlmOutputLogInput): Promise<void> {
 
       // AI 생성 텍스트 (감사 로그 전용)
       aiTextCols = {
-        market_macro_overview:        p.block1_macro_overview,
+        market_macro_overview:        p.block1_market_narrative,
         market_regulatory_path:       p.block2_regulatory_path,
-        market_price_context:         p.block3_price_context,
+        market_price_context:         p.block3_price_narrative,
         market_risk_factors:          p.block4_risk_factors,
         market_action_recommendation: p.block5_action_recommendation,
       };

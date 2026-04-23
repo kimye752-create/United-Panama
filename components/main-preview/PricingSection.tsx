@@ -121,12 +121,6 @@ export function PricingSection({ products, onSessionReady }: Props) {
   const canRunMarket   = selectedProduct !== null && !marketLoading;
   const canRunPricing  = selectedSessionId !== "" && !pricingLoading;
 
-  // 채널 설명
-  const channelDesc =
-    selectedSegment === "public"
-      ? "공공 시장: ALPS 조달청 채널 · 27개 공공기관 통합구매 기준"
-      : "민간 시장: 병원·약국·체인 채널 중심 유통 구조 기준";
-
   return (
     <section className="rounded-[20px] bg-white shadow-sh">
       {/* 헤더 */}
@@ -188,13 +182,12 @@ export function PricingSection({ products, onSessionReady }: Props) {
 
           {/* 신약 직접 분석 */}
           <p className="mt-1.5 text-[12px] text-[#7a8fa8]">
-            <span className="mr-1 opacity-60">·</span>
             <button
               type="button"
               className="underline-offset-2 hover:underline"
               onClick={() => { /* TODO: 신약 직접 분석 모달 */ }}
             >
-              신약 직접 분석
+              ► 신약 직접 분석
             </button>
           </p>
         </div>
@@ -267,9 +260,6 @@ export function PricingSection({ products, onSessionReady }: Props) {
               )}
             </button>
           </div>
-
-          {/* 채널 설명 */}
-          <p className="mt-1.5 text-[12px] text-[#7a8fa8]">{channelDesc}</p>
 
           {/* 에러 메시지 */}
           {pricingError !== null && (
