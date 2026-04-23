@@ -133,7 +133,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
         </h2>
       </div>
 
-      <div className="p-5">
+      <div className="p-6">
         {/* ── Part 1: 품목 선택 + 시장 조사 ── */}
         <div className="mb-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -162,7 +162,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
             <button
               type="button"
               disabled={!canRunMarket}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-navy px-4 py-2 text-[13px] font-extrabold text-white shadow-sm transition-opacity disabled:opacity-40"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-navy px-5 py-2.5 text-[13px] font-extrabold text-white shadow-sm transition-opacity disabled:opacity-40"
               onClick={() => { void handleRunMarket(); }}
             >
               {marketLoading ? (
@@ -226,7 +226,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className={`rounded-lg px-4 py-2 text-[13px] font-semibold transition-colors ${
+              className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors ${
                 selectedSegment === "public"
                   ? "bg-navy text-white"
                   : "border border-[#d9e2ef] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
@@ -237,7 +237,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
             </button>
             <button
               type="button"
-              className={`rounded-lg px-4 py-2 text-[13px] font-semibold transition-colors ${
+              className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors ${
                 selectedSegment === "private"
                   ? "bg-navy text-white"
                   : "border border-[#d9e2ef] bg-white text-[#273f60] hover:bg-[#f0f4f9]"
@@ -250,7 +250,7 @@ export function PricingSection({ products, onSessionReady }: Props) {
             <button
               type="button"
               disabled={!canRunPricing}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-navy px-4 py-2 text-[13px] font-extrabold text-white shadow-sm transition-opacity disabled:opacity-40"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-navy px-5 py-2.5 text-[13px] font-extrabold text-white shadow-sm transition-opacity disabled:opacity-40"
               onClick={() => { void handleRunPricing(); }}
             >
               {pricingLoading ? (

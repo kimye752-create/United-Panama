@@ -50,7 +50,7 @@ export function AnalysisWorkspace() {
 
   return (
     <div className="mx-auto w-full max-w-[1280px]">
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <PricingSection
           products={products}
           onSessionReady={(sid) => {
