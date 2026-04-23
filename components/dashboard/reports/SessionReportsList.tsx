@@ -49,9 +49,7 @@ const TAG_COLOR: Record<FlatReportCard["tag"], string> = {
 function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
   const out: FlatReportCard[] = [];
   for (const s of sessions) {
-    // PDF href: 항상 combined 경로 사용 (개별 보고서는 pdf_storage_path 없음)
-    const combinedPdfHref = `/api/panama/report/combined?session_id=${s.sessionId}`;
-
+    // ── 최종 통합 보고서 (combined) — 세션 기반 URL로 의미 있는 파일명 유지
     if (s.combinedReportId !== null) {
       out.push({
         key: `combined-${s.combinedReportId}`,
@@ -63,11 +61,13 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "최종",
         tagColor: TAG_COLOR["최종"],
         caseBadge: null,
-        pdfHref: combinedPdfHref,
+        pdfHref: `/api/panama/report/combined?session_id=${s.sessionId}`,
         reportId: s.combinedReportId,
         reportType: "combined",
       });
     }
+
+    // ── 바이어 발굴 보고서 (partner) — 개별 PDF 온디맨드
     if (s.partnerReportId !== null) {
       out.push({
         key: `partner-${s.partnerReportId}`,
@@ -79,43 +79,32 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "바이어",
         tagColor: TAG_COLOR["바이어"],
         caseBadge: null,
-        pdfHref: combinedPdfHref,
+        pdfHref: `/api/panama/report/partner/${s.partnerReportId}/pdf`,
         reportId: s.partnerReportId,
         reportType: "partner",
       });
     }
+
+    // ── 수출가격 전략 보고서 (공공 + 민간 통합 한 장) — 공공 ID로 온디맨드 렌더
+    //    pricing_private 는 별도 카드 없이 pricing_public PDF 에 함께 포함됨
     if (s.pricingPublicReportId !== null) {
       out.push({
-        key: `pricing-public-${s.pricingPublicReportId}`,
+        key: `pricing-${s.pricingPublicReportId}`,
         sessionId: s.sessionId,
         productName: s.productName,
-        kindLabel: "수출가격 전략 (공공)",
+        kindLabel: "수출가격 전략 보고서",
         subtitle: s.productName,
         createdAt: s.createdAt,
         tag: "가격",
         tagColor: TAG_COLOR["가격"],
         caseBadge: null,
-        pdfHref: combinedPdfHref,
+        pdfHref: `/api/panama/report/pricing_public/${s.pricingPublicReportId}/pdf`,
         reportId: s.pricingPublicReportId,
         reportType: "pricing_public",
       });
     }
-    if (s.pricingPrivateReportId !== null) {
-      out.push({
-        key: `pricing-private-${s.pricingPrivateReportId}`,
-        sessionId: s.sessionId,
-        productName: s.productName,
-        kindLabel: "수출가격 전략 (민간)",
-        subtitle: s.productName,
-        createdAt: s.createdAt,
-        tag: "가격",
-        tagColor: TAG_COLOR["가격"],
-        caseBadge: null,
-        pdfHref: combinedPdfHref,
-        reportId: s.pricingPrivateReportId,
-        reportType: "pricing_private",
-      });
-    }
+
+    // ── 시장조사 보고서 (market) — 개별 PDF 온디맨드
     if (s.marketReportId !== null) {
       out.push({
         key: `market-${s.marketReportId}`,
@@ -127,7 +116,7 @@ function flattenSessions(sessions: SessionListItem[]): FlatReportCard[] {
         tag: "시장",
         tagColor: TAG_COLOR["시장"],
         caseBadge: "조건부",
-        pdfHref: combinedPdfHref,
+        pdfHref: `/api/panama/report/market/${s.marketReportId}/pdf`,
         reportId: s.marketReportId,
         reportType: "market",
       });
