@@ -200,32 +200,38 @@ export function PartnerSection({ sessionId }: Props) {
         {/* 기업 평가 기준 + 전체 해제 + 최종 보고서 다운로드 — 바이어 리스트 도출 후에만 표시 */}
         {!loading && partners !== null && partners.length > 0 && (
         <div className="mt-3 flex items-stretch gap-2">
-          <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-3 gap-y-1 overflow-x-auto rounded-xl border border-[#e8eef5] bg-[#f9fbfd] px-3 py-2.5 whitespace-nowrap">
-            <span className="shrink-0 text-[12px] font-extrabold text-[#1a2e4a]">
-              기업 평가 기준
-              <span className="ml-1 font-normal text-[#6b7a8f]">(체크된 항목들에 대해 평가 후 추천 순위 배열)</span>
-            </span>
-            {CRITERIA_OPTIONS.map((opt) => (
-              <label
-                key={opt.key}
-                className="flex shrink-0 cursor-pointer items-center gap-1 text-[12px] text-[#273f60]"
-              >
-                <input
-                  type="checkbox"
-                  checked={criteria[opt.key]}
-                  onChange={() => { toggleCriterion(opt.key); }}
-                  className="h-3.5 w-3.5 accent-navy"
-                />
-                {opt.label}
-              </label>
-            ))}
-            <button
-              type="button"
-              onClick={resetCriteria}
-              className="shrink-0 rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 hover:bg-amber-100"
-            >
-              전체 해제
-            </button>
+          <div className="flex min-w-0 flex-1 flex-col justify-center gap-y-1 rounded-xl border border-[#e8eef5] bg-[#f9fbfd] px-3 py-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="shrink-0 text-[12px] font-extrabold text-[#1a2e4a]">
+                기업 평가 기준
+                <span className="ml-1 font-normal text-[#6b7a8f]">(체크된 항목들에 대해 평가 후 추천 순위 배열)</span>
+              </span>
+              <span className="ml-auto flex shrink-0 items-center">
+                <button
+                  type="button"
+                  onClick={resetCriteria}
+                  className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 hover:bg-amber-100"
+                >
+                  전체 해제
+                </button>
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              {CRITERIA_OPTIONS.map((opt) => (
+                <label
+                  key={opt.key}
+                  className="flex shrink-0 cursor-pointer items-center gap-1 text-[12px] text-[#273f60]"
+                >
+                  <input
+                    type="checkbox"
+                    checked={criteria[opt.key]}
+                    onChange={() => { toggleCriterion(opt.key); }}
+                    className="h-3.5 w-3.5 accent-navy"
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
           </div>
           <button
             type="button"
