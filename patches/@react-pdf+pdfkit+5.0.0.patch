@@ -1,0 +1,14 @@
+diff --git a/node_modules/@react-pdf/pdfkit/lib/pdfkit.js b/node_modules/@react-pdf/pdfkit/lib/pdfkit.js
+index 5fd0b72..5be43f3 100644
+--- a/node_modules/@react-pdf/pdfkit/lib/pdfkit.js
++++ b/node_modules/@react-pdf/pdfkit/lib/pdfkit.js
+@@ -272,7 +272,8 @@ class PDFObject {
+     if (n > -1e21 && n < 1e21) {
+       return Math.round(n * 1e6) / 1e6;
+     }
+-    throw new Error(`unsupported number: ${n}`);
++    const e = new Error(`unsupported number: ${n} [PATCHED_STACK]`); console.error('[PDFKIT]', e.message, e.stack?.split('
++').slice(0,8).join(' | ')); throw e;
+   }
+ }
+ 
