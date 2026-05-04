@@ -41,6 +41,7 @@ import {
   type EntryFeasibility,
 } from "@/src/llm/logic/panama_entry_feasibility";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const maxDuration = 120; // Vercel Function timeout 120초 (Haiku 58초 + PDF 렌더링 여유)
@@ -473,7 +474,8 @@ async function saveReportPayloadCache(
   reportPayload: unknown,
   llmModel: string,
 ): Promise<void> {
-  const sb = createSupabaseServer();
+  // RLS: panama_report_cache는 anon SELECT만 허용 → write는 service_role 필요
+  const sb = createSupabaseAdmin();
   const generatedAt = new Date().toISOString();
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   const withVersion = await sb.from("panama_report_cache").upsert(
