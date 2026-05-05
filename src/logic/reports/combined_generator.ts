@@ -1,14 +1,12 @@
-import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { findProductById } from "@/src/utils/product-dictionary";
 import type { Report } from "@/src/types/report_session";
-import { renderCombinedPDF } from "@/src/logic/reports/render_combined_pdf";
 
 interface GenerateCombinedResult {
   id: string;
   session_id: string;
   type: "combined";
-  pdf_storage_path: string;
+  pdf_storage_path: string | null;
   created_at: string;
 }
 
@@ -58,7 +56,13 @@ async function fetchReportById(
 }
 
 /**
- * LLM 없이 4개 보고서 데이터를 합쳐 PDF 업로드 + reports(combined) 행 생성
+ * LLM 없이 4개 보고서 메타를 묶어 panama_reports(type=combined) 행 생성.
+ * PDF는 저장하지 않음 — 다운로드 시 /api/panama/report/[type]/[id]/pdf 라우트가
+ * 4개 source 보고서로부터 즉석 렌더 (다른 국가 팀과 동일 패턴).
+ *
+ * 변경 이력 (2026-05-05): Storage 의존성 제거. 옛 동작은
+ * adminClient.storage.from("panama_reports").upload(...) 였으나 버킷 마이그
+ * 누락·다른 국가와 불일치 이슈로 on-demand 재렌더 방식으로 통일.
  */
 export async function generateCombinedReport(
   sessionId: string,
@@ -95,7 +99,8 @@ export async function generateCombinedReport(
     throw new Error("결합에 필요한 단계별 보고서 id가 모두 채워지지 않았습니다.");
   }
 
-  const [marketRpt, publicRpt, privateRpt, partnerRpt] = await Promise.all([
+  // 4개 보고서 존재 검증 (실제 데이터는 다운로드 시 다시 조회)
+  await Promise.all([
     fetchReportById(supabase, mid),
     fetchReportById(supabase, pid),
     fetchReportById(supabase, privId),
@@ -108,46 +113,17 @@ export async function generateCombinedReport(
     throw new Error("제품 마스터를 찾을 수 없습니다.");
   }
 
-  const product = {
-    id: pm.product_id,
-    name: pm.kr_brand_name,
-    ingredient: pm.who_inn_en,
-  };
-
   const country =
     typeof session["country"] === "string" ? session["country"] : "panama";
 
-  const pdfBuffer = await renderCombinedPDF({
-    product,
-    country,
-    generatedAt: new Date(),
-    marketReport: marketRpt,
-    publicPricingReport: publicRpt,
-    privatePricingReport: privateRpt,
-    partnerReport: partnerRpt,
-  });
-
-  const storagePath = `combined/${sessionId}-${Date.now()}.pdf`;
-  const adminClient = createSupabaseAdmin();
-  const { error: uploadError } = await adminClient.storage
-    .from("panama_reports")
-    .upload(storagePath, pdfBuffer, {
-      contentType: "application/pdf",
-      upsert: false,
-    });
-
-  if (uploadError !== null) {
-    throw new Error(
-      `Storage 업로드 실패: ${uploadError.message}. 버킷 reports 권한·용량을 확인하세요.`,
-    );
-  }
-
+  // PDF 저장 안 함 (on-demand 재렌더 패턴)
+  // metadata.source_reports 에 4개 보고서 ID만 저장 → 다운로드 라우트가 사용
   const { data: reportRecord, error: insertError } = await supabase
     .from("panama_reports")
     .insert({
       session_id: sessionId,
       type: "combined",
-      pdf_storage_path: storagePath,
+      pdf_storage_path: null, // on-demand 재렌더 — 저장 안 함
       report_data: { kind: "combined_v1" },
       metadata: {
         source_reports: {
@@ -156,7 +132,7 @@ export async function generateCombinedReport(
           pricing_private: privId,
           partner: partId,
         },
-        product_id: product.id,
+        product_id: pm.product_id,
         country,
       },
     })
@@ -176,7 +152,7 @@ export async function generateCombinedReport(
     id: String(rec["id"]),
     session_id: sessionId,
     type: "combined",
-    pdf_storage_path: storagePath,
+    pdf_storage_path: null,
     created_at: String(rec["created_at"]),
   };
 }

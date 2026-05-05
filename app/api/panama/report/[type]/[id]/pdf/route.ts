@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { findProductById } from "@/src/utils/product-dictionary";
 import { renderMarketPDF } from "@/src/logic/reports/render_market_pdf";
 import { renderPricingPDF } from "@/src/logic/reports/render_pricing_pdf";
 import { renderPartnerPDF } from "@/src/logic/reports/render_partner_pdf";
+import { renderCombinedPDF } from "@/src/logic/reports/render_combined_pdf";
 import type { ReportType } from "@/src/types/report_session";
 import type { Report } from "@/src/types/report_session";
 
@@ -88,28 +88,66 @@ export async function GET(
     }
 
     const row = report as Record<string, unknown>;
-    const pdfPath = row["pdf_storage_path"];
 
-    // ── combined: always from storage ────────────────────────────────────────
+    // ── combined: on-demand 재렌더 (NZ/SG/Saudi 동일 패턴) ─────────────────────
+    // 옛 동작: Storage에서 캐시된 PDF 다운로드
+    // 새 동작: metadata.source_reports 에 저장된 4개 ID로 즉석 재렌더
     if (typeParam === "combined") {
-      if (typeof pdfPath !== "string" || pdfPath === "") {
-        return NextResponse.json({ error: "PDF_NOT_READY" }, { status: 404 });
-      }
-      const adminClient = createSupabaseAdmin();
-      const { data: pdfBlob, error: storageError } = await adminClient.storage
-        .from("panama_reports")
-        .download(pdfPath);
-
-      if (storageError !== null || pdfBlob === null) {
+      const meta = (row["metadata"] ?? {}) as Record<string, unknown>;
+      const src = (meta["source_reports"] ?? {}) as Record<string, unknown>;
+      const mid = src["market"];
+      const pid = src["pricing_public"];
+      const privId = src["pricing_private"];
+      const partId = src["partner"];
+      if (
+        typeof mid !== "string" ||
+        typeof pid !== "string" ||
+        typeof privId !== "string" ||
+        typeof partId !== "string"
+      ) {
         return NextResponse.json(
-          { error: "PDF_FETCH_FAILED", detail: storageError?.message ?? "" },
-          { status: 500 },
+          { error: "COMBINED_SOURCE_REPORTS_MISSING" },
+          { status: 404 },
         );
       }
 
-      const arrayBuffer = await pdfBlob.arrayBuffer();
+      const productId =
+        typeof meta["product_id"] === "string" ? meta["product_id"] : null;
+      const country =
+        typeof meta["country"] === "string" ? meta["country"] : "panama";
+      if (productId === null) {
+        return NextResponse.json({ error: "PRODUCT_NOT_FOUND" }, { status: 404 });
+      }
+      const pm = findProductById(productId);
+      if (pm === undefined) {
+        return NextResponse.json({ error: "PRODUCT_NOT_FOUND" }, { status: 404 });
+      }
+      const product = {
+        id: pm.product_id,
+        name: pm.kr_brand_name,
+        ingredient: pm.who_inn_en,
+      };
+
+      const supabaseFor = createSupabaseServer();
+      const [marketRpt, publicRpt, privateRpt, partnerRpt] = await Promise.all([
+        fetchReportRow(supabaseFor, mid),
+        fetchReportRow(supabaseFor, pid),
+        fetchReportRow(supabaseFor, privId),
+        fetchReportRow(supabaseFor, partId),
+      ]);
+
+      const pdfBuffer = await renderCombinedPDF({
+        product,
+        country,
+        generatedAt: new Date(),
+        marketReport: marketRpt,
+        publicPricingReport: publicRpt,
+        privatePricingReport: privateRpt,
+        partnerReport: partnerRpt,
+      });
+
       const filename = `combined-${idParam.slice(0, 8)}.pdf`;
-      return new Response(arrayBuffer, {
+      return new Response(new Uint8Array(pdfBuffer), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `attachment; filename="${filename}"`,
