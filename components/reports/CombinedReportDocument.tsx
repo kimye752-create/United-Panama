@@ -97,43 +97,43 @@ const S = StyleSheet.create({
     color: C_GRAY,
     marginBottom: 14,
   },
-  // sections
+  // sections — 컴팩트화 (페이지당 정보 밀도 ↑)
   sectionH1: {
     fontSize: 11,
     fontWeight: "bold",
     color: C_NAVY,
-    marginTop: 14,
-    marginBottom: 5,
+    marginTop: 8,
+    marginBottom: 3,
   },
   sectionH2: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "bold",
     color: C_NAVY,
-    marginTop: 9,
-    marginBottom: 4,
+    marginTop: 4,
+    marginBottom: 2,
   },
   body: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: C_BODY,
-    lineHeight: 1.55,
+    lineHeight: 1.4,
     textAlign: "justify",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   // key-value row
   kvRow: {
     flexDirection: "row",
-    marginBottom: 3,
-    paddingLeft: 12,
+    marginBottom: 1,
+    paddingLeft: 8,
   },
   kvLabel: {
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: "bold",
     color: C_BODY,
-    width: 120,
+    width: 90,
     flexShrink: 0,
   },
   kvValue: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: C_BODY,
     flex: 1,
   },
@@ -150,27 +150,29 @@ const S = StyleSheet.create({
     flexShrink: 0,
   },
   bulletText: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: C_BODY,
     flex: 1,
+    lineHeight: 1.4,
   },
-  // circled numbered items (①②)
+  // circled numbered items (①②) — 컴팩트화
   circledRow: {
     flexDirection: "row",
-    paddingLeft: 16,
-    marginBottom: 3,
+    paddingLeft: 12,
+    marginBottom: 1,
   },
   circledNum: {
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: "bold",
     color: C_BODY,
-    width: 20,
+    width: 16,
     flexShrink: 0,
   },
   circledText: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: C_BODY,
     flex: 1,
+    lineHeight: 1.4,
   },
   // disclaimer ※
   disclaimer: {
@@ -230,19 +232,19 @@ const S = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: "#D9E2EF",
   },
-  // partner header
+  // partner header — 컴팩트화 (페이지당 2개 기업 수용)
   partnerCompanyHeader: {
     fontSize: 10,
     fontWeight: "bold",
     color: C_NAVY,
-    marginTop: 10,
-    marginBottom: 3,
+    marginTop: 4,
+    marginBottom: 2,
   },
   // source note
   sourceNote: {
-    fontSize: 8,
+    fontSize: 7.5,
     color: C_GRAY,
-    marginTop: 4,
+    marginTop: 2,
     paddingLeft: 2,
   },
   // ── table ──────────────────────────────────────────────────────────────────
@@ -1201,20 +1203,24 @@ function PricingReportSection({
 
       <Divider />
 
-      {/* 4. 가격 시나리오 */}
-      <SectionH1 n="4" title="가격 시나리오" />
-      <Text style={{ ...S.body, color: C_GRAY, marginBottom: 4 }}>
-        ※ 역산식 공통: FOB(USD) = 현지 참고가(PAB) × (1 − 현지물류/관세율) × (1 − 이익마진)
-        {"  "}[PAB(발보아, Panamanian Balboa) ≡ USD 1:1 고정환율 — CPI 연동 페깅제]
-      </Text>
-
-      <SectionH2 title="4-1. 공공 시장 (ALPS 조달청)" />
-      <ScenarioTable scenarios={pubScenarios} />
-      {b3 !== "" && <Text style={{ ...S.body, marginTop: 4, color: "#555555" }}>{b3}</Text>}
-
-      <SectionH2 title="4-2. 민간 시장 (병원·약국·체인)" />
-      <ScenarioTable scenarios={privScenarios} />
-      {prB3 !== "" && <Text style={{ ...S.body, marginTop: 4, color: "#555555" }}>{prB3}</Text>}
+      {/* 4. 시나리오 인사이트 — §2에서 시나리오 테이블 이미 표시했으므로 narrative만 (페이지 중복 방지) */}
+      {(b3 !== "" || prB3 !== "") && (
+        <>
+          <SectionH1 n="4" title="시나리오 분석" />
+          {b3 !== "" && (
+            <>
+              <SectionH2 title="공공 시장 시나리오 분석" />
+              <Text style={S.body}>{b3}</Text>
+            </>
+          )}
+          {prB3 !== "" && (
+            <>
+              <SectionH2 title="민간 시장 시나리오 분석" />
+              <Text style={S.body}>{prB3}</Text>
+            </>
+          )}
+        </>
+      )}
 
       {/* 5. 리스크 및 전략 권고 */}
       {(b5 !== "" || prB5 !== "") && (
