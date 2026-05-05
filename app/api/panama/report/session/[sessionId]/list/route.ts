@@ -44,7 +44,7 @@ export async function GET(
 
     const supabase = createClient();
     const { data: reports, error } = await supabase
-      .from("reports")
+      .from("panama_reports")
       .select("*")
       .eq("session_id", sessionId)
       .order("created_at", { ascending: true });

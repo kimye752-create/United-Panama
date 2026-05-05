@@ -13,7 +13,7 @@ async function streamCombinedPdfByReportId(
   const supabase = createClient();
 
   const { data: report, error } = await supabase
-    .from("reports")
+    .from("panama_reports")
     .select("pdf_storage_path")
     .eq("id", reportId)
     .single();
@@ -31,7 +31,7 @@ async function streamCombinedPdfByReportId(
 
   const adminClient = createSupabaseAdmin();
   const { data: pdfBlob, error: storageError } = await adminClient.storage
-    .from("reports")
+    .from("panama_reports")
     .download(pathRaw);
 
   if (storageError !== null || pdfBlob === null) {

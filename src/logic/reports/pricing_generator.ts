@@ -165,7 +165,7 @@ async function runOneSegment(
   // (에러 throw 시 Promise.all로 반대 세그먼트까지 실패하므로 graceful하게 처리)
   if (segmentAvg === null || !Number.isFinite(segmentAvg)) {
     const { data: emptyRow, error: emptyErr } = await supabase
-      .from("reports")
+      .from("panama_reports")
       .insert({
         session_id: input.sessionId,
         type: segment === "public" ? "pricing_public" : "pricing_private",
@@ -233,7 +233,7 @@ async function runOneSegment(
   const payload = llm.payload as unknown as Record<string, unknown>;
 
   const { data, error } = await supabase
-    .from("reports")
+    .from("panama_reports")
     .insert({
       session_id: input.sessionId,
       type: segment === "public" ? "pricing_public" : "pricing_private",

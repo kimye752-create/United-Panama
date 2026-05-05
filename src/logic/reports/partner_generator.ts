@@ -254,7 +254,7 @@ export async function generatePartnerReport(
 
     const supabase = createSupabaseServer();
     const { data, error } = await supabase
-      .from("reports")
+      .from("panama_reports")
       .insert({
         session_id: input.sessionId,
         type: "partner",

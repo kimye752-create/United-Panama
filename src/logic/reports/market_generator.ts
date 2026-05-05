@@ -180,7 +180,7 @@ export async function generateMarketReport(
     };
 
     const { data, error } = await supabase
-      .from("reports")
+      .from("panama_reports")
       .insert({
         session_id:  input.sessionId,
         type:        "market",

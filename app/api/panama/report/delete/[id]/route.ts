@@ -15,7 +15,7 @@ export async function DELETE(
     }
 
     const supabase = createClient();
-    const { error } = await supabase.from("reports").delete().eq("id", id);
+    const { error } = await supabase.from("panama_reports").delete().eq("id", id);
 
     if (error !== null) {
       return NextResponse.json(

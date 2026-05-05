@@ -27,7 +27,7 @@ async function fetchReportRow(
   reportId: string,
 ): Promise<Report> {
   const { data, error } = await supabase
-    .from("reports")
+    .from("panama_reports")
     .select("*")
     .eq("id", reportId)
     .single();
@@ -77,7 +77,7 @@ export async function GET(
 
     const supabase = createClient();
     const { data: report, error } = await supabase
-      .from("reports")
+      .from("panama_reports")
       .select("*")
       .eq("id", idParam)
       .eq("type", typeParam)
@@ -97,7 +97,7 @@ export async function GET(
       }
       const adminClient = createSupabaseAdmin();
       const { data: pdfBlob, error: storageError } = await adminClient.storage
-        .from("reports")
+        .from("panama_reports")
         .download(pdfPath);
 
       if (storageError !== null || pdfBlob === null) {

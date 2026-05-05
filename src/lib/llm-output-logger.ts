@@ -179,7 +179,7 @@ export async function saveLlmOutput(input: LlmOutputLogInput): Promise<void> {
       };
     }
 
-    const { error } = await supabase.from("llm_outputs").insert({
+    const { error } = await supabase.from("panama_llm_outputs").insert({
       ...base,
       ...aiTextCols,
       ...srcDataCols,

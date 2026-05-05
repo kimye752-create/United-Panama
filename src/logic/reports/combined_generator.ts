@@ -17,7 +17,7 @@ async function fetchReportById(
   reportId: string,
 ): Promise<Report> {
   const { data, error } = await supabase
-    .from("reports")
+    .from("panama_reports")
     .select("*")
     .eq("id", reportId)
     .single();
@@ -130,7 +130,7 @@ export async function generateCombinedReport(
   const storagePath = `combined/${sessionId}-${Date.now()}.pdf`;
   const adminClient = createSupabaseAdmin();
   const { error: uploadError } = await adminClient.storage
-    .from("reports")
+    .from("panama_reports")
     .upload(storagePath, pdfBuffer, {
       contentType: "application/pdf",
       upsert: false,
@@ -143,7 +143,7 @@ export async function generateCombinedReport(
   }
 
   const { data: reportRecord, error: insertError } = await supabase
-    .from("reports")
+    .from("panama_reports")
     .insert({
       session_id: sessionId,
       type: "combined",
