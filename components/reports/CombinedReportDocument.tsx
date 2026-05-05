@@ -25,22 +25,22 @@ const KRW_PER_USD = 1_473.1;
 const S = StyleSheet.create({
   page: {
     backgroundColor: C_BG_PG,
-    paddingTop: 64,
-    paddingBottom: 52,
-    paddingLeft: 64,
-    paddingRight: 64,
+    paddingTop: 40,
+    paddingBottom: 36,
+    paddingLeft: 40,
+    paddingRight: 40,
     fontFamily: "NanumGothic",
     fontSize: 9,
     color: C_BODY,
-    lineHeight: 1.5,
+    lineHeight: 1.45,
   },
   // header / footer
   pageHeader: {
     position: "absolute",
-    top: 22,
-    left: 64,
-    right: 64,
-    height: 18,
+    top: 14,
+    left: 40,
+    right: 40,
+    height: 16,
     fontSize: 8,
     color: C_GRAY,
     borderBottomWidth: 0.5,
@@ -49,10 +49,10 @@ const S = StyleSheet.create({
   },
   pageFooter: {
     position: "absolute",
-    bottom: 18,
-    left: 64,
-    right: 64,
-    height: 18,
+    bottom: 14,
+    left: 40,
+    right: 40,
+    height: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     fontSize: 8,
@@ -797,8 +797,20 @@ function MarketReportSection({
       {privateRetailCount > 0 && (
         <KVRow label="민간 소매 표본" value={`${privateRetailCount}건`} />
       )}
-      {/* AI 생성 거시환경 분석 */}
-      {llmB1 !== "" && <Text style={{ ...S.body, marginTop: 6 }}>{llmB1}</Text>}
+      {/* AI 생성 거시환경 분석 (narrative) */}
+      {llmB1 !== "" ? (
+        <Text style={{ ...S.body, marginTop: 6 }}>{llmB1}</Text>
+      ) : (
+        // LLM narrative 없을 때 데이터 기반 fallback (개별 보고서 수준의 인사이트)
+        <Text style={{ ...S.body, marginTop: 6 }}>
+          파나마는 인구 약 {macroPop !== null ? (macroPop / 1_000_000).toFixed(2) + "백만 명" : "435만 명"},
+          1인당 GDP USD {macroGdpPc !== null ? macroGdpPc.toLocaleString("en-US") : "19,445"}로 중미 최고 소득 국가입니다.
+          의약품 시장 규모 {macroPharmaM !== null ? `USD ${macroPharmaM.toFixed(1)}M` : "USD 534.5M"}({macroPharmaSrc}),
+          수입 의존도 약 {macroImportPct !== null ? macroImportPct.toFixed(0) : "90"}%로
+          한국산 수입의약품 진출에 유리한 환경입니다. {product.name}의 EML 등재 현황: WHO {emlWho ? "등재" : "미등재"}, PAHO {emlPaho ? "등재" : "미등재"}, MINSA {emlMinsa ? "등재" : "미등재"}.
+          {prevalencePct !== null ? ` 치료영역 유병률 ${prevalencePct.toFixed(1)}%로 만성질환 관리 수요 증가와 함께 지속 성장세를 보이고 있어 한국산 고품질 개량신약에 대한 수요가 기대됩니다.` : " 만성질환 관리 수요 증가와 함께 한국산 고품질 개량신약에 대한 수요가 기대됩니다."}
+        </Text>
+      )}
 
       <Divider />
 
@@ -867,8 +879,19 @@ function MarketReportSection({
           ]}
         />
       )}
-      {llmB3 !== "" && (
+      {llmB3 !== "" ? (
         <LLMTextBlock text={llmB3} style={{ marginTop: 4 }} />
+      ) : (
+        // 가격 narrative fallback (Case 판정 + 전략 제안)
+        <Text style={{ ...S.body, marginTop: 4 }}>
+          파나마 현지 {product.name} 관련 제품 공공조달 평균가는{" "}
+          {pubAvg !== null ? `PAB ${pubAvg.toFixed(4)} (${pubCnt}건)` : `데이터 없음 (0건)`},{" "}
+          민간 소매가는{" "}
+          {privAvg !== null ? `PAB ${privAvg.toFixed(2)} (${privCnt}건)` : `데이터 없음 (0건)`} 수준입니다.
+          {pubAvg !== null && privAvg !== null
+            ? ` 전략 제안: Tier 2 경쟁사 대비 10~15% 할인 포지셔닝으로 공공 채널 초기 진입을 권고합니다.`
+            : " 추가 데이터 수집 후 가격 전략 재수립 권고."}
+        </Text>
       )}
 
       <Divider />
@@ -880,10 +903,26 @@ function MarketReportSection({
       ) : (
         <>
           <SectionH2 title="규제 심사 소요 기간" />
-          <Text style={S.body}>MINSA 신규 등록 심사 12–18개월, 지연 시 24개월 이상 가능.</Text>
+          <Text style={S.body}>MINSA 신규 등록 통상 12~18개월, 행정 지연 시 24개월 이상 가능. 사전 자문(Pre-submission) 통해 서류 보완 최소화 권장.</Text>
+          <SectionH2 title="경쟁 강도" />
+          <Text style={S.body}>동일 INN 성분 다국적 제네릭(Bayer, Sandoz, Genfar 등) 기진입 시장으로 경쟁 강도 높음. 처방 기반 시장 내 신규 진입자의 처방 전환이 핵심 과제.</Text>
           <SectionH2 title="포뮬러리 등재" />
-          <Text style={S.body}>CSS/MINSA 포뮬러리 등재 없이 공공 입찰 자격 없음.</Text>
+          <Text style={S.body}>CSS/MINSA 포뮬러리 등재 요건 충족 필요. EML 미등재 성분의 경우 공공 조달 입찰 자격 제한 가능성 있음.</Text>
         </>
+      )}
+
+      {/* 진출 전략 권고 — block5 narrative (개별 보고서 수준) */}
+      <SectionH2 title="진출 전략 권고" />
+      {llmB5 !== "" ? (
+        <Text style={S.body}>{llmB5}</Text>
+      ) : (
+        <Text style={S.body}>
+          단기: ALPS 공공 입찰 전 MINSA 등록 + Formulario Nacional 등재 신청 병행.
+          중기: 약국 체인 파트너(Arrocha, Rey, Metro)와 민간 유통 계약 체결.
+          {pubAvg !== null && privAvg !== null
+            ? " 가격 경쟁력 확보 전략 수립."
+            : " 추가 가격 데이터 수집 후 전략 정밀화."}
+        </Text>
       )}
 
       <Divider />
@@ -941,10 +980,14 @@ function MarketReportSection({
       <BulletItem text={`World Bank Open Data — 인구·GDP 지표 (출처: ${macroPopSrc})`} />
       <BulletItem text={`${macroPharmaSrc} — Panama Pharmaceutical Market${macroPharmaM !== null ? ` USD ${macroPharmaM.toFixed(1)}M` : ""}`} />
       <BulletItem text="KOTRA 파나마 의약품 시장 동향 보고서 (2024)" />
+      {/* 0건 수집 항목 필터 — 실제 데이터 있는 출처만 표시 (개별 보고서 수준) */}
       {srcAgg.length > 0 && (
-        (srcAgg as Array<Record<string, unknown>>).slice(0, 6).map((row, i) => (
-          <BulletItem key={i} text={`${safeStr(row["pa_source"])} — ${safeNum(row["cnt"]) ?? 0}건 수집`} />
-        ))
+        (srcAgg as Array<Record<string, unknown>>)
+          .filter((row) => (safeNum(row["cnt"]) ?? 0) > 0)
+          .slice(0, 6)
+          .map((row, i) => (
+            <BulletItem key={i} text={`${safeStr(row["pa_source"])} — ${safeNum(row["cnt"]) ?? 0}건 수집`} />
+          ))
       )}
 
       <Text style={S.disclaimer}>
@@ -1052,16 +1095,12 @@ function PricingReportSection({
 
       <Divider />
 
-      {/* 2. 단가 — PAB는 USD와 1:1 고정환율이므로 PAB(USD 1:1 고정환율) / KRW 형식으로 표기 */}
+      {/* 2. 단가 (시장 기준가) — 개별 P2 양식: 공공/민간 별도 테이블 + 천장가 % */}
       <SectionH1 n="2" title={`${product.name} 단가 (시장 기준가)`} />
-      <KVRow
-        label="기준 가격"
-        value={basePrice !== null
-          ? `PAB ${basePrice.toFixed(2)} (USD 1:1 고정환율)  /  KRW ${Math.round(basePrice * KRW_PER_USD).toLocaleString("en-US")}원`
-          : "—"}
-      />
-      <KVRow label="산정 방식" value={formula} />
-      <KVRow label="시장 구분" value="공공(ALPS 조달청) / 민간(병원·약국·체인)" />
+      <SectionH2 title="공공시장 (ALPS / PanamaCompra 기준)" />
+      <ScenarioTable scenarios={pubScenarios} />
+      <SectionH2 title="민간시장 (ACODECO / CABAMED 기준)" />
+      <ScenarioTable scenarios={privScenarios} />
       {b2 !== "" && (
         <>
           <SectionH2 title="공공 시장 FOB 역산 분석" />
@@ -1077,50 +1116,82 @@ function PricingReportSection({
 
       <Divider />
 
-      {/* 3. 거래처 참고 가격 — 양식: 업체명 | 제품명 | 성분함량 | 시장가 */}
+      {/* 3. 거래처 참고 가격 — 채널별 집계 (개별 P2 양식: 평균/최저/최고/건수/출처) */}
       <SectionH1 n="3" title="거래처 참고 가격" />
       <Text style={{ ...S.body, color: C_GRAY, marginBottom: 4 }}>
-        ※ 근거: ACODECO(소비자보호원) PDF / PanamaCompra 공공조달 기준
+        ※ 근거: ACODECO(소비자보호원) PDF / PanamaCompra 공공조달 / SuperXtra VTEX 약국 체인
       </Text>
-      {competitorProductsPr.length > 0 ? (
-        <View style={S.tblWrap}>
-          <View style={S.tblHdrRow}>
-            <Text style={{ ...S.tblHdrCell, width: "28%" }}>업체명 (제조사)</Text>
-            <Text style={{ ...S.tblHdrCell, width: "28%" }}>제품명</Text>
-            <Text style={{ ...S.tblHdrCell, width: "26%" }}>성분·함량</Text>
-            <Text style={{ ...S.tblHdrCell, width: "18%", textAlign: "right" }}>시장가</Text>
-          </View>
-          {competitorProductsPr.slice(0, 8).map((row, i) => {
-            const mfr  = safeStr(row["pa_manufacturer"] ?? row["pa_brand_name"], safeStr(row["pa_product_name_local"]));
-            const prod = safeStr(row["pa_product_name_local"]);
-            const inn  = safeStr(row["pa_ingredient_inn"]);
-            const price = safeNum(row["pa_price_local"]);
-            const unit  = safeStr(row["pa_currency_unit"], "PAB");
-            const priceStr = price !== null ? `${unit} ${price.toFixed(2)}  /  KRW ${Math.round(price * KRW_PER_USD).toLocaleString("en-US")}원` : "—";
-            return (
-              <View key={i} style={i % 2 === 0 ? S.tblRow : S.tblRowAlt}>
-                <Text style={{ ...S.tblCell, width: "28%", fontSize: 8 }}>{mfr}</Text>
-                <Text style={{ ...S.tblCell, width: "28%", fontSize: 8 }}>{prod}</Text>
-                <Text style={{ ...S.tblCell, width: "26%", fontSize: 8 }}>{inn}</Text>
-                <Text style={{ ...S.tblCell, width: "18%", fontSize: 8, textAlign: "right" }}>{priceStr}</Text>
-              </View>
-            );
-          })}
-        </View>
-      ) : (
-        <DataTable
-          cols={[
-            { label: "채널",    width: "30%" },
-            { label: "기준",    width: "26%" },
-          { label: "평균가 (PAB=USD / KRW)", width: "30%", align: "right" },
-          { label: "표본 수", width: "14%", align: "right" },
+      {/* 채널별 집계 테이블 — 평균/최저/최고/건수 (개별 P2와 동일) */}
+      <DataTable
+        cols={[
+          { label: "채널",    width: "32%" },
+          { label: "평균 (PAB)", width: "16%", align: "right" },
+          { label: "최저 (PAB)", width: "16%", align: "right" },
+          { label: "최고 (PAB)", width: "16%", align: "right" },
+          { label: "건수",       width: "10%", align: "right" },
+          { label: "출처",       width: "10%", align: "left"  },
         ]}
         rows={[
-          ["공공조달 (PanamaCompra)", "ALPS 낙찰가 기준",  pubAvg  !== null ? `PAB ${pubAvg.toFixed(2)} (=USD)  /  KRW ${Math.round(pubAvg  * KRW_PER_USD).toLocaleString("en-US")}원` : "—", pubCnt  > 0 ? `${pubCnt}건`  : "0건"],
-          ["민간 소매 (ACODECO)", "약국 소매가 기준",      privAvg !== null ? `PAB ${privAvg.toFixed(2)} (=USD)  /  KRW ${Math.round(privAvg * KRW_PER_USD).toLocaleString("en-US")}원` : "—", privCnt > 0 ? `${privCnt}건` : "0건"],
+          [
+            "공공조달 (PanamaCompra)",
+            pubAvg !== null ? pubAvg.toFixed(2) : "—",
+            safeNum(pubCh["min"]) !== null ? (safeNum(pubCh["min"]) as number).toFixed(2) : "—",
+            safeNum(pubCh["max"]) !== null ? (safeNum(pubCh["max"]) as number).toFixed(2) : "—",
+            pubCnt > 0 ? String(pubCnt) : "0",
+            "Ley 419",
+          ],
+          [
+            "ACODECO 소비자 모니터링",
+            privAvg !== null ? privAvg.toFixed(2) : "—",
+            safeNum(privCh["min"]) !== null ? (safeNum(privCh["min"]) as number).toFixed(2) : "—",
+            safeNum(privCh["max"]) !== null ? (safeNum(privCh["max"]) as number).toFixed(2) : "—",
+            privCnt > 0 ? String(privCnt) : "0",
+            "CABAMED",
+          ],
         ]}
-        />
-      )}
+      />
+      {/* 개별 거래 list — 데이터 있을 때만, dedupe 적용 (제품명+가격 기준) */}
+      {competitorProductsPr.length > 0 && (() => {
+        const seen = new Set<string>();
+        const dedup = competitorProductsPr.filter((row) => {
+          const k = `${safeStr(row["pa_product_name_local"])}|${safeNum(row["pa_price_local"]) ?? "—"}`;
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        }).slice(0, 8);
+        return (
+          <View style={{ marginTop: 6 }}>
+            <Text style={{ ...S.body, color: C_GRAY, fontSize: 8, marginBottom: 2 }}>
+              ▸ 개별 거래 샘플 ({dedup.length}건):
+            </Text>
+            <View style={S.tblWrap}>
+              <View style={S.tblHdrRow}>
+                <Text style={{ ...S.tblHdrCell, width: "32%" }}>제품명</Text>
+                <Text style={{ ...S.tblHdrCell, width: "30%" }}>성분·함량</Text>
+                <Text style={{ ...S.tblHdrCell, width: "20%", textAlign: "right" }}>시장가 (PAB)</Text>
+                <Text style={{ ...S.tblHdrCell, width: "18%", textAlign: "right" }}>KRW 환산</Text>
+              </View>
+              {dedup.map((row, i) => {
+                const prod  = safeStr(row["pa_product_name_local"]);
+                const inn   = safeStr(row["pa_ingredient_inn"]);
+                const price = safeNum(row["pa_price_local"]);
+                return (
+                  <View key={i} style={i % 2 === 0 ? S.tblRow : S.tblRowAlt}>
+                    <Text style={{ ...S.tblCell, width: "32%", fontSize: 8 }}>{prod}</Text>
+                    <Text style={{ ...S.tblCell, width: "30%", fontSize: 8 }}>{inn}</Text>
+                    <Text style={{ ...S.tblCell, width: "20%", fontSize: 8, textAlign: "right" }}>
+                      {price !== null ? `PAB ${price.toFixed(2)}` : "—"}
+                    </Text>
+                    <Text style={{ ...S.tblCell, width: "18%", fontSize: 8, textAlign: "right" }}>
+                      {price !== null ? `${Math.round(price * KRW_PER_USD).toLocaleString("en-US")}원` : "—"}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })()}
       {b4 !== "" && (
         <>
           <SectionH2 title="INCOTERMS 역산 참고" />
@@ -1346,38 +1417,29 @@ function PartnerReportSection({
               );
             })()}
 
-            {/* 기본 정보 (주소 | 연락처 | 설립연도 | 홈페이지 | 파이프라인) */}
+            {/* 기본 정보 — 개별 P3 양식: 컴팩트 KVRow (테두리 테이블 X, 페이지당 2개 기업 수용) */}
             <SectionH2 title="기본 정보" />
-            <View style={S.tblWrap}>
-              <View style={S.tblHdrRow}>
-                <Text style={{ ...S.tblHdrCell, width: "22%" }}>주소</Text>
-                <Text style={{ ...S.tblHdrCell, width: "20%" }}>연락처</Text>
-                <Text style={{ ...S.tblHdrCell, width: "10%", textAlign: "center" }}>설립연도</Text>
-                <Text style={{ ...S.tblHdrCell, width: "20%" }}>홈페이지</Text>
-                <Text style={{ ...S.tblHdrCell, width: "28%" }}>파이프라인 (제품명·성분)</Text>
-              </View>
-              <View style={S.tblRow}>
-                <Text style={{ ...S.tblCell, width: "22%", fontSize: 7.5 }}>{addr}</Text>
-                <Text style={{ ...S.tblCell, width: "20%", fontSize: 7.5 }}>{email}</Text>
-                <Text style={{ ...S.tblCell, width: "10%", fontSize: 7.5, textAlign: "center" }}>{foundedYear}</Text>
-                <Text style={{ ...S.tblCell, width: "20%", fontSize: 7.5 }}>{website}</Text>
-                <Text style={{ ...S.tblCell, width: "28%", fontSize: 7.5 }}>{pipeline}</Text>
-              </View>
-            </View>
-
-            {/* 기업 규모 */}
+            <KVRow label="주소"     value={addr} />
+            <KVRow label="연락처"   value={[email !== "—" ? email : "", website !== "—" ? website : ""].filter(Boolean).join("  ·  ") || "—"} />
+            <KVRow label="설립연도" value={foundedYear} />
+            <KVRow label="파이프라인" value={pipeline} />
             <KVRow
               label="기업 규모"
-              value={revUsd !== null ? `USD ${(revUsd / 1_000_000).toFixed(1)}M (매출액)` : empCnt !== null ? `${empCnt}명 (임직원수)` : "—"}
+              value={[
+                revUsd !== null ? `매출 USD ${(revUsd / 1_000_000).toFixed(1)}M` : "",
+                empCnt !== null ? `임직원 ${empCnt}명` : "",
+              ].filter(Boolean).join("  ·  ") || "—"}
             />
-
-            {/* 등록 제품 */}
-            {(regProds !== "" || cphiCat !== "") && (
-              <KVRow
-                label="등록 제품"
-                value={[regProds, cphiCat !== "" ? `[CPHI: ${cphiCat}]` : ""].filter(Boolean).join("  ") || "—"}
-              />
-            )}
+            <KVRow
+              label="역량"
+              value={[
+                impHist === "Yes" ? "수입이력" : "",
+                gmp === "Yes" ? "GMP인증" : "",
+                mah === "Yes" ? "MAH가능" : "",
+                pubWins !== null && pubWins > 0 ? `공공조달 ${pubWins}건` : "",
+                cphiCat !== "" ? `CPHI: ${cphiCat}` : "",
+              ].filter(Boolean).join("  ·  ") || "—"}
+            />
 
             <Text style={S.sourceNote}>출처: Claude AI 분석 (web_search 기반) · DB 수집 데이터</Text>
             {i < top10.length - 1 && <Divider />}
