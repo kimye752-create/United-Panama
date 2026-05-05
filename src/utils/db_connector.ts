@@ -66,19 +66,24 @@ export function getSupabaseClient(): SupabaseClient {
     return supabaseSingleton;
   }
 
-  const url = process.env.SUPABASE_URL;
-  const rawKey = process.env.SUPABASE_KEY;
+  // 통일된 환경변수 이름 우선, 옛 이름은 백엔드 스크립트 호환 위해 폴백
+  // 우선순위: NEXT_PUBLIC_SUPABASE_URL > SUPABASE_URL (옛)
+  // 우선순위: SUPABASE_SERVICE_ROLE_KEY > SUPABASE_KEY (옛)
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const rawKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_KEY;
   // .env에 실수로 (키) 형태로 붙여 넣은 경우 Invalid API key 방지
   const key = rawKey?.replace(/^\(|\)$/g, "").trim();
 
   if (url === undefined || url.trim() === "") {
     throw new Error(
-      "SUPABASE_URL이 비어 있습니다. .env에 Supabase 프로젝트 URL을 설정한 뒤 다시 실행하세요.",
+      "NEXT_PUBLIC_SUPABASE_URL (또는 SUPABASE_URL)이 비어 있습니다.",
     );
   }
   if (key === undefined || key === "") {
     throw new Error(
-      "SUPABASE_KEY가 비어 있습니다. .env에 Supabase API 키(anon 또는 service_role)를 설정한 뒤 다시 실행하세요.",
+      "SUPABASE_SERVICE_ROLE_KEY (또는 SUPABASE_KEY)가 비어 있습니다.",
     );
   }
 

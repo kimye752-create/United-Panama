@@ -17,8 +17,8 @@ function buildDirectPostgresUrl(): string | undefined {
   }
   const pass = process.env["SUPABASE_DB_PASSWORD"]?.trim();
   const supabaseUrl =
-    process.env["SUPABASE_URL"]?.trim() ??
-    process.env["NEXT_PUBLIC_SUPABASE_URL"]?.trim();
+    process.env["NEXT_PUBLIC_SUPABASE_URL"]?.trim() ??
+    process.env["SUPABASE_URL"]?.trim();
   if (!pass || !supabaseUrl) {
     return undefined;
   }

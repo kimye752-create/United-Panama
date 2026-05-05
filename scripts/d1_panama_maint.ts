@@ -18,7 +18,9 @@ function buildDirectPostgresUrl(): string | undefined {
     return explicit;
   }
   const pass = process.env["SUPABASE_DB_PASSWORD"]?.trim();
-  const supabaseUrl = process.env["SUPABASE_URL"]?.trim();
+  const supabaseUrl =
+    process.env["NEXT_PUBLIC_SUPABASE_URL"]?.trim() ??
+    process.env["SUPABASE_URL"]?.trim();
   if (!pass || !supabaseUrl) {
     return undefined;
   }
@@ -37,11 +39,13 @@ function buildDirectPostgresUrl(): string | undefined {
 }
 
 async function deleteAllViaRest(): Promise<{ before: number }> {
-  const url = process.env["SUPABASE_URL"];
-  const rawKey = process.env["SUPABASE_KEY"];
+  const url =
+    process.env["NEXT_PUBLIC_SUPABASE_URL"] ?? process.env["SUPABASE_URL"];
+  const rawKey =
+    process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_KEY"];
   const key = rawKey?.replace(/^\(|\)$/g, "").trim();
   if (!url || !key) {
-    throw new Error("SUPABASE_URL / SUPABASE_KEY가 필요합니다.");
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY가 필요합니다.");
   }
   const client = createClient(url, key);
   const { count: before, error: cntErr } = await client

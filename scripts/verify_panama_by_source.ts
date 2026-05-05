@@ -6,12 +6,15 @@ import { createClient } from "@supabase/supabase-js";
 
 loadEnv();
 
-const url = process.env["SUPABASE_URL"];
-const rawKey = process.env["SUPABASE_KEY"];
+// 통일: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY 우선, 옛 이름 폴백
+const url =
+  process.env["NEXT_PUBLIC_SUPABASE_URL"] ?? process.env["SUPABASE_URL"];
+const rawKey =
+  process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_KEY"];
 const key = rawKey?.replace(/^\(|\)$/g, "").trim();
 
 if (!url || !key) {
-  console.error("SUPABASE_URL / SUPABASE_KEY 필요");
+  console.error("NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY 필요");
   process.exit(1);
 }
 
