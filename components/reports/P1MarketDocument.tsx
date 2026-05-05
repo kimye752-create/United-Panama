@@ -224,28 +224,78 @@ export function P1MarketSection1({
   const narrative    = str(rec(analysis?.["marketAnalysis"])?.["block1_market_narrative"]);
   const therContext  = str(rec(analysis?.["marketAnalysis"])?.["block1_therapeutic_context"]);
 
-  // 거시 지표 (DB 우선, 없으면 고정값)
-  const population   = str(macroStats?.["population_text"],   "") || "4,351,267명 (World Bank, 2024)";
-  const gdpPerCapita = str(macroStats?.["gdp_per_capita_text"], "") || "USD 19,445 (IMF, 2024)";
-  const marketSize   = str(macroStats?.["pharma_market_text"], "") || "USD 496M (Statista, 2024)";
-  const healthExp    = str(macroStats?.["health_exp_text"],    "") || "GDP 대비 약 7.8% (World Bank, 2022)";
-  const importDep    = str(macroStats?.["import_dep_text"],    "") || "~90% (KOTRA / ITA, 2024)";
+  // ── 거시 지표 (DB *_text 우선 → 숫자 필드 포맷 → 고정 fallback) ──
+  // panama_macro_stats 실제 컬럼: population, gdp_per_capita_usd, gdp_total_usd_billion, pharma_market_usd, import_dependency_pct
+  const popText   = str(macroStats?.["population_text"], "");
+  const popNum    = num(macroStats?.["population"]);
+  const popSrc    = str(macroStats?.["population_source"], "World Bank 2024");
+  const population = popText || (popNum !== null
+    ? `${popNum.toLocaleString("en-US")}명 (${popSrc})`
+    : "4,515,577명 (World Bank 2024)");
 
-  // 치료영역 특이 지표
-  const prevalence   = num(therStats?.["prevalence_pct"]);
-  const therMarket   = num(therStats?.["market_size_usd"]);
+  const gdpPcText = str(macroStats?.["gdp_per_capita_text"], "");
+  const gdpPcNum  = num(macroStats?.["gdp_per_capita_usd"]);
+  const gdpSrc    = str(macroStats?.["gdp_source"], "IMF 2024");
+  const gdpPerCapita = gdpPcText || (gdpPcNum !== null
+    ? `USD ${gdpPcNum.toLocaleString("en-US")} (${gdpSrc})`
+    : "USD 19,445 (IMF 2024)");
+
+  const gdpTotalNum = num(macroStats?.["gdp_total_usd_billion"]);
+  const gdpTotal = gdpTotalNum !== null
+    ? `USD ${gdpTotalNum.toFixed(1)} Billion (${gdpSrc})`
+    : null;
+
+  const marketText = str(macroStats?.["pharma_market_text"], "");
+  const marketNum  = num(macroStats?.["pharma_market_usd"]);
+  const marketSrc  = str(macroStats?.["pharma_market_source"], "Statista 2024");
+  const marketSize = marketText || (marketNum !== null
+    ? `USD ${(marketNum / 1_000_000).toFixed(1)}M (${marketSrc})`
+    : "USD 534.5M (Statista 2024)");
+
+  const healthExpText = str(macroStats?.["health_exp_text"], "");
+  const healthExpPct  = num(therStats?.["health_expenditure_pct_gdp"]);
+  const healthExpPc   = num(therStats?.["health_expenditure_usd_per_capita"]);
+  const healthExp = healthExpText || (healthExpPct !== null
+    ? `${healthExpPct.toFixed(2)}% GDP${healthExpPc !== null ? ` (USD ${healthExpPc.toFixed(0)}/인당)` : ""} (World Bank 2023)`
+    : "GDP 대비 약 7.8% (World Bank 2022)");
+
+  const importDepText = str(macroStats?.["import_dep_text"], "");
+  const importDepNum  = num(macroStats?.["import_dependency_pct"]);
+  const importDepSrc  = str(macroStats?.["import_dependency_source"], "KOTRA / ITA 2024");
+  const importDep = importDepText || (importDepNum !== null
+    ? `~${importDepNum.toFixed(0)}% (${importDepSrc})`
+    : "~90% (KOTRA / ITA 2024)");
+
+  // ── 치료영역 특이 지표 (panama_therapeutic_stats) ──
+  const prevalence    = num(therStats?.["prevalence_rate_pct"]) ?? num(therStats?.["prevalence_pct"]);
+  const prevalenceSrc = str(therStats?.["prevalence_source"], "PAHO/WHO");
+  const prevalenceYr  = num(therStats?.["prevalence_year"]);
+  const therMarketUsd = num(therStats?.["therapeutic_market_usd"]) ?? num(therStats?.["market_size_usd"]);
+  const therMarketSrc = str(therStats?.["therapeutic_market_source"], "IQVIA");
+  const therMarketYr  = num(therStats?.["therapeutic_market_year"]);
+
+  // ── EML 등재 + 공공조달 이력 (analysis 최상위) ──
+  const emlWho   = analysis?.["emlWho"]   === true;
+  const emlPaho  = analysis?.["emlPaho"]  === true;
+  const emlMinsa = analysis?.["emlMinsa"] === true;
+  const panamacompraCount = num(analysis?.["panamacompraCount"]) ?? 0;
 
   const kvData: { label: string; value: string }[] = [
-    { label: "인구",          value: population },
-    { label: "1인당 GDP",     value: gdpPerCapita },
-    { label: "의약품 시장 규모", value: marketSize },
-    { label: "보건 지출",     value: healthExp },
+    { label: "인구",              value: population },
+    { label: "1인당 GDP",         value: gdpPerCapita },
+    ...(gdpTotal !== null ? [{ label: "국가 GDP", value: gdpTotal }] : []),
+    { label: "의약품 시장 규모",  value: marketSize },
     { label: "의약품 수입 의존도", value: importDep },
+    { label: "보건 지출",         value: healthExp },
     ...(prevalence !== null
-      ? [{ label: `${product.therapeuticArea} 유병률`, value: `성인 인구의 약 ${prevalence}%` }]
+      ? [{ label: `${product.therapeuticArea} 유병률`, value: `${prevalence.toFixed(1)}% (${prevalenceSrc}${prevalenceYr !== null ? `, ${prevalenceYr}` : ""})` }]
       : []),
-    ...(therMarket !== null
-      ? [{ label: `${product.therapeuticArea} 시장 규모`, value: `약 USD ${fmtNum(therMarket, 0)}M (추산)` }]
+    ...(therMarketUsd !== null
+      ? [{ label: `${product.therapeuticArea} 시장 규모`, value: `USD ${(therMarketUsd / 1_000_000).toFixed(1)}M (${therMarketSrc}${therMarketYr !== null ? `, ${therMarketYr}` : ""})` }]
+      : []),
+    { label: "EML 등재 여부",     value: `WHO: ${emlWho ? "등재" : "미등재"}  |  PAHO: ${emlPaho ? "등재" : "미등재"}  |  MINSA: ${emlMinsa ? "등재" : "미등재"}` },
+    ...(panamacompraCount > 0
+      ? [{ label: "공공조달 이력", value: `${panamacompraCount}건 (PanamaCompra 기록 기준)` }]
       : []),
   ];
 

@@ -102,7 +102,14 @@ const S = StyleSheet.create({
   circledRow:  { flexDirection: "row", marginBottom: 3, alignItems: "flex-start" },
   circledNum:  { fontSize: 9, fontWeight: "bold", color: NAVY, width: 14 },
   circledText: { fontSize: 8.5, color: GRAY_TEXT, flex: 1, lineHeight: 1.5 },
-  divider:     { borderBottomWidth: 0.5, borderBottomColor: GRAY_BORDER, marginVertical: 8 },
+  // 기업 간 구분선 — 페이지당 2개 기업 표시 시 시각적 구분 강화
+  divider:     {
+    borderBottomWidth: 1.5,
+    borderBottomColor: NAVY,
+    marginTop: 12,
+    marginBottom: 14,
+    borderBottomStyle: "dashed",
+  },
   sourceNote:  { fontSize: 7, color: "#94a3b8", marginTop: 4 },
 });
 
