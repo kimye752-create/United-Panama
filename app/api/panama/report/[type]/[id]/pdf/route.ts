@@ -11,6 +11,9 @@ import type { ReportType } from "@/src/types/report_session";
 import type { Report } from "@/src/types/report_session";
 
 export const runtime = "nodejs";
+// 결합 보고서 on-demand 재렌더는 4개 보고서 합쳐 PDF 생성 — 기본 10초 부족
+// 다른 보고서 라우트와 동일한 300초로 통일 (Vercel Pro plan 한도)
+export const maxDuration = 300;
 
 function isReportType(t: string): t is ReportType {
   return (
