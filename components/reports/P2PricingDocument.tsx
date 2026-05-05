@@ -49,6 +49,14 @@ function fmtPct(v: number): string {
   return `${(v * 100).toFixed(1)}%`;
 }
 
+// ─── 시나리오 컬러 토큰 (저가/기준/프리미엄) — 가독성·시각적 구분 ────────────
+const C_ORG    = "#C85A00";  // 저가 진입 (강조)
+const C_BLUE   = "#1457A0";  // 기준가 (강조)
+const C_GREEN  = "#1A6B35";  // 프리미엄 (강조)
+const BG_ORG   = "#FFF5EE";  // 저가 진입 배경
+const BG_BLUE  = "#EEF3FB";  // 기준가 배경
+const BG_GREEN = "#EEF7EE";  // 프리미엄 배경
+
 // ─── local styles ─────────────────────────────────────────────────────────────
 
 const S = StyleSheet.create({
@@ -61,6 +69,7 @@ const S = StyleSheet.create({
     fontSize: 9,
     color: GRAY_TEXT,
   },
+  // 페이지 상단 fixed header — 어느 PART인지 항상 표시 (위계 명확화)
   pageHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -70,8 +79,14 @@ const S = StyleSheet.create({
     paddingBottom: 6,
     marginBottom: 14,
   },
+  pageHeaderPart: {
+    fontSize: 8,
+    fontWeight: "bold",
+    color: C_ORG,
+    letterSpacing: 1,
+  },
   pageHeaderTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "bold",
     color: NAVY,
   },
@@ -118,6 +133,25 @@ const S = StyleSheet.create({
   tableRowAlt: {
     backgroundColor: "#f7fafc",
   },
+  // 시나리오별 행 배경 (UnitPriceTable)
+  tableRowOrg: {
+    flexDirection: "row",
+    borderTopWidth: 0.5,
+    borderTopColor: GRAY_BORDER,
+    backgroundColor: BG_ORG,
+  },
+  tableRowBlu: {
+    flexDirection: "row",
+    borderTopWidth: 0.5,
+    borderTopColor: GRAY_BORDER,
+    backgroundColor: BG_BLUE,
+  },
+  tableRowGrn: {
+    flexDirection: "row",
+    borderTopWidth: 0.5,
+    borderTopColor: GRAY_BORDER,
+    backgroundColor: BG_GREEN,
+  },
   th: {
     padding: 5,
     fontSize: 8,
@@ -129,22 +163,29 @@ const S = StyleSheet.create({
     fontSize: 8,
     color: GRAY_TEXT,
   },
-  // scenario card
+  // scenario card — 컬러 + left-border 강조
   scenarioCard: {
     borderWidth: 1,
     borderColor: GRAY_BORDER,
+    borderLeftWidth: 4,           // 좌측 컬러 막대 (시나리오별 색상)
     borderRadius: 3,
     marginBottom: 8,
     overflow: "hidden",
   },
+  scenarioCardOrg: { borderLeftColor: C_ORG },
+  scenarioCardBlu: { borderLeftColor: C_BLUE },
+  scenarioCardGrn: { borderLeftColor: C_GREEN },
   scenarioCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: NAVY,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
+  // 시나리오별 헤더 배경
+  scenarioHeaderOrg: { backgroundColor: C_ORG },
+  scenarioHeaderBlu: { backgroundColor: C_BLUE },
+  scenarioHeaderGrn: { backgroundColor: C_GREEN },
   scenarioCardHeaderText: {
     fontSize: 9,
     fontWeight: "bold",
@@ -209,8 +250,11 @@ const S = StyleSheet.create({
 
 function PageHeader({ product, country, segment }: { product: string; country: string; segment: string }) {
   return (
-    <View style={S.pageHeader}>
-      <Text style={S.pageHeaderTitle}>P2 수출가격전략 보고서</Text>
+    <View style={S.pageHeader} fixed>
+      <View>
+        <Text style={S.pageHeaderPart}>PART 2</Text>
+        <Text style={S.pageHeaderTitle}>파나마 수출가격전략 보고서</Text>
+      </View>
       <Text style={S.pageHeaderSub}>
         {product} · {country.toUpperCase()} · {segment}
       </Text>
@@ -239,9 +283,9 @@ function UnitPriceTable({ marketResult }: { marketResult: Record<string, unknown
   }
 
   const rows = [
-    { key: "agg",  label: "저가진입", desc: "시장 점유율 확보 인하 전략" },
-    { key: "avg",  label: "기준가",   desc: "시장 허용 FOB 균형 전략" },
-    { key: "cons", label: "프리미엄", desc: "기술 프리미엄 반영 전략" },
+    { key: "agg",  label: "저가진입", desc: "시장 점유율 확보 인하 전략", rowStyle: S.tableRowOrg, labelColor: C_ORG },
+    { key: "avg",  label: "기준가",   desc: "시장 허용 FOB 균형 전략",   rowStyle: S.tableRowBlu, labelColor: C_BLUE },
+    { key: "cons", label: "프리미엄", desc: "기술 프리미엄 반영 전략",   rowStyle: S.tableRowGrn, labelColor: C_GREEN },
   ] as const;
 
   return (
@@ -253,14 +297,14 @@ function UnitPriceTable({ marketResult }: { marketResult: Record<string, unknown
         <Text style={[S.th, { width: "22%" }]}>KRW</Text>
         <Text style={[S.th, { flex: 1 }]}>산정방식</Text>
       </View>
-      {rows.map(({ key, label, desc }, i) => {
+      {rows.map(({ key, label, desc, rowStyle, labelColor }) => {
         const sc = rec(scenarios[key]);
         const pab = num(sc?.["price_pab"]);
         const usd = num(sc?.["price_usd"]);
         const mk  = num(sc?.["markdown_rate"]);
         return (
-          <View key={key} style={[S.tableRow, i % 2 === 1 ? S.tableRowAlt : {}]}>
-            <Text style={[S.td, { width: "18%", fontWeight: "bold", color: NAVY }]}>{label}</Text>
+          <View key={key} style={rowStyle}>
+            <Text style={[S.td, { width: "18%", fontWeight: "bold", color: labelColor }]}>{label}</Text>
             <Text style={[S.td, { width: "22%" }]}>{pab !== null ? fmtPab(pab) : "-"}</Text>
             <Text style={[S.td, { width: "20%" }]}>{usd !== null ? fmtUsd(usd) : "-"}</Text>
             <Text style={[S.td, { width: "22%" }]}>{usd !== null ? fmtKrw(usd) : "-"}</Text>
@@ -336,10 +380,11 @@ function ScenarioCards({
   const logic = str(marketResult["logic"]);
   const formula = str(marketResult["formula"]);
 
+  // 시나리오별 컬러 매핑 (저가→주황 / 기준→파랑 / 프리미엄→녹색)
   const scenarioDefs = [
-    { key: "agg",  label: "저가진입",  color: "#16a34a" },
-    { key: "avg",  label: "기준가",    color: NAVY },
-    { key: "cons", label: "프리미엄",  color: "#9333ea" },
+    { key: "agg",  label: "저가진입", cardStyle: S.scenarioCardOrg, headerStyle: S.scenarioHeaderOrg },
+    { key: "avg",  label: "기준가",   cardStyle: S.scenarioCardBlu, headerStyle: S.scenarioHeaderBlu },
+    { key: "cons", label: "프리미엄", cardStyle: S.scenarioCardGrn, headerStyle: S.scenarioHeaderGrn },
   ] as const;
 
   return (
@@ -352,7 +397,7 @@ function ScenarioCards({
         <Text style={[S.summaryText, { marginTop: 2 }]}>{logic}</Text>
       </View>
 
-      {scenarioDefs.map(({ key, label }) => {
+      {scenarioDefs.map(({ key, label, cardStyle, headerStyle }) => {
         const sc = rec(scenarios?.[key]);
         const pab = num(sc?.["price_pab"]);
         const usd = num(sc?.["price_usd"]);
@@ -361,8 +406,8 @@ function ScenarioCards({
         const calc  = str(sc?.["calculation"]);
 
         return (
-          <View key={key} style={S.scenarioCard}>
-            <View style={S.scenarioCardHeader}>
+          <View key={key} style={[S.scenarioCard, cardStyle]}>
+            <View style={[S.scenarioCardHeader, headerStyle]}>
               <Text style={S.scenarioCardHeaderText}>
                 {segment === "public" ? "공공시장" : "민간시장"} — {label}
               </Text>

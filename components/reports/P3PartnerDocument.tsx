@@ -72,6 +72,9 @@ const S = StyleSheet.create({
     paddingBottom: 6,
     marginBottom: 14,
   },
+  // PART 라벨 + 보고서명 (위계 명확화)
+  headerPart:  { fontSize: 8, fontWeight: "bold", color: "#C85A00", letterSpacing: 1 },
+  headerTitle: { fontSize: 12, fontWeight: "bold", color: NAVY },
   headerLabel: { fontSize: 8, color: NAVY, fontWeight: "bold" },
   headerDate:  { fontSize: 7.5, color: "#6b7a8f" },
   pageFooter: {
@@ -118,7 +121,10 @@ const S = StyleSheet.create({
 function DocHeader({ label }: { label: string }) {
   return (
     <View style={S.pageHeader} fixed>
-      <Text style={S.headerLabel}>{label}</Text>
+      <View>
+        <Text style={S.headerPart}>PART 3</Text>
+        <Text style={S.headerTitle}>{label}</Text>
+      </View>
       <Text style={S.headerDate}>한국유나이티드제약(주)</Text>
     </View>
   );

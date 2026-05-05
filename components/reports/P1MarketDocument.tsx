@@ -33,10 +33,35 @@ const S = StyleSheet.create({
     color: BLACK,
     lineHeight: 1.55,
   },
-  // 최상단 제목
+  // 페이지 상단 fixed header — PART 라벨 (위계 명확화)
+  pageHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: NAVY,
+    paddingBottom: 6,
+    marginBottom: 14,
+  },
+  pageHeaderPart: {
+    fontSize: 8,
+    fontWeight: "bold",
+    color: "#C85A00",
+    letterSpacing: 1,
+  },
+  pageHeaderTitle: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: NAVY,
+  },
+  pageHeaderSub: {
+    fontSize: 8,
+    color: GRAY,
+  },
+  // 최상단 제목 — 보고서 첫 페이지의 큰 제목 (대단원 강조)
   docTitle: {
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: 16,
     color: NAVY,
     borderBottomWidth: 2,
     borderBottomColor: NAVY,
@@ -581,6 +606,16 @@ export function P1MarketPages(props: P1MarketDocumentProps) {
   });
   return (
     <Page size="A4" style={S.page}>
+      {/* 페이지 상단 fixed header — PART 1 표시로 위계 명확화 */}
+      <View style={S.pageHeader} fixed>
+        <View>
+          <Text style={S.pageHeaderPart}>PART 1</Text>
+          <Text style={S.pageHeaderTitle}>파나마 시장조사 보고서</Text>
+        </View>
+        <Text style={S.pageHeaderSub}>
+          {props.product.name} · {props.country.toUpperCase()}
+        </Text>
+      </View>
       <P1MarketBody {...props} />
       <View style={S.footer} fixed>
         <Text style={S.footerLeft}>
