@@ -8,6 +8,18 @@ export const GRAY_TEXT = "#595959";
 export const GRAY_LABEL_BG = "#F2F2F2";
 export const GRAY_BORDER = "#D9D9D9";
 
+// ── 보고서 페이지 통일 토큰 (P1/P2/P3 + Combined 공통) ──────────────────────
+// 결합 보고서에서 PART 간 페이지 여백·본문 크기가 튀지 않도록 단일 출처화.
+export const PAGE_PADDING_X = 40;        // 좌우 여백
+export const PAGE_PADDING_TOP = 40;      // fixed header 영역 + 본문 여백
+export const PAGE_PADDING_BOTTOM = 44;   // fixed footer 영역 + 본문 여백
+export const BASE_FONT_SIZE = 9;
+export const BASE_LINE_HEIGHT = 1.5;
+
+// ── PART 라벨 컬러 (외딴섬 방지: 단일 NAVY 톤 유지) ──
+export const PART_ACCENT = NAVY;          // 각 PART 첫 페이지 가로띠 색상
+export const PART_LABEL_COLOR = "#C85A00"; // PART 1/2/3 라벨 (오렌지 강조)
+
 export const pdfStyles = StyleSheet.create({
   page: {
     flexDirection: "column",

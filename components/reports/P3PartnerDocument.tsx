@@ -2,7 +2,19 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 import "@/lib/pdf/pdf-fonts";
-import { NAVY, GRAY_TEXT, GRAY_BORDER, GRAY_LABEL_BG } from "@/lib/pdf/pdf-styles";
+import {
+  NAVY,
+  GRAY_TEXT,
+  GRAY_BORDER,
+  GRAY_LABEL_BG,
+  PAGE_PADDING_X,
+  PAGE_PADDING_TOP,
+  PAGE_PADDING_BOTTOM,
+  BASE_FONT_SIZE,
+  BASE_LINE_HEIGHT,
+  PART_ACCENT,
+  PART_LABEL_COLOR,
+} from "@/lib/pdf/pdf-styles";
 import type { Report } from "@/src/types/report_session";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -57,10 +69,12 @@ const S = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 36,
-    paddingVertical: 32,
+    paddingHorizontal: PAGE_PADDING_X,
+    paddingTop: PAGE_PADDING_TOP,
+    paddingBottom: PAGE_PADDING_BOTTOM,
     fontFamily: "NanumGothic",
-    fontSize: 9,
+    fontSize: BASE_FONT_SIZE,
+    lineHeight: BASE_LINE_HEIGHT,
     color: GRAY_TEXT,
   },
   pageHeader: {
@@ -73,19 +87,50 @@ const S = StyleSheet.create({
     marginBottom: 14,
   },
   // PART 라벨 + 보고서명 (위계 명확화)
-  headerPart:  { fontSize: 8, fontWeight: "bold", color: "#C85A00", letterSpacing: 1 },
+  headerPart:  { fontSize: 8, fontWeight: "bold", color: PART_LABEL_COLOR, letterSpacing: 1 },
   headerTitle: { fontSize: 12, fontWeight: "bold", color: NAVY },
   headerLabel: { fontSize: 8, color: NAVY, fontWeight: "bold" },
+  headerRight: { alignItems: "flex-end" },
+  headerSub:   { fontSize: 8, color: GRAY_TEXT },
+  headerChapter: { fontSize: 7.5, color: GRAY_TEXT, marginTop: 2 },
   headerDate:  { fontSize: 7.5, color: "#6b7a8f" },
+  // PART 첫 페이지 상단 배너
+  partBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: PART_ACCENT,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginBottom: 12,
+  },
+  partBannerLabel: {
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#FFD9B8",
+    letterSpacing: 1.5,
+    marginRight: 10,
+  },
+  partBannerTitle: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
+  },
+  // 통일 Footer (P1/P2와 동일)
   pageFooter: {
     position: "absolute",
-    bottom: 18,
-    left: 36,
-    right: 36,
+    bottom: 20,
+    left: PAGE_PADDING_X,
+    right: PAGE_PADDING_X,
+    height: 18,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 0.5,
+    borderTopColor: GRAY_BORDER,
+    paddingTop: 4,
   },
-  footerText: { fontSize: 7, color: "#94a3b8" },
+  footerText: { fontSize: 7.5, color: GRAY_TEXT },
   docTitle:    { fontSize: 16, fontWeight: "bold", color: NAVY, marginBottom: 3 },
   docSubtitle: { fontSize: 9, color: "#6b7a8f", marginBottom: 6 },
   disclaimer:  { fontSize: 7.5, color: "#6b7a8f", backgroundColor: "#f8fafc", padding: 6, borderRadius: 3, marginBottom: 10 },
@@ -118,23 +163,39 @@ const S = StyleSheet.create({
 
 // ─── sub-components ────────────────────────────────────────────────────────
 
-function DocHeader({ label }: { label: string }) {
+function DocHeader({ label, product, country }: { label: string; product: string; country: string }) {
   return (
     <View style={S.pageHeader} fixed>
       <View>
         <Text style={S.headerPart}>PART 3</Text>
         <Text style={S.headerTitle}>{label}</Text>
       </View>
-      <Text style={S.headerDate}>한국유나이티드제약(주)</Text>
+      <View style={S.headerRight}>
+        <Text style={S.headerSub}>
+          {product} · {country.toUpperCase()}
+        </Text>
+        <Text style={S.headerChapter}>전체 3장 중 3장</Text>
+      </View>
     </View>
   );
 }
 
+/** 통일 Footer (P1/P2와 동일) */
 function DocFooter() {
   return (
     <View style={S.pageFooter} fixed>
-      <Text style={S.footerText}>한국유나이티드제약(주) 해외 영업·마케팅 대시보드</Text>
+      <Text style={S.footerText}>한국유나이티드제약(주) | 파나마 진출 전략 보고서</Text>
       <Text style={S.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+    </View>
+  );
+}
+
+/** PART 3 첫 페이지 상단 배너 */
+function PartBanner() {
+  return (
+    <View style={S.partBanner}>
+      <Text style={S.partBannerLabel}>PART 3</Text>
+      <Text style={S.partBannerTitle}>바이어 분석 보고서</Text>
     </View>
   );
 }
@@ -192,8 +253,11 @@ export function P3PartnerPages({
 
   return (
       <Page size="A4" style={S.page}>
-        <DocHeader label="파나마 바이어 분석 보고서" />
+        <DocHeader label="파나마 바이어 분석 보고서" product={product.name} country={country} />
         <DocFooter />
+
+        {/* PART 3 첫 페이지 배너 (장 전환 명확화) */}
+        <PartBanner />
 
         {/* 제목 */}
         <Text style={S.docTitle}>파나마 바이어 분석 보고서 — {product.name}</Text>

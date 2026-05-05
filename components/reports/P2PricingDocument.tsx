@@ -2,7 +2,19 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 import "@/lib/pdf/pdf-fonts";
-import { NAVY, GRAY_TEXT, GRAY_BORDER, GRAY_LABEL_BG } from "@/lib/pdf/pdf-styles";
+import {
+  NAVY,
+  GRAY_TEXT,
+  GRAY_BORDER,
+  GRAY_LABEL_BG,
+  PAGE_PADDING_X,
+  PAGE_PADDING_TOP,
+  PAGE_PADDING_BOTTOM,
+  BASE_FONT_SIZE,
+  BASE_LINE_HEIGHT,
+  PART_ACCENT,
+  PART_LABEL_COLOR,
+} from "@/lib/pdf/pdf-styles";
 import type { Report } from "@/src/types/report_session";
 
 const KRW_PER_USD = 1473.1;
@@ -63,10 +75,12 @@ const S = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 36,
-    paddingVertical: 32,
+    paddingHorizontal: PAGE_PADDING_X,
+    paddingTop: PAGE_PADDING_TOP,
+    paddingBottom: PAGE_PADDING_BOTTOM,
     fontFamily: "NanumGothic",
-    fontSize: 9,
+    fontSize: BASE_FONT_SIZE,
+    lineHeight: BASE_LINE_HEIGHT,
     color: GRAY_TEXT,
   },
   // 페이지 상단 fixed header — 어느 PART인지 항상 표시 (위계 명확화)
@@ -82,7 +96,7 @@ const S = StyleSheet.create({
   pageHeaderPart: {
     fontSize: 8,
     fontWeight: "bold",
-    color: C_ORG,
+    color: PART_LABEL_COLOR,
     letterSpacing: 1,
   },
   pageHeaderTitle: {
@@ -90,9 +104,39 @@ const S = StyleSheet.create({
     fontWeight: "bold",
     color: NAVY,
   },
+  pageHeaderRight: {
+    alignItems: "flex-end",
+  },
   pageHeaderSub: {
     fontSize: 8,
     color: GRAY_TEXT,
+  },
+  pageHeaderChapter: {
+    fontSize: 7.5,
+    color: GRAY_TEXT,
+    marginTop: 2,
+  },
+  // PART 첫 페이지 상단 배너
+  partBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: PART_ACCENT,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginBottom: 12,
+  },
+  partBannerLabel: {
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#FFD9B8",
+    letterSpacing: 1.5,
+    marginRight: 10,
+  },
+  partBannerTitle: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
   },
   sectionTitle: {
     fontSize: 11,
@@ -221,16 +265,22 @@ const S = StyleSheet.create({
     lineHeight: 1.5,
     color: "#92400e",
   },
+  // 통일 Footer (P1/P3와 동일 위치·문구)
   footer: {
-    marginTop: "auto",
-    paddingTop: 6,
-    borderTopWidth: 0.5,
-    borderTopColor: GRAY_BORDER,
+    position: "absolute",
+    bottom: 20,
+    left: PAGE_PADDING_X,
+    right: PAGE_PADDING_X,
+    height: 18,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 0.5,
+    borderTopColor: GRAY_BORDER,
+    paddingTop: 4,
   },
   footerText: {
-    fontSize: 7,
+    fontSize: 7.5,
     color: GRAY_TEXT,
   },
   summaryBox: {
@@ -255,18 +305,35 @@ function PageHeader({ product, country, segment }: { product: string; country: s
         <Text style={S.pageHeaderPart}>PART 2</Text>
         <Text style={S.pageHeaderTitle}>파나마 수출가격전략 보고서</Text>
       </View>
-      <Text style={S.pageHeaderSub}>
-        {product} · {country.toUpperCase()} · {segment}
-      </Text>
+      <View style={S.pageHeaderRight}>
+        <Text style={S.pageHeaderSub}>
+          {product} · {country.toUpperCase()} · {segment}
+        </Text>
+        <Text style={S.pageHeaderChapter}>전체 3장 중 2장</Text>
+      </View>
     </View>
   );
 }
 
-function PageFooter({ page, total }: { page: number; total: number }) {
+/** 통일 Footer — fixed + 자동 페이지번호 (개별/결합 동일 동작) */
+function PageFooter() {
   return (
-    <View style={S.footer}>
-      <Text style={S.footerText}>한국유나이티드제약(주) · UPharma Export AI</Text>
-      <Text style={S.footerText}>P2 수출가격전략 {page}/{total}</Text>
+    <View style={S.footer} fixed>
+      <Text style={S.footerText}>한국유나이티드제약(주) | 파나마 진출 전략 보고서</Text>
+      <Text
+        style={S.footerText}
+        render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+      />
+    </View>
+  );
+}
+
+/** PART 2 첫 페이지 상단 배너 */
+function PartBanner() {
+  return (
+    <View style={S.partBanner}>
+      <Text style={S.partBannerLabel}>PART 2</Text>
+      <Text style={S.partBannerTitle}>수출가격전략 보고서</Text>
     </View>
   );
 }
@@ -483,6 +550,9 @@ export function P2PricingPages({
       <Page size="A4" style={S.page}>
         <PageHeader product={product.name} country={country} segment="공공+민간" />
 
+        {/* PART 2 첫 페이지 배너 (장 전환 명확화) */}
+        <PartBanner />
+
         {/* 1. 거시 시장 요약 */}
         <Text style={S.sectionTitle}>1. 거시 시장 요약</Text>
         <View style={S.summaryBox}>
@@ -508,7 +578,7 @@ export function P2PricingPages({
         <Text style={S.sectionTitle}>3. 거래처 참고 가격 테이블</Text>
         <CompetitorPriceTable competitorPrices={pubCompetitor ?? privCompetitor} />
 
-        <PageFooter page={1} total={3} />
+        <PageFooter />
       </Page>
 
       {/* ── Page 2 : 공공시장 가격 시나리오 ── */}
@@ -544,7 +614,7 @@ export function P2PricingPages({
           </View>
         )}
 
-        <PageFooter page={2} total={3} />
+        <PageFooter />
       </Page>
 
       {/* ── Page 3 : 민간시장 가격 시나리오 + 면책 ── */}
@@ -598,7 +668,7 @@ export function P2PricingPages({
           </Text>
         </View>
 
-        <PageFooter page={3} total={3} />
+        <PageFooter />
       </Page>
     </>
   );

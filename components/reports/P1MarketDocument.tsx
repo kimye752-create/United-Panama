@@ -13,6 +13,15 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 import "@/lib/pdf/pdf-fonts";
+import {
+  PAGE_PADDING_X,
+  PAGE_PADDING_TOP,
+  PAGE_PADDING_BOTTOM,
+  BASE_FONT_SIZE,
+  BASE_LINE_HEIGHT,
+  PART_ACCENT,
+  PART_LABEL_COLOR,
+} from "@/lib/pdf/pdf-styles";
 import type { Report } from "@/src/types/report_session";
 
 // ─── 색상 (docx 기준) ───────────────────────────────────────────────────────
@@ -25,13 +34,13 @@ const BORDER = "#CCCCCC";
 const S = StyleSheet.create({
   page: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 45,
-    paddingBottom: 50,
-    paddingHorizontal: 45,
+    paddingTop: PAGE_PADDING_TOP,
+    paddingBottom: PAGE_PADDING_BOTTOM,
+    paddingHorizontal: PAGE_PADDING_X,
     fontFamily: "NanumGothic",
-    fontSize: 9.5,
+    fontSize: BASE_FONT_SIZE,
     color: BLACK,
-    lineHeight: 1.55,
+    lineHeight: BASE_LINE_HEIGHT,
   },
   // 페이지 상단 fixed header — PART 라벨 (위계 명확화)
   pageHeader: {
@@ -46,7 +55,7 @@ const S = StyleSheet.create({
   pageHeaderPart: {
     fontSize: 8,
     fontWeight: "bold",
-    color: "#C85A00",
+    color: PART_LABEL_COLOR,
     letterSpacing: 1,
   },
   pageHeaderTitle: {
@@ -54,9 +63,39 @@ const S = StyleSheet.create({
     fontWeight: "bold",
     color: NAVY,
   },
+  pageHeaderRight: {
+    alignItems: "flex-end",
+  },
   pageHeaderSub: {
     fontSize: 8,
     color: GRAY,
+  },
+  pageHeaderChapter: {
+    fontSize: 7.5,
+    color: GRAY,
+    marginTop: 2,
+  },
+  // PART 첫 페이지 상단 배너 (장 전환 명확화)
+  partBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: PART_ACCENT,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginBottom: 12,
+  },
+  partBannerLabel: {
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#FFD9B8",
+    letterSpacing: 1.5,
+    marginRight: 10,
+  },
+  partBannerTitle: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
   },
   // 최상단 제목 — 보고서 첫 페이지의 큰 제목 (대단원 강조)
   docTitle: {
@@ -163,12 +202,12 @@ const S = StyleSheet.create({
     marginBottom: 3,
     paddingLeft: 16,
   },
-  // 페이지 하단 푸터
+  // 페이지 하단 푸터 (3개 보고서 통일)
   footer: {
     position: "absolute",
     bottom: 20,
-    left: 45,
-    right: 45,
+    left: PAGE_PADDING_X,
+    right: PAGE_PADDING_X,
     height: 18,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -601,27 +640,39 @@ export function P1MarketBody({
  * P1MarketDocument 와 동일한 styles + sections + footer 사용 → 100% 동일 품질 보장.
  */
 export function P1MarketPages(props: P1MarketDocumentProps) {
-  const dateStr = props.generatedAt.toLocaleDateString("ko-KR", {
-    year: "numeric", month: "long", day: "numeric",
-  });
   return (
     <Page size="A4" style={S.page}>
-      {/* 페이지 상단 fixed header — PART 1 표시로 위계 명확화 */}
+      {/* 페이지 상단 fixed header — 모든 페이지 위계 표시 */}
       <View style={S.pageHeader} fixed>
         <View>
           <Text style={S.pageHeaderPart}>PART 1</Text>
           <Text style={S.pageHeaderTitle}>파나마 시장조사 보고서</Text>
         </View>
-        <Text style={S.pageHeaderSub}>
-          {props.product.name} · {props.country.toUpperCase()}
-        </Text>
+        <View style={S.pageHeaderRight}>
+          <Text style={S.pageHeaderSub}>
+            {props.product.name} · {props.country.toUpperCase()}
+          </Text>
+          <Text style={S.pageHeaderChapter}>전체 3장 중 1장</Text>
+        </View>
       </View>
+
+      {/* 첫 페이지에만 보이는 PART 1 배너 (auto-flow → 1페이지 상단에만 출력) */}
+      <View style={S.partBanner}>
+        <Text style={S.partBannerLabel}>PART 1</Text>
+        <Text style={S.partBannerTitle}>시장조사 보고서</Text>
+      </View>
+
       <P1MarketBody {...props} />
+
+      {/* 통일 Footer — 자동 페이지 번호 (결합 보고서 시 통합 번호) */}
       <View style={S.footer} fixed>
         <Text style={S.footerLeft}>
-          한국유나이티드제약(주) 해외 영업·마케팅 — {props.country} 시장조사 보고서
+          한국유나이티드제약(주) | 파나마 진출 전략 보고서
         </Text>
-        <Text style={S.footerRight}>{dateStr}</Text>
+        <Text
+          style={S.footerRight}
+          render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+        />
       </View>
     </Page>
   );
