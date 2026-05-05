@@ -1496,7 +1496,7 @@ function CoverPage({
 
       {/* 하단 구성 안내 (가운데) — 팀장 양식 */}
       <Text style={{ fontSize: 10, color: C_GRAY, textAlign: "center" }}>
-        수출가격 전략 - 바이어 후보 리스트 - 시장분석
+        시장조사 - 수출가격 전략 - 바이어 발굴
       </Text>
     </Page>
   );
@@ -1523,6 +1523,16 @@ export function CombinedReportDocument(props: CombinedReportDocumentProps) {
       {/* 표지 */}
       <CoverPage product={product} country={country} generatedAt={generatedAt} />
 
+      {/* 자연스러운 분석 흐름: 시장 이해 → 가격 전략 수립 → 파트너 발굴 */}
+
+      {/* Report 1: 시장조사 (P1MarketDocument와 100% 동일) — 표지 바로 다음 */}
+      <P1MarketPages
+        product={product}
+        country={country}
+        generatedAt={generatedAt}
+        marketReport={marketReport}
+      />
+
       {/* Report 2: 수출가격전략 (P2PricingDocument와 100% 동일) */}
       <P2PricingPages
         product={product}
@@ -1538,14 +1548,6 @@ export function CombinedReportDocument(props: CombinedReportDocumentProps) {
         country={country}
         generatedAt={generatedAt}
         partnerReport={partnerReport}
-      />
-
-      {/* Report 1: 시장보고서 (P1MarketDocument와 100% 동일) */}
-      <P1MarketPages
-        product={product}
-        country={country}
-        generatedAt={generatedAt}
-        marketReport={marketReport}
       />
     </Document>
   );
