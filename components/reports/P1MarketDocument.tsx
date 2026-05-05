@@ -210,7 +210,7 @@ function fmtNum(n: number | null, decimals = 2): string {
 }
 
 // ─── 섹션 1: 의료 거시환경 파악 ──────────────────────────────────────────────
-function Section1({
+export function P1MarketSection1({
   macroStats,
   therStats,
   analysis,
@@ -269,7 +269,7 @@ function Section1({
 }
 
 // ─── 섹션 2: 무역/규제 환경 ──────────────────────────────────────────────────
-function Section2({ analysis }: { analysis: Record<string, unknown> | null }) {
+export function P1MarketSection2({ analysis }: { analysis: Record<string, unknown> | null }) {
   const raw = str(rec(analysis?.["marketAnalysis"])?.["block2_regulatory_path"]);
   if (raw === "-") return null;
   const subs = parseSubsections(raw);
@@ -291,7 +291,7 @@ function Section2({ analysis }: { analysis: Record<string, unknown> | null }) {
 }
 
 // ─── 섹션 3: 참고 가격 ───────────────────────────────────────────────────────
-function Section3({
+export function P1MarketSection3({
   competitorPrices,
   competitorProducts,
   analysis,
@@ -359,7 +359,7 @@ function Section3({
 }
 
 // ─── 섹션 4: 리스크 / 조건 ───────────────────────────────────────────────────
-function Section4({ analysis }: { analysis: Record<string, unknown> | null }) {
+export function P1MarketSection4({ analysis }: { analysis: Record<string, unknown> | null }) {
   const rawRisk = str(rec(analysis?.["marketAnalysis"])?.["block4_risk_factors"]);
   const rawRec  = str(rec(analysis?.["marketAnalysis"])?.["block5_action_recommendation"]);
   const subs    = parseSubsections(rawRisk);
@@ -387,7 +387,7 @@ function Section4({ analysis }: { analysis: Record<string, unknown> | null }) {
 }
 
 // ─── 섹션 5: 근거 및 출처 ────────────────────────────────────────────────────
-function Section5({
+export function P1MarketSection5({
   citations,
   competitorProducts,
 }: {
@@ -458,7 +458,11 @@ export interface P1MarketDocumentProps {
   marketReport: Report;
 }
 
-export function P1MarketDocument({
+/**
+ * P1MarketBody — 결합 보고서에서 재사용 가능한 시장조사 본문 (Document/Page wrapper 없음).
+ * 동일한 styles/sections 사용으로 개별/결합 100% 동일 품질 보장.
+ */
+export function P1MarketBody({
   product,
   country,
   generatedAt,
@@ -471,14 +475,12 @@ export function P1MarketDocument({
   const competitorProducts = arr(data["competitorProducts"]);
   const citations          = arr(data["paperCitations"]);
 
-  // 분석 데이터 (report_data 자체가 analysis 포함)
   const analysis = data;
 
   const dateStr = generatedAt.toLocaleDateString("ko-KR", {
     year: "numeric", month: "long", day: "numeric",
   });
 
-  // HS 코드: therapeuticStats 또는 고정값
   const hsCode = str(therStats?.["hs_code"]) !== "-"
     ? str(therStats?.["hs_code"])
     : "3004.90";
@@ -491,51 +493,59 @@ export function P1MarketDocument({
     : "Respiratory";
 
   return (
+    <>
+      <Text style={S.docTitle}>
+        {country} 시장보고서 — {product.name}
+      </Text>
+      <Text style={S.docSubtitle}>
+        {product.name} ({product.ingredient})  |  HS CODE: {hsCode}  |  {country}  |  {dateStr}
+      </Text>
+      <P1MarketSection1
+        macroStats={macroStats}
+        therStats={therStats}
+        analysis={analysis}
+        product={{ therapeuticArea }}
+      />
+      <P1MarketSection2 analysis={analysis} />
+      <P1MarketSection3
+        competitorPrices={competitorPrices}
+        competitorProducts={competitorProducts}
+        analysis={analysis}
+      />
+      <P1MarketSection4 analysis={analysis} />
+      <P1MarketSection5
+        citations={citations}
+        competitorProducts={competitorProducts}
+      />
+    </>
+  );
+}
+
+/**
+ * P1MarketPages — 결합 보고서에서 사용 가능한 시장조사 Page (Document wrapper 없음).
+ * P1MarketDocument 와 동일한 styles + sections + footer 사용 → 100% 동일 품질 보장.
+ */
+export function P1MarketPages(props: P1MarketDocumentProps) {
+  const dateStr = props.generatedAt.toLocaleDateString("ko-KR", {
+    year: "numeric", month: "long", day: "numeric",
+  });
+  return (
+    <Page size="A4" style={S.page}>
+      <P1MarketBody {...props} />
+      <View style={S.footer} fixed>
+        <Text style={S.footerLeft}>
+          한국유나이티드제약(주) 해외 영업·마케팅 — {props.country} 시장조사 보고서
+        </Text>
+        <Text style={S.footerRight}>{dateStr}</Text>
+      </View>
+    </Page>
+  );
+}
+
+export function P1MarketDocument(props: P1MarketDocumentProps) {
+  return (
     <Document>
-      <Page size="A4" style={S.page}>
-        {/* ── 제목 헤더 ── */}
-        <Text style={S.docTitle}>
-          {country} 시장보고서 — {product.name}
-        </Text>
-        <Text style={S.docSubtitle}>
-          {product.name} ({product.ingredient})  |  HS CODE: {hsCode}  |  {country}  |  {dateStr}
-        </Text>
-
-        {/* ── 섹션 1 ── */}
-        <Section1
-          macroStats={macroStats}
-          therStats={therStats}
-          analysis={analysis}
-          product={{ therapeuticArea }}
-        />
-
-        {/* ── 섹션 2 ── */}
-        <Section2 analysis={analysis} />
-
-        {/* ── 섹션 3 ── */}
-        <Section3
-          competitorPrices={competitorPrices}
-          competitorProducts={competitorProducts}
-          analysis={analysis}
-        />
-
-        {/* ── 섹션 4 ── */}
-        <Section4 analysis={analysis} />
-
-        {/* ── 섹션 5 ── */}
-        <Section5
-          citations={citations}
-          competitorProducts={competitorProducts}
-        />
-
-        {/* ── 푸터 ── */}
-        <View style={S.footer} fixed>
-          <Text style={S.footerLeft}>
-            한국유나이티드제약(주) 해외 영업·마케팅 — {country} 시장조사 보고서
-          </Text>
-          <Text style={S.footerRight}>{dateStr}</Text>
-        </View>
-      </Page>
+      <P1MarketPages {...props} />
     </Document>
   );
 }

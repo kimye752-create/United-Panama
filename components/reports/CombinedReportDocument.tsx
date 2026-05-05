@@ -1503,6 +1503,13 @@ function CoverPage({
 }
 
 // ─── Main Document ────────────────────────────────────────────────────────────
+// 2026-05-05 리팩터: 개별 P1/P2/P3 Page 컴포넌트를 직접 import하여 100% 동일 품질 보장.
+// 결합 자체 섹션 함수(MarketReportSection/PricingReportSection/PartnerReportSection)는
+// 보존되나 사용 안 함 (rollback 대비). 향후 정리 예정.
+
+import { P1MarketPages } from "./P1MarketDocument";
+import { P2PricingPages } from "./P2PricingDocument";
+import { P3PartnerPages } from "./P3PartnerDocument";
 
 export function CombinedReportDocument(props: CombinedReportDocumentProps) {
   const { product, country, generatedAt, marketReport, publicPricingReport, privatePricingReport, partnerReport } = props;
@@ -1516,28 +1523,29 @@ export function CombinedReportDocument(props: CombinedReportDocumentProps) {
       {/* 표지 */}
       <CoverPage product={product} country={country} generatedAt={generatedAt} />
 
-      {/* Report 2: 수출가격전략 (먼저) */}
-      <PricingReportSection
+      {/* Report 2: 수출가격전략 (P2PricingDocument와 100% 동일) */}
+      <P2PricingPages
         product={product}
+        country={country}
         generatedAt={generatedAt}
-        marketReport={marketReport}
         publicPricingReport={publicPricingReport}
         privatePricingReport={privatePricingReport}
       />
 
-      {/* Report 3: 바이어 리스트 */}
-      <PartnerReportSection
+      {/* Report 3: 바이어 리스트 (P3PartnerDocument와 100% 동일) */}
+      <P3PartnerPages
         product={product}
+        country={country}
         generatedAt={generatedAt}
         partnerReport={partnerReport}
       />
 
-      {/* Report 1: 시장보고서 (마지막) */}
-      <MarketReportSection
+      {/* Report 1: 시장보고서 (P1MarketDocument와 100% 동일) */}
+      <P1MarketPages
         product={product}
+        country={country}
         generatedAt={generatedAt}
         marketReport={marketReport}
-        publicPricingReport={publicPricingReport}
       />
     </Document>
   );

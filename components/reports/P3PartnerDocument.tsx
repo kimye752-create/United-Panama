@@ -157,7 +157,11 @@ export interface P3PartnerDocumentProps {
 
 // ─── Document ────────────────────────────────────────────────────────────────
 
-export function P3PartnerDocument({
+/**
+ * P3PartnerPages — 결합 보고서에서 재사용 가능한 파트너 발굴 Page (auto-paginate).
+ * P3PartnerDocument 와 동일한 styles + sections + footer 사용 → 100% 동일 품질 보장.
+ */
+export function P3PartnerPages({
   product,
   country,
   generatedAt,
@@ -174,7 +178,6 @@ export function P3PartnerDocument({
   const countryName = country === "panama" ? "파나마" : country.toUpperCase();
 
   return (
-    <Document>
       <Page size="A4" style={S.page}>
         <DocHeader label="파나마 바이어 분석 보고서" />
         <DocFooter />
@@ -312,6 +315,13 @@ export function P3PartnerDocument({
           );
         })}
       </Page>
+  );
+}
+
+export function P3PartnerDocument(props: P3PartnerDocumentProps) {
+  return (
+    <Document>
+      <P3PartnerPages {...props} />
     </Document>
   );
 }

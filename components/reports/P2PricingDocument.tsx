@@ -405,7 +405,11 @@ export interface P2PricingDocumentProps {
   privatePricingReport: Report;
 }
 
-export function P2PricingDocument({
+/**
+ * P2PricingPages — 결합 보고서에서 재사용 가능한 가격전략 3개 Page.
+ * P2PricingDocument 와 동일한 styles + sections + footer 사용.
+ */
+export function P2PricingPages({
   product,
   country,
   generatedAt,
@@ -429,7 +433,7 @@ export function P2PricingDocument({
   });
 
   return (
-    <Document title={`P2 수출가격전략 — ${product.name}`} language="ko">
+    <>
       {/* ── Page 1 : 거시 시장 요약 + 단가 테이블 ── */}
       <Page size="A4" style={S.page}>
         <PageHeader product={product.name} country={country} segment="공공+민간" />
@@ -551,6 +555,14 @@ export function P2PricingDocument({
 
         <PageFooter page={3} total={3} />
       </Page>
+    </>
+  );
+}
+
+export function P2PricingDocument(props: P2PricingDocumentProps) {
+  return (
+    <Document title={`P2 수출가격전략 — ${props.product.name}`} language="ko">
+      <P2PricingPages {...props} />
     </Document>
   );
 }
